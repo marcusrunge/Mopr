@@ -1,0 +1,18 @@
+﻿<Window x:Class="MarcusRunge.Mopr.Workbench.Views.MainWindow"        
+        xmlns:core="clr-namespace:MarcusRunge.Mopr.Workbench.Core;assembly=MarcusRunge.Mopr.Workbench.Core" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.ViewModels"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        Height="350"
+        mc:Ignorable="d"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}"
+        Width="525" >
+    <Grid>
+        <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.ContentRegion}" />
+    </Grid>
+</Window>

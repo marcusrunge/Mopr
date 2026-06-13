@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Modules/">
+    <Project Path="MarcusRunge.Mopr.Workbench/Modules/MarcusRunge.Mopr.Workbench.Modules.ModuleName/MarcusRunge.Mopr.Workbench.Modules.ModuleName.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="MarcusRunge.Mopr.Workbench/Services/MarcusRunge.Mopr.Workbench.Services.Interfaces/MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Services/MarcusRunge.Mopr.Workbench.Services/MarcusRunge.Mopr.Workbench.Services.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/MarcusRunge.Mopr.Workbench.Modules.ModuleName.Tests/MarcusRunge.Mopr.Workbench.Modules.ModuleName.Tests.csproj" />
+  </Folder>
+  <Project Path="MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench.Core/MarcusRunge.Mopr.Workbench.Core.csproj" />
+  <Project Path="MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench.csproj" />
+</Solution>
