@@ -1,7 +1,7 @@
 ﻿using Moq;
 using Prism.Navigation.Regions;
 
-namespace MarcusRunge.Mopr.Workbench.Modules.ModuleName.Tests.ViewModels
+namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests.ViewModels
 {
     public class ImagingWorkbenchViewModelFixture
     {

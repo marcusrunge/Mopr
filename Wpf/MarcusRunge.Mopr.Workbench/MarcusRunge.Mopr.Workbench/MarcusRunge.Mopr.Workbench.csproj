@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
-    <ProjectReference Include="..\Modules\MarcusRunge.Mopr.Workbench.Modules.ModuleName\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
+    <ProjectReference Include="..\Modules\MarcusRunge.Mopr.Workbench.Modules.Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
     <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services.Interfaces\MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
     <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services\MarcusRunge.Mopr.Workbench.Services.csproj" />
   </ItemGroup>

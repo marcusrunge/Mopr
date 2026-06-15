@@ -5,8 +5,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
-  </ItemGroup>
-
 </Project>

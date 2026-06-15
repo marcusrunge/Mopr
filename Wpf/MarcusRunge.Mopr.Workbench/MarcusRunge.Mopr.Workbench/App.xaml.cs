@@ -12,7 +12,7 @@ namespace MarcusRunge.Mopr.Workbench
     {
         protected override Window CreateShell() => Container.Resolve<MainWindow>();
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry) => containerRegistry.RegisterSingleton<IMessageService, MessageService>();
+        protected override void RegisterTypes(IContainerRegistry containerRegistry) => containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();
     }

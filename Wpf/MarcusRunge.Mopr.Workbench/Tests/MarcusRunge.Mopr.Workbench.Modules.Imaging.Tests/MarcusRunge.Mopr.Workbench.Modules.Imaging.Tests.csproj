@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\MarcusRunge.Mopr.Workbench.Modules.ModuleName\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
+    <ProjectReference Include="..\..\Modules\MarcusRunge.Mopr.Workbench.Modules.Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
   </ItemGroup>
 
 </Project>
