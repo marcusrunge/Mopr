@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Modules.ModuleName;
+﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Services;
 using MarcusRunge.Mopr.Workbench.Services.Interfaces;
 using MarcusRunge.Mopr.Workbench.Views;
@@ -14,6 +14,6 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry) => containerRegistry.RegisterSingleton<IMessageService, MessageService>();
 
-        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ModuleNameModule>();
+        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();
     }
 }

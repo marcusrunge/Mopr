@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.SeriesPanelView"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/" 
+             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ImageViewerViewModel}"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <Grid Background="Transparent">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Suche / Filter -->
+        <Border Grid.Row="0"
+                Margin="12,8,12,8">
+
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Height="34"
+                     VerticalContentAlignment="Center"
+                     Padding="10,0"
+                     ToolTip="Serien filtern"/>
+        </Border>
+
+        <!-- Serienliste -->
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding Series}"
+                 SelectedItem="{Binding SelectedSeries}"
+                 BorderThickness="0"
+                 Background="Transparent"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="8,4"
+                            Padding="10"
+                            CornerRadius="8"
+                            BorderBrush="#27313A"
+                            BorderThickness="1"
+                            Background="#141B22">
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="54"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Thumbnail-Platzhalter -->
+                            <Border Grid.Column="0"
+                                    Width="44"
+                                    Height="44"
+                                    CornerRadius="6"
+                                    Background="#05080A"
+                                    BorderBrush="#35414C"
+                                    BorderThickness="1">
+
+                                <TextBlock Text="{Binding Modality}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#B8C4CF"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Serieninformationen -->
+                            <StackPanel Grid.Column="1"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="{Binding Name}"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           Foreground="#E1E8EF"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Text="{Binding Description}"
+                                           FontSize="12"
+                                           Foreground="#94A1AD"
+                                           Margin="0,3,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Text="{Binding ImageCountDisplayText}"
+                                           FontSize="12"
+                                           Foreground="#6F7B86"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

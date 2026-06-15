@@ -1,0 +1,185 @@
+﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImagingWorkbenchView"
+             xmlns:core="clr-namespace:MarcusRunge.Mopr.Workbench.Core;assembly=MarcusRunge.Mopr.Workbench.Core"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             d:DataContext="{d:DesignInstance Type=viewModels:ImagingWorkbenchViewModel}"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <Grid Background="#080B0E">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="#12171C"
+                BorderBrush="#28313A"
+                BorderThickness="0,0,0,1">
+
+            <Grid Margin="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="MOPR"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Column="2"
+                           Text="{Binding CurrentStudyDisplayText}"
+                           FontSize="18"
+                           VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Column="4"
+                           Text="{Binding CurrentSeriesDisplayText}"
+                           FontSize="18"
+                           VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="6"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button Content="Suche"
+                            Margin="0,0,8,0"/>
+                    <Button Content="☰"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Commandbar -->
+        <Border Grid.Row="1"
+                Background="#1A2026"
+                BorderBrush="#29313A"
+                BorderThickness="0,0,0,1">
+
+            <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.ImagingCommandBarRegion}" />
+        </Border>
+
+        <!-- Workspace -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding SeriesPaneWidth}" />
+                <ColumnDefinition Width="{Binding LeftSplitterWidth}" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="{Binding RightSplitterWidth}" />
+                <ColumnDefinition Width="{Binding PropertiesPaneWidth}" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Serien -->
+            <Border Grid.Column="0"
+                    Background="#11171D"
+                    BorderBrush="#28313A"
+                    BorderThickness="0,0,1,0"
+                    Visibility="{Binding IsSeriesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top"
+                          Height="52"
+                          Margin="12,0">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Serien"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="1"
+                                Width="32"
+                                Height="32"
+                                Content="‹"
+                                Command="{Binding ToggleSeriesPaneCommand}"/>
+                    </Grid>
+
+                    <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SeriesRegion}" />
+                </DockPanel>
+            </Border>
+
+            <GridSplitter Grid.Column="1"
+                          Width="4"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="#20272E"
+                          Visibility="{Binding IsSeriesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <!-- Viewer -->
+            <Grid Grid.Column="2"
+                  Background="#030506">
+
+                <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.ViewerRegion}" />
+
+                <Button Content="Serien"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Margin="8"
+                        Command="{Binding ToggleSeriesPaneCommand}"
+                        Visibility="{Binding IsSeriesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <Button Content="Eigenschaften"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="8"
+                        Command="{Binding TogglePropertiesPaneCommand}"
+                        Visibility="{Binding IsPropertiesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </Grid>
+
+            <GridSplitter Grid.Column="3"
+                          Width="4"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="#20272E"
+                          Visibility="{Binding IsPropertiesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <!-- Eigenschaften -->
+            <Border Grid.Column="4"
+                    Background="#11171D"
+                    BorderBrush="#28313A"
+                    BorderThickness="1,0,0,0"
+                    Visibility="{Binding IsPropertiesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top"
+                          Height="52"
+                          Margin="12,0">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Width="32"
+                                Height="32"
+                                Content="›"
+                                Margin="0,0,8,0"
+                                Command="{Binding TogglePropertiesPaneCommand}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="Eigenschaften"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.PropertiesRegion}" />
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

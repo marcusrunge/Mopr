@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Modules/">
-    <Project Path="MarcusRunge.Mopr.Workbench/Modules/MarcusRunge.Mopr.Workbench.Modules.ModuleName/MarcusRunge.Mopr.Workbench.Modules.ModuleName.csproj" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Modules/MarcusRunge.Mopr.Workbench.Modules.ModuleName/MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
   </Folder>
   <Folder Name="/Services/">
     <Project Path="MarcusRunge.Mopr.Workbench/Services/MarcusRunge.Mopr.Workbench.Services.Interfaces/MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
