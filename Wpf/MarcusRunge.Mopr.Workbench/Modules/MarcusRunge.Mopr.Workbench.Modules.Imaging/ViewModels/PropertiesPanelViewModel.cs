@@ -1,18 +1,42 @@
-﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
+    public sealed class AnnotationItemViewModel(string displayText) : BindableBase
+    {
+        public string DisplayText { get; } = displayText;
+    }
+
+    public sealed class MeasurementItemViewModel(string name, string value) : BindableBase
+    {
+        public string Name { get; } = name;
+
+        public string Value { get; } = value;
+    }
 
     public sealed class PropertiesPanelViewModel : ViewModelBase
     {
-        private double _windowValue = 400;
-        private double _levelValue = 40;
+        private readonly IImagingSelectionService _selectionService;
+        private readonly IImagingViewportService _viewportService;
 
-        public PropertiesPanelViewModel()
+        private bool _isApplyingViewportState;
+        private double _levelValue = 40;
+        private SeriesInfo? _selectedSeries;
+        private double _windowValue = 400;
+
+        public PropertiesPanelViewModel(IImagingSelectionService selectionService, IImagingViewportService viewportService)
         {
+            _selectionService = selectionService;
+            _viewportService = viewportService;
+
+            _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
+            _viewportService.StateChanged += OnViewportStateChanged;
+
             ResetWindowLevelCommand = new DelegateCommand(ResetWindowLevel);
 
             AddDistanceMeasurementCommand = new DelegateCommand(AddDistanceMeasurement);
@@ -35,26 +59,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 new AnnotationItemViewModel("Text: Kontrolle empfohlen")
             ];
 
-            DicomTags =
-            [
-                new DicomTagItemViewModel("(0008,0060)", "Modality", "MR"),
-                new DicomTagItemViewModel("(0020,0011)", "Series Number", "3"),
-                new DicomTagItemViewModel("(0020,0013)", "Instance Number", "1"),
-                new DicomTagItemViewModel("(0018,0050)", "Slice Thickness", "1.0")
-            ];
+            DicomTags = [];
+
+            ApplySelectedSeries(_selectionService.SelectedSeries);
+            ApplyViewportState(_viewportService.State);
         }
 
-        public double WindowValue
-        {
-            get => _windowValue;
-            set
-            {
-                if (SetProperty(ref _windowValue, value))
-                {
-                    RaisePropertyChanged(nameof(WindowDisplayText));
-                }
-            }
-        }
+        public DelegateCommand AddAngleMeasurementCommand { get; }
+
+        public DelegateCommand AddArrowAnnotationCommand { get; }
+
+        public DelegateCommand AddDistanceMeasurementCommand { get; }
+
+        public DelegateCommand AddMarkerAnnotationCommand { get; }
+
+        public DelegateCommand AddRoiMeasurementCommand { get; }
+
+        public DelegateCommand AddTextAnnotationCommand { get; }
+
+        public ObservableCollection<AnnotationItemViewModel> Annotations { get; }
+
+        public ObservableCollection<DicomTagInfo> DicomTags { get; }
+
+        public string LevelDisplayText => LevelValue.ToString("0");
 
         public double LevelValue
         {
@@ -64,95 +91,111 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _levelValue, value))
                 {
                     RaisePropertyChanged(nameof(LevelDisplayText));
+                    UpdateViewportWindowLevel();
                 }
             }
         }
 
-        public string WindowDisplayText => WindowValue.ToString("0");
-
-        public string LevelDisplayText => LevelValue.ToString("0");
-
         public ObservableCollection<MeasurementItemViewModel> Measurements { get; }
-
-        public ObservableCollection<AnnotationItemViewModel> Annotations { get; }
-
-        public ObservableCollection<DicomTagItemViewModel> DicomTags { get; }
 
         public DelegateCommand ResetWindowLevelCommand { get; }
 
-        public DelegateCommand AddDistanceMeasurementCommand { get; }
-
-        public DelegateCommand AddAngleMeasurementCommand { get; }
-
-        public DelegateCommand AddRoiMeasurementCommand { get; }
-
-        public DelegateCommand AddTextAnnotationCommand { get; }
-
-        public DelegateCommand AddArrowAnnotationCommand { get; }
-
-        public DelegateCommand AddMarkerAnnotationCommand { get; }
-
-        private void ResetWindowLevel()
+        public SeriesInfo? SelectedSeries
         {
-            WindowValue = 400;
-            LevelValue = 40;
+            get => _selectedSeries;
+            private set => SetProperty(ref _selectedSeries, value);
         }
 
-        private void AddDistanceMeasurement()
+        public string WindowDisplayText => WindowValue.ToString("0");
+
+        public double WindowValue
         {
-            Measurements.Add(new MeasurementItemViewModel(
-                $"Distanz {Measurements.Count + 1}",
-                "0,0 mm"));
+            get => _windowValue;
+            set
+            {
+                if (SetProperty(ref _windowValue, value))
+                {
+                    RaisePropertyChanged(nameof(WindowDisplayText));
+                    UpdateViewportWindowLevel();
+                }
+            }
         }
 
-        private void AddAngleMeasurement()
+        public override void Destroy()
         {
-            Measurements.Add(new MeasurementItemViewModel(
-                $"Winkel {Measurements.Count + 1}",
-                "0°"));
+            _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
+            _viewportService.StateChanged -= OnViewportStateChanged;
+
+            base.Destroy();
         }
 
-        private void AddRoiMeasurement()
+        private void AddAngleMeasurement() => Measurements.Add(new MeasurementItemViewModel($"Winkel {Measurements.Count + 1}", "0°"));
+
+        private void AddArrowAnnotation() => Annotations.Add(new AnnotationItemViewModel("Pfeilannotation"));
+
+        private void AddDistanceMeasurement() => Measurements.Add(new MeasurementItemViewModel($"Distanz {Measurements.Count + 1}", "0,0 mm"));
+
+        private void AddMarkerAnnotation() => Annotations.Add(new AnnotationItemViewModel("Markerannotation"));
+
+        private void AddRoiMeasurement() => Measurements.Add(new MeasurementItemViewModel($"ROI {Measurements.Count + 1}", "Mittelwert: -"));
+
+        private void AddTextAnnotation() => Annotations.Add(new AnnotationItemViewModel("Textannotation"));
+
+        private void ApplySelectedSeries(SeriesInfo? series)
         {
-            Measurements.Add(new MeasurementItemViewModel(
-                $"ROI {Measurements.Count + 1}",
-                "Mittelwert: -"));
+            SelectedSeries = series;
+
+            DicomTags.Clear();
+
+            if (series == null)
+            {
+                DicomTags.Add(new DicomTagInfo("-", "Status", "Keine Serie aktiv"));
+
+                return;
+            }
+
+            DicomTags.Add(new DicomTagInfo("(0008,0060)", "Modality", series.Modality));
+
+            DicomTags.Add(new DicomTagInfo("(0020,0011)", "Series Number", series.SeriesNumber?.ToString() ?? "-"));
+
+            DicomTags.Add(new DicomTagInfo("(0020,4000)", "Series Description", series.Description));
+
+            DicomTags.Add(new DicomTagInfo("-", "Series Name", series.Name));
+
+            DicomTags.Add(new DicomTagInfo("-", "Images", series.ImageCount.ToString()));
+
+            if (!string.IsNullOrWhiteSpace(series.StudyId))
+            {
+                DicomTags.Add(new DicomTagInfo("-", "Study Id", series.StudyId));
+            }
         }
 
-        private void AddTextAnnotation()
+        private void ApplyViewportState(ImagingViewportState state)
         {
-            Annotations.Add(new AnnotationItemViewModel("Textannotation"));
+            _isApplyingViewportState = true;
+
+            WindowValue = state.WindowValue;
+            LevelValue = state.LevelValue;
+
+            _isApplyingViewportState = false;
         }
 
-        private void AddArrowAnnotation()
+        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
+
+        private void OnViewportStateChanged(
+            object? sender,
+            ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
+
+        private void ResetWindowLevel() => _viewportService.SetWindowLevel(400, 40);
+
+        private void UpdateViewportWindowLevel()
         {
-            Annotations.Add(new AnnotationItemViewModel("Pfeilannotation"));
+            if (_isApplyingViewportState)
+            {
+                return;
+            }
+
+            _viewportService.SetWindowLevel(WindowValue, LevelValue);
         }
-
-        private void AddMarkerAnnotation()
-        {
-            Annotations.Add(new AnnotationItemViewModel("Markerannotation"));
-        }
-    }
-
-    public sealed class MeasurementItemViewModel(string name, string value) : BindableBase
-    {
-        public string Name { get; } = name;
-
-        public string Value { get; } = value;
-    }
-
-    public sealed class AnnotationItemViewModel(string displayText) : BindableBase
-    {
-        public string DisplayText { get; } = displayText;
-    }
-
-    public sealed class DicomTagItemViewModel(string tag, string name, string value) : BindableBase
-    {
-        public string Tag { get; } = tag;
-
-        public string Name { get; } = name;
-
-        public string Value { get; } = value;
     }
 }

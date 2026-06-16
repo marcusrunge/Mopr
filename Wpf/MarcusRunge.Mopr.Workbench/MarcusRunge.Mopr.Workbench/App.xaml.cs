@@ -16,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench
         {
             containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
             containerRegistry.RegisterSingleton<IImagingToolService, ImagingToolService>();
+            containerRegistry.RegisterSingleton<IImagingViewportService, ImagingViewportService>();
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();

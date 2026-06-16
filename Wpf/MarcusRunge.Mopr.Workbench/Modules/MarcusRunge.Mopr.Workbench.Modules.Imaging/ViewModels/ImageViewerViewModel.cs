@@ -3,7 +3,6 @@ using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using Prism.Commands;
-using System;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -12,6 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private readonly IImagingSelectionService _selectionService;
         private readonly IImagingToolService _toolService;
+        private readonly IImagingViewportService _viewportService;
 
         private ImagingTool _activeTool;
         private ImageSource? _currentImage;
@@ -20,13 +20,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private int _sliceCount = 1;
         private double _zoomFactor = 1.0;
 
-        public ImageViewerViewModel(IImagingSelectionService selectionService, IImagingToolService toolService)
+        public ImageViewerViewModel(IImagingSelectionService selectionService, IImagingToolService toolService, IImagingViewportService viewportService)
         {
             _selectionService = selectionService;
             _toolService = toolService;
+            _viewportService = viewportService;
 
             _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _toolService.ActiveToolChanged += OnActiveToolChanged;
+            _viewportService.StateChanged += OnViewportStateChanged;
 
             _activeTool = _toolService.ActiveTool;
 
@@ -36,6 +38,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CrosshairCommand = new DelegateCommand(ActivateCrosshair);
             ResetViewCommand = new DelegateCommand(ResetView);
 
+            ApplyViewportState(_viewportService.State);
             ApplySelectedSeries(_selectionService.SelectedSeries);
         }
 
@@ -74,6 +77,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentSlice, value))
                 {
                     RaisePropertyChanged(nameof(SliceDisplayText));
+                    _viewportService.SetSlice(value, SliceCount);
                 }
             }
         }
@@ -108,8 +112,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string SliceDisplayText => $"{CurrentSlice}/{SliceCount}";
+
         public string ViewerSubtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.Description}";
+
         public string ViewerTitle => SelectedSeries == null ? "Image Viewer" : SelectedSeries.Name;
+
         public DelegateCommand WindowLevelCommand { get; }
         public DelegateCommand ZoomCommand { get; }
         public string ZoomDisplayText => $"{ZoomFactor:P0}";
@@ -130,6 +137,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
             _toolService.ActiveToolChanged -= OnActiveToolChanged;
+            _viewportService.StateChanged -= OnViewportStateChanged;
 
             base.Destroy();
         }
@@ -148,27 +156,39 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             if (series == null)
             {
-                CurrentSlice = 1;
-                SliceCount = 1;
                 CurrentImage = null;
+                _viewportService.SetSlice(1, 1);
                 return;
             }
 
-            CurrentSlice = 1;
-            SliceCount = Math.Max(1, series.ImageCount);
+            _viewportService.SetSlice(1, series.ImageCount);
 
             CurrentImage = null;
+        }
+
+        private void ApplyViewportState(ImagingViewportState state)
+        {
+            SliceCount = state.SliceCount;
+
+            if (_currentSlice != state.CurrentSlice)
+            {
+                _currentSlice = state.CurrentSlice;
+                RaisePropertyChanged(nameof(CurrentSlice));
+                RaisePropertyChanged(nameof(SliceDisplayText));
+            }
+
+            ZoomFactor = state.ZoomFactor;
         }
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
 
+        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
+
         private void ResetView()
         {
-            ZoomFactor = 1.0;
-            CurrentSlice = 1;
-
+            _viewportService.Reset();
             _toolService.ClearActiveTool();
         }
     }

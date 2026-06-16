@@ -2,14 +2,7 @@
 {
     public sealed class SeriesInfo
     {
-        public SeriesInfo(
-            string id,
-            string modality,
-            string name,
-            string description,
-            int imageCount,
-            string? studyId = null,
-            int? seriesNumber = null)
+        public SeriesInfo(string id, string modality, string name, string description, int imageCount, string? studyId = null, int? seriesNumber = null)
         {
             Id = id;
             StudyId = studyId;
@@ -21,14 +14,8 @@
         }
 
         public string Description { get; }
-
-        public string DisplayText =>
-            string.IsNullOrWhiteSpace(Description)
-                ? Name
-                : $"{Name} · {Description}";
-
+        public string DisplayText => string.IsNullOrWhiteSpace(Description) ? Name : $"{Name} · {Description}";
         public string Id { get; }
-
         public int ImageCount { get; }
         public string ImageCountDisplayText => $"{ImageCount} Bilder";
         public string Modality { get; }

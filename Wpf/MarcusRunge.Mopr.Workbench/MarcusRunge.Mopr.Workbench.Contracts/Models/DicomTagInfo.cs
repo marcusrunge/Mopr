@@ -2,10 +2,7 @@
 {
     public sealed class DicomTagInfo
     {
-        public DicomTagInfo(
-            string tag,
-            string name,
-            string value)
+        public DicomTagInfo(string tag, string name, string value)
         {
             Tag = tag;
             Name = name;
