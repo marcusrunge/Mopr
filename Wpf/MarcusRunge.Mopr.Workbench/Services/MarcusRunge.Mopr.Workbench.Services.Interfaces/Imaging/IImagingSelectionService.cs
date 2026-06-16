@@ -1,7 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using System;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Interfaces
+namespace MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging
 {
     public interface IImagingSelectionService
     {

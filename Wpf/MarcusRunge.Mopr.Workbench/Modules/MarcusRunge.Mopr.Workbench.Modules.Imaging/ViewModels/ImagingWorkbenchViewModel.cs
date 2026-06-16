@@ -1,47 +1,39 @@
-﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using Prism.Commands;
-using Prism.Mvvm;
 using System.Windows;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
-    public class ImagingWorkbenchViewModel : ViewModelBase
+    public sealed class ImagingWorkbenchViewModel : ViewModelBase
     {
-        private const double DefaultSeriesPaneWidth = 280;
         private const double DefaultPropertiesPaneWidth = 340;
+        private const double DefaultSeriesPaneWidth = 280;
+        private readonly IImagingSelectionService _selectionService;
 
-        private bool _isSeriesPaneVisible = true;
         private bool _isPropertiesPaneVisible = true;
+        private bool _isSeriesPaneVisible = true;
+        private SeriesInfo? _selectedSeries;
+        private StudyInfo? _selectedStudy;
 
-        public ImagingWorkbenchViewModel()
+        public ImagingWorkbenchViewModel(IImagingSelectionService selectionService)
         {
+            _selectionService = selectionService;
+            _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
+
             ToggleSeriesPaneCommand = new DelegateCommand(ToggleSeriesPane);
             TogglePropertiesPaneCommand = new DelegateCommand(TogglePropertiesPane);
+
+            ApplySelection(_selectionService.SelectedStudy, _selectionService.SelectedSeries);
         }
 
-        public string CurrentStudyDisplayText => "Studie: Keine Studie geöffnet";
+        public string CurrentSeriesDisplayText =>
+            SelectedSeries == null ? "Serie: Keine Serie aktiv" : $"Serie: {SelectedSeries.Name}";
 
-        public string CurrentSeriesDisplayText => "Serie: Keine Serie aktiv";
+        public string CurrentStudyDisplayText => SelectedStudy == null ? "Studie: Keine Studie geöffnet" : $"Studie: {SelectedStudy.Name}";
 
-        public DelegateCommand ToggleSeriesPaneCommand { get; }
-
-        public DelegateCommand TogglePropertiesPaneCommand { get; }
-
-        public bool IsSeriesPaneVisible
-        {
-            get => _isSeriesPaneVisible;
-            private set
-            {
-                if (SetProperty(ref _isSeriesPaneVisible, value))
-                {
-                    RaisePropertyChanged(nameof(IsSeriesPaneCollapsed));
-                    RaisePropertyChanged(nameof(SeriesPaneWidth));
-                    RaisePropertyChanged(nameof(LeftSplitterWidth));
-                }
-            }
-        }
-
-        public bool IsSeriesPaneCollapsed => !IsSeriesPaneVisible;
+        public bool IsPropertiesPaneCollapsed => !IsPropertiesPaneVisible;
 
         public bool IsPropertiesPaneVisible
         {
@@ -57,28 +49,73 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public bool IsPropertiesPaneCollapsed => !IsPropertiesPaneVisible;
+        public bool IsSeriesPaneCollapsed => !IsSeriesPaneVisible;
 
-        public GridLength SeriesPaneWidth =>
-            IsSeriesPaneVisible ? new GridLength(DefaultSeriesPaneWidth) : new GridLength(0);
-
-        public GridLength PropertiesPaneWidth =>
-            IsPropertiesPaneVisible ? new GridLength(DefaultPropertiesPaneWidth) : new GridLength(0);
-
-        public GridLength LeftSplitterWidth =>
-            IsSeriesPaneVisible ? new GridLength(4) : new GridLength(0);
-
-        public GridLength RightSplitterWidth =>
-            IsPropertiesPaneVisible ? new GridLength(4) : new GridLength(0);
-
-        private void ToggleSeriesPane()
+        public bool IsSeriesPaneVisible
         {
-            IsSeriesPaneVisible = !IsSeriesPaneVisible;
+            get => _isSeriesPaneVisible;
+            private set
+            {
+                if (SetProperty(ref _isSeriesPaneVisible, value))
+                {
+                    RaisePropertyChanged(nameof(IsSeriesPaneCollapsed));
+                    RaisePropertyChanged(nameof(SeriesPaneWidth));
+                    RaisePropertyChanged(nameof(LeftSplitterWidth));
+                }
+            }
         }
 
-        private void TogglePropertiesPane()
+        public GridLength LeftSplitterWidth => IsSeriesPaneVisible ? new GridLength(4) : new GridLength(0);
+
+        public GridLength PropertiesPaneWidth => IsPropertiesPaneVisible ? new GridLength(DefaultPropertiesPaneWidth) : new GridLength(0);
+
+        public GridLength RightSplitterWidth => IsPropertiesPaneVisible ? new GridLength(4) : new GridLength(0);
+
+        public SeriesInfo? SelectedSeries
         {
-            IsPropertiesPaneVisible = !IsPropertiesPaneVisible;
+            get => _selectedSeries;
+            private set
+            {
+                if (SetProperty(ref _selectedSeries, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentSeriesDisplayText));
+                }
+            }
         }
+
+        public StudyInfo? SelectedStudy
+        {
+            get => _selectedStudy;
+            private set
+            {
+                if (SetProperty(ref _selectedStudy, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentStudyDisplayText));
+                }
+            }
+        }
+
+        public GridLength SeriesPaneWidth => IsSeriesPaneVisible ? new GridLength(DefaultSeriesPaneWidth) : new GridLength(0);
+
+        public DelegateCommand TogglePropertiesPaneCommand { get; }
+        public DelegateCommand ToggleSeriesPaneCommand { get; }
+
+        public override void Destroy()
+        {
+            _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
+            base.Destroy();
+        }
+
+        private void ApplySelection(StudyInfo? study, SeriesInfo? series)
+        {
+            SelectedStudy = study;
+            SelectedSeries = series;
+        }
+
+        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelection(e.SelectedStudy, e.SelectedSeries);
+
+        private void TogglePropertiesPane() => IsPropertiesPaneVisible = !IsPropertiesPaneVisible;
+
+        private void ToggleSeriesPane() => IsSeriesPaneVisible = !IsSeriesPaneVisible;
     }
 }

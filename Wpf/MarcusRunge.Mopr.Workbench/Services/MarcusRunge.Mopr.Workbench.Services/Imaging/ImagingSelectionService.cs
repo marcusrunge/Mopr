@@ -1,10 +1,9 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces;
+using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using System;
 
-namespace MarcusRunge.Mopr.Workbench.Services
+namespace MarcusRunge.Mopr.Workbench.Services.Imaging
 {
-
     public sealed class ImagingSelectionService : IImagingSelectionService
     {
         private StudyInfo? _selectedStudy;
@@ -25,9 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Services
 
             _selectedStudy = study;
 
-            if (_selectedSeries != null &&
-                _selectedSeries.StudyId != null &&
-                _selectedSeries.StudyId != _selectedStudy?.Id)
+            if (_selectedSeries != null && _selectedSeries.StudyId != null && _selectedSeries.StudyId != _selectedStudy?.Id)
             {
                 _selectedSeries = null;
             }
@@ -60,14 +57,6 @@ namespace MarcusRunge.Mopr.Workbench.Services
             RaiseSelectedSeriesChanged();
         }
 
-        private void RaiseSelectedSeriesChanged()
-        {
-            SelectedSeriesChanged?.Invoke(
-                this,
-                new SeriesSelectionChangedEventArgs(
-                    _selectedStudy,
-                    _selectedSeries));
-        }
+        private void RaiseSelectedSeriesChanged() => SelectedSeriesChanged?.Invoke(this, new SeriesSelectionChangedEventArgs(_selectedStudy, _selectedSeries));
     }
-
 }

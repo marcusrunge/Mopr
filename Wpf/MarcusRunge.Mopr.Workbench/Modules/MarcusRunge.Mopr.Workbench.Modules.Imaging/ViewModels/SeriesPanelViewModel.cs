@@ -1,7 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces;
-using Prism.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using System.Collections.ObjectModel;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -16,6 +15,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public SeriesPanelViewModel(IImagingSelectionService selectionService)
         {
             _selectionService = selectionService;
+
+            var demoStudy = new StudyInfo(
+                id: "demo-study",
+                name: "MRI Brain",
+                description: "Demo Studie");
+
+            _selectionService.SelectStudy(demoStudy);
 
             Series =
             [

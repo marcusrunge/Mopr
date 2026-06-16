@@ -1,13 +1,11 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using System;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Interfaces
+namespace MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging
 {
     public sealed class SeriesSelectionChangedEventArgs : EventArgs
     {
-        public SeriesSelectionChangedEventArgs(
-            StudyInfo? selectedStudy,
-            SeriesInfo? selectedSeries)
+        public SeriesSelectionChangedEventArgs(StudyInfo? selectedStudy, SeriesInfo? selectedSeries)
         {
             SelectedStudy = selectedStudy;
             SelectedSeries = selectedSeries;

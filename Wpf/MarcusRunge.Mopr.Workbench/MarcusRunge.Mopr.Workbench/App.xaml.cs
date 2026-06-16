@@ -1,6 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging;
-using MarcusRunge.Mopr.Workbench.Services;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces;
+using MarcusRunge.Mopr.Workbench.Services.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using MarcusRunge.Mopr.Workbench.Views;
 using Prism.Ioc;
 using Prism.Modularity;
@@ -12,7 +12,11 @@ namespace MarcusRunge.Mopr.Workbench
     {
         protected override Window CreateShell() => Container.Resolve<MainWindow>();
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry) => containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        {
+            containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
+            containerRegistry.RegisterSingleton<IImagingToolService, ImagingToolService>();
+        }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();
     }

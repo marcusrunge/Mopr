@@ -8,6 +8,7 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ImagingCommandBarViewModel}"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
+
     <Grid>
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center"
@@ -21,21 +22,25 @@
                     Command="{Binding LayoutCommand}"
                     Margin="0,0,8,0" />
 
-            <Button Content="Fensterung"
-                    Command="{Binding WindowLevelCommand}"
-                    Margin="0,0,8,0" />
+            <ToggleButton Content="Fensterung"
+                          Command="{Binding WindowLevelCommand}"
+                          IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
+                          Margin="0,0,8,0" />
 
-            <Button Content="Zoom"
-                    Command="{Binding ZoomCommand}"
-                    Margin="0,0,8,0" />
+            <ToggleButton Content="Zoom"
+                          Command="{Binding ZoomCommand}"
+                          IsChecked="{Binding IsZoomActive, Mode=OneWay}"
+                          Margin="0,0,8,0" />
 
-            <Button Content="Pan"
-                    Command="{Binding PanCommand}"
-                    Margin="0,0,8,0" />
+            <ToggleButton Content="Pan"
+                          Command="{Binding PanCommand}"
+                          IsChecked="{Binding IsPanActive, Mode=OneWay}"
+                          Margin="0,0,8,0" />
 
-            <Button Content="Crosshair"
-                    Command="{Binding CrosshairCommand}"
-                    Margin="0,0,8,0" />
+            <ToggleButton Content="Crosshair"
+                          Command="{Binding CrosshairCommand}"
+                          IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
+                          Margin="0,0,8,0" />
 
             <Button Content="Reset"
                     Command="{Binding ResetViewCommand}"
