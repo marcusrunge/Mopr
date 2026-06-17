@@ -7,16 +7,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
+        private readonly IImagingLayoutService _layoutService;
         private readonly IImagingToolService _toolService;
-
+        private readonly IImagingViewportService _viewportService;
         private ImagingTool _activeTool;
 
-        public ImagingCommandBarViewModel(IImagingToolService toolService)
+        private ImagingLayout _currentLayout;
+
+        public ImagingCommandBarViewModel(IImagingToolService toolService, IImagingLayoutService layoutService, IImagingViewportService viewportService)
+
         {
             _toolService = toolService;
+            _layoutService = layoutService;
+            _viewportService = viewportService;
+
             _toolService.ActiveToolChanged += OnActiveToolChanged;
+            _layoutService.CurrentLayoutChanged += OnCurrentLayoutChanged;
 
             _activeTool = _toolService.ActiveTool;
+            _currentLayout = _layoutService.CurrentLayout;
 
             OpenCommand = new DelegateCommand(Open);
             LayoutCommand = new DelegateCommand(ChangeLayout);
@@ -46,11 +55,38 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public DelegateCommand CrosshairCommand { get; }
+
+        public ImagingLayout CurrentLayout
+        {
+            get => _currentLayout;
+            private set
+            {
+                if (SetProperty(ref _currentLayout, value))
+                {
+                    RaisePropertyChanged(nameof(LayoutDisplayText));
+                }
+            }
+        }
+
         public bool IsCrosshairActive => ActiveTool == ImagingTool.Crosshair;
+
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
+
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
+
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
+
         public DelegateCommand LayoutCommand { get; }
+
+        public string LayoutDisplayText => CurrentLayout switch
+        {
+            ImagingLayout.Single => "Layout: Einzel",
+            ImagingLayout.TwoByTwo => "Layout: 2 × 2",
+            ImagingLayout.Mpr => "Layout: MPR",
+            ImagingLayout.AxialSagittalCoronal => "Layout: A/S/C",
+            _ => "Layout"
+        };
+
         public DelegateCommand MoreCommand { get; }
         public DelegateCommand OpenCommand { get; }
         public DelegateCommand PanCommand { get; }
@@ -61,6 +97,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public override void Destroy()
         {
             _toolService.ActiveToolChanged -= OnActiveToolChanged;
+            _layoutService.CurrentLayoutChanged -= OnCurrentLayoutChanged;
+
             base.Destroy();
         }
 
@@ -72,11 +110,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ActivateZoom() => _toolService.SetActiveTool(ImagingTool.Zoom);
 
-        private void ChangeLayout()
-        {
-        }
+        private void ChangeLayout() => _layoutService.CycleNextLayout();
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
+
+        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
         private void Open()
         {
@@ -86,6 +124,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
         }
 
-        private void ResetView() => _toolService.ClearActiveTool();
+        private void ResetView()
+        {
+            _viewportService.Reset();
+            _toolService.ClearActiveTool();
+        }
     }
 }

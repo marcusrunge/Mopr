@@ -18,9 +18,9 @@
                     Command="{Binding OpenCommand}"
                     Margin="0,0,8,0" />
 
-            <Button Content="Layout"
+            <Button Content="{Binding LayoutDisplayText}"
                     Command="{Binding LayoutCommand}"
-                    Margin="0,0,8,0" />
+                    Margin="0,0,8,0"/>
 
             <ToggleButton Content="Fensterung"
                           Command="{Binding WindowLevelCommand}"

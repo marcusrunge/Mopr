@@ -14,6 +14,7 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<IImagingLayoutService, ImagingLayoutService>();
             containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
             containerRegistry.RegisterSingleton<IImagingToolService, ImagingToolService>();
             containerRegistry.RegisterSingleton<IImagingViewportService, ImagingViewportService>();

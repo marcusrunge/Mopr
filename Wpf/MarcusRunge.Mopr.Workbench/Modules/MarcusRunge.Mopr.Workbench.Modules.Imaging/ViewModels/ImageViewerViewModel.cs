@@ -9,27 +9,31 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImageViewerViewModel : ViewModelBase
     {
+        private readonly IImagingLayoutService _layoutService;
         private readonly IImagingSelectionService _selectionService;
         private readonly IImagingToolService _toolService;
         private readonly IImagingViewportService _viewportService;
-
         private ImagingTool _activeTool;
         private ImageSource? _currentImage;
+        private ImagingLayout _currentLayout;
         private int _currentSlice = 1;
         private SeriesInfo? _selectedSeries;
         private int _sliceCount = 1;
         private double _zoomFactor = 1.0;
 
-        public ImageViewerViewModel(IImagingSelectionService selectionService, IImagingToolService toolService, IImagingViewportService viewportService)
+        public ImageViewerViewModel(IImagingSelectionService selectionService, IImagingToolService toolService, IImagingViewportService viewportService, IImagingLayoutService layoutService)
         {
             _selectionService = selectionService;
             _toolService = toolService;
             _viewportService = viewportService;
+            _layoutService = layoutService;
+
+            _currentLayout = _layoutService.CurrentLayout;
 
             _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _toolService.ActiveToolChanged += OnActiveToolChanged;
             _viewportService.StateChanged += OnViewportStateChanged;
-
+            _layoutService.CurrentLayoutChanged += OnCurrentLayoutChanged;
             _activeTool = _toolService.ActiveTool;
 
             ZoomCommand = new DelegateCommand(ActivateZoom);
@@ -55,6 +59,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string ActiveToolDisplayText => $"Werkzeug: {ActiveTool}";
+
         public DelegateCommand CrosshairCommand { get; }
 
         public ImageSource? CurrentImage
@@ -65,6 +70,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentImage, value))
                 {
                     RaisePropertyChanged(nameof(IsEmptyViewerVisible));
+                }
+            }
+        }
+
+        public ImagingLayout CurrentLayout
+        {
+            get => _currentLayout;
+            private set
+            {
+                if (SetProperty(ref _currentLayout, value))
+                {
+                    RaisePropertyChanged(nameof(LayoutDisplayText));
                 }
             }
         }
@@ -83,7 +100,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public bool IsEmptyViewerVisible => CurrentImage == null;
+
+        public string LayoutDisplayText => CurrentLayout switch
+        {
+            ImagingLayout.Single => "Layout: Einzelansicht",
+            ImagingLayout.TwoByTwo => "Layout: 2 × 2",
+            ImagingLayout.Mpr => "Layout: MPR",
+            ImagingLayout.AxialSagittalCoronal => "Layout: Axial / Sagittal / Coronal",
+            _ => "Layout: Unbekannt"
+        };
+
         public DelegateCommand PanCommand { get; }
+
         public DelegateCommand ResetViewCommand { get; }
 
         public SeriesInfo? SelectedSeries
@@ -118,7 +146,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public string ViewerTitle => SelectedSeries == null ? "Image Viewer" : SelectedSeries.Name;
 
         public DelegateCommand WindowLevelCommand { get; }
+
         public DelegateCommand ZoomCommand { get; }
+
         public string ZoomDisplayText => $"{ZoomFactor:P0}";
 
         public double ZoomFactor
@@ -138,6 +168,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
             _toolService.ActiveToolChanged -= OnActiveToolChanged;
             _viewportService.StateChanged -= OnViewportStateChanged;
+            _layoutService.CurrentLayoutChanged -= OnCurrentLayoutChanged;
 
             base.Destroy();
         }
@@ -181,6 +212,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
+
+        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
 
