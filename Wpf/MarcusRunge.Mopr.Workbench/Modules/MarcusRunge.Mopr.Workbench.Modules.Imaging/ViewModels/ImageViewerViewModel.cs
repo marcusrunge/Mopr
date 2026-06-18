@@ -2,7 +2,6 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
-using Prism.Commands;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -36,12 +35,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _layoutService.CurrentLayoutChanged += OnCurrentLayoutChanged;
             _activeTool = _toolService.ActiveTool;
 
-            ZoomCommand = new DelegateCommand(ActivateZoom);
-            PanCommand = new DelegateCommand(ActivatePan);
-            WindowLevelCommand = new DelegateCommand(ActivateWindowLevel);
-            CrosshairCommand = new DelegateCommand(ActivateCrosshair);
-            ResetViewCommand = new DelegateCommand(ResetView);
-
             ApplyViewportState(_viewportService.State);
             ApplySelectedSeries(_selectionService.SelectedSeries);
         }
@@ -59,8 +52,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string ActiveToolDisplayText => $"Werkzeug: {ActiveTool}";
-
-        public DelegateCommand CrosshairCommand { get; }
 
         public ImageSource? CurrentImage
         {
@@ -82,6 +73,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentLayout, value))
                 {
                     RaisePropertyChanged(nameof(LayoutDisplayText));
+                    RaisePropertyChanged(nameof(IsSingleLayoutVisible));
+                    RaisePropertyChanged(nameof(IsTwoByTwoLayoutVisible));
+                    RaisePropertyChanged(nameof(IsMprLayoutVisible));
+                    RaisePropertyChanged(nameof(IsAxialSagittalCoronalLayoutVisible));
                 }
             }
         }
@@ -99,7 +94,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public bool IsAxialSagittalCoronalLayoutVisible =>
+            CurrentLayout == ImagingLayout.AxialSagittalCoronal;
+
         public bool IsEmptyViewerVisible => CurrentImage == null;
+        public bool IsMprLayoutVisible => CurrentLayout == ImagingLayout.Mpr;
+        public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
+
+        public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
 
         public string LayoutDisplayText => CurrentLayout switch
         {
@@ -109,10 +111,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ImagingLayout.AxialSagittalCoronal => "Layout: Axial / Sagittal / Coronal",
             _ => "Layout: Unbekannt"
         };
-
-        public DelegateCommand PanCommand { get; }
-
-        public DelegateCommand ResetViewCommand { get; }
 
         public SeriesInfo? SelectedSeries
         {
@@ -145,9 +143,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string ViewerTitle => SelectedSeries == null ? "Image Viewer" : SelectedSeries.Name;
 
-        public DelegateCommand WindowLevelCommand { get; }
-
-        public DelegateCommand ZoomCommand { get; }
 
         public string ZoomDisplayText => $"{ZoomFactor:P0}";
 
@@ -173,13 +168,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             base.Destroy();
         }
 
-        private void ActivateCrosshair() => _toolService.SetActiveTool(ImagingTool.Crosshair);
-
-        private void ActivatePan() => _toolService.SetActiveTool(ImagingTool.Pan);
-
-        private void ActivateWindowLevel() => _toolService.SetActiveTool(ImagingTool.WindowLevel);
-
-        private void ActivateZoom() => _toolService.SetActiveTool(ImagingTool.Zoom);
 
         private void ApplySelectedSeries(SeriesInfo? series)
         {
@@ -218,11 +206,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
 
         private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
-
-        private void ResetView()
-        {
-            _viewportService.Reset();
-            _toolService.ClearActiveTool();
-        }
     }
 }

@@ -3,6 +3,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
+             xmlns:viewports="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              d:DataContext="{d:DesignInstance Type=viewmodels:ImageViewerViewModel}"
@@ -12,152 +13,107 @@
     <Grid Background="#030506"
           ClipToBounds="True">
 
-        <!-- Viewer-Fläche -->
         <Border Background="#05080A"
                 BorderBrush="#1F2933"
                 BorderThickness="1"
                 Margin="16">
 
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="42"/>
+                </Grid.RowDefinitions>
 
-                <!-- Später: echtes DICOM-/MPR-Bild -->
-                <Image Source="{Binding CurrentImage}"
-                       Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                <!-- Viewport-Fläche ohne störende globale Overlays -->
+                <viewports:ViewportLayoutHost Grid.Row="0"/>
 
-                <!-- Fallback, wenn noch kein Bild geladen ist -->
-                <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Visibility="{Binding IsEmptyViewerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- Saubere Statusleiste unten -->
+                <Border Grid.Row="1"
+                        Background="#10161C"
+                        BorderBrush="#1F2933"
+                        BorderThickness="0,1,0,0"
+                        Padding="12,0">
 
-                    <TextBlock Text="Kein Bild geladen"
-                               FontSize="28"
-                               FontWeight="SemiBold"
-                               Foreground="#7D8790"
-                               HorizontalAlignment="Center"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="260"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Öffne eine Studie oder Serie, um den Viewer zu starten."
-                               FontSize="15"
-                               Foreground="#58636E"
-                               Margin="0,8,0,0"
-                               HorizontalAlignment="Center"/>
+                        <!-- Serie -->
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
 
-                </StackPanel>
+                            <TextBlock Text="{Binding ViewerTitle}"
+                                       Foreground="#DDE5EC"
+                                       FontWeight="SemiBold"
+                                       FontSize="13"/>
 
-                <!-- Obere Viewer-Toolbar -->
-                <Border HorizontalAlignment="Center"
-                        VerticalAlignment="Top"
-                        Margin="0,12,0,0"
-                        Padding="8"
-                        CornerRadius="8"
-                        Background="#AA11171D"
-                        BorderBrush="#33414D"
-                        BorderThickness="1">
+                            <TextBlock Text=" · "
+                                       Foreground="#596673"
+                                       Margin="6,0"/>
 
-                    <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ViewerSubtitle}"
+                                       Foreground="#8FA0AD"
+                                       FontSize="12"/>
 
-                        <Button Content="Zoom"
-                                Command="{Binding ZoomCommand}"
-                                Margin="0,0,6,0"/>
+                        </StackPanel>
 
-                        <Button Content="Pan"
-                                Command="{Binding PanCommand}"
-                                Margin="0,0,6,0"/>
-
-                        <Button Content="WL"
-                                Command="{Binding WindowLevelCommand}"
-                                Margin="0,0,6,0"/>
-
-                        <Button Content="Crosshair"
-                                Command="{Binding CrosshairCommand}"
-                                Margin="0,0,6,0"/>
-
-                        <Button Content="Reset"
-                                Command="{Binding ResetViewCommand}"/>
-
-                    </StackPanel>
-                </Border>
-
-                <!-- Linke obere Statusinfo -->
-                <Border HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Margin="12"
-                        Padding="10,6"
-                        CornerRadius="6"
-                        Background="#99000000">
-
-                    <StackPanel>
-
-                        <TextBlock Text="{Binding ViewerTitle}"
-                                   Foreground="#DDE5EC"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"/>
-
-                        <TextBlock Text="{Binding ViewerSubtitle}"
-                                   Foreground="#9BA7B3"
-                                   FontSize="12"
-                                   Margin="0,2,0,0"/>
-
-                        <!-- Aktives Werkzeug -->
-                        <TextBlock Text="{Binding ActiveToolDisplayText}"
+                        <!-- Werkzeug -->
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding ActiveToolDisplayText}"
                                    Foreground="#7FDDE8"
-                                   FontSize="12"
-                                   Margin="0,4,0,0"/>
+                                   VerticalAlignment="Center"
+                                   FontSize="12"/>
 
-                        <!-- Aktuelles Layout -->
-                        <TextBlock Text="{Binding LayoutDisplayText}"
-                                   Foreground="#9BA7B3"
-                                   FontSize="12"
-                                   Margin="0,4,0,0"/>
+                        <!-- Layout -->
+                        <TextBlock Grid.Column="4"
+                                   Text="{Binding LayoutDisplayText}"
+                                   Foreground="#8FA0AD"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"/>
 
-                    </StackPanel>
-                </Border>
+                        <!-- Zoom -->
+                        <StackPanel Grid.Column="6"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
 
-                <!-- Rechte Slice-Anzeige -->
-                <Border HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Margin="0,0,12,0"
-                        Padding="8"
-                        CornerRadius="6"
-                        Background="#66000000">
+                            <TextBlock Text="Zoom"
+                                       Foreground="#8FA0AD"
+                                       Margin="0,0,6,0"/>
 
-                    <StackPanel>
+                            <TextBlock Text="{Binding ZoomDisplayText}"
+                                       Foreground="#DDE5EC"
+                                       FontWeight="SemiBold"/>
 
-                        <Slider Orientation="Vertical"
-                                Height="220"
+                        </StackPanel>
+
+                        <!-- Slice Slider -->
+                        <Slider Grid.Column="8"
+                                VerticalAlignment="Center"
                                 Minimum="1"
                                 Maximum="{Binding SliceCount}"
                                 Value="{Binding CurrentSlice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 IsMoveToPointEnabled="True"/>
 
-                        <TextBlock Text="{Binding SliceDisplayText}"
+                        <!-- Slice Text -->
+                        <TextBlock Grid.Column="10"
+                                   Text="{Binding SliceDisplayText}"
                                    Foreground="#DDE5EC"
-                                   FontSize="13"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,8,0,0"/>
+                                   FontSize="12"
+                                   VerticalAlignment="Center"/>
 
-                    </StackPanel>
-                </Border>
-
-                <!-- Untere Zoom-Anzeige -->
-                <Border HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Margin="0,0,0,12"
-                        Padding="10,6"
-                        CornerRadius="6"
-                        Background="#66000000">
-
-                    <StackPanel Orientation="Horizontal">
-
-                        <TextBlock Text="Zoom"
-                                   Foreground="#9BA7B3"
-                                   Margin="0,0,8,0"/>
-
-                        <TextBlock Text="{Binding ZoomDisplayText}"
-                                   Foreground="#DDE5EC"
-                                   FontWeight="SemiBold"/>
-
-                    </StackPanel>
+                    </Grid>
                 </Border>
 
             </Grid>

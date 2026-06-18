@@ -174,17 +174,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             _isApplyingViewportState = true;
 
-            WindowValue = state.WindowValue;
-            LevelValue = state.LevelValue;
-
-            _isApplyingViewportState = false;
+            try
+            {
+                WindowValue = state.WindowValue;
+                LevelValue = state.LevelValue;
+            }
+            finally
+            {
+                _isApplyingViewportState = false;
+            }
         }
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
 
-        private void OnViewportStateChanged(
-            object? sender,
-            ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
+        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
 
         private void ResetWindowLevel() => _viewportService.SetWindowLevel(400, 40);
 

@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports.ViewportTile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border Background="#05080A"
+            BorderBrush="#1F2933"
+            BorderThickness="1"
+            CornerRadius="6">
+
+        <Grid ClipToBounds="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Viewport-Kopfzeile statt Overlay -->
+            <Border Grid.Row="0"
+                    Background="#0D1318"
+                    BorderBrush="#1F2933"
+                    BorderThickness="0,0,0,1"
+                    Padding="10,0">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Tag}"
+                               Foreground="#DDE5EC"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding SliceDisplayText}"
+                               Foreground="#6F7B86"
+                               FontSize="11"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Viewport-Inhalt -->
+            <Grid Grid.Row="1"
+                  Background="#020405">
+
+                <!-- Später: echtes Rendering pro Viewport -->
+                <Image Source="{Binding CurrentImage}"
+                       Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                <!-- Empty State pro Viewport -->
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding IsEmptyViewerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <TextBlock Text="Kein Bild"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#7D8790"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="{Binding ViewerTitle}"
+                               FontSize="12"
+                               Foreground="#58636E"
+                               Margin="0,6,0,0"
+                               HorizontalAlignment="Center"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Grid>
+    </Border>
+</UserControl>
