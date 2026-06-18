@@ -2,6 +2,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
+using Prism.Commands;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -13,6 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly IImagingToolService _toolService;
         private readonly IImagingViewportService _viewportService;
         private ImagingTool _activeTool;
+        private string _activeViewportId = "Single";
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1;
@@ -28,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _layoutService = layoutService;
 
             _currentLayout = _layoutService.CurrentLayout;
+            _activeViewportId = GetDefaultViewportIdForLayout(_currentLayout);
 
             _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _toolService.ActiveToolChanged += OnActiveToolChanged;
@@ -37,6 +40,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             ApplyViewportState(_viewportService.State);
             ApplySelectedSeries(_selectionService.SelectedSeries);
+
+            SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
         }
 
         public ImagingTool ActiveTool
@@ -52,6 +57,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string ActiveToolDisplayText => $"Werkzeug: {ActiveTool}";
+
+        public string ActiveViewportId
+        {
+            get => _activeViewportId;
+            private set
+            {
+                if (SetProperty(ref _activeViewportId, value))
+                {
+                    RaisePropertyChanged(nameof(ActiveViewportDisplayText));
+                }
+            }
+        }
 
         public ImageSource? CurrentImage
         {
@@ -100,7 +117,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsEmptyViewerVisible => CurrentImage == null;
         public bool IsMprLayoutVisible => CurrentLayout == ImagingLayout.Mpr;
         public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
-
         public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
 
         public string LayoutDisplayText => CurrentLayout switch
@@ -125,6 +141,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public DelegateCommand<string?> SelectViewportCommand { get; }
+
         public int SliceCount
         {
             get => _sliceCount;
@@ -142,7 +160,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public string ViewerSubtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.Description}";
 
         public string ViewerTitle => SelectedSeries == null ? "Image Viewer" : SelectedSeries.Name;
-
 
         public string ZoomDisplayText => $"{ZoomFactor:P0}";
 
@@ -168,7 +185,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             base.Destroy();
         }
 
-
+        private static string GetDefaultViewportIdForLayout(ImagingLayout layout) => layout switch
+        {
+            ImagingLayout.Single => "Single.Main",
+            ImagingLayout.TwoByTwo => "TwoByTwo.Viewport1",
+            ImagingLayout.Mpr => "Mpr.Axial",
+            ImagingLayout.AxialSagittalCoronal => "Asc.Axial",
+            _ => "Single.Main"
+        };
+        public string ActiveViewportDisplayText => $"Viewport: {ActiveViewportId}";
         private void ApplySelectedSeries(SeriesInfo? series)
         {
             SelectedSeries = series;
@@ -201,10 +226,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
-        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
+        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e)
+        {
+            CurrentLayout = e.NewLayout;
+            ActiveViewportId = GetDefaultViewportIdForLayout(e.NewLayout);
+        }
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
 
         private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
+
+        private void SelectViewport(string? viewportId)
+        {
+            if (string.IsNullOrWhiteSpace(viewportId))
+            {
+                return;
+            }
+
+            ActiveViewportId = viewportId;
+        }
     }
 }

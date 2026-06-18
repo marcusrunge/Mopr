@@ -43,6 +43,8 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="24"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="260"/>
                             <ColumnDefinition Width="16"/>
@@ -65,26 +67,33 @@
 
                             <TextBlock Text="{Binding ViewerSubtitle}"
                                        Foreground="#8FA0AD"
-                                       FontSize="12"/>
+                                       FontSize="12"/>                            
 
                         </StackPanel>
 
-                        <!-- Werkzeug -->
+                        <!-- Aktiver Viewport -->
                         <TextBlock Grid.Column="2"
+                                   Text="{Binding ActiveViewportDisplayText}"
+                                   Foreground="#8FA0AD"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"/>
+
+                        <!-- Werkzeug -->
+                        <TextBlock Grid.Column="4"
                                    Text="{Binding ActiveToolDisplayText}"
                                    Foreground="#7FDDE8"
                                    VerticalAlignment="Center"
                                    FontSize="12"/>
 
                         <!-- Layout -->
-                        <TextBlock Grid.Column="4"
+                        <TextBlock Grid.Column="6"
                                    Text="{Binding LayoutDisplayText}"
                                    Foreground="#8FA0AD"
                                    VerticalAlignment="Center"
                                    FontSize="12"/>
 
                         <!-- Zoom -->
-                        <StackPanel Grid.Column="6"
+                        <StackPanel Grid.Column="8"
                                     Orientation="Horizontal"
                                     VerticalAlignment="Center">
 
@@ -99,7 +108,7 @@
                         </StackPanel>
 
                         <!-- Slice Slider -->
-                        <Slider Grid.Column="8"
+                        <Slider Grid.Column="10"
                                 VerticalAlignment="Center"
                                 Minimum="1"
                                 Maximum="{Binding SliceCount}"
@@ -107,7 +116,7 @@
                                 IsMoveToPointEnabled="True"/>
 
                         <!-- Slice Text -->
-                        <TextBlock Grid.Column="10"
+                        <TextBlock Grid.Column="12"
                                    Text="{Binding SliceDisplayText}"
                                    Foreground="#DDE5EC"
                                    FontSize="12"

@@ -8,89 +8,125 @@
 
         <!-- Single Layout -->
         <Grid Visibility="{Binding IsSingleLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <viewports:ViewportTile Tag="Single"/>
+            <viewports:ViewportTile Title="Single"
+                                    ViewportId="Single.Main"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
 
         <!-- 2 x 2 Layout -->
         <Grid Visibility="{Binding IsTwoByTwoLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="8"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="0"
-                                    Tag="Viewport 1"/>
+                                    Title="Viewport 1"
+                                    ViewportId="TwoByTwo.Viewport1"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
-                                    Tag="Viewport 2"/>
+                                    Title="Viewport 2"
+                                    ViewportId="TwoByTwo.Viewport2"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
-                                    Tag="Viewport 3"/>
+                                    Title="Viewport 3"
+                                    ViewportId="TwoByTwo.Viewport3"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
-                                    Tag="Viewport 4"/>
+                                    Title="Viewport 4"
+                                    ViewportId="TwoByTwo.Viewport4"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
 
         <!-- MPR Layout -->
         <Grid Visibility="{Binding IsMprLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="8"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="0"
-                                    Tag="Axial"/>
+                                    Title="Axial"
+                                    ViewportId="Mpr.Axial"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
-                                    Tag="Sagittal"/>
+                                    Title="Sagittal"
+                                    ViewportId="Mpr.Sagittal"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
-                                    Tag="Coronal"/>
+                                    Title="Coronal"
+                                    ViewportId="Mpr.Coronal"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
-                                    Tag="3D / Preview"/>
+                                    Title="3D / Preview"
+                                    ViewportId="Mpr.Preview3D"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
 
         <!-- Axial / Sagittal / Coronal Layout -->
         <Grid Visibility="{Binding IsAxialSagittalCoronalLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <viewports:ViewportTile Grid.Column="0"
-                                    Tag="Axial"/>
+                                    Title="Axial"
+                                    ViewportId="Asc.Axial"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="2"
-                                    Tag="Sagittal"/>
+                                    Title="Sagittal"
+                                    ViewportId="Asc.Sagittal"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="4"
-                                    Tag="Coronal"/>
+                                    Title="Coronal"
+                                    ViewportId="Asc.Coronal"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
 
     </Grid>
