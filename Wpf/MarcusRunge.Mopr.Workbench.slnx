@@ -2,6 +2,11 @@
   <Folder Name="/Modules/">
     <Project Path="MarcusRunge.Mopr.Workbench/Modules/MarcusRunge.Mopr.Workbench.Modules.Imaging/MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
   </Folder>
+  <Folder Name="/Projektmappenelemente/">
+    <File Path="../.gitignore" />
+    <File Path="../LICENSE" />
+    <File Path="../README.md" />
+  </Folder>
   <Folder Name="/Services/">
     <Project Path="MarcusRunge.Mopr.Workbench/Services/MarcusRunge.Mopr.Workbench.Services.Interfaces/MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/MarcusRunge.Mopr.Workbench.Services/MarcusRunge.Mopr.Workbench.Services.csproj" />
