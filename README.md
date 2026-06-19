@@ -1,5 +1,7 @@
 # MOPR
-
+<p align="left">
+  <img src="Wpf/MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench/Assets/mopr.png" alt="MOPR Logo" width="300">
+</p>
 **Medical Observation & Projection Renderer**
 
 MOPR is an experimental pipeline for preparing DICOM CT/MRI image series and visualizing volumetric medical imaging data in Unreal Engine.
@@ -19,34 +21,39 @@ MOPR uses a file-based exchange format between both applications. The WPF applic
 ## Project Structure
 
 ```text
-mopr/
-├── README.md
-├── LICENSE
-├── .gitignore
+Mopr/
+├── Wpf/
+│   └── MarcusRunge.Mopr.Workbench/
+│       ├── MarcusRunge.Mopr.Workbench/                    # Main WPF Application
+│       │   ├── Assets/                                     # Application Resources
+│       │   ├── Properties/                                 # Project Properties
+│       │   ├── ViewModels/                                 # MVVM ViewModels
+│       │   └── Views/                                      # XAML Views
+│       │
+│       ├── MarcusRunge.Mopr.Workbench.Core/               # Core Functionality
+│       │   ├── Mvvm/                                       # MVVM Framework
+│       │   └── Services/                                   # Core Services
+│       │
+│       ├── MarcusRunge.Mopr.Workbench.Contracts/          # Data Contracts & Models
+│       │   ├── Imaging/                                    # Imaging Models
+│       │   └── Models/                                     # Domain Models
+│       │
+│       ├── Services/
+│       │   ├── MarcusRunge.Mopr.Workbench.Services/       # Service Implementations
+│       │   │   └── Imaging/
+│       │   └── MarcusRunge.Mopr.Workbench.Services.Interfaces/  # Service Interfaces
+│       │       └── Imaging/
+│       │
+│       ├── Modules/
+│       │   ├── MarcusRunge.Mopr.Workbench.Modules.Imaging/     # Imaging Module
+│       │   │   ├── Services/
+│       │   │   ├── ViewModels/
+│       │   │   └── Views/
+│       │   └── MarcusRunge.Mopr.Workbench.Modules.ModuleName/  # Template for Additional Modules
+│       │
+│       └── Tests/
+│           ├── MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests/      # Imaging Module Tests
+│           │   └── ViewModels/
+│           └── MarcusRunge.Mopr.Workbench.Modules.ModuleName.Tests/   # Template for Module Tests
 │
-├── wpf/
-│   ├── Mopr.Workbench.sln
-│   ├── Mopr.Workbench/
-│   ├── Mopr.Core/
-│   ├── Mopr.Dicom/
-│   ├── Mopr.Volume/
-│   └── Mopr.Export/
-│
-├── unreal/
-│   └── MoprViewer/
-│       ├── MoprViewer.uproject
-│       ├── Source/
-│       ├── Content/
-│       └── Plugins/
-│           └── MoprRuntime/
-│
-├── shared/
-│   ├── schema/
-│   └── docs/
-│
-├── data/
-│   ├── exports/
-│   ├── samples/
-│   └── cache/
-│
-└── tools/
+└── Unreal/                                                  # Unreal Engine Project Files
