@@ -3,6 +3,8 @@ using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using Prism.Commands;
+using System;
+using System.Linq;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -33,7 +35,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _currentLayout = _layoutService.CurrentLayout;
 
-            _viewportSelectionService.SetDefaultViewportForLayout(GetDefaultViewportIdForLayout(_currentLayout));
+            _viewportSelectionService.SetDefaultViewport(GetDefaultViewportIdForLayout(_currentLayout));
 
             _activeViewportId = _viewportSelectionService.ActiveViewportId;
 
@@ -65,7 +67,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string ActiveToolDisplayText => $"Werkzeug: {ActiveTool}";
 
-        public string ActiveViewportDisplayText => $"Viewport: {ActiveViewportId}";
+        public string ActiveViewportDisplayText
+        {
+            get
+            {
+                var viewports = _layoutService.GetViewportsForLayout(CurrentLayout);
+
+                var activeViewport = viewports.FirstOrDefault(viewport => string.Equals(viewport.Id, ActiveViewportId, StringComparison.Ordinal));
+
+                return activeViewport == null ? "Viewport: -" : $"Viewport: {activeViewport.Title}";
+            }
+        }
 
         public string ActiveViewportId
         {
@@ -99,6 +111,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentLayout, value))
                 {
                     RaisePropertyChanged(nameof(LayoutDisplayText));
+                    RaisePropertyChanged(nameof(ActiveViewportDisplayText));
                     RaisePropertyChanged(nameof(IsSingleLayoutVisible));
                     RaisePropertyChanged(nameof(IsTwoByTwoLayoutVisible));
                     RaisePropertyChanged(nameof(IsMprLayoutVisible));
@@ -197,15 +210,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             base.Destroy();
         }
 
-        private static string GetDefaultViewportIdForLayout(ImagingLayout layout) => layout switch
-        {
-            ImagingLayout.Single => "Single.Main",
-            ImagingLayout.TwoByTwo => "TwoByTwo.Viewport1",
-            ImagingLayout.Mpr => "Mpr.Axial",
-            ImagingLayout.AxialSagittalCoronal => "Asc.Axial",
-            _ => "Single.Main"
-        };
-
         private void ApplySelectedSeries(SeriesInfo? series)
         {
             SelectedSeries = series;
@@ -236,6 +240,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ZoomFactor = state.ZoomFactor;
         }
 
+        private string GetDefaultViewportIdForLayout(ImagingLayout layout)
+        {
+            var viewports = _layoutService.GetViewportsForLayout(layout);
+
+            var defaultViewport = viewports.FirstOrDefault(viewport => viewport.IsInteractive) ?? viewports.FirstOrDefault();
+
+            return defaultViewport?.Id ?? "Single.Main";
+        }
+
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
         private void OnActiveViewportChanged(object? sender, ImagingViewportSelectionChangedEventArgs e) => ActiveViewportId = e.NewViewportId;
@@ -244,7 +257,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             CurrentLayout = e.NewLayout;
 
-            _viewportSelectionService.SetDefaultViewportForLayout(GetDefaultViewportIdForLayout(e.NewLayout));
+            _viewportSelectionService.SetDefaultViewport(GetDefaultViewportIdForLayout(e.NewLayout));
         }
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);

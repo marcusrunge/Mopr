@@ -10,6 +10,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging
 
         void SelectViewport(string viewportId);
 
-        void SetDefaultViewportForLayout(string viewportId);
+        void SetDefaultViewport(string viewportId);
     }
 }

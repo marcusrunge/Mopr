@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Imaging
             SetActiveViewport(viewportId);
         }
 
-        public void SetDefaultViewportForLayout(string viewportId)
+        public void SetDefaultViewport(string viewportId)
         {
             if (string.IsNullOrWhiteSpace(viewportId))
             {

@@ -1,5 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using System;
+using System.Collections.Generic;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging
 {
@@ -11,7 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging
 
         void CycleNextLayout();
 
-        void ResetLayout();
+        IReadOnlyList<ViewportDescriptor> GetViewportsForLayout(ImagingLayout layout);
 
         void SetLayout(ImagingLayout layout);
     }
