@@ -18,6 +18,7 @@ namespace MarcusRunge.Mopr.Workbench
         {
             containerRegistry.RegisterSingleton<IImagingLayoutService, ImagingLayoutService>();
             containerRegistry.RegisterSingleton<IImagingSelectionService, ImagingSelectionService>();
+            containerRegistry.RegisterSingleton<IImagingStudyService, ImagingStudyService>();
             containerRegistry.RegisterSingleton<IImagingToolService, ImagingToolService>();
             containerRegistry.RegisterSingleton<IImagingViewportSelectionService, ImagingViewportSelectionService>();
             containerRegistry.RegisterSingleton<IImagingViewportService, ImagingViewportService>();

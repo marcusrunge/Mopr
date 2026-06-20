@@ -8,18 +8,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
         private readonly IImagingLayoutService _layoutService;
+        private readonly IImagingStudyService _studyService;
         private readonly IImagingToolService _toolService;
         private readonly IImagingViewportService _viewportService;
         private ImagingTool _activeTool;
 
         private ImagingLayout _currentLayout;
 
-        public ImagingCommandBarViewModel(IImagingToolService toolService, IImagingLayoutService layoutService, IImagingViewportService viewportService)
+        public ImagingCommandBarViewModel(IImagingToolService toolService, IImagingLayoutService layoutService, IImagingViewportService viewportService, IImagingStudyService studyService)
 
         {
             _toolService = toolService;
             _layoutService = layoutService;
             _viewportService = viewportService;
+            _studyService = studyService;
 
             _toolService.ActiveToolChanged += OnActiveToolChanged;
             _layoutService.CurrentLayoutChanged += OnCurrentLayoutChanged;
@@ -116,9 +118,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
-        private void Open()
-        {
-        }
+        private void Open() => _studyService.LoadDemoStudy();
 
         private void OpenMoreMenu()
         {
