@@ -16,7 +16,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         public ImagingServiceBase(ICoreBase? coreBase) => _coreBase = coreBase;
 
         ICoreBase? IImagingServiceBase.CoreBase => _coreBase;
-        public IImagingViewportSelectionService? IImagingViewportSelectionService => _imagingViewportSelectionService;
         public IImagingViewportService? ImagingViewportService => _imagingViewportService;
         public IImagingLayoutService? ImagingLayoutService => _imagingLayoutService;
 

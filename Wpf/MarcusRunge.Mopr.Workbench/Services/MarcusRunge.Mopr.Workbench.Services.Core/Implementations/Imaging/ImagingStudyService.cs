@@ -4,6 +4,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,12 +50,58 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             RaiseStudyLoaded();
         }
 
-        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray()));
+        public Task LoadStudyFromFolderAsync(string folderPath, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                return Task.CompletedTask;
+            }
+
+            var folderName = Path.GetFileName(
+                folderPath.TrimEnd(
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar));
+
+            if (string.IsNullOrWhiteSpace(folderName))
+            {
+                folderName = folderPath;
+            }
+
+            var study = new StudyInfo(
+                id: "folder-study",
+                name: folderName,
+                description: folderPath);
+
+            var series = new List<SeriesInfo>
+            {
+                new SeriesInfo(id: "folder-series-1", modality: "MR", name: "T1 axial", description: "Aus Ordner geladen", imageCount: 128, studyId: "folder-study", seriesNumber: 1),
+                new SeriesInfo(id: "folder-series-2", modality: "MR", name: "T2 axial", description: "Aus Ordner geladen", imageCount: 128, studyId: "folder-study", seriesNumber: 2),
+                new SeriesInfo(id: "folder-series-3", modality: "CT", name: "CT axial", description: "Aus Ordner geladen", imageCount: 320, studyId: "folder-study", seriesNumber: 3)
+            };
+
+            ApplyStudy(study, series);
+
+            return Task.CompletedTask;
+        }
 
         protected override void OnCreate(IImagingServiceBase @base)
         {
         }
 
         protected override Task OnCreateAsync(IImagingServiceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        private void ApplyStudy(StudyInfo study, IReadOnlyList<SeriesInfo> series)
+        {
+            _currentStudy = study;
+
+            _currentSeries.Clear();
+            _currentSeries.AddRange(series);
+
+            RaiseStudyLoaded();
+        }
+
+        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray()));
     }
 }

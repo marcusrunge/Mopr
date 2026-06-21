@@ -27,9 +27,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
-            _core.ImagingService!.IImagingViewportSelectionService!.SetDefaultViewport(GetDefaultViewportIdForLayout(_currentLayout));
+            _core.ImagingService!.ImagingViewportSelectionService!.SetDefaultViewport(GetDefaultViewportIdForLayout(_currentLayout));
 
-            _activeViewportId = _core.ImagingService!.IImagingViewportSelectionService!.ActiveViewportId;
+            _activeViewportId = _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportId;
 
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;

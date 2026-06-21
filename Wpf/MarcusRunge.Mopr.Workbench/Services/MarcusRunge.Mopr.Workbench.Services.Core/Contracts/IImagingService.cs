@@ -9,7 +9,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
         IImagingStudyService? ImagingStudyService { get; }
         IImagingToolService? ImagingToolService { get; }
         IImagingViewportSelectionService? ImagingViewportSelectionService { get; }
-        IImagingViewportSelectionService? IImagingViewportSelectionService { get; }
         IImagingViewportService? ImagingViewportService { get; }
     }
 }

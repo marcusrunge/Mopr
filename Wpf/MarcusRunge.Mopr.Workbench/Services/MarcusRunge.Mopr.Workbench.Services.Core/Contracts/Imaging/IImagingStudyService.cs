@@ -1,6 +1,8 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
@@ -14,5 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
         void Clear();
 
         void LoadDemoStudy();
+
+        Task LoadStudyFromFolderAsync(string folderPath, CancellationToken cancellationToken = default);
     }
 }

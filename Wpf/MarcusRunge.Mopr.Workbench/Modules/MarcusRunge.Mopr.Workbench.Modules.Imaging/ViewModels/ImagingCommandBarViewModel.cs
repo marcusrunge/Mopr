@@ -2,20 +2,25 @@
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
 using Prism.Commands;
+using System.Threading.Tasks;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
         private readonly ICore _core;
+        private readonly IWpf _wpf;
         private ImagingTool _activeTool;
-
         private ImagingLayout _currentLayout;
+        private bool _isBusy;
 
-        public ImagingCommandBarViewModel(ICore core)
+        public ImagingCommandBarViewModel(ICore core, IWpf wpf)
         {
             _core = core;
+            _wpf = wpf;
 
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
             _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
@@ -23,7 +28,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
-            OpenCommand = new DelegateCommand(Open);
+            OpenCommand = new DelegateCommand(async () => await OpenAsync());
             LayoutCommand = new DelegateCommand(ChangeLayout);
 
             ZoomCommand = new DelegateCommand(ActivateZoom);
@@ -60,6 +65,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentLayout, value))
                 {
                     RaisePropertyChanged(nameof(LayoutDisplayText));
+                }
+            }
+        }
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            private set
+            {
+                if (SetProperty(ref _isBusy, value))
+                {
+                    OpenCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -112,7 +129,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
-        private void Open() => _core.ImagingService!.ImagingStudyService!.LoadDemoStudy();
+        private async Task OpenAsync()
+        {
+            if (IsBusy)
+            {
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+
+                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(
+                    title: "DICOM-Ordner öffnen");
+
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    return;
+                }
+
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
         private void OpenMoreMenu()
         {
