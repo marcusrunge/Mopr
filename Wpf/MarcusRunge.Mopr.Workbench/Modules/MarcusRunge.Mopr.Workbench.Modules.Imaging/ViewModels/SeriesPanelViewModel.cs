@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -8,22 +9,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class SeriesPanelViewModel : ViewModelBase
     {
-        private readonly IImagingSelectionService _selectionService;
-        private readonly IImagingStudyService _studyService;
+        private readonly ICore _core;
 
         private string _searchText = string.Empty;
         private SeriesInfo? _selectedSeries;
 
-        public SeriesPanelViewModel(IImagingSelectionService selectionService, IImagingStudyService studyService)
+        public SeriesPanelViewModel(ICore core)
         {
-            _selectionService = selectionService;
-            _studyService = studyService;
+            _core = core;
 
-            _studyService.StudyLoaded += OnStudyLoaded;
+            _core.ImagingService!.ImagingStudyService!.StudyLoaded += OnStudyLoaded;
 
             Series = [];
 
-            ApplyStudy(_studyService.CurrentStudy, _studyService.CurrentSeries);
+            ApplyStudy(_core.ImagingService!.ImagingStudyService!.CurrentStudy, _core.ImagingService!.ImagingStudyService!.CurrentSeries);
         }
 
         public string SearchText
@@ -39,7 +38,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _selectedSeries, value))
                 {
-                    _selectionService.SelectSeries(value);
+                    _core.ImagingService!.ImagingSelectionService!.SelectSeries(value);
                 }
             }
         }
@@ -48,14 +47,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public override void Destroy()
         {
-            _studyService.StudyLoaded -= OnStudyLoaded;
+            _core.ImagingService!.ImagingStudyService!.StudyLoaded -= OnStudyLoaded;
 
             base.Destroy();
         }
 
         private void ApplyStudy(StudyInfo? study, IReadOnlyList<SeriesInfo> series)
         {
-            _selectionService.SelectStudy(study);
+            _core.ImagingService!.ImagingSelectionService!.SelectStudy(study);
 
             Series.Clear();
 

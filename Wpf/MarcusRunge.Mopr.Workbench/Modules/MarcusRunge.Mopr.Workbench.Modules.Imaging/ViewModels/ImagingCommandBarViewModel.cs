@@ -1,33 +1,27 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
-        private readonly IImagingLayoutService _layoutService;
-        private readonly IImagingStudyService _studyService;
-        private readonly IImagingToolService _toolService;
-        private readonly IImagingViewportService _viewportService;
+        private readonly ICore _core;
         private ImagingTool _activeTool;
 
         private ImagingLayout _currentLayout;
 
-        public ImagingCommandBarViewModel(IImagingToolService toolService, IImagingLayoutService layoutService, IImagingViewportService viewportService, IImagingStudyService studyService)
-
+        public ImagingCommandBarViewModel(ICore core)
         {
-            _toolService = toolService;
-            _layoutService = layoutService;
-            _viewportService = viewportService;
-            _studyService = studyService;
+            _core = core;
 
-            _toolService.ActiveToolChanged += OnActiveToolChanged;
-            _layoutService.CurrentLayoutChanged += OnCurrentLayoutChanged;
+            _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
+            _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
 
-            _activeTool = _toolService.ActiveTool;
-            _currentLayout = _layoutService.CurrentLayout;
+            _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
+            _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
             OpenCommand = new DelegateCommand(Open);
             LayoutCommand = new DelegateCommand(ChangeLayout);
@@ -98,27 +92,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public override void Destroy()
         {
-            _toolService.ActiveToolChanged -= OnActiveToolChanged;
-            _layoutService.CurrentLayoutChanged -= OnCurrentLayoutChanged;
+            _core.ImagingService!.ImagingToolService!.ActiveToolChanged -= OnActiveToolChanged;
+            _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
 
             base.Destroy();
         }
 
-        private void ActivateCrosshair() => _toolService.SetActiveTool(ImagingTool.Crosshair);
+        private void ActivateCrosshair() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Crosshair);
 
-        private void ActivatePan() => _toolService.SetActiveTool(ImagingTool.Pan);
+        private void ActivatePan() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Pan);
 
-        private void ActivateWindowLevel() => _toolService.SetActiveTool(ImagingTool.WindowLevel);
+        private void ActivateWindowLevel() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.WindowLevel);
 
-        private void ActivateZoom() => _toolService.SetActiveTool(ImagingTool.Zoom);
+        private void ActivateZoom() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Zoom);
 
-        private void ChangeLayout() => _layoutService.CycleNextLayout();
+        private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
         private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
-        private void Open() => _studyService.LoadDemoStudy();
+        private void Open() => _core.ImagingService!.ImagingStudyService!.LoadDemoStudy();
 
         private void OpenMoreMenu()
         {
@@ -126,8 +120,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ResetView()
         {
-            _viewportService.Reset();
-            _toolService.ClearActiveTool();
+            _core.ImagingService!.ImagingViewportService!.Reset();
+            _core.ImagingService!.ImagingToolService!.ClearActiveTool();
         }
     }
 }

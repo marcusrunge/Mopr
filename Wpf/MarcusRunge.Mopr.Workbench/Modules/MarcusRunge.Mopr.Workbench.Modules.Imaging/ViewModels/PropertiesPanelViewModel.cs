@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
@@ -21,21 +22,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
     public sealed class PropertiesPanelViewModel : ViewModelBase
     {
-        private readonly IImagingSelectionService _selectionService;
-        private readonly IImagingViewportService _viewportService;
+        private readonly ICore _core;
 
         private bool _isApplyingViewportState;
         private double _levelValue = 40;
         private SeriesInfo? _selectedSeries;
         private double _windowValue = 400;
 
-        public PropertiesPanelViewModel(IImagingSelectionService selectionService, IImagingViewportService viewportService)
+        public PropertiesPanelViewModel(ICore core)
         {
-            _selectionService = selectionService;
-            _viewportService = viewportService;
+            _core = core;
 
-            _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
-            _viewportService.StateChanged += OnViewportStateChanged;
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
+            _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
 
             ResetWindowLevelCommand = new DelegateCommand(ResetWindowLevel);
 
@@ -61,8 +60,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             DicomTags = [];
 
-            ApplySelectedSeries(_selectionService.SelectedSeries);
-            ApplyViewportState(_viewportService.State);
+            ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
+            ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
         }
 
         public DelegateCommand AddAngleMeasurementCommand { get; }
@@ -123,8 +122,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public override void Destroy()
         {
-            _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
-            _viewportService.StateChanged -= OnViewportStateChanged;
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
+            _core.ImagingService!.ImagingViewportService!.StateChanged -= OnViewportStateChanged;
 
             base.Destroy();
         }
@@ -189,7 +188,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
 
-        private void ResetWindowLevel() => _viewportService.SetWindowLevel(400, 40);
+        private void ResetWindowLevel() => _core.ImagingService!.ImagingViewportService!.SetWindowLevel(400, 40);
 
         private void UpdateViewportWindowLevel()
         {
@@ -198,7 +197,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            _viewportService.SetWindowLevel(WindowValue, LevelValue);
+            _core.ImagingService!.ImagingViewportService!.SetWindowLevel(WindowValue, LevelValue);
         }
     }
 }

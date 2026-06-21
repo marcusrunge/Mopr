@@ -7,6 +7,12 @@
     <PackageIcon>mopr.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+    <Page Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Assets\mopr.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -15,11 +21,10 @@
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Services.Core\MarcusRunge.Mopr.Workbench.Services.Core.csproj" />
     <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
     <ProjectReference Include="..\Modules\MarcusRunge.Mopr.Workbench.Modules.Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
-    <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services.Interfaces\MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
-    <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services\MarcusRunge.Mopr.Workbench.Services.csproj" />
+    <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services.Core\MarcusRunge.Mopr.Workbench.Services.Core.csproj" />
+    <ProjectReference Include="..\Services\MarcusRunge.Mopr.Workbench.Services.Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources-de.Designer.cs">
@@ -49,7 +54,4 @@
       <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Dialog\" />
   </ItemGroup></Project>

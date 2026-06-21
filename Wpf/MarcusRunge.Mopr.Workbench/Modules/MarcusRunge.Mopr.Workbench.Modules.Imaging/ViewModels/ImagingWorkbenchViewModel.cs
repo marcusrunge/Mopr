@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
-using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using System.Windows;
 
@@ -10,26 +11,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private const double DefaultPropertiesPaneWidth = 340;
         private const double DefaultSeriesPaneWidth = 280;
-        private readonly IImagingSelectionService _selectionService;
+        private readonly ICore _core;
 
         private bool _isPropertiesPaneVisible = true;
         private bool _isSeriesPaneVisible = true;
         private SeriesInfo? _selectedSeries;
         private StudyInfo? _selectedStudy;
 
-        public ImagingWorkbenchViewModel(IImagingSelectionService selectionService)
+        public ImagingWorkbenchViewModel(ICore core)
         {
-            _selectionService = selectionService;
-            _selectionService.SelectedSeriesChanged += OnSelectedSeriesChanged;
+            _core = core;
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
 
             ToggleSeriesPaneCommand = new DelegateCommand(ToggleSeriesPane);
             TogglePropertiesPaneCommand = new DelegateCommand(TogglePropertiesPane);
 
-            ApplySelection(_selectionService.SelectedStudy, _selectionService.SelectedSeries);
+            ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
 
-        public string CurrentSeriesDisplayText =>
-            SelectedSeries == null ? "Serie: Keine Serie aktiv" : $"Serie: {SelectedSeries.Name}";
+        public string CurrentSeriesDisplayText => SelectedSeries == null ? "Serie: Keine Serie aktiv" : $"Serie: {SelectedSeries.Name}";
 
         public string CurrentStudyDisplayText => SelectedStudy == null ? "Studie: Keine Studie geöffnet" : $"Studie: {SelectedStudy.Name}";
 
@@ -102,7 +102,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public override void Destroy()
         {
-            _selectionService.SelectedSeriesChanged -= OnSelectedSeriesChanged;
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
             base.Destroy();
         }
 

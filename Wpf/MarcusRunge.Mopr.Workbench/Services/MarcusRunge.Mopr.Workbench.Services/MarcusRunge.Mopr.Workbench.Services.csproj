@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
-    <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Services.Interfaces\MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>

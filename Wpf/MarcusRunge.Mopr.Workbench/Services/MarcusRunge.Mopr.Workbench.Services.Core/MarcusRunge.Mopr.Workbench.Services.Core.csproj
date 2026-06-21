@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>    
+    <Nullable>enable</Nullable>
+  <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Core</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Core</AssemblyName></PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

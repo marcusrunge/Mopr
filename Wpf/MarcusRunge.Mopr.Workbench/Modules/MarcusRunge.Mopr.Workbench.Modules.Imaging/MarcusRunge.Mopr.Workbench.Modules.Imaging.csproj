@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
-    <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Interfaces\MarcusRunge.Mopr.Workbench.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Core\MarcusRunge.Mopr.Workbench.Services.Core.csproj" />
+    <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
   </ItemGroup>
 </Project>
