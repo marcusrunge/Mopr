@@ -14,6 +14,8 @@
   <Folder Name="/Tests/">
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests/MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests.csproj" />
   </Folder>
+  <Project Path="MarcusRunge.Mopr.Workbench.Services.Core/MarcusRunge.Mopr.Workbench.Services.Core.csproj" Id="aac45427-2e64-4b6a-a8ec-432cca6f8e82" />
+  <Project Path="MarcusRunge.Mopr.Workbench.Services.Wpf/MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" Id="08043b25-74e3-4e71-b355-16c23a38bf9f" />
   <Project Path="MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench.Contracts/MarcusRunge.Mopr.Workbench.Contracts.csproj" Id="f213b9f4-fef7-4599-bd04-6787ea7ff902" />
   <Project Path="MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench.Core/MarcusRunge.Mopr.Workbench.Core.csproj" />
   <Project Path="MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench/MarcusRunge.Mopr.Workbench.csproj" />

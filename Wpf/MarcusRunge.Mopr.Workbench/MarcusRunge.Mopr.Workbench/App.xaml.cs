@@ -4,6 +4,8 @@ using MarcusRunge.Mopr.Workbench.Services.Interfaces.Imaging;
 using MarcusRunge.Mopr.Workbench.Views;
 using Prism.Ioc;
 using Prism.Modularity;
+using MarcusRunge.Mopr.Workbench.Services;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using System.Windows;
 
 namespace MarcusRunge.Mopr.Workbench
@@ -22,6 +24,11 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IImagingToolService, ImagingToolService>();
             containerRegistry.RegisterSingleton<IImagingViewportSelectionService, ImagingViewportSelectionService>();
             containerRegistry.RegisterSingleton<IImagingViewportService, ImagingViewportService>();
+
+            // Register core factory and the ICore instance produced by the factory.
+            //containerRegistry.RegisterSingleton<ICoreFactory, CoreFactory>();
+            containerRegistry.RegisterInstance<ICoreFactory>(new CoreFactory());
+            containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
         }
     }
 }
