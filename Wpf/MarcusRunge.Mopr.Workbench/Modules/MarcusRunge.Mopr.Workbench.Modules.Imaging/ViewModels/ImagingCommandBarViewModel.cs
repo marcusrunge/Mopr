@@ -3,8 +3,9 @@ using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
 using Prism.Commands;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -16,6 +17,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImagingTool _activeTool;
         private ImagingLayout _currentLayout;
         private bool _isBusy;
+        private CancellationTokenSource? _openCancellationTokenSource;
+        private string _statusText = "Bereit";
 
         public ImagingCommandBarViewModel(ICore core, IWpf wpf)
         {
@@ -28,7 +31,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
-            OpenCommand = new DelegateCommand(async () => await OpenAsync());
+            OpenCommand = new DelegateCommand(async () => await OpenAsync(), () => !IsBusy);
+            CancelOpenCommand = new DelegateCommand(CancelOpen, () => IsBusy);
+
             LayoutCommand = new DelegateCommand(ChangeLayout);
 
             ZoomCommand = new DelegateCommand(ActivateZoom);
@@ -55,6 +60,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public DelegateCommand CancelOpenCommand { get; }
+
         public DelegateCommand CrosshairCommand { get; }
 
         public ImagingLayout CurrentLayout
@@ -69,6 +76,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
+
         public bool IsBusy
         {
             get => _isBusy;
@@ -77,9 +86,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _isBusy, value))
                 {
                     OpenCommand.RaiseCanExecuteChanged();
+                    CancelOpenCommand.RaiseCanExecuteChanged();
+                    RaisePropertyChanged(nameof(OpenButtonText));
+                    RaisePropertyChanged(nameof(IsCancelVisible));
                 }
             }
         }
+
+        public bool IsCancelVisible => IsBusy;
 
         public bool IsCrosshairActive => ActiveTool == ImagingTool.Crosshair;
 
@@ -101,10 +115,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         };
 
         public DelegateCommand MoreCommand { get; }
+
+        public string OpenButtonText => IsBusy ? "Laden..." : "Öffnen";
+
         public DelegateCommand OpenCommand { get; }
+
         public DelegateCommand PanCommand { get; }
+
         public DelegateCommand ResetViewCommand { get; }
+
+        public string StatusText
+        {
+            get => _statusText;
+            private set
+            {
+                if (SetProperty(ref _statusText, value))
+                {
+                    RaisePropertyChanged(nameof(HasStatusText));
+                }
+            }
+        }
+
         public DelegateCommand WindowLevelCommand { get; }
+
         public DelegateCommand ZoomCommand { get; }
 
         public override void Destroy()
@@ -123,6 +156,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ActivateZoom() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Zoom);
 
+        private void CancelOpen()
+        {
+            if (_openCancellationTokenSource == null)
+            {
+                return;
+            }
+
+            StatusText = "Abbruch wird angefordert...";
+            _openCancellationTokenSource.Cancel();
+        }
+
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
@@ -139,19 +183,45 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             try
             {
                 IsBusy = true;
+                StatusText = "Ordner auswählen...";
 
-                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(
-                    title: "DICOM-Ordner öffnen");
+                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(title: "DICOM-Ordner öffnen");
 
                 if (string.IsNullOrWhiteSpace(folderPath))
                 {
+                    StatusText = string.Empty;
                     return;
                 }
 
-                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath);
+                _openCancellationTokenSource = new CancellationTokenSource();
+
+                var progress = new Progress<ImagingStudyLoadProgress>(value =>
+                    {
+                        StatusText = value.DisplayText;
+                    });
+
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath, progress, _openCancellationTokenSource.Token);
+
+                if (_openCancellationTokenSource.IsCancellationRequested)
+                {
+                    StatusText = "Laden abgebrochen";
+                    return;
+                }
+
+                var summary = _core.ImagingService!.ImagingStudyService!.LastScanSummary;
+
+                StatusText = summary?.DisplayText ?? string.Empty;
+            }
+            catch (Exception exception)
+            {
+                StatusText = "Fehler beim Laden";
+                System.Diagnostics.Debug.WriteLine(exception);
             }
             finally
             {
+                _openCancellationTokenSource?.Dispose();
+                _openCancellationTokenSource = null;
+
                 IsBusy = false;
             }
         }

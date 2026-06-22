@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,11 +13,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 
         IReadOnlyList<SeriesInfo> CurrentSeries { get; }
         StudyInfo? CurrentStudy { get; }
+        ImagingFolderScanSummary? LastScanSummary { get; }
 
         void Clear();
 
         void LoadDemoStudy();
 
-        Task LoadStudyFromFolderAsync(string folderPath, CancellationToken cancellationToken = default);
+        Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
     }
 }

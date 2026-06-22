@@ -9,45 +9,73 @@
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
-    <Grid>
-        <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Margin="12,0">
+    <Grid Margin="12,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-            <Button Content="Öffnen"
-                    Command="{Binding OpenCommand}"
-                    Margin="0,0,8,0" />
+        <!-- Commands links -->
+        <StackPanel Grid.Column="0"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
 
-            <Button Content="{Binding LayoutDisplayText}"
-                    Command="{Binding LayoutCommand}"
+            <Button Content="{Binding OpenButtonText}"
+                Command="{Binding OpenCommand}"
+                Margin="0,0,8,0"/>
+            
+            <Button Content="Abbrechen"
+                    Command="{Binding CancelOpenCommand}"
+                    Visibility="{Binding IsCancelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     Margin="0,0,8,0"/>
 
+            <Button Content="{Binding LayoutDisplayText}"
+                Command="{Binding LayoutCommand}"
+                Margin="0,0,8,0"/>
+
             <ToggleButton Content="Fensterung"
-                          Command="{Binding WindowLevelCommand}"
-                          IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
-                          Margin="0,0,8,0" />
+                      Command="{Binding WindowLevelCommand}"
+                      IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
+                      Margin="0,0,8,0"/>
 
             <ToggleButton Content="Zoom"
-                          Command="{Binding ZoomCommand}"
-                          IsChecked="{Binding IsZoomActive, Mode=OneWay}"
-                          Margin="0,0,8,0" />
+                      Command="{Binding ZoomCommand}"
+                      IsChecked="{Binding IsZoomActive, Mode=OneWay}"
+                      Margin="0,0,8,0"/>
 
             <ToggleButton Content="Pan"
-                          Command="{Binding PanCommand}"
-                          IsChecked="{Binding IsPanActive, Mode=OneWay}"
-                          Margin="0,0,8,0" />
+                      Command="{Binding PanCommand}"
+                      IsChecked="{Binding IsPanActive, Mode=OneWay}"
+                      Margin="0,0,8,0"/>
 
             <ToggleButton Content="Crosshair"
-                          Command="{Binding CrosshairCommand}"
-                          IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
-                          Margin="0,0,8,0" />
+                      Command="{Binding CrosshairCommand}"
+                      IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
+                      Margin="0,0,8,0"/>
 
             <Button Content="Reset"
-                    Command="{Binding ResetViewCommand}"
-                    Margin="0,0,8,0" />
+                Command="{Binding ResetViewCommand}"
+                Margin="0,0,8,0"/>
 
-            <Button Content="⋯"
-                    Command="{Binding MoreCommand}" />
+            <Button Content="..."
+                Command="{Binding MoreCommand}"/>
         </StackPanel>
+
+        <!-- Status rechts -->
+        <Border Grid.Column="2"
+            VerticalAlignment="Center"
+            Padding="10,4"
+            CornerRadius="6"
+            Background="#101820"
+            BorderBrush="#27313A"
+            BorderThickness="1"
+            Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <TextBlock Text="{Binding StatusText}"
+                   Foreground="#8FA0AD"
+                   FontSize="12"
+                   VerticalAlignment="Center"/>
+        </Border>
     </Grid>
 </UserControl>

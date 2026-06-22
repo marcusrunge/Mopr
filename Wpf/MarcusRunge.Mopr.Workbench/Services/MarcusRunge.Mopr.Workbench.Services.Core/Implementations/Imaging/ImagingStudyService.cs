@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
@@ -17,15 +18,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
         private StudyInfo? _currentStudy;
 
+        private ImagingFolderScanSummary? _lastScanSummary;
+
         public event EventHandler<ImagingStudyLoadedEventArgs>? StudyLoaded;
 
         public IReadOnlyList<SeriesInfo> CurrentSeries => _currentSeries;
         public StudyInfo? CurrentStudy => _currentStudy;
 
+        public ImagingFolderScanSummary? LastScanSummary => _lastScanSummary;
+
         public void Clear()
         {
             _currentStudy = null;
             _currentSeries.Clear();
+            _lastScanSummary = null;
 
             RaiseStudyLoaded();
         }
@@ -47,22 +53,48 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             _currentSeries.Clear();
             _currentSeries.AddRange(series);
+            _lastScanSummary = null;
 
             RaiseStudyLoaded();
         }
 
-        public async Task LoadStudyFromFolderAsync(string folderPath, CancellationToken cancellationToken = default)
+        public async Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(folderPath))
             {
                 return;
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                progress?.Report(new ImagingStudyLoadProgress(message: "Laden abgebrochen", processedFiles: 0, totalFiles: 0));
 
-            var scanResult = await Task.Run(() => ScanFolder(folderPath, cancellationToken), cancellationToken);
+                return;
+            }
+
+            FolderScanResult scanResult;
+
+            try
+            {
+                scanResult = await Task.Run(() => ScanFolder(folderPath, progress, cancellationToken), cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                progress?.Report(new ImagingStudyLoadProgress(message: "Laden abgebrochen", processedFiles: 0, totalFiles: 0));
+
+                return;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                progress?.Report(new ImagingStudyLoadProgress(message: "Laden abgebrochen", processedFiles: 0, totalFiles: 0));
+
+                return;
+            }
 
             var study = new StudyInfo(id: scanResult.StudyId, name: scanResult.FolderName, description: scanResult.FolderPath);
+
+            _lastScanSummary = scanResult.Summary;
 
             ApplyStudy(study, scanResult.Series);
         }
@@ -125,8 +157,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             return string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".bmp", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".tif", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".tiff", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static FolderScanResult ScanFolder(string folderPath, CancellationToken cancellationToken)
+        private static FolderScanResult ScanFolder(string folderPath, IProgress<ImagingStudyLoadProgress>? progress, CancellationToken cancellationToken)
         {
+            progress?.Report(new ImagingStudyLoadProgress(message: "Dateien werden gesucht...", processedFiles: 0, totalFiles: 0));
+
             var folderName = GetSafeFolderName(folderPath);
             var studyId = "folder-study-" + Guid.NewGuid().ToString("N");
 
@@ -138,18 +172,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                 allFiles.Add(file);
             }
 
+            progress?.Report(new ImagingStudyLoadProgress(message: "Dateien gefunden", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
+
             var dicomCandidateCount = allFiles.Count(IsDicomCandidate);
 
-            var dicomFiles = allFiles.Where(IsDicomFile).ToList();
+            var dicomFiles = new List<string>();
+
+            for (var index = 0; index < allFiles.Count; index++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var file = allFiles[index];
+
+                if (IsDicomFile(file))
+                {
+                    dicomFiles.Add(file);
+                }
+
+                progress?.Report(new ImagingStudyLoadProgress(message: "DICOM-Dateien werden geprüft...", processedFiles: index + 1, totalFiles: allFiles.Count));
+            }
 
             var imageFiles = allFiles.Where(IsImageCandidate).ToList();
+
+            var dicomFileSet = new HashSet<string>(dicomFiles, StringComparer.OrdinalIgnoreCase);
+
+            var imageFileSet = new HashSet<string>(imageFiles, StringComparer.OrdinalIgnoreCase);
+
+            var otherFilesCount = allFiles.Count(file => !dicomFileSet.Contains(file) && !imageFileSet.Contains(file));
+
+            var summary = new ImagingFolderScanSummary(folderPath: folderPath, totalFiles: allFiles.Count, dicomCandidates: dicomCandidateCount, validDicomFiles: dicomFiles.Count, imageFiles: imageFiles.Count, otherFiles: otherFilesCount);
 
             var series = new List<SeriesInfo>();
             var seriesNumber = 1;
 
             if (dicomFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-dicom", modality: "DICOM", name: "DICOM-Dateien", description: $"{dicomFiles.Count} valide DICOM-Dateien, {dicomCandidateCount} Kandidaten", imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                series.Add(new SeriesInfo(id: studyId + "-dicom", modality: "DICOM", name: "DICOM-Dateien", description: summary.DisplayText, imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
             }
 
             if (dicomFiles.Count == 0 && dicomCandidateCount > 0)
@@ -167,7 +225,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                 series.Add(new SeriesInfo(id: studyId + "-files", modality: "FILES", name: "Ordnerinhalt", description: $"{allFiles.Count} Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
             }
 
-            return new FolderScanResult(studyId, folderName, folderPath, series);
+            progress?.Report(new ImagingStudyLoadProgress(message: "Scan abgeschlossen", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
+
+            return new FolderScanResult(studyId, folderName, folderPath, series, summary);
         }
 
         private void ApplyStudy(StudyInfo study, IReadOnlyList<SeriesInfo> series)
@@ -180,22 +240,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             RaiseStudyLoaded();
         }
 
-        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray()));
+        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray(), _lastScanSummary));
 
         private sealed class FolderScanResult
         {
-            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series)
+            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, ImagingFolderScanSummary summary)
             {
                 StudyId = studyId;
                 FolderName = folderName;
                 FolderPath = folderPath;
                 Series = series;
+                Summary = summary;
             }
 
             public string FolderName { get; }
             public string FolderPath { get; }
             public IReadOnlyList<SeriesInfo> Series { get; }
             public string StudyId { get; }
+            public ImagingFolderScanSummary Summary { get; }
         }
     }
 }
