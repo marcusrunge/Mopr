@@ -1,5 +1,7 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImageViewerView"
+             xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
@@ -7,12 +9,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              d:DataContext="{d:DesignInstance Type=viewmodels:ImageViewerViewModel}"
+             Focusable="True"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <Grid Background="#030506"
-          ClipToBounds="True">
+          ClipToBounds="True"
+          behaviors:FocusOnMouseDownBehavior.IsEnabled="True">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="PreviewMouseWheel">
+                <prism:InvokeCommandAction Command="{Binding MouseWheelCommand}" />
+            </i:EventTrigger>
 
+            <i:EventTrigger EventName="PreviewKeyDown">
+                <prism:InvokeCommandAction Command="{Binding KeyDownCommand}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        
         <Border Background="#05080A"
                 BorderBrush="#1F2933"
                 BorderThickness="1"

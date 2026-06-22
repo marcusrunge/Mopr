@@ -93,9 +93,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         {
             try
             {
-                var info = new FileInfo(filePath);
+                var fileInfo = new FileInfo(filePath);
 
-                if (!info.Exists || info.Length < 132)
+                if (!fileInfo.Exists || fileInfo.Length < 132)
                 {
                     return false;
                 }
@@ -138,6 +138,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                 allFiles.Add(file);
             }
 
+            var dicomCandidateCount = allFiles.Count(IsDicomCandidate);
+
             var dicomFiles = allFiles.Where(IsDicomFile).ToList();
 
             var imageFiles = allFiles.Where(IsImageCandidate).ToList();
@@ -147,17 +149,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             if (dicomFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-dicom", modality: "DICOM", name: "DICOM-Dateien", description: "Gefundene DICOM-Kandidaten", imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                series.Add(new SeriesInfo(id: studyId + "-dicom", modality: "DICOM", name: "DICOM-Dateien", description: $"{dicomFiles.Count} valide DICOM-Dateien, {dicomCandidateCount} Kandidaten", imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+            }
+
+            if (dicomFiles.Count == 0 && dicomCandidateCount > 0)
+            {
+                series.Add(new SeriesInfo(id: studyId + "-dicom-candidates", modality: "DICOM?", name: "DICOM-Kandidaten", description: $"{dicomCandidateCount} Kandidaten gefunden, aber kein DICM-Marker erkannt", imageCount: dicomCandidateCount, studyId: studyId, seriesNumber: seriesNumber++));
             }
 
             if (imageFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-images", modality: "IMG", name: "Bilddateien", description: "Gefundene Bilddateien", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                series.Add(new SeriesInfo(id: studyId + "-images", modality: "IMG", name: "Bilddateien", description: $"{imageFiles.Count} Bilddateien gefunden", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
             }
 
             if (series.Count == 0 && allFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-files", modality: "FILES", name: "Ordnerinhalt", description: "Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
+                series.Add(new SeriesInfo(id: studyId + "-files", modality: "FILES", name: "Ordnerinhalt", description: $"{allFiles.Count} Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
             }
 
             return new FolderScanResult(studyId, folderName, folderPath, series);

@@ -9,6 +9,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 
         ImagingViewportState State { get; }
 
+        void MoveSlice(int delta);
+
         void Reset();
 
         void SetSlice(int currentSlice, int sliceCount);

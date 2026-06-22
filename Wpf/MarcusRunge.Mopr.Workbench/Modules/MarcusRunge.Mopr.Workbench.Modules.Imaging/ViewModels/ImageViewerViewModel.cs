@@ -5,6 +5,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using System;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
@@ -40,7 +41,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
 
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
-
+            MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
+            KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
             ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
             ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
@@ -147,6 +149,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
 
+        public DelegateCommand<KeyEventArgs?> KeyDownCommand { get; }
+
         public string LayoutDisplayText => CurrentLayout switch
         {
             ImagingLayout.Single => "Layout: Einzelansicht",
@@ -155,6 +159,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ImagingLayout.AxialSagittalCoronal => "Layout: Axial / Sagittal / Coronal",
             _ => "Layout: Unbekannt"
         };
+
+        public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand { get; }
 
         public SeriesInfo? SelectedSeries
         {
@@ -269,6 +275,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             return defaultViewport?.Id ?? "Single.Main";
         }
 
+        private void MoveSlice(int delta) => _core.ImagingService!.ImagingViewportService!.MoveSlice(delta);
+
+        private void MoveToFirstSlice() => _core.ImagingService!.ImagingViewportService!.SetSlice(1, SliceCount);
+
+        private void MoveToLastSlice() => _core.ImagingService!.ImagingViewportService!.SetSlice(SliceCount, SliceCount);
+
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
         private void OnActiveViewportChanged(object? sender, ImagingViewportSelectionChangedEventArgs e) => ActiveViewportId = e.NewViewportId;
@@ -278,6 +290,76 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentLayout = e.NewLayout;
 
             _core.ImagingService!.ImagingViewportSelectionService!.SetDefaultViewport(GetDefaultViewportIdForLayout(e.NewLayout));
+        }
+
+        private void OnKeyDown(KeyEventArgs? e)
+        {
+            if (e == null)
+            {
+                return;
+            }
+
+            var key = e.Key == Key.System
+                ? e.SystemKey
+                : e.Key;
+
+            switch (key)
+            {
+                case Key.Up:
+                case Key.Right:
+                case Key.Space:
+                    MoveSlice(1);
+                    e.Handled = true;
+                    break;
+
+                case Key.Down:
+                case Key.Left:
+                    MoveSlice(-1);
+                    e.Handled = true;
+                    break;
+
+                case Key.PageUp:
+                    MoveSlice(10);
+                    e.Handled = true;
+                    break;
+
+                case Key.PageDown:
+                    MoveSlice(-10);
+                    e.Handled = true;
+                    break;
+
+                case Key.Home:
+                    MoveToFirstSlice();
+                    e.Handled = true;
+                    break;
+
+                case Key.End:
+                    MoveToLastSlice();
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+        private void OnMouseWheel(MouseWheelEventArgs? e)
+        {
+            if (e == null)
+            {
+                return;
+            }
+
+            var step = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ? 10 : 1;
+
+
+            if (e.Delta > 0)
+            {
+                MoveSlice(step);
+            }
+            else if (e.Delta < 0)
+            {
+                MoveSlice(-step);
+            }
+
+            e.Handled = true;
         }
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);

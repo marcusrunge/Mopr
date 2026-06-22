@@ -16,6 +16,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
         public ImagingViewportState State => _state;
 
+        public void MoveSlice(int delta)
+        {
+            if (delta == 0)
+            {
+                return;
+            }
+
+            SetSlice(_state.CurrentSlice + delta, _state.SliceCount);
+        }
+
         public void Reset() => UpdateState(new ImagingViewportState(currentSlice: 1, sliceCount: _state.SliceCount, zoomFactor: 1.0, windowValue: 400, levelValue: 40));
 
         public void SetSlice(int currentSlice, int sliceCount)
