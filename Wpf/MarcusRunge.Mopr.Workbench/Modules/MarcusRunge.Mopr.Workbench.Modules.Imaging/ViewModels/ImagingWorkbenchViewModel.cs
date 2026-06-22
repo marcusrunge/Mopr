@@ -9,8 +9,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingWorkbenchViewModel : ViewModelBase
     {
+        private const double CollapsedPaneWidth = 48;
         private const double DefaultPropertiesPaneWidth = 340;
         private const double DefaultSeriesPaneWidth = 280;
+        private const double SplitterWidth = 4;
+
         private readonly ICore _core;
 
         private bool _isPropertiesPaneVisible = true;
@@ -21,6 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ImagingWorkbenchViewModel(ICore core)
         {
             _core = core;
+
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
 
             ToggleSeriesPaneCommand = new DelegateCommand(ToggleSeriesPane);
@@ -65,11 +69,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public GridLength LeftSplitterWidth => IsSeriesPaneVisible ? new GridLength(4) : new GridLength(0);
+        public GridLength LeftSplitterWidth => IsSeriesPaneVisible ? new GridLength(SplitterWidth) : new GridLength(0);
 
-        public GridLength PropertiesPaneWidth => IsPropertiesPaneVisible ? new GridLength(DefaultPropertiesPaneWidth) : new GridLength(0);
-
-        public GridLength RightSplitterWidth => IsPropertiesPaneVisible ? new GridLength(4) : new GridLength(0);
+        public GridLength PropertiesPaneWidth => IsPropertiesPaneVisible ? new GridLength(DefaultPropertiesPaneWidth) : new GridLength(CollapsedPaneWidth);
+        public GridLength RightSplitterWidth => IsPropertiesPaneVisible ? new GridLength(SplitterWidth) : new GridLength(0);
 
         public SeriesInfo? SelectedSeries
         {
@@ -95,14 +98,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public GridLength SeriesPaneWidth => IsSeriesPaneVisible ? new GridLength(DefaultSeriesPaneWidth) : new GridLength(0);
-
+        public GridLength SeriesPaneWidth => IsSeriesPaneVisible ? new GridLength(DefaultSeriesPaneWidth) : new GridLength(CollapsedPaneWidth);
         public DelegateCommand TogglePropertiesPaneCommand { get; }
+
         public DelegateCommand ToggleSeriesPaneCommand { get; }
 
         public override void Destroy()
         {
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
+
             base.Destroy();
         }
 

@@ -1,21 +1,20 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImagingWorkbenchView"
              xmlns:core="clr-namespace:MarcusRunge.Mopr.Workbench.Core;assembly=MarcusRunge.Mopr.Workbench.Core"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels" 
+             xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              d:DataContext="{d:DesignInstance Type=viewModels:ImagingWorkbenchViewModel}"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
-
     <Grid Background="#080B0E">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>
-            <RowDefinition Height="52"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="56" />
+            <RowDefinition Height="52" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -26,36 +25,36 @@
 
             <Grid Margin="16,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="32"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="MOPR"
                            FontSize="24"
                            FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center" />
 
                 <TextBlock Grid.Column="2"
                            Text="{Binding CurrentStudyDisplayText}"
                            FontSize="18"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center" />
 
                 <TextBlock Grid.Column="4"
                            Text="{Binding CurrentSeriesDisplayText}"
                            FontSize="18"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center" />
 
                 <StackPanel Grid.Column="6"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <Button Content="Suche"
-                            Margin="0,0,8,0"/>
-                    <Button Content="☰"/>
+                            Margin="0,0,8,0" />
+                    <Button Content="☰" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -79,39 +78,81 @@
                 <ColumnDefinition Width="{Binding PropertiesPaneWidth}" />
             </Grid.ColumnDefinitions>
 
-            <!-- Serien -->
-            <Border Grid.Column="0"
-                    Background="#11171D"
-                    BorderBrush="#28313A"
-                    BorderThickness="0,0,1,0"
-                    Visibility="{Binding IsSeriesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <!-- Serien: ausgeklappt oder eingeklappte Rail -->
+            <Grid Grid.Column="0"
+                  Background="#0F151A">
 
-                <DockPanel>
-                    <Grid DockPanel.Dock="Top"
-                          Height="52"
-                          Margin="12,0">
+                <!-- Serien ausgeklappt -->
+                <Border Background="#11171D"
+                        BorderBrush="#28313A"
+                        BorderThickness="0,0,1,0"
+                        Visibility="{Binding IsSeriesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top"
+                              Height="52"
+                              Margin="12,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Serien"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="Serien"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
 
-                        <Button Grid.Column="1"
-                                Width="32"
-                                Height="32"
-                                Content="‹"
-                                Command="{Binding ToggleSeriesPaneCommand}"/>
-                    </Grid>
+                            <Button Grid.Column="1"
+                                    Width="32"
+                                    Height="32"
+                                    Content="‹"
+                                    Command="{Binding ToggleSeriesPaneCommand}" />
+                        </Grid>
 
-                    <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SeriesRegion}" />
-                </DockPanel>
-            </Border>
+                        <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SeriesRegion}" />
+                    </DockPanel>
+                </Border>
 
+                <!-- Serien eingeklappt -->
+                <Border Background="#10161C"
+                        BorderBrush="#28313A"
+                        BorderThickness="0,0,1,0"
+                        Visibility="{Binding IsSeriesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Button Command="{Binding ToggleSeriesPaneCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            ToolTip="Serien einblenden">
+
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="›"
+                                           Foreground="#7FDDE8"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,12" />
+
+                                <TextBlock Text="Serien"
+                                           Foreground="#DDE5EC"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                </Border>
+            </Grid>
+
+            <!-- Linker Splitter nur bei ausgeklapptem Serienpanel -->
             <GridSplitter Grid.Column="1"
                           Width="4"
                           HorizontalAlignment="Stretch"
@@ -124,22 +165,9 @@
                   Background="#030506">
 
                 <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.ViewerRegion}" />
-
-                <Button Content="Serien"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Margin="8"
-                        Command="{Binding ToggleSeriesPaneCommand}"
-                        Visibility="{Binding IsSeriesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                <Button Content="Eigenschaften"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="8"
-                        Command="{Binding TogglePropertiesPaneCommand}"
-                        Visibility="{Binding IsPropertiesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </Grid>
 
+            <!-- Rechter Splitter nur bei ausgeklapptem Eigenschaftenpanel -->
             <GridSplitter Grid.Column="3"
                           Width="4"
                           HorizontalAlignment="Stretch"
@@ -147,39 +175,82 @@
                           Background="#20272E"
                           Visibility="{Binding IsPropertiesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-            <!-- Eigenschaften -->
-            <Border Grid.Column="4"
-                    Background="#11171D"
-                    BorderBrush="#28313A"
-                    BorderThickness="1,0,0,0"
-                    Visibility="{Binding IsPropertiesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <!-- Eigenschaften: ausgeklappt oder eingeklappte Rail -->
+            <Grid Grid.Column="4"
+                  Background="#0F151A">
 
-                <DockPanel>
-                    <Grid DockPanel.Dock="Top"
-                          Height="52"
-                          Margin="12,0">
+                <!-- Eigenschaften ausgeklappt -->
+                <Border Background="#11171D"
+                        BorderBrush="#28313A"
+                        BorderThickness="1,0,0,0"
+                        Visibility="{Binding IsPropertiesPaneVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top"
+                              Height="52"
+                              Margin="12,0">
 
-                        <Button Width="32"
-                                Height="32"
-                                Content="›"
-                                Margin="0,0,8,0"
-                                Command="{Binding TogglePropertiesPaneCommand}"/>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="1"
-                                   Text="Eigenschaften"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+                            <Button Width="32"
+                                    Height="32"
+                                    Content="›"
+                                    Margin="0,0,8,0"
+                                    Command="{Binding TogglePropertiesPaneCommand}" />
 
-                    <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.PropertiesRegion}" />
-                </DockPanel>
-            </Border>
+                            <TextBlock Grid.Column="1"
+                                       Text="Eigenschaften"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
+                        <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.PropertiesRegion}" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Eigenschaften eingeklappt -->
+                <Border Background="#10161C"
+                        BorderBrush="#28313A"
+                        BorderThickness="1,0,0,0"
+                        Visibility="{Binding IsPropertiesPaneCollapsed, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <Button Command="{Binding TogglePropertiesPaneCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            ToolTip="Eigenschaften einblenden">
+
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="‹"
+                                           Foreground="#7FDDE8"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,12" />
+
+                                <TextBlock Text="Eigenschaften"
+                                           Foreground="#DDE5EC"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center">
+                                    <TextBlock.LayoutTransform>
+                                        <RotateTransform Angle="90" />
+                                    </TextBlock.LayoutTransform>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
