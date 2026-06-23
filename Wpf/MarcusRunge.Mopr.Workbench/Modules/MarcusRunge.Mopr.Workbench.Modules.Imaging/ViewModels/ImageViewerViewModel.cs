@@ -5,6 +5,8 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -13,8 +15,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImageViewerViewModel : ViewModelBase
     {
         private readonly ICore _core;
+
+        private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
         private string _activeViewportId = "Single.Main";
+        private string? _currentFileName;
+        private string? _currentFilePath;
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1;
@@ -28,7 +34,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
-            _core.ImagingService!.ImagingViewportSelectionService!.SetDefaultViewport(GetDefaultViewportIdForLayout(_currentLayout));
+            _core.ImagingService!.ImagingViewportSelectionService!.SetDefaultViewport(
+                GetDefaultViewportIdForLayout(_currentLayout));
 
             _activeViewportId = _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportId;
 
@@ -43,8 +50,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
             MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
             KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
+
             ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
             ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
+        }
+
+        public IReadOnlyList<string> ActiveSeriesFiles
+        {
+            get => _activeSeriesFiles;
+            private set
+            {
+                if (SetProperty(ref _activeSeriesFiles, value))
+                {
+                    RaisePropertyChanged(nameof(HasSeriesFiles));
+                }
+            }
         }
 
         public ImagingTool ActiveTool
@@ -68,16 +88,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 var viewports = _core.ImagingService!.ImagingLayoutService!.GetViewportsForLayout(CurrentLayout);
 
                 ViewportDescriptor? activeViewport = null;
-                if (viewports != null)
+
+                for (var i = 0; i < viewports.Count; i++)
                 {
-                    for (int i = 0; i < viewports.Count; i++)
+                    var viewport = viewports[i];
+
+                    if (string.Equals(
+                            viewport.Id,
+                            ActiveViewportId,
+                            StringComparison.Ordinal))
                     {
-                        var viewport = viewports[i];
-                        if (string.Equals(viewport.Id, ActiveViewportId, StringComparison.Ordinal))
-                        {
-                            activeViewport = viewport;
-                            break;
-                        }
+                        activeViewport = viewport;
+                        break;
                     }
                 }
 
@@ -96,6 +118,35 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
             }
         }
+
+        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
+
+        public string? CurrentFileName
+        {
+            get => _currentFileName;
+            private set
+            {
+                if (SetProperty(ref _currentFileName, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentFileDisplayText));
+                    RaisePropertyChanged(nameof(CurrentFileToolTipText));
+                }
+            }
+        }
+
+        public string? CurrentFilePath
+        {
+            get => _currentFilePath;
+            private set
+            {
+                if (SetProperty(ref _currentFilePath, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentFileToolTipText));
+                }
+            }
+        }
+
+        public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? "Keine Datei" : $"Aktuelle Datei:{Environment.NewLine}{CurrentFilePath}";
 
         public ImageSource? CurrentImage
         {
@@ -134,15 +185,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (SetProperty(ref _currentSlice, value))
                 {
                     RaisePropertyChanged(nameof(SliceDisplayText));
+
                     _core.ImagingService!.ImagingViewportService!.SetSlice(value, SliceCount);
                 }
             }
         }
 
+        public bool HasSeriesFiles => ActiveSeriesFiles.Count > 0;
         public bool IsAxialSagittalCoronalLayoutVisible => CurrentLayout == ImagingLayout.AxialSagittalCoronal;
-
         public bool IsEmptyViewerVisible => CurrentImage == null;
-
         public bool IsMprLayoutVisible => CurrentLayout == ImagingLayout.Mpr;
 
         public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
@@ -224,16 +275,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             SelectedSeries = series;
 
+            CurrentImage = null;
+            CurrentFileName = null;
+            CurrentFilePath = null;
+            ActiveSeriesFiles = [];
+
             if (series == null)
             {
-                CurrentImage = null;
                 _core.ImagingService!.ImagingViewportService!.SetSlice(1, 1);
+
                 return;
             }
 
-            _core.ImagingService!.ImagingViewportService!.SetSlice(1, series.ImageCount);
+            var files = _core.ImagingService!.ImagingStudyService!.GetFilesForSeries(series.Id);
 
-            CurrentImage = null;
+            ActiveSeriesFiles = files;
+
+            var sliceCount = files.Count > 0 ? files.Count : Math.Max(1, series.ImageCount);
+
+            _core.ImagingService!.ImagingViewportService!.SetSlice(1, sliceCount);
+
+            UpdateCurrentFileName(1);
         }
 
         private void ApplyViewportState(ImagingViewportState state)
@@ -248,6 +310,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
 
             ZoomFactor = state.ZoomFactor;
+
+            UpdateCurrentFileName(state.CurrentSlice);
         }
 
         private string GetDefaultViewportIdForLayout(ImagingLayout layout)
@@ -255,21 +319,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             var viewports = _core.ImagingService!.ImagingLayoutService!.GetViewportsForLayout(layout);
 
             ViewportDescriptor? defaultViewport = null;
-            if (viewports != null)
-            {
-                for (int i = 0; i < viewports.Count; i++)
-                {
-                    if (viewports[i].IsInteractive)
-                    {
-                        defaultViewport = viewports[i];
-                        break;
-                    }
-                }
 
-                if (defaultViewport == null && viewports.Count > 0)
+            for (var i = 0; i < viewports.Count; i++)
+            {
+                if (viewports[i].IsInteractive)
                 {
-                    defaultViewport = viewports[0];
+                    defaultViewport = viewports[i];
+                    break;
                 }
+            }
+
+            if (defaultViewport == null && viewports.Count > 0)
+            {
+                defaultViewport = viewports[0];
             }
 
             return defaultViewport?.Id ?? "Single.Main";
@@ -283,9 +345,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
-        private void OnActiveViewportChanged(object? sender, ImagingViewportSelectionChangedEventArgs e) => ActiveViewportId = e.NewViewportId;
+        private void OnActiveViewportChanged(
+            object? sender,
+            ImagingViewportSelectionChangedEventArgs e) => ActiveViewportId = e.NewViewportId;
 
-        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e)
+        private void OnCurrentLayoutChanged(
+            object? sender,
+            ImagingLayoutChangedEventArgs e)
         {
             CurrentLayout = e.NewLayout;
 
@@ -349,7 +415,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             var step = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ? 10 : 1;
 
-
             if (e.Delta > 0)
             {
                 MoveSlice(step);
@@ -374,6 +439,30 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
 
             _core.ImagingService!.ImagingViewportSelectionService!.SelectViewport(viewportId);
+        }
+
+        private void UpdateCurrentFileName(int currentSlice)
+        {
+            if (ActiveSeriesFiles.Count == 0)
+            {
+                CurrentFileName = null;
+                CurrentFilePath = null;
+                return;
+            }
+
+            var index = currentSlice - 1;
+
+            if (index < 0 || index >= ActiveSeriesFiles.Count)
+            {
+                CurrentFileName = null;
+                CurrentFilePath = null;
+                return;
+            }
+
+            var filePath = ActiveSeriesFiles[index];
+
+            CurrentFilePath = filePath;
+            CurrentFileName = Path.GetFileName(filePath);
         }
     }
 }

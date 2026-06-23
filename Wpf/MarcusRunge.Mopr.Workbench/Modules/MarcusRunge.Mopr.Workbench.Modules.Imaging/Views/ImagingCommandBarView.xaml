@@ -64,18 +64,28 @@
 
         <!-- Status rechts -->
         <Border Grid.Column="2"
-            VerticalAlignment="Center"
-            Padding="10,4"
-            CornerRadius="6"
-            Background="#101820"
-            BorderBrush="#27313A"
-            BorderThickness="1"
-            Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibilityConverter}}">
+        VerticalAlignment="Center"
+        Padding="10,5"
+        CornerRadius="10"
+        Background="#0B2A32"
+        BorderBrush="#1C7F8C"
+        BorderThickness="1"
+        Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <TextBlock Text="{Binding StatusText}"
-                   Foreground="#8FA0AD"
+            <StackPanel Orientation="Horizontal"
+                VerticalAlignment="Center">
+
+                <Ellipse Width="7"
+                 Height="7"
+                 Fill="#60E1EB"
+                 Margin="0,0,8,0"/>
+
+                <TextBlock Text="{Binding StatusText}"
+                   Foreground="#BEEEF3"
                    FontSize="12"
+                   FontWeight="SemiBold"
                    VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

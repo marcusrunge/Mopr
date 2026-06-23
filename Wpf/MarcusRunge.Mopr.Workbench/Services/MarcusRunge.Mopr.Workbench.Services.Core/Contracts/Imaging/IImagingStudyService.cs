@@ -17,6 +17,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 
         void Clear();
 
+        IReadOnlyList<string> GetFilesForSeries(string seriesId);
+
         void LoadDemoStudy();
 
         Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);

@@ -16,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
     {
         private readonly List<SeriesInfo> _currentSeries = new List<SeriesInfo>();
 
+        private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
         private StudyInfo? _currentStudy;
 
         private ImagingFolderScanSummary? _lastScanSummary;
@@ -31,9 +32,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         {
             _currentStudy = null;
             _currentSeries.Clear();
+            _seriesFiles.Clear();
             _lastScanSummary = null;
 
             RaiseStudyLoaded();
+        }
+
+        public IReadOnlyList<string> GetFilesForSeries(string seriesId)
+        {
+            if (string.IsNullOrWhiteSpace(seriesId))
+            {
+                return Array.Empty<string>();
+            }
+
+            return _seriesFiles.TryGetValue(seriesId, out var files) ? files : Array.Empty<string>();
         }
 
         public void LoadDemoStudy()
@@ -50,9 +62,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             };
 
             _currentStudy = study;
-
             _currentSeries.Clear();
             _currentSeries.AddRange(series);
+            _seriesFiles.Clear();
             _lastScanSummary = null;
 
             RaiseStudyLoaded();
@@ -95,6 +107,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             var study = new StudyInfo(id: scanResult.StudyId, name: scanResult.FolderName, description: scanResult.FolderPath);
 
             _lastScanSummary = scanResult.Summary;
+
+            _seriesFiles.Clear();
+
+            foreach (var item in scanResult.SeriesFiles)
+            {
+                _seriesFiles[item.Key] = item.Value;
+            }
 
             ApplyStudy(study, scanResult.Series);
         }
@@ -165,6 +184,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             var studyId = "folder-study-" + Guid.NewGuid().ToString("N");
 
             var allFiles = new List<string>();
+            var seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var file in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories))
             {
@@ -174,7 +194,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             progress?.Report(new ImagingStudyLoadProgress(message: "Dateien gefunden", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
 
-            var dicomCandidateCount = allFiles.Count(IsDicomCandidate);
+            var dicomCandidateFiles = allFiles.Where(IsDicomCandidate).ToList();
+            var dicomCandidateCount = dicomCandidateFiles.Count();
 
             var dicomFiles = new List<string>();
 
@@ -207,27 +228,43 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             if (dicomFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-dicom", modality: "DICOM", name: "DICOM-Dateien", description: summary.DisplayText, imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                var seriesId = studyId + "-dicom";
+
+                series.Add(new SeriesInfo(id: seriesId, modality: "DICOM", name: "DICOM-Dateien", description: summary.DisplayText, imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+
+                seriesFiles[seriesId] = dicomFiles.ToArray();
             }
 
             if (dicomFiles.Count == 0 && dicomCandidateCount > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-dicom-candidates", modality: "DICOM?", name: "DICOM-Kandidaten", description: $"{dicomCandidateCount} Kandidaten gefunden, aber kein DICM-Marker erkannt", imageCount: dicomCandidateCount, studyId: studyId, seriesNumber: seriesNumber++));
+                var seriesId = studyId + "-dicom-candidates";
+
+                series.Add(new SeriesInfo(id: seriesId, modality: "DICOM?", name: "DICOM-Kandidaten", description: $"{dicomCandidateCount} Kandidaten gefunden, aber kein DICM-Marker erkannt", imageCount: dicomCandidateCount, studyId: studyId, seriesNumber: seriesNumber++));
+
+                seriesFiles[seriesId] = dicomCandidateFiles.ToArray();
             }
 
             if (imageFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-images", modality: "IMG", name: "Bilddateien", description: $"{imageFiles.Count} Bilddateien gefunden", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                var seriesId = studyId + "-images";
+
+                series.Add(new SeriesInfo(id: seriesId, modality: "IMG", name: "Bilddateien", description: $"{imageFiles.Count} Bilddateien gefunden", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+
+                seriesFiles[seriesId] = imageFiles.ToArray();
             }
 
             if (series.Count == 0 && allFiles.Count > 0)
             {
-                series.Add(new SeriesInfo(id: studyId + "-files", modality: "FILES", name: "Ordnerinhalt", description: $"{allFiles.Count} Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
+                var seriesId = studyId + "-files";
+
+                series.Add(new SeriesInfo(id: seriesId, modality: "FILES", name: "Ordnerinhalt", description: $"{allFiles.Count} Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
+
+                seriesFiles[seriesId] = allFiles.ToArray();
             }
 
             progress?.Report(new ImagingStudyLoadProgress(message: "Scan abgeschlossen", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
 
-            return new FolderScanResult(studyId, folderName, folderPath, series, summary);
+            return new FolderScanResult(studyId, folderName, folderPath, series, seriesFiles, summary);
         }
 
         private void ApplyStudy(StudyInfo study, IReadOnlyList<SeriesInfo> series)
@@ -244,19 +281,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
         private sealed class FolderScanResult
         {
-            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, ImagingFolderScanSummary summary)
+            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, IReadOnlyDictionary<string, IReadOnlyList<string>> seriesFiles, ImagingFolderScanSummary summary)
             {
                 StudyId = studyId;
                 FolderName = folderName;
                 FolderPath = folderPath;
                 Series = series;
+                SeriesFiles = seriesFiles;
                 Summary = summary;
             }
 
             public string FolderName { get; }
+
             public string FolderPath { get; }
+
             public IReadOnlyList<SeriesInfo> Series { get; }
+
+            public IReadOnlyDictionary<string, IReadOnlyList<string>> SeriesFiles { get; }
+
             public string StudyId { get; }
+
             public ImagingFolderScanSummary Summary { get; }
         }
     }
