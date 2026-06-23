@@ -1,4 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Media;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
@@ -8,7 +10,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Bases
     internal abstract class WpfBase(ILogger? logger) : IWpfBase, IWpf
     {
         // Backing field for IServiceA (assigned by derived modules).
-        protected IDialogService? _DialogService;
+        protected IDialogService? _dialogService;
+        protected IMediaService? _mediaService;
 
         // Lock object to synchronize access to the ExceptionThrown event handlers.
         private readonly Lock _exceptionThrownLock = new();
@@ -30,10 +33,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Bases
         }
 
         /// <inheritdoc/>
-        public IDialogService? DialogService => _DialogService;
+        public IDialogService? DialogService => _dialogService;
 
         /// <inheritdoc/>
         ILogger? IWpfBase.Logger => logger;
+
+        public IMediaService? MediaService => _mediaService;
 
         /// <inheritdoc/>
         void IWpfBase.OnExceptionThrown(Exception exception)

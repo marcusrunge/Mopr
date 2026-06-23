@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
 using Microsoft.Win32;
 

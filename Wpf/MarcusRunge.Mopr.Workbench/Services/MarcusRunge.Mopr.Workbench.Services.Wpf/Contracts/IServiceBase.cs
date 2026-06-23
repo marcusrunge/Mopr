@@ -1,6 +1,6 @@
 ﻿namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts
 {
-    internal interface IDialogServiceBase
+    internal interface IServiceBase
     {
         internal IWpfBase? WpfBase { get; }
     }

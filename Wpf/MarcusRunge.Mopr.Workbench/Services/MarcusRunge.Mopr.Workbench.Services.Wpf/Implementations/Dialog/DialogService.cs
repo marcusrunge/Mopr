@@ -1,11 +1,12 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Implementations
+namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Implementations.Dialog
 {
     internal class DialogService : DialogServiceBase
     {
-        public DialogService(IWpfBase? wpfBase) : base(wpfBase)
+        internal DialogService(IWpfBase? wpfBase) : base(wpfBase)
         {
             _fileDialogService = Dialog.FileDialogService.Create(this);
         }

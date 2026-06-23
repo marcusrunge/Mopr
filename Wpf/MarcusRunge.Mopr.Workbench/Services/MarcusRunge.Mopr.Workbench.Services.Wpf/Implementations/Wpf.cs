@@ -29,7 +29,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Implementations
             //   (exposed by the base class / interfaces) return these created instances.
             // - The assembly is therefore "ready for use" regarding these service references.
 
-            _DialogService = Implementations.DialogService.Create(this);
+            _dialogService = Dialog.DialogService.Create(this);
+            _mediaService = Media.MediaService.Create(this);
         }
     }
 }

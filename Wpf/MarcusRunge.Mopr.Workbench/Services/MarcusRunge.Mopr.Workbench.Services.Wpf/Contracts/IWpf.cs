@@ -1,4 +1,7 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts
+﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Media;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts
 {
     /// <summary>
     /// Defines the public contract of the assembly.
@@ -14,5 +17,10 @@
         /// Gets the IDialogService instance exposed by the assembly, if available.
         /// </summary>
         IDialogService? DialogService { get; }
+
+        /// <summary>
+        /// Gets the IMediaService instance exposed by the assembly, if available.
+        /// </summary>
+        IMediaService? MediaService { get; }
     }
 }

@@ -5,11 +5,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Bases
 {
     internal abstract class DialogServiceBase(IWpfBase? wpfBase) : IDialogServiceBase, IDialogService
     {
-        protected IFileDialogService? _fileDialogService;
-        private readonly IWpfBase? _wpfBase;
+        protected IFileDialogService? _fileDialogService;        
 
         public IFileDialogService? FileDialogService => _fileDialogService;
 
-        IWpfBase? IDialogServiceBase.WpfBase => wpfBase;
+        IWpfBase? IServiceBase.WpfBase => wpfBase;
     }
 }

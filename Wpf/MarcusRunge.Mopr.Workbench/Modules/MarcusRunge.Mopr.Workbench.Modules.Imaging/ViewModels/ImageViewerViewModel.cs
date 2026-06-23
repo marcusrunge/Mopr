@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -15,22 +16,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImageViewerViewModel : ViewModelBase
     {
         private readonly ICore _core;
+        private readonly IWpf _wpf;
 
         private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
         private string _activeViewportId = "Single.Main";
-        private string? _currentFileName;
-        private string? _currentFilePath;
+        private string? _currentFileName, _currentFilePath, _loadedImagePath;
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
-        private int _currentSlice = 1;
+        private int _currentSlice = 1, _sliceCount = 1;
         private SeriesInfo? _selectedSeries;
-        private int _sliceCount = 1;
         private double _zoomFactor = 1.0;
 
-        public ImageViewerViewModel(ICore core)
+        public ImageViewerViewModel(ICore core, IWpf wpf)
         {
             _core = core;
+            _wpf = wpf;
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -278,6 +279,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentImage = null;
             CurrentFileName = null;
             CurrentFilePath = null;
+            _loadedImagePath = null;
             ActiveSeriesFiles = [];
 
             if (series == null)
@@ -441,12 +443,39 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportSelectionService!.SelectViewport(viewportId);
         }
 
+        private void TryLoadCurrentImage(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                CurrentImage = null;
+                _loadedImagePath = null;
+                return;
+            }
+
+            if (string.Equals(
+                    _loadedImagePath,
+                    filePath,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(filePath);
+
+            CurrentImage = imageSource;
+            _loadedImagePath = imageSource == null
+                ? null
+                : filePath;
+        }
+
         private void UpdateCurrentFileName(int currentSlice)
         {
             if (ActiveSeriesFiles.Count == 0)
             {
                 CurrentFileName = null;
                 CurrentFilePath = null;
+                CurrentImage = null;
+                _loadedImagePath = null;
                 return;
             }
 
@@ -456,6 +485,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 CurrentFileName = null;
                 CurrentFilePath = null;
+                CurrentImage = null;
+                _loadedImagePath = null;
                 return;
             }
 
@@ -463,6 +494,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             CurrentFilePath = filePath;
             CurrentFileName = Path.GetFileName(filePath);
+
+            TryLoadCurrentImage(filePath);
         }
     }
 }
