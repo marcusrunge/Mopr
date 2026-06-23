@@ -8,6 +8,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Bases
 {
     internal abstract class DicomBase : IDicomBase, IDicom
     {
+        protected IDicomImportService? _importService;
+        protected IDicomMetadataService? _metadataService;
         private readonly object _exceptionThrownLock = new object();
         private readonly ILogger? _logger;
         private Action<Exception>? _exceptionThrown;
@@ -29,7 +31,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Bases
             }
         }
 
+        public IDicomImportService? ImportService => _importService;
         ILogger? IDicomBase.Logger => _logger;
+        public IDicomMetadataService? MetadataService => _metadataService;
 
         void IDicomBase.OnExceptionThrown(Exception exception)
         {

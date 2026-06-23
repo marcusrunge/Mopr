@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         // Backing field for Imaging (assigned by derived modules).
         protected IImagingService? _imagingService;
 
+        // Optional DICOM service for derived modules; may be null if DICOM functionality is not needed.
+        private readonly IDicom? _dicom;
+
         // Lock object to synchronize access to the ExceptionThrown event handlers.
         private readonly object _exceptionThrownLock = new object();
 
@@ -21,9 +25,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
 
-        protected CoreBase(ILogger? logger)
+        protected CoreBase(ILogger? logger, IDicom? dicom)
         {
             _logger = logger;
+            _dicom = dicom;
         }
 
         /// <inheritdoc/>
@@ -38,6 +43,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
                 lock (_exceptionThrownLock) _exceptionThrown -= value;
             }
         }
+
+        /// <inheritdoc/>
+        IDicom? ICoreBase.Dicom => _dicom;
 
         /// <inheritdoc/>
         public IImagingService? ImagingService => _imagingService;

@@ -15,12 +15,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf
     }
 
     /// <summary>
-    /// Default factory implementation that provides a singleton-like factory and module instance.
+    /// Default factory implementation that provides a factory and module instance.
     /// </summary>
     public class WpfFactory : IWpfFactory
     {
-        // Stores the singleton-like module instance created by this factory (lazy-created).
-        private static IWpf? _moduleInstance;
+        // Stores the module instance created by this factory (lazy-created).
+        private IWpf? _moduleInstance;
 
         // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;

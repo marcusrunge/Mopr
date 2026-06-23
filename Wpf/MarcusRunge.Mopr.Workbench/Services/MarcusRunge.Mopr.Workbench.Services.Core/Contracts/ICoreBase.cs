@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
@@ -8,6 +9,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
     /// </summary>
     internal interface ICoreBase
     {
+        /// <summary>
+        /// Gets the IDicom instance used for DICOM-related operations within the module.
+        /// </summary>
+        internal IDicom? Dicom { get; }
+
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.
         /// </summary>

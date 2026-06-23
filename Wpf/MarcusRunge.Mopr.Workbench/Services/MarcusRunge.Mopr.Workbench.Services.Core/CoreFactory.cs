@@ -1,7 +1,8 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace MarcusRunge.Mopr.Workbench.Services
+namespace MarcusRunge.Mopr.Workbench.Services.Core
 {
     /// <summary>
     /// Defines a factory contract for creating a clean architecture module instance.
@@ -15,25 +16,26 @@ namespace MarcusRunge.Mopr.Workbench.Services
     }
 
     /// <summary>
-    /// Default factory implementation that provides a singleton-like factory and module instance.
+    /// Default factory implementation that provides a factory and module instance.
     /// </summary>
     public class CoreFactory : ICoreFactory
     {
-        // Stores the singleton-like module instance created by this factory (lazy-created).
-        private static ICore? _moduleInstance;
+        // Stores the module instance created by this factory (lazy-created).
+        private ICore? _moduleInstance;
+
+        // DICOM service reference for potential DICOM operations; can be null if not provided.
+        private readonly IDicom? _dicom;
 
         // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
 
-        public CoreFactory()
-        {
-        }
+        public CoreFactory(IDicom? dicom) => _dicom = dicom;
 
-        public CoreFactory(ILogger? logger)
+        public CoreFactory(ILogger? logger, IDicom? dicom)
         {
             _logger = logger;
+            _dicom = dicom;
         }
-
 
         /// <inheritdoc/>
         public ICore Create() =>
@@ -45,6 +47,6 @@ namespace MarcusRunge.Mopr.Workbench.Services
                Purpose/intent:
                - Ensures consumers get a single shared module instance per process/app-domain-like context,
                  created on first demand. */
-            _moduleInstance ??= new Core.Implementations.Core(_logger);
+            _moduleInstance ??= new Implementations.Core(_logger, _dicom);
     }
 }

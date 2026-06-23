@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging;
-using MarcusRunge.Mopr.Workbench.Services;
+using MarcusRunge.Mopr.Workbench.Services.Core;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -20,13 +20,11 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            // Register core factory and the ICore instance produced by the factory.
-            //containerRegistry.RegisterSingleton<ICoreFactory, CoreFactory>();
-            containerRegistry.RegisterInstance<ICoreFactory>(new CoreFactory());
-            containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
-            containerRegistry.RegisterInstance<IDicomFactory>(new DicomFactory());
+            containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
             containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
-            containerRegistry.RegisterInstance<IWpfFactory>(new WpfFactory());
+            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>()));
+            containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
+            containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }
     }

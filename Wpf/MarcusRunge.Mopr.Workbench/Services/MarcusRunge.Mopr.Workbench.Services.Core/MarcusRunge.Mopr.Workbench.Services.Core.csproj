@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+    <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Services.Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom
 
     public class DicomFactory : IDicomFactory
     {
-        private static IDicom? _moduleInstance;
+        private IDicom? _moduleInstance;
 
         private readonly ILogger? _logger;
 

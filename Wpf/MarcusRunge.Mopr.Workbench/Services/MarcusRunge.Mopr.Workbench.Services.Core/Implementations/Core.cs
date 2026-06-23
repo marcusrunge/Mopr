@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Core.Bases;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations
@@ -6,7 +7,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations
     // Concrete internal module implementation that wires up services for this module instance.
     internal sealed class Core : CoreBase
     {
-        internal Core(ILogger? logger) : base(logger)
+        internal Core(ILogger? logger, IDicom? dicom) : base(logger, dicom)
         {
             // What happens here:
             // - The assembly constructor performs "composition" for this module instance by creating and assigning
