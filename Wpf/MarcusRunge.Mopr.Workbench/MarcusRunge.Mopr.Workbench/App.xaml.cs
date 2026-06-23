@@ -1,6 +1,8 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Views;
@@ -22,6 +24,8 @@ namespace MarcusRunge.Mopr.Workbench
             //containerRegistry.RegisterSingleton<ICoreFactory, CoreFactory>();
             containerRegistry.RegisterInstance<ICoreFactory>(new CoreFactory());
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
+            containerRegistry.RegisterInstance<IDicomFactory>(new DicomFactory());
+            containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
             containerRegistry.RegisterInstance<IWpfFactory>(new WpfFactory());
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }
