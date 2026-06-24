@@ -60,6 +60,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             foreach (var item in series)
             {
+                System.Diagnostics.Debug.WriteLine($"Series: Id={item.Id}, Name={item.Name}, SeriesNumber={item.SeriesNumber}, Count={item.ImageCount}");
+
                 Series.Add(item);
             }
 

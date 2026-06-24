@@ -88,7 +88,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             try
             {
-                scanResult = await Task.Run(() => ScanFolder(folderPath, progress, cancellationToken), cancellationToken);
+                scanResult = await ScanFolderAsync(folderPath, progress, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -115,7 +115,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                 _seriesFiles[item.Key] = item.Value;
             }
 
-            ApplyStudy(study, scanResult.Series);
+            ApplyStudy(
+                study,
+                scanResult.Series);
         }
 
         protected override void OnCreate(IImagingServiceBase @base) => _base = @base;
@@ -124,6 +126,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         {
             _base = @base;
             return Task.CompletedTask;
+        }
+
+        private static string CreateSeriesId(string studyId, string? seriesInstanceUid, int seriesNumber)
+        {
+            if (!string.IsNullOrWhiteSpace(seriesInstanceUid))
+            {
+                return $"{studyId}-series-{seriesInstanceUid}";
+            }
+
+            return $"{studyId}-series-{seriesNumber}";
         }
 
         private static string GetSafeFolderName(string folderPath)
@@ -161,78 +173,82 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
         private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray(), _lastScanSummary));
 
-        private FolderScanResult ScanFolder(string folderPath, IProgress<ImagingStudyLoadProgress>? progress, CancellationToken cancellationToken)
+        private async Task<FolderScanResult> ScanFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress, CancellationToken cancellationToken)
         {
             progress?.Report(new ImagingStudyLoadProgress(message: "Dateien werden gesucht...", processedFiles: 0, totalFiles: 0));
 
             var folderName = GetSafeFolderName(folderPath);
-            var studyId = "folder-study-" + Guid.NewGuid().ToString("N");
 
-            var allFiles = new List<string>();
-            var seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var file in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories))
+            var allFiles = await Task.Run(() =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                allFiles.Add(file);
-            }
+                var files = new List<string>();
+
+                foreach (var file in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    files.Add(file);
+                }
+
+                return files;
+            }, cancellationToken);
 
             progress?.Report(new ImagingStudyLoadProgress(message: "Dateien gefunden", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
 
             var dicomCandidateFiles = allFiles.Where(IsDicomCandidate).ToList();
 
-            var dicomCandidateCount = dicomCandidateFiles.Count;
+            var imageFiles = allFiles
+                .Where(IsImageCandidate)
+                .ToList();
 
-            var dicomFiles = new List<string>();
+            progress?.Report(new ImagingStudyLoadProgress(message: "DICOM-Metadaten werden gelesen...", processedFiles: 0, totalFiles: allFiles.Count));
 
-            for (var index = 0; index < allFiles.Count; index++)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+            var dicomImportResult = await _base!.CoreBase!.Dicom!.ImportService!.ImportFolderAsync(folderPath, cancellationToken);
 
-                var file = allFiles[index];
+            cancellationToken.ThrowIfCancellationRequested();
 
-                if (_base!.CoreBase!.Dicom!.MetadataService!.IsDicomFile(file))
-                {
-                    dicomFiles.Add(file);
-                }
+            var studyId = !string.IsNullOrWhiteSpace(dicomImportResult?.StudyInstanceUid) ? dicomImportResult.StudyInstanceUid! : $"folder-study-{Guid.NewGuid():N}";
 
-                progress?.Report(new ImagingStudyLoadProgress(message: "DICOM-Dateien werden geprüft...", processedFiles: index + 1, totalFiles: allFiles.Count));
-            }
-
-            var imageFiles = allFiles.Where(IsImageCandidate).ToList();
-
-            var dicomFileSet = new HashSet<string>(dicomFiles, StringComparer.OrdinalIgnoreCase);
-
-            var imageFileSet = new HashSet<string>(imageFiles, StringComparer.OrdinalIgnoreCase);
-
-            var otherFilesCount = allFiles.Count(file => !dicomFileSet.Contains(file) && !imageFileSet.Contains(file));
-
-            var summary = new ImagingFolderScanSummary(folderPath: folderPath, totalFiles: allFiles.Count, dicomCandidates: dicomCandidateCount, validDicomFiles: dicomFiles.Count, imageFiles: imageFiles.Count, otherFiles: otherFilesCount);
+            var studyName = !string.IsNullOrWhiteSpace(dicomImportResult?.StudyDescription) ? dicomImportResult.StudyDescription! : folderName;
 
             var series = new List<SeriesInfo>();
+            var seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+
             var seriesNumber = 1;
 
-            if (dicomFiles.Count > 0)
+            var validDicomFileCount = 0;
+
+            if (dicomImportResult != null)
             {
-                var seriesId = studyId + "-dicom";
+                foreach (var importedSeries in dicomImportResult.Series)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                series.Add(new SeriesInfo(id: seriesId, modality: "DICOM", name: "DICOM-Dateien", description: summary.DisplayText, imageCount: dicomFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
+                    if (importedSeries.Files.Count == 0)
+                    {
+                        continue;
+                    }
 
-                seriesFiles[seriesId] = dicomFiles.ToArray();
-            }
+                    validDicomFileCount += importedSeries.Files.Count;
 
-            if (dicomFiles.Count == 0 && dicomCandidateCount > 0)
-            {
-                var seriesId = studyId + "-dicom-candidates";
+                    var seriesId = CreateSeriesId(studyId, importedSeries.SeriesInstanceUid, seriesNumber);
 
-                series.Add(new SeriesInfo(id: seriesId, modality: "DICOM?", name: "DICOM-Kandidaten", description: $"{dicomCandidateCount} Kandidaten gefunden, aber kein DICM-Marker erkannt", imageCount: dicomCandidateCount, studyId: studyId, seriesNumber: seriesNumber++));
+                    var modality = string.IsNullOrWhiteSpace(importedSeries.Modality) ? "DICOM" : importedSeries.Modality!;
 
-                seriesFiles[seriesId] = dicomCandidateFiles.ToArray();
+                    var name = string.IsNullOrWhiteSpace(importedSeries.DisplayName) ? $"DICOM-Serie {seriesNumber}" : importedSeries.DisplayName;
+
+                    var description = string.IsNullOrWhiteSpace(importedSeries.SeriesInstanceUid) ? $"{importedSeries.InstanceCount} DICOM-Dateien" : $"{importedSeries.InstanceCount} DICOM-Dateien";
+
+                    series.Add(new SeriesInfo(id: seriesId, modality: modality, name: name, description: description, imageCount: importedSeries.InstanceCount, studyId: studyId, seriesNumber: seriesNumber));
+
+                    seriesFiles[seriesId] = importedSeries.Files.Select(item => item.FilePath).ToArray();
+
+                    seriesNumber++;
+                }
             }
 
             if (imageFiles.Count > 0)
             {
-                var seriesId = studyId + "-images";
+                var seriesId = $"{studyId}-images";
 
                 series.Add(new SeriesInfo(id: seriesId, modality: "IMG", name: "Bilddateien", description: $"{imageFiles.Count} Bilddateien gefunden", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
 
@@ -241,16 +257,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             if (series.Count == 0 && allFiles.Count > 0)
             {
-                var seriesId = studyId + "-files";
+                var seriesId = $"{studyId}-files";
 
                 series.Add(new SeriesInfo(id: seriesId, modality: "FILES", name: "Ordnerinhalt", description: $"{allFiles.Count} Dateien im ausgewählten Ordner", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
 
                 seriesFiles[seriesId] = allFiles.ToArray();
             }
 
+            var dicomFileSet = new HashSet<string>(
+                seriesFiles.Where(item => item.Key.IndexOf("images", StringComparison.OrdinalIgnoreCase) < 0).SelectMany(item => item.Value), StringComparer.OrdinalIgnoreCase);
+
+            var imageFileSet = new HashSet<string>(imageFiles, StringComparer.OrdinalIgnoreCase);
+
+            var otherFilesCount = allFiles.Count(file => !dicomFileSet.Contains(file) && !imageFileSet.Contains(file));
+
+            var summary = new ImagingFolderScanSummary(folderPath: folderPath, totalFiles: allFiles.Count, dicomCandidates: dicomCandidateFiles.Count, validDicomFiles: validDicomFileCount, imageFiles: imageFiles.Count, otherFiles: otherFilesCount);
+
             progress?.Report(new ImagingStudyLoadProgress(message: "Scan abgeschlossen", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
 
-            return new FolderScanResult(studyId, folderName, folderPath, series, seriesFiles, summary);
+            return new FolderScanResult(studyId, studyName, folderPath, series, seriesFiles, summary);
         }
 
         private sealed class FolderScanResult
