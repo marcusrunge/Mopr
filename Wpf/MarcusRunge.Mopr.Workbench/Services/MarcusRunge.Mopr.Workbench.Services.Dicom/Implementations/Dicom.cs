@@ -7,8 +7,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
     {
         internal Dicom(ILogger? logger) : base(logger)
         {
-            _importService = Implementations.DicomImportService.Create(this);
             _metadataService = Implementations.DicomMetadataService.Create(this);
+            _importService = Implementations.DicomImportService.Create(this);            
         }
     }
 }

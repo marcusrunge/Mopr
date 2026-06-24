@@ -31,6 +31,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Bases
             }
         }
 
+        IDicom IDicomBase.Dicom => this;
         public IDicomImportService? ImportService => _importService;
         ILogger? IDicomBase.Logger => _logger;
         public IDicomMetadataService? MetadataService => _metadataService;
