@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Services.Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -3,11 +3,13 @@ using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -17,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private readonly ICore _core;
         private readonly IWpf _wpf;
+        private readonly IDicom _dicom;
 
         private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
@@ -25,13 +28,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1, _sliceCount = 1;
+        private CancellationTokenSource? _imageLoadCancellationTokenSource;
         private SeriesInfo? _selectedSeries;
         private double _zoomFactor = 1.0;
 
-        public ImageViewerViewModel(ICore core, IWpf wpf)
+        public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom)
         {
             _core = core;
             _wpf = wpf;
+            _dicom = dicom;
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -269,6 +274,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
             _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportChanged -= OnActiveViewportChanged;
 
+            _imageLoadCancellationTokenSource?.Cancel();
+            _imageLoadCancellationTokenSource?.Dispose();
+            _imageLoadCancellationTokenSource = null;
+
             base.Destroy();
         }
 
@@ -443,7 +452,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportSelectionService!.SelectViewport(viewportId);
         }
 
-        private void TryLoadCurrentImage(string filePath)
+        private async void TryLoadCurrentImage(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -460,12 +469,50 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(filePath);
+            _imageLoadCancellationTokenSource?.Cancel();
+            _imageLoadCancellationTokenSource?.Dispose();
+            _imageLoadCancellationTokenSource = new CancellationTokenSource();
 
-            CurrentImage = imageSource;
-            _loadedImagePath = imageSource == null
-                ? null
-                : filePath;
+            var cancellationToken = _imageLoadCancellationTokenSource.Token;
+
+            try
+            {
+                // 1. Normale Bilddateien: PNG/JPG/BMP/TIFF
+                var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(filePath);
+
+                if (imageSource != null)
+                {
+                    CurrentImage = imageSource;
+                    _loadedImagePath = filePath;
+                    return;
+                }
+
+                // 2. DICOM-Dateien: neutral laden, dann WPF ImageSource erzeugen
+                var dicomImage = await _dicom!.ImageService!.LoadGrayscaleImageAsync(filePath, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (dicomImage == null)
+                {
+                    CurrentImage = null;
+                    _loadedImagePath = null;
+                    return;
+                }
+
+                imageSource = _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
+
+                CurrentImage = imageSource;
+                _loadedImagePath = imageSource == null ? null : filePath;
+            }
+            catch (OperationCanceledException)
+            {
+                // Slice wurde schnell weitergeschaltet; alter Ladevorgang wird verworfen.
+            }
+            catch
+            {
+                CurrentImage = null;
+                _loadedImagePath = null;
+            }
         }
 
         private void UpdateCurrentFileName(int currentSlice)

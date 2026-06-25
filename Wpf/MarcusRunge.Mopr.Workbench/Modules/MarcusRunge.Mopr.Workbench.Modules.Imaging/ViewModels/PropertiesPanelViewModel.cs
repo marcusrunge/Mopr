@@ -4,6 +4,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
@@ -11,6 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private readonly ICore _core;
 
+        private int _currentSlice = 1;
         private SeriesInfo? _selectedSeries;
         private StudyInfo? _selectedStudy;
 
@@ -21,6 +23,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             Properties = [];
 
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
+            _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
+
+            _currentSlice = _core.ImagingService!.ImagingViewportService!.State.CurrentSlice;
 
             ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
@@ -53,23 +58,104 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string Title => SelectedSeries == null ? "Eigenschaften" : SelectedSeries.Name;
-
         public string Subtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.ImageCount} Bilder";
+
+        public string Title => SelectedSeries == null ? "Eigenschaften" : SelectedSeries.Name;
 
         public override void Destroy()
         {
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
-
+            _core.ImagingService!.ImagingViewportService!.StateChanged -= OnViewportStateChanged;
             base.Destroy();
         }
 
-        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelection(e.SelectedStudy, e.SelectedSeries);
+        private void AddDicomMetadata(DicomFileMetadata metadata)
+        {
+            AddSection("Aktuelles Bild");
+
+            AddProperty("Datei", Path.GetFileName(metadata.FilePath));
+            AddProperty("Pfad", metadata.FilePath);
+
+            if (metadata.InstanceNumber.HasValue)
+            {
+                AddProperty("InstanceNumber", metadata.InstanceNumber.Value.ToString());
+            }
+
+            AddProperty("SOPInstanceUID", metadata.SopInstanceUid);
+
+            if (metadata.Rows.HasValue)
+            {
+                AddProperty("Rows", metadata.Rows.Value.ToString());
+            }
+
+            if (metadata.Columns.HasValue)
+            {
+                AddProperty("Columns", metadata.Columns.Value.ToString());
+            }
+
+            AddSection("DICOM-Serie");
+
+            AddProperty("Modality", metadata.Modality);
+            AddProperty("StudyDescription", metadata.StudyDescription);
+            AddProperty("SeriesDescription", metadata.SeriesDescription);
+            AddProperty("StudyInstanceUID", metadata.StudyInstanceUid);
+            AddProperty("SeriesInstanceUID", metadata.SeriesInstanceUid);
+        }
+
+        private void AddProperty(string name, string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = "-";
+            }
+
+            Properties.Add(new PropertyItemViewModel(name, value, isSection: false));
+        }
+
+        private void AddSection(string title) => Properties.Add(new PropertyItemViewModel(name: title, value: string.Empty, isSection: true));
 
         private void ApplySelection(StudyInfo? study, SeriesInfo? series)
         {
             SelectedStudy = study;
             SelectedSeries = series;
+
+            RebuildProperties();
+        }
+
+        private DicomFileMetadata? GetCurrentDicomMetadata()
+        {
+            if (SelectedSeries == null)
+            {
+                return null;
+            }
+
+            var metadata = _core.ImagingService!.ImagingStudyService!.GetDicomMetadataForSeries(SelectedSeries.Id);
+
+            if (metadata.Count == 0)
+            {
+                return null;
+            }
+
+            var index = _currentSlice - 1;
+
+            if (index < 0 || index >= metadata.Count)
+            {
+                return null;
+            }
+
+            return metadata[index];
+        }
+
+        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelection(e.SelectedStudy, e.SelectedSeries);
+
+        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e)
+        {
+            if (_currentSlice == e.State.CurrentSlice)
+            {
+                return;
+            }
+
+            _currentSlice = e.State.CurrentSlice;
 
             RebuildProperties();
         }
@@ -103,57 +189,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 AddProperty("Study Id", SelectedSeries.StudyId);
             }
 
-            var files = _core.ImagingService!
-                .ImagingStudyService!
-                .GetFilesForSeries(SelectedSeries.Id);
+            var files = _core.ImagingService!.ImagingStudyService!.GetFilesForSeries(SelectedSeries.Id);
 
             AddProperty("Dateien", files.Count.ToString());
 
-            var firstMetadata = _core.ImagingService!.ImagingStudyService!.GetFirstDicomMetadataForSeries(SelectedSeries.Id);
+            var currentMetadata = GetCurrentDicomMetadata();
 
-            if (firstMetadata != null)
+            if (currentMetadata != null)
             {
-                AddDicomMetadata(firstMetadata);
+                AddDicomMetadata(currentMetadata);
             }
-        }
-
-        private void AddDicomMetadata(DicomFileMetadata metadata)
-        {
-            AddSection("DICOM");
-
-            AddProperty("StudyInstanceUID", metadata.StudyInstanceUid);
-            AddProperty("SeriesInstanceUID", metadata.SeriesInstanceUid);
-            AddProperty("SOPInstanceUID", metadata.SopInstanceUid);
-            AddProperty("Modality", metadata.Modality);
-            AddProperty("StudyDescription", metadata.StudyDescription);
-            AddProperty("SeriesDescription", metadata.SeriesDescription);
-
-            if (metadata.InstanceNumber.HasValue)
-            {
-                AddProperty("InstanceNumber", metadata.InstanceNumber.Value.ToString());
-            }
-
-            if (metadata.Rows.HasValue)
-            {
-                AddProperty("Rows", metadata.Rows.Value.ToString());
-            }
-
-            if (metadata.Columns.HasValue)
-            {
-                AddProperty("Columns", metadata.Columns.Value.ToString());
-            }
-        }
-
-        private void AddSection(string title) => Properties.Add(new PropertyItemViewModel(name: title, value: string.Empty, isSection: true));
-
-        private void AddProperty(string name, string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                value = "-";
-            }
-
-            Properties.Add(new PropertyItemViewModel(name, value, isSection: false));
         }
     }
 }

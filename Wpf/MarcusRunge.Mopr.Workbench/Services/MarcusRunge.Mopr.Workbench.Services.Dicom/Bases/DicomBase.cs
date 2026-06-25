@@ -8,16 +8,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Bases
 {
     internal abstract class DicomBase : IDicomBase, IDicom
     {
+        protected IDicomImageService? _imageService;
         protected IDicomImportService? _importService;
         protected IDicomMetadataService? _metadataService;
         private readonly object _exceptionThrownLock = new object();
         private readonly ILogger? _logger;
         private Action<Exception>? _exceptionThrown;
 
-        protected DicomBase(ILogger? logger)
-        {
-            _logger = logger;
-        }
+        protected DicomBase(ILogger? logger) => _logger = logger;
 
         public event Action<Exception> ExceptionThrown
         {
@@ -32,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Bases
         }
 
         IDicom IDicomBase.Dicom => this;
+        public IDicomImageService? ImageService => _imageService;
         public IDicomImportService? ImportService => _importService;
         ILogger? IDicomBase.Logger => _logger;
         public IDicomMetadataService? MetadataService => _metadataService;
