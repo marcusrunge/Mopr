@@ -8,8 +8,8 @@
 
         <!-- Single Layout -->
         <Grid Visibility="{Binding IsSingleLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <viewports:ViewportTile Title="Single"
-                                    ViewportId="Single.Main"
+            <viewports:ViewportTile Tile="{Binding SingleMainViewport}"
+                                    ViewportId="{Binding SingleMainViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
@@ -30,31 +30,31 @@
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="0"
-                                    Title="Viewport 1"
-                                    ViewportId="TwoByTwo.Viewport1"
+                                    Tile="{Binding TwoByTwoViewport1}"
+                                    ViewportId="{Binding TwoByTwoViewport1.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
-                                    Title="Viewport 2"
-                                    ViewportId="TwoByTwo.Viewport2"
+                                    Tile="{Binding TwoByTwoViewport2}"
+                                    ViewportId="{Binding TwoByTwoViewport2.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
-                                    Title="Viewport 3"
-                                    ViewportId="TwoByTwo.Viewport3"
+                                    Tile="{Binding TwoByTwoViewport3}"
+                                    ViewportId="{Binding TwoByTwoViewport3.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
-                                    Title="Viewport 4"
-                                    ViewportId="TwoByTwo.Viewport4"
+                                    Tile="{Binding TwoByTwoViewport4}"
+                                    ViewportId="{Binding TwoByTwoViewport4.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}" />  
         </Grid>
 
         <!-- MPR Layout -->
@@ -73,29 +73,30 @@
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="0"
-                                    Title="Axial"
-                                    ViewportId="Mpr.Axial"
+                                    Tile="{Binding MprAxialViewport}"
+                                    ViewportId="{Binding MprAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
-                                    Title="Sagittal"
-                                    ViewportId="Mpr.Sagittal"
+                                    Tile="{Binding MprSagittalViewport}"
+                                    ViewportId="{Binding MprSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
-                                    Title="Coronal"
-                                    ViewportId="Mpr.Coronal"
+                                    Tile="{Binding MprCoronalViewport}"
+                                    ViewportId="{Binding MprCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
-                                    Title="3D / Preview"
-                                    ViewportId="Mpr.Preview3D"
+                                    Tile="{Binding MprPreview3DViewport}"
+                                    ViewportId="{Binding MprPreview3DViewport.ViewportId}"
+                                    IsInteractive="False"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
@@ -111,20 +112,20 @@
             </Grid.ColumnDefinitions>
 
             <viewports:ViewportTile Grid.Column="0"
-                                    Title="Axial"
-                                    ViewportId="Asc.Axial"
+                                    Tile="{Binding AscAxialViewport}"
+                                    ViewportId="{Binding AscAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="2"
-                                    Title="Sagittal"
-                                    ViewportId="Asc.Sagittal"
+                                    Tile="{Binding AscSagittalViewport}"
+                                    ViewportId="{Binding AscSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="4"
-                                    Title="Coronal"
-                                    ViewportId="Asc.Coronal"
+                                    Tile="{Binding AscCoronalViewport}"
+                                    ViewportId="{Binding AscCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}" />
         </Grid>
