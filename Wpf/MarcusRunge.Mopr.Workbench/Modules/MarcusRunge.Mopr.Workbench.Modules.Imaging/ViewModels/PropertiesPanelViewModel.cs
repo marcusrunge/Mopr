@@ -2,202 +2,158 @@
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
-using Prism.Commands;
-using Prism.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System.Collections.ObjectModel;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
-    public sealed class AnnotationItemViewModel(string displayText) : BindableBase
-    {
-        public string DisplayText { get; } = displayText;
-    }
-
-    public sealed class MeasurementItemViewModel(string name, string value) : BindableBase
-    {
-        public string Name { get; } = name;
-
-        public string Value { get; } = value;
-    }
-
     public sealed class PropertiesPanelViewModel : ViewModelBase
     {
         private readonly ICore _core;
 
-        private bool _isApplyingViewportState;
-        private double _levelValue = 40;
         private SeriesInfo? _selectedSeries;
-        private double _windowValue = 400;
+        private StudyInfo? _selectedStudy;
 
         public PropertiesPanelViewModel(ICore core)
         {
             _core = core;
 
+            Properties = [];
+
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
-            _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
 
-            ResetWindowLevelCommand = new DelegateCommand(ResetWindowLevel);
-
-            AddDistanceMeasurementCommand = new DelegateCommand(AddDistanceMeasurement);
-            AddAngleMeasurementCommand = new DelegateCommand(AddAngleMeasurement);
-            AddRoiMeasurementCommand = new DelegateCommand(AddRoiMeasurement);
-
-            AddTextAnnotationCommand = new DelegateCommand(AddTextAnnotation);
-            AddArrowAnnotationCommand = new DelegateCommand(AddArrowAnnotation);
-            AddMarkerAnnotationCommand = new DelegateCommand(AddMarkerAnnotation);
-
-            Measurements =
-            [
-                new MeasurementItemViewModel("Distanz 1", "23,4 mm"),
-                new MeasurementItemViewModel("Winkel 1", "42°")
-            ];
-
-            Annotations =
-            [
-                new AnnotationItemViewModel("Marker: Verdächtiger Bereich"),
-                new AnnotationItemViewModel("Text: Kontrolle empfohlen")
-            ];
-
-            DicomTags = [];
-
-            ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
-            ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
+            ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
 
-        public DelegateCommand AddAngleMeasurementCommand { get; }
-
-        public DelegateCommand AddArrowAnnotationCommand { get; }
-
-        public DelegateCommand AddDistanceMeasurementCommand { get; }
-
-        public DelegateCommand AddMarkerAnnotationCommand { get; }
-
-        public DelegateCommand AddRoiMeasurementCommand { get; }
-
-        public DelegateCommand AddTextAnnotationCommand { get; }
-
-        public ObservableCollection<AnnotationItemViewModel> Annotations { get; }
-
-        public ObservableCollection<DicomTagInfo> DicomTags { get; }
-
-        public string LevelDisplayText => LevelValue.ToString("0");
-
-        public double LevelValue
-        {
-            get => _levelValue;
-            set
-            {
-                if (SetProperty(ref _levelValue, value))
-                {
-                    RaisePropertyChanged(nameof(LevelDisplayText));
-                    UpdateViewportWindowLevel();
-                }
-            }
-        }
-
-        public ObservableCollection<MeasurementItemViewModel> Measurements { get; }
-
-        public DelegateCommand ResetWindowLevelCommand { get; }
+        public ObservableCollection<PropertyItemViewModel> Properties { get; }
 
         public SeriesInfo? SelectedSeries
         {
             get => _selectedSeries;
-            private set => SetProperty(ref _selectedSeries, value);
-        }
-
-        public string WindowDisplayText => WindowValue.ToString("0");
-
-        public double WindowValue
-        {
-            get => _windowValue;
-            set
+            private set
             {
-                if (SetProperty(ref _windowValue, value))
+                if (SetProperty(ref _selectedSeries, value))
                 {
-                    RaisePropertyChanged(nameof(WindowDisplayText));
-                    UpdateViewportWindowLevel();
+                    RaisePropertyChanged(nameof(Title));
+                    RaisePropertyChanged(nameof(Subtitle));
                 }
             }
         }
 
+        public StudyInfo? SelectedStudy
+        {
+            get => _selectedStudy;
+            private set
+            {
+                if (SetProperty(ref _selectedStudy, value))
+                {
+                    RaisePropertyChanged(nameof(Title));
+                    RaisePropertyChanged(nameof(Subtitle));
+                }
+            }
+        }
+
+        public string Title => SelectedSeries == null ? "Eigenschaften" : SelectedSeries.Name;
+
+        public string Subtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.ImageCount} Bilder";
+
         public override void Destroy()
         {
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
-            _core.ImagingService!.ImagingViewportService!.StateChanged -= OnViewportStateChanged;
 
             base.Destroy();
         }
 
-        private void AddAngleMeasurement() => Measurements.Add(new MeasurementItemViewModel($"Winkel {Measurements.Count + 1}", "0°"));
+        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelection(e.SelectedStudy, e.SelectedSeries);
 
-        private void AddArrowAnnotation() => Annotations.Add(new AnnotationItemViewModel("Pfeilannotation"));
-
-        private void AddDistanceMeasurement() => Measurements.Add(new MeasurementItemViewModel($"Distanz {Measurements.Count + 1}", "0,0 mm"));
-
-        private void AddMarkerAnnotation() => Annotations.Add(new AnnotationItemViewModel("Markerannotation"));
-
-        private void AddRoiMeasurement() => Measurements.Add(new MeasurementItemViewModel($"ROI {Measurements.Count + 1}", "Mittelwert: -"));
-
-        private void AddTextAnnotation() => Annotations.Add(new AnnotationItemViewModel("Textannotation"));
-
-        private void ApplySelectedSeries(SeriesInfo? series)
+        private void ApplySelection(StudyInfo? study, SeriesInfo? series)
         {
+            SelectedStudy = study;
             SelectedSeries = series;
 
-            DicomTags.Clear();
+            RebuildProperties();
+        }
 
-            if (series == null)
+        private void RebuildProperties()
+        {
+            Properties.Clear();
+
+            if (SelectedSeries == null)
             {
-                DicomTags.Add(new DicomTagInfo("-", "Status", "Keine Serie aktiv"));
-
+                AddProperty("Status", "Keine Serie aktiv");
                 return;
             }
 
-            DicomTags.Add(new DicomTagInfo("(0008,0060)", "Modality", series.Modality));
+            AddSection("Serie");
 
-            DicomTags.Add(new DicomTagInfo("(0020,0011)", "Series Number", series.SeriesNumber?.ToString() ?? "-"));
+            AddProperty("Name", SelectedSeries.Name);
+            AddProperty("Modalität", SelectedSeries.Modality);
+            AddProperty("Beschreibung", SelectedSeries.Description);
+            AddProperty("Bilder", SelectedSeries.ImageCount.ToString());
 
-            DicomTags.Add(new DicomTagInfo("(0020,4000)", "Series Description", series.Description));
-
-            DicomTags.Add(new DicomTagInfo("-", "Series Name", series.Name));
-
-            DicomTags.Add(new DicomTagInfo("-", "Images", series.ImageCount.ToString()));
-
-            if (!string.IsNullOrWhiteSpace(series.StudyId))
+            if (SelectedSeries.SeriesNumber.HasValue)
             {
-                DicomTags.Add(new DicomTagInfo("-", "Study Id", series.StudyId));
+                AddProperty("Seriennummer", SelectedSeries.SeriesNumber.Value.ToString());
+            }
+
+            AddProperty("Series Id", SelectedSeries.Id);
+
+            if (!string.IsNullOrWhiteSpace(SelectedSeries.StudyId))
+            {
+                AddProperty("Study Id", SelectedSeries.StudyId);
+            }
+
+            var files = _core.ImagingService!
+                .ImagingStudyService!
+                .GetFilesForSeries(SelectedSeries.Id);
+
+            AddProperty("Dateien", files.Count.ToString());
+
+            var firstMetadata = _core.ImagingService!.ImagingStudyService!.GetFirstDicomMetadataForSeries(SelectedSeries.Id);
+
+            if (firstMetadata != null)
+            {
+                AddDicomMetadata(firstMetadata);
             }
         }
 
-        private void ApplyViewportState(ImagingViewportState state)
+        private void AddDicomMetadata(DicomFileMetadata metadata)
         {
-            _isApplyingViewportState = true;
+            AddSection("DICOM");
 
-            try
+            AddProperty("StudyInstanceUID", metadata.StudyInstanceUid);
+            AddProperty("SeriesInstanceUID", metadata.SeriesInstanceUid);
+            AddProperty("SOPInstanceUID", metadata.SopInstanceUid);
+            AddProperty("Modality", metadata.Modality);
+            AddProperty("StudyDescription", metadata.StudyDescription);
+            AddProperty("SeriesDescription", metadata.SeriesDescription);
+
+            if (metadata.InstanceNumber.HasValue)
             {
-                WindowValue = state.WindowValue;
-                LevelValue = state.LevelValue;
+                AddProperty("InstanceNumber", metadata.InstanceNumber.Value.ToString());
             }
-            finally
+
+            if (metadata.Rows.HasValue)
             {
-                _isApplyingViewportState = false;
+                AddProperty("Rows", metadata.Rows.Value.ToString());
+            }
+
+            if (metadata.Columns.HasValue)
+            {
+                AddProperty("Columns", metadata.Columns.Value.ToString());
             }
         }
 
-        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e) => ApplySelectedSeries(e.SelectedSeries);
+        private void AddSection(string title) => Properties.Add(new PropertyItemViewModel(name: title, value: string.Empty, isSection: true));
 
-        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
-
-        private void ResetWindowLevel() => _core.ImagingService!.ImagingViewportService!.SetWindowLevel(400, 40);
-
-        private void UpdateViewportWindowLevel()
+        private void AddProperty(string name, string? value)
         {
-            if (_isApplyingViewportState)
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return;
+                value = "-";
             }
 
-            _core.ImagingService!.ImagingViewportService!.SetWindowLevel(WindowValue, LevelValue);
+            Properties.Add(new PropertyItemViewModel(name, value, isSection: false));
         }
     }
 }

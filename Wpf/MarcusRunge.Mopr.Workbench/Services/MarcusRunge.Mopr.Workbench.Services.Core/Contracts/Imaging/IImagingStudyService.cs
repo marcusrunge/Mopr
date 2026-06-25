@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,7 +18,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 
         void Clear();
 
+        IReadOnlyList<DicomFileMetadata> GetDicomMetadataForSeries(string seriesId);
+
         IReadOnlyList<string> GetFilesForSeries(string seriesId);
+
+        DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId);
 
         void LoadDemoStudy();
 

@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
     {
         private readonly List<SeriesInfo> _currentSeries = new List<SeriesInfo>();
 
+        private readonly Dictionary<string, IReadOnlyList<DicomFileMetadata>> _seriesDicomMetadata = new Dictionary<string, IReadOnlyList<DicomFileMetadata>>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
         private IImagingServiceBase? _base;
         private StudyInfo? _currentStudy;
@@ -34,8 +36,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             _currentStudy = null;
             _currentSeries.Clear();
             _seriesFiles.Clear();
+            _seriesDicomMetadata.Clear();
             _lastScanSummary = null;
             RaiseStudyLoaded();
+        }
+
+        public IReadOnlyList<DicomFileMetadata> GetDicomMetadataForSeries(string seriesId)
+        {
+            if (string.IsNullOrWhiteSpace(seriesId))
+            {
+                return Array.Empty<DicomFileMetadata>();
+            }
+
+            return _seriesDicomMetadata.TryGetValue(seriesId, out var metadata) ? metadata : Array.Empty<DicomFileMetadata>();
         }
 
         public IReadOnlyList<string> GetFilesForSeries(string seriesId)
@@ -46,6 +59,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             }
 
             return _seriesFiles.TryGetValue(seriesId, out var files) ? files : Array.Empty<string>();
+        }
+
+        public DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId)
+        {
+            var metadata = GetDicomMetadataForSeries(seriesId);
+
+            return metadata.Count > 0
+                ? metadata[0]
+                : null;
         }
 
         public void LoadDemoStudy()
@@ -65,6 +87,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             _currentSeries.Clear();
             _currentSeries.AddRange(series);
             _seriesFiles.Clear();
+            _seriesDicomMetadata.Clear();
             _lastScanSummary = null;
 
             RaiseStudyLoaded();
@@ -115,9 +138,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                 _seriesFiles[item.Key] = item.Value;
             }
 
-            ApplyStudy(
-                study,
-                scanResult.Series);
+            _seriesDicomMetadata.Clear();
+
+            foreach (var item in scanResult.SeriesDicomMetadata)
+            {
+                _seriesDicomMetadata[item.Key] = item.Value;
+            }
+            ApplyStudy(study, scanResult.Series);
         }
 
         protected override void OnCreate(IImagingServiceBase @base) => _base = @base;
@@ -196,9 +223,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             var dicomCandidateFiles = allFiles.Where(IsDicomCandidate).ToList();
 
-            var imageFiles = allFiles
-                .Where(IsImageCandidate)
-                .ToList();
+            var imageFiles = allFiles.Where(IsImageCandidate).ToList();
 
             progress?.Report(new ImagingStudyLoadProgress(message: "DICOM-Metadaten werden gelesen...", processedFiles: 0, totalFiles: allFiles.Count));
 
@@ -212,6 +237,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             var series = new List<SeriesInfo>();
             var seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+            var seriesDicomMetadata = new Dictionary<string, IReadOnlyList<DicomFileMetadata>>(StringComparer.OrdinalIgnoreCase);
 
             var seriesNumber = 1;
 
@@ -241,6 +267,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
                     series.Add(new SeriesInfo(id: seriesId, modality: modality, name: name, description: description, imageCount: importedSeries.InstanceCount, studyId: studyId, seriesNumber: seriesNumber));
 
                     seriesFiles[seriesId] = importedSeries.Files.Select(item => item.FilePath).ToArray();
+                    seriesDicomMetadata[seriesId] = importedSeries.Files.ToArray();
 
                     seriesNumber++;
                 }
@@ -275,18 +302,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             progress?.Report(new ImagingStudyLoadProgress(message: "Scan abgeschlossen", processedFiles: allFiles.Count, totalFiles: allFiles.Count));
 
-            return new FolderScanResult(studyId, studyName, folderPath, series, seriesFiles, summary);
+            return new FolderScanResult(studyId, studyName, folderPath, series, seriesFiles, seriesDicomMetadata, summary);
         }
 
         private sealed class FolderScanResult
         {
-            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, IReadOnlyDictionary<string, IReadOnlyList<string>> seriesFiles, ImagingFolderScanSummary summary)
+            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, IReadOnlyDictionary<string, IReadOnlyList<string>> seriesFiles, IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> seriesDicomMetadata, ImagingFolderScanSummary summary)
             {
                 StudyId = studyId;
                 FolderName = folderName;
                 FolderPath = folderPath;
                 Series = series;
                 SeriesFiles = seriesFiles;
+                SeriesDicomMetadata = seriesDicomMetadata;
                 Summary = summary;
             }
 
@@ -296,8 +324,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
             public IReadOnlyList<SeriesInfo> Series { get; }
 
+            public IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> SeriesDicomMetadata { get; }
             public IReadOnlyDictionary<string, IReadOnlyList<string>> SeriesFiles { get; }
-
             public string StudyId { get; }
 
             public ImagingFolderScanSummary Summary { get; }
