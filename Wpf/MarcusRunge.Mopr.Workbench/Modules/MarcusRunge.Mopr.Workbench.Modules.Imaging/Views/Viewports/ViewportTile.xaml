@@ -28,7 +28,13 @@
 
     <Border Style="{StaticResource ViewportBorderStyle}"
             PreviewMouseLeftButtonDown="OnViewportPreviewMouseLeftButtonDown">
-
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Viewport leeren"
+                          Command="{Binding ClearViewportCommand}"
+                          CommandParameter="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+            </ContextMenu>
+        </Border.ContextMenu>
         <Grid ClipToBounds="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="34"/>

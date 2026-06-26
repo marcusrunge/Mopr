@@ -9,6 +9,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
     public partial class ViewportTile : UserControl
     {
         public static readonly DependencyProperty ActiveViewportIdProperty = DependencyProperty.Register(nameof(ActiveViewportId), typeof(string), typeof(ViewportTile), new PropertyMetadata(string.Empty, OnViewportStateChanged));
+        public static readonly DependencyProperty ClearViewportCommandProperty = DependencyProperty.Register(nameof(ClearViewportCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty IsActiveProperty = DependencyProperty.Register(nameof(IsActive), typeof(bool), typeof(ViewportTile), new PropertyMetadata(false));
         public static readonly DependencyProperty IsInteractiveProperty = DependencyProperty.Register(nameof(IsInteractive), typeof(bool), typeof(ViewportTile), new PropertyMetadata(true));
         public static readonly DependencyProperty SelectViewportCommandProperty = DependencyProperty.Register(nameof(SelectViewportCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
@@ -22,6 +23,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         {
             get => (string)GetValue(ActiveViewportIdProperty);
             set => SetValue(ActiveViewportIdProperty, value);
+        }
+
+        public ICommand? ClearViewportCommand
+        {
+            get => (ICommand?)GetValue(ClearViewportCommandProperty);
+            set => SetValue(ClearViewportCommandProperty, value);
         }
 
         public bool IsActive

@@ -11,7 +11,8 @@
             <viewports:ViewportTile Tile="{Binding SingleMainViewport}"
                                     ViewportId="{Binding SingleMainViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
         </Grid>
 
         <!-- 2 x 2 Layout -->
@@ -33,28 +34,32 @@
                                     Tile="{Binding TwoByTwoViewport1}"
                                     ViewportId="{Binding TwoByTwoViewport1.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
                                     Tile="{Binding TwoByTwoViewport2}"
                                     ViewportId="{Binding TwoByTwoViewport2.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
                                     Tile="{Binding TwoByTwoViewport3}"
                                     ViewportId="{Binding TwoByTwoViewport3.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
                                     Tile="{Binding TwoByTwoViewport4}"
                                     ViewportId="{Binding TwoByTwoViewport4.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />  
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />  
         </Grid>
 
         <!-- MPR Layout -->
@@ -76,21 +81,24 @@
                                     Tile="{Binding MprAxialViewport}"
                                     ViewportId="{Binding MprAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
                                     Tile="{Binding MprSagittalViewport}"
                                     ViewportId="{Binding MprSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
                                     Tile="{Binding MprCoronalViewport}"
                                     ViewportId="{Binding MprCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -98,7 +106,8 @@
                                     ViewportId="{Binding MprPreview3DViewport.ViewportId}"
                                     IsInteractive="False"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
         </Grid>
 
         <!-- Axial / Sagittal / Coronal Layout -->
@@ -115,20 +124,22 @@
                                     Tile="{Binding AscAxialViewport}"
                                     ViewportId="{Binding AscAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="2"
                                     Tile="{Binding AscSagittalViewport}"
                                     ViewportId="{Binding AscSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
 
             <viewports:ViewportTile Grid.Column="4"
                                     Tile="{Binding AscCoronalViewport}"
                                     ViewportId="{Binding AscCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}" />
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
         </Grid>
-
     </Grid>
 </UserControl>

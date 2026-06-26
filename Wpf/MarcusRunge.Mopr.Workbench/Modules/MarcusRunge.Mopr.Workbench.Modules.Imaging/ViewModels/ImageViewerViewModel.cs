@@ -21,17 +21,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = new(StringComparer.OrdinalIgnoreCase);
         private readonly IWpf _wpf;
         private IReadOnlyList<string> _activeSeriesFiles = [];
-
         private ImagingTool _activeTool;
         private string _activeViewportId = "Single.Main";
-        private string? _currentFileName;
-        private string? _currentFilePath;
+        private string? _currentFileName, _currentFilePath;
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
-        private int _currentSlice = 1;
+        private int _currentSlice = 1, _sliceCount = 1;
         private CancellationTokenSource? _imageLoadCancellationTokenSource;
+        private bool _isSynchronizingSelectionFromViewport;
         private SeriesInfo? _selectedSeries;
-        private int _sliceCount = 1;
         private double _zoomFactor = 1.0;
 
         public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom)
@@ -57,6 +55,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
             MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
             KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
+            ClearViewportCommand = new DelegateCommand<string?>(ClearViewport);
 
             SingleMainViewport = RegisterViewport("Single.Main", "Single");
 
@@ -351,10 +350,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             AssignSeriesToViewport(activeTile, series);
         }
 
-        private void ApplyViewportState(ImagingViewportState state)
-        {
-            ZoomFactor = state.ZoomFactor;
-        }
+        private void ApplyViewportState(ImagingViewportState state) => ZoomFactor = state.ZoomFactor;
 
         private void AssignSeriesToViewport(ViewportTileViewModel tile, SeriesInfo? series)
         {
@@ -376,10 +372,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             TryLoadCurrentImageForViewport(tile);
         }
 
-        private ViewportTileViewModel? GetActiveViewportTile()
-        {
-            return _viewportTiles.TryGetValue(ActiveViewportId, out var tile) ? tile : null;
-        }
+        private ViewportTileViewModel? GetActiveViewportTile() => _viewportTiles.TryGetValue(ActiveViewportId, out var tile) ? tile : null;
 
         private string GetDefaultViewportIdForLayout(ImagingLayout layout)
         {
@@ -452,10 +445,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             TryLoadCurrentImageForViewport(activeTile);
         }
 
-        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e)
-        {
-            ActiveTool = e.NewTool;
-        }
+        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
         private void OnActiveViewportChanged(object? sender, ImagingViewportSelectionChangedEventArgs e)
         {
@@ -473,6 +463,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             if (activeTile.CurrentImage == null && !string.IsNullOrWhiteSpace(activeTile.CurrentFilePath))
             {
                 TryLoadCurrentImageForViewport(activeTile);
+            }
+
+            try
+            {
+                _isSynchronizingSelectionFromViewport = true;
+
+                _core.ImagingService!.ImagingSelectionService!.SelectSeries(activeTile.Series);
+            }
+            finally
+            {
+                _isSynchronizingSelectionFromViewport = false;
             }
         }
 
@@ -577,13 +578,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e)
         {
+            if (_isSynchronizingSelectionFromViewport)
+            {
+                return;
+            }
+
             ApplySelectedSeries(e.SelectedSeries);
         }
 
-        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e)
-        {
-            ApplyViewportState(e.State);
-        }
+        private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
 
         private ViewportTileViewModel RegisterViewport(string viewportId, string title)
         {
@@ -679,6 +682,39 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
                 {
                     SyncActiveViewportToViewerState(tile);
+                }
+            }
+        }
+        public DelegateCommand<string?> ClearViewportCommand { get; }
+        private void ClearViewport(string? viewportId)
+        {
+            if (string.IsNullOrWhiteSpace(viewportId))
+            {
+                viewportId = ActiveViewportId;
+            }
+
+            if (!_viewportTiles.TryGetValue(viewportId, out var tile))
+            {
+                return;
+            }
+
+            tile.SetSeries(null, []);
+
+            tile.CurrentImage = null;
+
+            if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+            {
+                SyncActiveViewportToViewerState(tile);
+
+                try
+                {
+                    _isSynchronizingSelectionFromViewport = true;
+
+                    _core.ImagingService!.ImagingSelectionService!.SelectSeries(null);
+                }
+                finally
+                {
+                    _isSynchronizingSelectionFromViewport = false;
                 }
             }
         }

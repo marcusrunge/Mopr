@@ -11,6 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private readonly ICore _core;
 
+        private bool _isApplyingExternalSelection;
         private string _searchText = string.Empty;
         private SeriesInfo? _selectedSeries;
 
@@ -19,6 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core = core;
 
             _core.ImagingService!.ImagingStudyService!.StudyLoaded += OnStudyLoaded;
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
 
             Series = [];
 
@@ -38,7 +40,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _selectedSeries, value))
                 {
-                    _core.ImagingService!.ImagingSelectionService!.SelectSeries(value);
+                    if (!_isApplyingExternalSelection)
+                    {
+                        _core.ImagingService!.ImagingSelectionService!.SelectSeries(value);
+                    }
                 }
             }
         }
@@ -48,7 +53,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public override void Destroy()
         {
             _core.ImagingService!.ImagingStudyService!.StudyLoaded -= OnStudyLoaded;
-
+            _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
             base.Destroy();
         }
 
@@ -66,6 +71,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
 
             SelectedSeries = Series.Count > 0 ? Series[0] : null;
+        }
+
+        private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e)
+        {
+            try
+            {
+                _isApplyingExternalSelection = true;
+
+                SelectedSeries = e.SelectedSeries;
+            }
+            finally
+            {
+                _isApplyingExternalSelection = false;
+            }
         }
 
         private void OnStudyLoaded(object? sender, ImagingStudyLoadedEventArgs e) => ApplyStudy(e.Study, e.Series);
