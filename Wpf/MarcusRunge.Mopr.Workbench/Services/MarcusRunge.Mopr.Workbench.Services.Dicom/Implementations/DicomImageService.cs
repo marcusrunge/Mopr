@@ -12,7 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
     {
         private IDicomBase? _base;
 
-        public async Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, CancellationToken cancellationToken = default)
+        public async Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, double? windowCenter = null, double? windowWidth = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -46,7 +46,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
                     return null;
                 }
 
-                var pixels = ConvertToGrayscale8(dataset, pixelData, frameData, width, height);
+                var pixels = ConvertToGrayscale8(dataset, pixelData, frameData, width, height, windowCenter, windowWidth);
 
                 return new DicomGrayscaleImage(filePath, width, height, pixels);
             }
@@ -125,7 +125,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             }
         }
 
-        private static byte[] ConvertToGrayscale8(DicomDataset dataset, DicomPixelData pixelData, byte[] frameData, int width, int height)
+        private static byte[] ConvertToGrayscale8(DicomDataset dataset, DicomPixelData pixelData, byte[] frameData, int width, int height, double? overrideWindowCenter, double? overrideWindowWidth)
         {
             var pixelCount = width * height;
             var output = new byte[pixelCount];
@@ -136,8 +136,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             var slope = GetDouble(dataset, DicomTag.RescaleSlope) ?? 1.0;
             var intercept = GetDouble(dataset, DicomTag.RescaleIntercept) ?? 0.0;
 
-            var windowCenter = GetDouble(dataset, DicomTag.WindowCenter);
-            var windowWidth = GetDouble(dataset, DicomTag.WindowWidth);
+            var windowCenter = overrideWindowCenter ?? GetDouble(dataset, DicomTag.WindowCenter);
+            var windowWidth = overrideWindowWidth ?? GetDouble(dataset, DicomTag.WindowWidth);
 
             if (bitsAllocated <= 8)
             {

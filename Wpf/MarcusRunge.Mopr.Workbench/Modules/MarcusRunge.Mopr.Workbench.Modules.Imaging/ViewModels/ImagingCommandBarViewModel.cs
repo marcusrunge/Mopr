@@ -43,6 +43,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             ResetViewCommand = new DelegateCommand(ResetView);
             MoreCommand = new DelegateCommand(OpenMoreMenu);
+            LungWindowCommand = new DelegateCommand(ApplyLungWindow);
+            MediastinumWindowCommand = new DelegateCommand(ApplyMediastinumWindow);
+            BoneWindowCommand = new DelegateCommand(ApplyBoneWindow);
+            BrainWindowCommand = new DelegateCommand(ApplyBrainWindow);
+            ResetWindowCommand = new DelegateCommand(ResetWindow);
         }
 
         public ImagingTool ActiveTool
@@ -235,5 +240,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportService!.Reset();
             _core.ImagingService!.ImagingToolService!.ClearActiveTool();
         }
+
+        public DelegateCommand LungWindowCommand { get; }
+
+        public DelegateCommand MediastinumWindowCommand { get; }
+
+        public DelegateCommand BoneWindowCommand { get; }
+
+        public DelegateCommand BrainWindowCommand { get; }
+
+        public DelegateCommand ResetWindowCommand { get; }
+
+        private void ApplyLungWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: -600, windowWidth: 1500);
+
+        private void ApplyMediastinumWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 400);
+
+        private void ApplyBoneWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 300, windowWidth: 1500);
+
+        private void ApplyBrainWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 80);
+
+        private void ResetWindow() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevel();
     }
 }

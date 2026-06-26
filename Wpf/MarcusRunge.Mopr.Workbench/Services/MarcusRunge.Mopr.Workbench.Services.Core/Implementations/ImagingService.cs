@@ -13,6 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations
             _imagingToolService = Imaging.ImagingToolService.Create(this);
             _imagingViewportSelectionService = Imaging.ImagingViewportSelectionService.Create(this);
             _imagingViewportService = Imaging.ImagingViewportService.Create(this);
+            _imagingWindowLevelService = Imaging.ImagingWindowLevelService.Create(this);
         }
 
         internal static IImagingService? Create(ICoreBase? coreBase) => coreBase is null ? null : new ImagingService(coreBase);

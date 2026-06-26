@@ -35,9 +35,29 @@
                 Margin="0,0,8,0"/>
 
             <ToggleButton Content="Fensterung"
-                      Command="{Binding WindowLevelCommand}"
-                      IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
-                      Margin="0,0,8,0"/>
+              Command="{Binding WindowLevelCommand}"
+              IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
+              Margin="0,0,8,0"/>
+
+            <Button Content="CT Lunge"
+                    Command="{Binding LungWindowCommand}"
+                    Margin="0,0,8,0"/>
+
+            <Button Content="CT Weichteil"
+                    Command="{Binding MediastinumWindowCommand}"
+                    Margin="0,0,8,0"/>
+
+            <Button Content="CT Knochen"
+                    Command="{Binding BoneWindowCommand}"
+                    Margin="0,0,8,0"/>
+
+            <Button Content="CT Gehirn"
+                    Command="{Binding BrainWindowCommand}"
+                    Margin="0,0,8,0"/>
+
+            <Button Content="W/L Reset"
+                    Command="{Binding ResetWindowCommand}"
+                    Margin="0,0,8,0"/>
 
             <ToggleButton Content="Zoom"
                       Command="{Binding ZoomCommand}"
@@ -56,7 +76,7 @@
 
             <Button Content="Reset"
                 Command="{Binding ResetViewCommand}"
-                Margin="0,0,8,0"/>
+                Margin="0,0,8,0"/>            
 
             <Button Content="..."
                 Command="{Binding MoreCommand}"/>

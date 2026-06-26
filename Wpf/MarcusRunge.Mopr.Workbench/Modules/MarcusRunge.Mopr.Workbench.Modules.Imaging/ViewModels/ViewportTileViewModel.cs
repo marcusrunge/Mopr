@@ -7,80 +7,15 @@ using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
-    public sealed class ViewportTileViewModel(
-        string viewportId,
-        string title) : ViewModelBase
+    public sealed class ViewportTileViewModel(string viewportId, string title) : ViewModelBase
     {
-        private IReadOnlyList<string> _seriesFiles = [];
+        private string? _currentFileName, _currentFilePath;
         private ImageSource? _currentImage;
-        private int _currentSlice = 1;
-        private string? _currentFileName;
-        private string? _currentFilePath;
+        private int _currentSlice = 1, _sliceCount = 1;
         private SeriesInfo? _series;
-        private int _sliceCount = 1;
-
-        public string ViewportId { get; } = viewportId;
-
-        public string Title { get; } = title;
-
-        public SeriesInfo? Series
-        {
-            get => _series;
-            private set
-            {
-                if (SetProperty(ref _series, value))
-                {
-                    RaisePropertyChanged(nameof(DisplayTitle));
-                    RaisePropertyChanged(nameof(DisplaySubtitle));
-                }
-            }
-        }
-
-        public string DisplayTitle => Series == null ? Title : Series.Name;
-
-        public string DisplaySubtitle => Series == null ? "Keine Serie" : $"{Series.Modality} · {Series.ImageCount} Bilder";
-
-        public IReadOnlyList<string> SeriesFiles { get => _seriesFiles; private set => SetProperty(ref _seriesFiles, value); }
-
-        public int CurrentSlice
-        {
-            get => _currentSlice;
-            private set
-            {
-                if (SetProperty(ref _currentSlice, value))
-                {
-                    RaisePropertyChanged(nameof(SliceDisplayText));
-                }
-            }
-        }
-
-        public int SliceCount
-        {
-            get => _sliceCount;
-            private set
-            {
-                if (SetProperty(ref _sliceCount, value))
-                {
-                    RaisePropertyChanged(nameof(SliceDisplayText));
-                }
-            }
-        }
-
-        public string SliceDisplayText => $"{CurrentSlice}/{SliceCount}";
-
-        public ImageSource? CurrentImage
-        {
-            get => _currentImage;
-            set
-            {
-                if (SetProperty(ref _currentImage, value))
-                {
-                    RaisePropertyChanged(nameof(IsEmptyViewerVisible));
-                }
-            }
-        }
-
-        public bool IsEmptyViewerVisible => CurrentImage == null;
+        private IReadOnlyList<string> _seriesFiles = [];
+        private double? _windowCenter, _windowWidth;
+        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
 
         public string? CurrentFileName
         {
@@ -107,9 +42,115 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
-
         public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? "Keine Datei" : $"Aktuelle Datei:{Environment.NewLine}{CurrentFilePath}";
+
+        public ImageSource? CurrentImage
+        {
+            get => _currentImage;
+            set
+            {
+                if (SetProperty(ref _currentImage, value))
+                {
+                    RaisePropertyChanged(nameof(IsEmptyViewerVisible));
+                }
+            }
+        }
+
+        public int CurrentSlice
+        {
+            get => _currentSlice;
+            private set
+            {
+                if (SetProperty(ref _currentSlice, value))
+                {
+                    RaisePropertyChanged(nameof(SliceDisplayText));
+                }
+            }
+        }
+
+        public string DisplaySubtitle => Series == null ? "Keine Serie" : $"{Series.Modality} · {Series.ImageCount} Bilder";
+
+        public string DisplayTitle => Series == null ? Title : Series.Name;
+
+        public bool IsEmptyViewerVisible => CurrentImage == null;
+
+        public SeriesInfo? Series
+        {
+            get => _series;
+            private set
+            {
+                if (SetProperty(ref _series, value))
+                {
+                    RaisePropertyChanged(nameof(DisplayTitle));
+                    RaisePropertyChanged(nameof(DisplaySubtitle));
+                }
+            }
+        }
+
+        public IReadOnlyList<string> SeriesFiles { get => _seriesFiles; private set => SetProperty(ref _seriesFiles, value); }
+
+        public int SliceCount
+        {
+            get => _sliceCount;
+            private set
+            {
+                if (SetProperty(ref _sliceCount, value))
+                {
+                    RaisePropertyChanged(nameof(SliceDisplayText));
+                }
+            }
+        }
+
+        public string SliceDisplayText => $"{CurrentSlice}/{SliceCount}";
+
+        public string Title { get; } = title;
+
+        public string ViewportId { get; } = viewportId;
+
+        public double? WindowCenter
+        {
+            get => _windowCenter;
+            private set
+            {
+                if (SetProperty(ref _windowCenter, value))
+                {
+                    RaisePropertyChanged(nameof(WindowDisplayText));
+                }
+            }
+        }
+
+        public string WindowDisplayText
+        {
+            get
+            {
+                if (!WindowCenter.HasValue || !WindowWidth.HasValue)
+                {
+                    return "W/L: Auto";
+                }
+
+                return $"W/L: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
+            }
+        }
+
+        public double? WindowWidth
+        {
+            get => _windowWidth;
+            private set
+            {
+                if (SetProperty(ref _windowWidth, value))
+                {
+                    RaisePropertyChanged(nameof(WindowDisplayText));
+                }
+            }
+        }
+
+        public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
+
+        public void ResetWindowLevel()
+        {
+            WindowCenter = null;
+            WindowWidth = null;
+        }
 
         public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
         {
@@ -145,7 +186,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             UpdateCurrentFile();
         }
 
-        public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
+        public void SetWindowLevel(double? windowCenter, double? windowWidth)
+        {
+            WindowCenter = windowCenter;
+            WindowWidth = windowWidth;
+        }
 
         private void UpdateCurrentFile()
         {

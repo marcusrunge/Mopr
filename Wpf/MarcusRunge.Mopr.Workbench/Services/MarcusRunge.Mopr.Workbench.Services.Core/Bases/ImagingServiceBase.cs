@@ -11,20 +11,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         protected IImagingToolService? _imagingToolService;
         protected IImagingViewportSelectionService? _imagingViewportSelectionService;
         protected IImagingViewportService? _imagingViewportService;
+        protected IImagingWindowLevelService? _imagingWindowLevelService;
         private readonly ICoreBase? _coreBase;
 
         public ImagingServiceBase(ICoreBase? coreBase) => _coreBase = coreBase;
 
         ICoreBase? IImagingServiceBase.CoreBase => _coreBase;
-        public IImagingViewportService? ImagingViewportService => _imagingViewportService;
         public IImagingLayoutService? ImagingLayoutService => _imagingLayoutService;
-
         public IImagingSelectionService? ImagingSelectionService => _imagingSelectionService;
-
         public IImagingStudyService? ImagingStudyService => _imagingStudyService;
-
         public IImagingToolService? ImagingToolService => _imagingToolService;
-
         public IImagingViewportSelectionService? ImagingViewportSelectionService => _imagingViewportSelectionService;
+        public IImagingViewportService? ImagingViewportService => _imagingViewportService;
+        public IImagingWindowLevelService? ImagingWindowLevelService => _imagingWindowLevelService;
     }
 }
