@@ -18,10 +18,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImageViewerViewModel : ViewModelBase
     {
         private const int MaxCachedDicomFrames = 128;
+        private const int RenderThrottleMilliseconds = 40;
         private readonly ICore _core;
         private readonly IDicom _dicom;
         private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = new(StringComparer.OrdinalIgnoreCase);
         private readonly Queue<string> _dicomFrameCacheOrder = new();
+        private readonly HashSet<string> _pendingRenderViewportIds = new(StringComparer.OrdinalIgnoreCase);
+        private readonly System.Windows.Threading.DispatcherTimer _renderThrottleTimer = new System.Windows.Threading.DispatcherTimer();
         private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = new(StringComparer.OrdinalIgnoreCase);
         private readonly IWpf _wpf;
         private IReadOnlyList<string> _activeSeriesFiles = [];
@@ -47,6 +50,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportSelectionService!.SetDefaultViewport(GetDefaultViewportIdForLayout(_currentLayout));
 
             _activeViewportId = _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportId;
+
+            _renderThrottleTimer.Interval = TimeSpan.FromMilliseconds(RenderThrottleMilliseconds);
+
+            _renderThrottleTimer.Tick += OnRenderThrottleTimerTick;
 
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
@@ -347,6 +354,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             ClearDicomFrameCache();
 
+            _renderThrottleTimer.Stop();
+            _renderThrottleTimer.Tick -= OnRenderThrottleTimerTick;
+            _pendingRenderViewportIds.Clear();
+
             base.Destroy();
         }
 
@@ -362,7 +373,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             AssignSeriesToViewport(activeTile, series);
         }
 
-        private void ApplyViewportState(ImagingViewportState state) => ZoomFactor = state.ZoomFactor;
+        private void ApplyViewportState(ImagingViewportState state)
+        {
+            ZoomFactor = state.ZoomFactor;
+
+            var activeTile = GetActiveViewportTile();
+
+            if (activeTile == null)
+            {
+                return;
+            }
+
+            if (activeTile.Series == null)
+            {
+                SyncActiveViewportToViewerState(activeTile);
+                return;
+            }
+
+            if (state.CurrentSlice == 1 && activeTile.CurrentSlice != 1)
+            {
+                activeTile.SetSlice(1);
+
+                SyncActiveViewportToViewerState(activeTile);
+
+                TryLoadCurrentImageForViewport(activeTile);
+            }
+        }
 
         private void AssignSeriesToViewport(ViewportTileViewModel tile, SeriesInfo? series)
         {
@@ -688,6 +724,30 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             e.Handled = true;
         }
 
+        private void OnRenderThrottleTimerTick(object? sender, EventArgs e)
+        {
+            _renderThrottleTimer.Stop();
+
+            if (_pendingRenderViewportIds.Count == 0)
+            {
+                return;
+            }
+
+            var viewportIds = new List<string>(_pendingRenderViewportIds);
+
+            _pendingRenderViewportIds.Clear();
+
+            foreach (var viewportId in viewportIds)
+            {
+                if (!_viewportTiles.TryGetValue(viewportId, out var tile))
+                {
+                    continue;
+                }
+
+                RenderCurrentFrameForViewport(tile);
+            }
+        }
+
         private void OnSelectedSeriesChanged(object? sender, SeriesSelectionChangedEventArgs e)
         {
             if (_isSynchronizingSelectionFromViewport)
@@ -739,7 +799,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 activeTile.SetWindowLevel(e.WindowCenter, e.WindowWidth);
             }
 
-            SyncActiveViewportToViewerState(activeTile);
+            RaisePropertyChanged(nameof(WindowDisplayText));
+
+            if (activeTile.CurrentDicomFrame != null)
+            {
+                RequestRenderCurrentFrameForViewport(activeTile);
+                return;
+            }
 
             TryLoadCurrentImageForViewport(activeTile);
         }
@@ -751,6 +817,56 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _viewportTiles[viewportId] = tile;
 
             return tile;
+        }
+
+        private bool RenderCurrentFrameForViewport(ViewportTileViewModel tile)
+        {
+            var frame = tile.CurrentDicomFrame;
+
+            if (frame == null)
+            {
+                return false;
+            }
+
+            var dicomImage = _dicom.ImageService!.RenderGrayscaleImage(frame, tile.WindowCenter, tile.WindowWidth);
+
+            if (dicomImage == null)
+            {
+                tile.CurrentImage = null;
+
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+                {
+                    SyncActiveViewportToViewerState(tile);
+                }
+
+                return false;
+            }
+
+            var imageSource = _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
+
+            tile.CurrentImage = imageSource;
+
+            if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+            {
+                SyncActiveViewportToViewerState(tile);
+            }
+
+            return imageSource != null;
+        }
+
+        private void RequestRenderCurrentFrameForViewport(ViewportTileViewModel tile)
+        {
+            if (tile.CurrentDicomFrame == null)
+            {
+                return;
+            }
+
+            _pendingRenderViewportIds.Add(tile.ViewportId);
+
+            if (!_renderThrottleTimer.IsEnabled)
+            {
+                _renderThrottleTimer.Start();
+            }
         }
 
         private void SelectViewport(string? viewportId)
@@ -792,6 +908,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _dicomFrameCache.Remove(oldestFilePath);
             }
         }
+
         private async void TryLoadCurrentImageForViewport(ViewportTileViewModel tile)
         {
             var filePath = tile.CurrentFilePath;

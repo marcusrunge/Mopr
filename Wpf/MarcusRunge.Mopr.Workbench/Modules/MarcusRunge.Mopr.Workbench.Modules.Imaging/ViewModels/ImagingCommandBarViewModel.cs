@@ -238,6 +238,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private void ResetView()
         {
             _core.ImagingService!.ImagingViewportService!.Reset();
+            _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevel();
             _core.ImagingService!.ImagingToolService!.ClearActiveTool();
         }
 
