@@ -438,8 +438,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             tile.SetSeries(null, []);
 
-            tile.CurrentImage = null;
-
             if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
             {
                 SyncActiveViewportToViewerState(tile);
@@ -794,13 +792,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _dicomFrameCache.Remove(oldestFilePath);
             }
         }
-
         private async void TryLoadCurrentImageForViewport(ViewportTileViewModel tile)
         {
             var filePath = tile.CurrentFilePath;
 
             if (string.IsNullOrWhiteSpace(filePath))
             {
+                tile.CurrentDicomFrame = null;
                 tile.CurrentImage = null;
 
                 if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
@@ -811,6 +809,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
+            var requestedFilePath = filePath;
+
             _imageLoadCancellationTokenSource?.Cancel();
             _imageLoadCancellationTokenSource?.Dispose();
             _imageLoadCancellationTokenSource = new CancellationTokenSource();
@@ -819,13 +819,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             try
             {
-                var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(filePath);
+                var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(requestedFilePath);
 
-                if (imageSource == null)
+                if (imageSource != null)
                 {
-                    var frame = await GetOrLoadDicomFrameAsync(filePath, cancellationToken);
+                    tile.CurrentDicomFrame = null;
+                }
+                else
+                {
+                    var frame = tile.CurrentDicomFrame;
 
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (frame == null || !string.Equals(frame.FilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        frame = await GetOrLoadDicomFrameAsync(requestedFilePath, cancellationToken);
+
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return;
+                        }
+
+                        tile.CurrentDicomFrame = frame;
+                    }
 
                     if (frame != null)
                     {
@@ -839,6 +855,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
 
                 tile.CurrentImage = imageSource;
 

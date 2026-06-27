@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,12 +10,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel(string viewportId, string title) : ViewModelBase
     {
+        private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
         private ImageSource? _currentImage;
         private int _currentSlice = 1, _sliceCount = 1;
         private SeriesInfo? _series;
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth;
+
+        public DicomImageFrame? CurrentDicomFrame
+        {
+            get => _currentDicomFrame;
+            set => SetProperty(ref _currentDicomFrame, value);
+        }
+
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
 
         public string? CurrentFileName
@@ -159,9 +168,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             SliceCount = SeriesFiles.Count > 0 ? SeriesFiles.Count : Math.Max(1, series?.ImageCount ?? 1);
 
+            CurrentDicomFrame = null;
+            CurrentImage = null;
+
             SetSlice(1);
 
-            CurrentImage = null;
+            if (series == null)
+            {
+                CurrentFileName = null;
+                CurrentFilePath = null;
+            }
         }
 
         public void SetSlice(int slice)
@@ -179,6 +195,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             if (slice > SliceCount)
             {
                 slice = SliceCount;
+            }
+
+            if (CurrentSlice != slice)
+            {
+                CurrentDicomFrame = null;
+                CurrentImage = null;
             }
 
             CurrentSlice = slice;
