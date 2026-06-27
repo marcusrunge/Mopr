@@ -14,6 +14,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
 
         public async Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, double? windowCenter = null, double? windowWidth = null, CancellationToken cancellationToken = default)
         {
+            var frame = await LoadImageFrameAsync(filePath, cancellationToken);
+
+            if (frame == null)
+            {
+                return null;
+            }
+
+            return RenderGrayscaleImage(frame, windowCenter, windowWidth);
+        }
+
+        public async Task<DicomImageFrame?> LoadImageFrameAsync(string filePath, CancellationToken cancellationToken = default)
+        {
             if (string.IsNullOrWhiteSpace(filePath))
             {
                 return null;
@@ -46,15 +58,63 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
                     return null;
                 }
 
-                var pixels = ConvertToGrayscale8(dataset, pixelData, frameData, width, height, windowCenter, windowWidth);
+                var values = ConvertToValues(dataset, pixelData, frameData, width, height);
 
-                return new DicomGrayscaleImage(filePath, width, height, pixels);
+                var defaultWindowCenter = GetDouble(dataset, DicomTag.WindowCenter);
+
+                var defaultWindowWidth = GetDouble(dataset, DicomTag.WindowWidth);
+
+                var photometricInterpretation = GetString(dataset, DicomTag.PhotometricInterpretation);
+
+                var modality = GetString(dataset, DicomTag.Modality);
+
+                return new DicomImageFrame(filePath: filePath, width: width, height: height, values: values, defaultWindowCenter: defaultWindowCenter, defaultWindowWidth: defaultWindowWidth, photometricInterpretation: photometricInterpretation, modality: modality);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception exception)
             {
                 _base?.OnExceptionThrown(exception);
                 return null;
             }
+        }
+
+        public DicomGrayscaleImage? RenderGrayscaleImage(DicomImageFrame frame, double? windowCenter = null, double? windowWidth = null)
+        {
+            if (frame == null)
+            {
+                return null;
+            }
+
+            if (frame.Width <= 0 || frame.Height <= 0)
+            {
+                return null;
+            }
+
+            if (frame.Values.Length < frame.Width * frame.Height)
+            {
+                return null;
+            }
+
+            var effectiveWindowCenter = windowCenter ?? frame.DefaultWindowCenter;
+
+            var effectiveWindowWidth = windowWidth ?? frame.DefaultWindowWidth;
+
+            var pixels = new byte[frame.Width * frame.Height];
+
+            for (var i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = ApplyWindow(frame.Values[i], effectiveWindowCenter, effectiveWindowWidth);
+            }
+
+            if (string.Equals(frame.PhotometricInterpretation, "MONOCHROME1", StringComparison.OrdinalIgnoreCase))
+            {
+                Invert(pixels);
+            }
+
+            return new DicomGrayscaleImage(frame.FilePath, frame.Width, frame.Height, pixels);
         }
 
         protected override void OnCreate(IDicomBase @base) => _base = @base;
@@ -98,7 +158,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             return (byte)Math.Round(value);
         }
 
-        private static void Convert16Bit(byte[] source, byte[] target, int pixelCount, bool signed, double slope, double intercept, double? windowCenter, double? windowWidth)
+        private static void Convert16BitToValues(byte[] source, double[] target, int pixelCount, bool signed, double slope, double intercept)
         {
             var availablePixels = Math.Min(pixelCount, source.Length / 2);
 
@@ -106,49 +166,53 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             {
                 var byteIndex = i * 2;
 
-                int rawValue = signed ? (int)BitConverter.ToInt16(source, byteIndex) : (int)BitConverter.ToUInt16(source, byteIndex);
+                int rawValue;
 
-                var value = rawValue * slope + intercept;
+                if (signed)
+                {
+                    rawValue = BitConverter.ToInt16(source, byteIndex);
+                }
+                else
+                {
+                    rawValue = BitConverter.ToUInt16(source, byteIndex);
+                }
 
-                target[i] = ApplyWindow(value, windowCenter, windowWidth);
+                target[i] = rawValue * slope + intercept;
             }
         }
 
-        private static void Convert8Bit(byte[] source, byte[] target, int pixelCount, double slope, double intercept, double? windowCenter, double? windowWidth)
+        private static void Convert8BitToValues(byte[] source, double[] target, int pixelCount, double slope, double intercept)
         {
             var count = Math.Min(pixelCount, source.Length);
 
             for (var i = 0; i < count; i++)
             {
-                var value = source[i] * slope + intercept;
-                target[i] = ApplyWindow(value, windowCenter, windowWidth);
+                target[i] = source[i] * slope + intercept;
             }
         }
 
-        private static byte[] ConvertToGrayscale8(DicomDataset dataset, DicomPixelData pixelData, byte[] frameData, int width, int height, double? overrideWindowCenter, double? overrideWindowWidth)
+        private static double[] ConvertToValues(DicomDataset dataset, DicomPixelData pixelData, byte[] frameData, int width, int height)
         {
             var pixelCount = width * height;
-            var output = new byte[pixelCount];
+            var values = new double[pixelCount];
 
             var bitsAllocated = pixelData.BitsAllocated;
             var pixelRepresentation = GetInt(dataset, DicomTag.PixelRepresentation) ?? 0;
 
             var slope = GetDouble(dataset, DicomTag.RescaleSlope) ?? 1.0;
-            var intercept = GetDouble(dataset, DicomTag.RescaleIntercept) ?? 0.0;
 
-            var windowCenter = overrideWindowCenter ?? GetDouble(dataset, DicomTag.WindowCenter);
-            var windowWidth = overrideWindowWidth ?? GetDouble(dataset, DicomTag.WindowWidth);
+            var intercept = GetDouble(dataset, DicomTag.RescaleIntercept) ?? 0.0;
 
             if (bitsAllocated <= 8)
             {
-                Convert8Bit(frameData, output, pixelCount, slope, intercept, windowCenter, windowWidth);
+                Convert8BitToValues(frameData, values, pixelCount, slope, intercept);
 
-                return output;
+                return values;
             }
 
-            Convert16Bit(frameData, output, pixelCount, pixelRepresentation != 0, slope, intercept, windowCenter, windowWidth);
+            Convert16BitToValues(frameData, values, pixelCount, pixelRepresentation != 0, slope, intercept);
 
-            return output;
+            return values;
         }
 
         private static double? GetDouble(DicomDataset dataset, DicomTag tag)
@@ -201,6 +265,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             }
 
             return null;
+        }
+
+        private static string? GetString(DicomDataset dataset, DicomTag tag)
+        {
+            if (dataset.TryGetSingleValue<string>(tag, out var value))
+            {
+                return string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+
+            return null;
+        }
+
+        private static void Invert(byte[] pixels)
+        {
+            for (var i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = (byte)(255 - pixels[i]);
+            }
         }
     }
 }
