@@ -9,6 +9,7 @@ using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -16,8 +17,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImageViewerViewModel : ViewModelBase
     {
+        private const int MaxCachedDicomFrames = 128;
         private readonly ICore _core;
         private readonly IDicom _dicom;
+        private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Queue<string> _dicomFrameCacheOrder = new();
         private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = new(StringComparer.OrdinalIgnoreCase);
         private readonly IWpf _wpf;
         private IReadOnlyList<string> _activeSeriesFiles = [];
@@ -50,6 +54,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
             _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportChanged += OnActiveViewportChanged;
             _core.ImagingService!.ImagingWindowLevelService!.WindowLevelChanged += OnWindowLevelChanged;
+            _core.ImagingService!.ImagingStudyService!.StudyLoaded += OnStudyLoaded;
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
 
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
@@ -334,9 +339,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
             _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportChanged -= OnActiveViewportChanged;
             _core.ImagingService!.ImagingWindowLevelService!.WindowLevelChanged -= OnWindowLevelChanged;
+            _core.ImagingService!.ImagingStudyService!.StudyLoaded -= OnStudyLoaded;
+
             _imageLoadCancellationTokenSource?.Cancel();
             _imageLoadCancellationTokenSource?.Dispose();
             _imageLoadCancellationTokenSource = null;
+
+            ClearDicomFrameCache();
 
             base.Destroy();
         }
@@ -373,6 +382,46 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SyncActiveViewportToViewerState(tile);
 
             TryLoadCurrentImageForViewport(tile);
+        }
+
+        private void ClearAllViewports(bool syncActiveViewport, bool clearSelection)
+        {
+            foreach (var tile in _viewportTiles.Values)
+            {
+                tile.SetSeries(null, []);
+
+                tile.CurrentImage = null;
+            }
+
+            if (syncActiveViewport)
+            {
+                var activeTile = GetActiveViewportTile();
+
+                if (activeTile != null)
+                {
+                    SyncActiveViewportToViewerState(activeTile);
+                }
+            }
+
+            if (clearSelection)
+            {
+                try
+                {
+                    _isSynchronizingSelectionFromViewport = true;
+
+                    _core.ImagingService!.ImagingSelectionService!.SelectSeries(null);
+                }
+                finally
+                {
+                    _isSynchronizingSelectionFromViewport = false;
+                }
+            }
+        }
+
+        private void ClearDicomFrameCache()
+        {
+            _dicomFrameCache.Clear();
+            _dicomFrameCacheOrder.Clear();
         }
 
         private void ClearViewport(string? viewportId)
@@ -431,6 +480,35 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
 
             return defaultViewport?.Id ?? "Single.Main";
+        }
+
+        private async Task<DicomImageFrame?> GetOrLoadDicomFrameAsync(string filePath, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return null;
+            }
+
+            if (_dicomFrameCache.TryGetValue(filePath, out var cachedFrame))
+            {
+                return cachedFrame;
+            }
+
+            var frame = await _dicom.ImageService!.LoadImageFrameAsync(filePath, cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (frame == null)
+            {
+                return null;
+            }
+
+            _dicomFrameCache[filePath] = frame;
+            _dicomFrameCacheOrder.Enqueue(filePath);
+
+            TrimDicomFrameCache();
+
+            return frame;
         }
 
         private void MoveSlice(int delta)
@@ -622,6 +700,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ApplySelectedSeries(e.SelectedSeries);
         }
 
+        private void OnStudyLoaded(object? sender, ImagingStudyLoadedEventArgs e)
+        {
+            _imageLoadCancellationTokenSource?.Cancel();
+
+            ClearDicomFrameCache();
+
+            ClearAllViewports(syncActiveViewport: true, clearSelection: false);
+
+            var activeTile = GetActiveViewportTile();
+
+            if (activeTile == null)
+            {
+                return;
+            }
+
+            if (e.Series.Count > 0)
+            {
+                AssignSeriesToViewport(activeTile, e.Series[0]);
+            }
+        }
+
         private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
 
         private void OnWindowLevelChanged(object? sender, ImagingWindowLevelChangedEventArgs e)
@@ -686,6 +785,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportService!.SetSlice(tile.CurrentSlice, tile.SliceCount);
         }
 
+        private void TrimDicomFrameCache()
+        {
+            while (_dicomFrameCache.Count > MaxCachedDicomFrames && _dicomFrameCacheOrder.Count > 0)
+            {
+                var oldestFilePath = _dicomFrameCacheOrder.Dequeue();
+
+                _dicomFrameCache.Remove(oldestFilePath);
+            }
+        }
+
         private async void TryLoadCurrentImageForViewport(ViewportTileViewModel tile)
         {
             var filePath = tile.CurrentFilePath;
@@ -714,13 +823,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
                 if (imageSource == null)
                 {
-                    var dicomImage = await _dicom.ImageService!.LoadGrayscaleImageAsync(filePath, tile.WindowCenter, tile.WindowWidth, cancellationToken);
+                    var frame = await GetOrLoadDicomFrameAsync(filePath, cancellationToken);
 
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (dicomImage != null)
+                    if (frame != null)
                     {
-                        imageSource = _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
+                        var dicomImage = _dicom.ImageService!.RenderGrayscaleImage(frame, tile.WindowCenter, tile.WindowWidth);
+
+                        if (dicomImage != null)
+                        {
+                            imageSource = _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
+                        }
                     }
                 }
 
@@ -735,6 +849,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
             catch (OperationCanceledException)
             {
+                // Ein neuer Slice, Viewport oder Ladevorgang hat diesen Auftrag abgebrochen.
             }
             catch
             {
