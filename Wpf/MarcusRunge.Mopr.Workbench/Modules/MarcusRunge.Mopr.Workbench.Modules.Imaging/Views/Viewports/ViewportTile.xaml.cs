@@ -3,6 +3,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 {
@@ -13,6 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         public static readonly DependencyProperty IsActiveProperty = DependencyProperty.Register(nameof(IsActive), typeof(bool), typeof(ViewportTile), new PropertyMetadata(false));
         public static readonly DependencyProperty IsInteractiveProperty = DependencyProperty.Register(nameof(IsInteractive), typeof(bool), typeof(ViewportTile), new PropertyMetadata(true));
         public static readonly DependencyProperty IsWindowLevelActiveProperty = DependencyProperty.Register(nameof(IsWindowLevelActive), typeof(bool), typeof(ViewportTile), new PropertyMetadata(false));
+        public static readonly DependencyProperty PixelHoverCommandProperty = DependencyProperty.Register(nameof(PixelHoverCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty SelectViewportCommandProperty = DependencyProperty.Register(nameof(SelectViewportCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty TileProperty = DependencyProperty.Register(nameof(Tile), typeof(ViewportTileViewModel), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(nameof(Title), typeof(string), typeof(ViewportTile), new PropertyMetadata(string.Empty));
@@ -21,6 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         public static readonly DependencyProperty WindowLevelDragCompletedCommandProperty = DependencyProperty.Register(nameof(WindowLevelDragCompletedCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty WindowLevelDragStartedCommandProperty = DependencyProperty.Register(nameof(WindowLevelDragStartedCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         private bool _isWindowLevelDragging;
+
         private Point _windowLevelDragStartPosition;
 
         public ViewportTile() => InitializeComponent();
@@ -53,6 +56,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         {
             get => (bool)GetValue(IsWindowLevelActiveProperty);
             set => SetValue(IsWindowLevelActiveProperty, value);
+        }
+
+        public ICommand? PixelHoverCommand
+        {
+            get => (ICommand?)GetValue(PixelHoverCommandProperty);
+            set => SetValue(PixelHoverCommandProperty, value);
         }
 
         public ICommand? SelectViewportCommand
@@ -116,6 +125,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             }
         }
 
+        private void ExecutePixelHover(int? pixelX, int? pixelY)
+        {
+            var hoverInfo = new ViewportPixelHoverInfo(ViewportId, pixelX, pixelY);
+
+            if (PixelHoverCommand?.CanExecute(hoverInfo) == true)
+            {
+                PixelHoverCommand.Execute(hoverInfo);
+            }
+        }
+
+        private void OnViewportMouseLeave(object sender, MouseEventArgs e) => ExecutePixelHover(null, null);
+
         private void OnViewportPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!IsInteractive)
@@ -161,6 +182,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
         private void OnViewportPreviewMouseMove(object sender, MouseEventArgs e)
         {
+            ReportPixelHover(e);
             if (!_isWindowLevelDragging)
             {
                 return;
@@ -186,6 +208,60 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             }
 
             e.Handled = true;
+        }
+
+        private void ReportPixelHover(MouseEventArgs e)
+        {
+            if (Tile?.CurrentDicomFrame == null)
+            {
+                ExecutePixelHover(null, null);
+                return;
+            }
+
+            if (ViewportImage.Source == null)
+            {
+                ExecutePixelHover(null, null);
+                return;
+            }
+
+            var source = ViewportImage.Source;
+
+            var sourceWidth = source is BitmapSource bitmapSource ? bitmapSource.PixelWidth : source.Width;
+
+            var sourceHeight = source is BitmapSource bitmapSource2 ? bitmapSource2.PixelHeight : source.Height;
+
+            if (sourceWidth <= 0 || sourceHeight <= 0 || ViewportImage.ActualWidth <= 0 || ViewportImage.ActualHeight <= 0)
+            {
+                ExecutePixelHover(null, null);
+                return;
+            }
+
+            var scale = Math.Min(ViewportImage.ActualWidth / sourceWidth, ViewportImage.ActualHeight / sourceHeight);
+
+            if (scale <= 0)
+            {
+                ExecutePixelHover(null, null);
+                return;
+            }
+
+            var displayedWidth = sourceWidth * scale;
+            var displayedHeight = sourceHeight * scale;
+
+            var offsetX = (ViewportImage.ActualWidth - displayedWidth) / 2.0;
+            var offsetY = (ViewportImage.ActualHeight - displayedHeight) / 2.0;
+
+            var position = e.GetPosition(ViewportImage);
+
+            if (position.X < offsetX || position.Y < offsetY || position.X >= offsetX + displayedWidth || position.Y >= offsetY + displayedHeight)
+            {
+                ExecutePixelHover(null, null);
+                return;
+            }
+
+            var pixelX = (int)((position.X - offsetX) / scale);
+            var pixelY = (int)((position.Y - offsetY) / scale);
+
+            ExecutePixelHover(pixelX, pixelY);
         }
 
         private void UpdateIsActive() => IsActive = !string.IsNullOrWhiteSpace(ViewportId) && string.Equals(ViewportId, ActiveViewportId, StringComparison.Ordinal);

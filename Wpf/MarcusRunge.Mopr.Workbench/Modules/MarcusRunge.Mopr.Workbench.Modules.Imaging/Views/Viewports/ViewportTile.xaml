@@ -30,6 +30,7 @@
             PreviewMouseLeftButtonDown="OnViewportPreviewMouseLeftButtonDown"
             PreviewMouseMove="OnViewportPreviewMouseMove"
             PreviewMouseLeftButtonUp="OnViewportPreviewMouseLeftButtonUp"
+            MouseLeave="OnViewportMouseLeave"
             Tag="{Binding ViewportId, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Border.ContextMenu>
             <ContextMenu>
@@ -75,7 +76,8 @@
 
             <Grid Grid.Row="1"
                   Background="#020405">
-                <Image Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                <Image x:Name="ViewportImage"
+                       Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Stretch="Uniform"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
 

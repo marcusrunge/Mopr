@@ -16,7 +16,8 @@
                         IsWindowLevelActive="{Binding IsWindowLevelActive}"
                         WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                         WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                        WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                        WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                        PixelHoverCommand="{Binding PixelHoverCommand}"/>
         </Grid>
 
         <!-- 2 x 2 Layout -->
@@ -43,7 +44,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -55,7 +57,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -67,7 +70,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -79,7 +83,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />  
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>  
         </Grid>
 
         <!-- MPR Layout -->
@@ -106,7 +111,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -118,7 +124,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -130,7 +137,8 @@
                                     IsWindowLevelActive="{Binding IsWindowLevelActive}"
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"

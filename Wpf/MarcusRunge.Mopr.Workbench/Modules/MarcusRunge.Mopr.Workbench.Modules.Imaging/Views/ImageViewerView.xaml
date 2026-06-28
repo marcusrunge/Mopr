@@ -150,6 +150,11 @@
                                            VerticalAlignment="Center"
                                            TextAlignment="Center" />
                             </Border>
+                            <TextBlock Text="{Binding PixelDisplayText}"
+                                       Foreground="#8FA0AD"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="16,0,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>

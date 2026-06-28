@@ -16,14 +16,70 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private int _currentSlice = 1, _sliceCount = 1;
         private SeriesInfo? _series;
         private IReadOnlyList<string> _seriesFiles = [];
-        private double? _windowCenter, _windowWidth;
+        private double? _windowCenter, _windowWidth, _currentPixelValue;
+        private int? _currentPixelX, _currentPixelY;
 
         public DicomImageFrame? CurrentDicomFrame
         {
             get => _currentDicomFrame;
             set => SetProperty(ref _currentDicomFrame, value);
         }
+        public int? CurrentPixelX
+        {
+            get => _currentPixelX;
+            private set
+            {
+                if (SetProperty(ref _currentPixelX, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
+        }
 
+        public int? CurrentPixelY
+        {
+            get => _currentPixelY;
+            private set
+            {
+                if (SetProperty(ref _currentPixelY, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
+        }
+
+        public double? CurrentPixelValue
+        {
+            get => _currentPixelValue;
+            private set
+            {
+                if (SetProperty(ref _currentPixelValue, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
+        }
+
+        public string CurrentPixelDisplayText
+        {
+            get
+            {
+                if (!CurrentPixelX.HasValue ||
+                    !CurrentPixelY.HasValue ||
+                    !CurrentPixelValue.HasValue)
+                {
+                    return "Pixel: -";
+                }
+
+                if (string.Equals(CurrentDicomFrame?.Modality,
+                        "CT", StringComparison.OrdinalIgnoreCase))
+                {
+                    return $"Pixel: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · HU={CurrentPixelValue.Value:0}";
+                }
+
+                return $"Pixel: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · Wert={CurrentPixelValue.Value:0}";
+            }
+        }
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
 
         public string? CurrentFileName
@@ -64,7 +120,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
             }
         }
+        public void SetCurrentPixel(int pixelX, int pixelY, double value)
+        {
+            CurrentPixelX = pixelX;
+            CurrentPixelY = pixelY;
+            CurrentPixelValue = value;
+        }
 
+        public void ClearCurrentPixel()
+        {
+            CurrentPixelX = null;
+            CurrentPixelY = null;
+            CurrentPixelValue = null;
+        }
         public int CurrentSlice
         {
             get => _currentSlice;
@@ -201,6 +269,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 CurrentDicomFrame = null;
                 CurrentImage = null;
+                ClearCurrentPixel();
             }
 
             CurrentSlice = slice;

@@ -67,6 +67,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ClearViewportCommand = new DelegateCommand<string?>(ClearViewport);
             KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
             MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
+            PixelHoverCommand = new DelegateCommand<ViewportPixelHoverInfo?>(OnPixelHover);
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
             WindowLevelDragCommand = new DelegateCommand<ViewportWindowLevelDragInfo?>(OnWindowLevelDrag);
             WindowLevelDragCompletedCommand = new DelegateCommand<string?>(OnWindowLevelDragCompleted);
@@ -253,7 +254,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
         public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
-
         public DelegateCommand<KeyEventArgs?> KeyDownCommand { get; }
 
         public string LayoutDisplayText => CurrentLayout switch
@@ -270,6 +270,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel MprCoronalViewport { get; }
         public ViewportTileViewModel MprPreview3DViewport { get; }
         public ViewportTileViewModel MprSagittalViewport { get; }
+        public string PixelDisplayText => GetActiveViewportTile()?.CurrentPixelDisplayText ?? "Pixel: -";
+        public DelegateCommand<ViewportPixelHoverInfo?> PixelHoverCommand { get; }
 
         public SeriesInfo? SelectedSeries
         {
@@ -710,6 +712,71 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             e.Handled = true;
         }
 
+        private void OnPixelHover(ViewportPixelHoverInfo? hoverInfo)
+        {
+            if (hoverInfo == null ||
+                string.IsNullOrWhiteSpace(hoverInfo.ViewportId))
+            {
+                return;
+            }
+
+            if (!_viewportTiles.TryGetValue(hoverInfo.ViewportId, out var tile))
+            {
+                return;
+            }
+
+            var frame = tile.CurrentDicomFrame;
+
+            if (frame == null ||
+                !hoverInfo.HasPixel)
+            {
+                tile.ClearCurrentPixel();
+
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+                {
+                    RaisePropertyChanged(nameof(PixelDisplayText));
+                }
+
+                return;
+            }
+
+            var pixelX = hoverInfo.PixelX!.Value;
+            var pixelY = hoverInfo.PixelY!.Value;
+
+            if (pixelX < 0 || pixelY < 0 || pixelX >= frame.Width || pixelY >= frame.Height)
+            {
+                tile.ClearCurrentPixel();
+
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+                {
+                    RaisePropertyChanged(nameof(PixelDisplayText));
+                }
+
+                return;
+            }
+
+            var index = pixelY * frame.Width + pixelX;
+
+            if (index < 0 || index >= frame.Values.Length)
+            {
+                tile.ClearCurrentPixel();
+
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+                {
+                    RaisePropertyChanged(nameof(PixelDisplayText));
+                }
+
+                return;
+            }
+
+            tile.SetCurrentPixel(pixelX, pixelY, frame.Values[index]);
+
+            if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+            {
+                RaisePropertyChanged(nameof(PixelDisplayText));
+            }
+        }
+
         private void OnRenderThrottleTimerTick(object? sender, EventArgs e)
         {
             _renderThrottleTimer.Stop();
@@ -964,6 +1031,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentImage = tile.CurrentImage;
 
             RaisePropertyChanged(nameof(WindowDisplayText));
+            RaisePropertyChanged(nameof(PixelDisplayText));
 
             _core.ImagingService!.ImagingViewportService!.SetSlice(tile.CurrentSlice, tile.SliceCount);
         }
