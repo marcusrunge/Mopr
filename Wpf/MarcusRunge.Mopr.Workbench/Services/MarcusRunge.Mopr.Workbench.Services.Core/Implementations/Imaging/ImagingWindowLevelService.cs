@@ -11,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
     {
         public event EventHandler<ImagingWindowLevelChangedEventArgs>? WindowLevelChanged;
 
-        public void ResetWindowLevel() => WindowLevelChanged?.Invoke(this, new ImagingWindowLevelChangedEventArgs(windowCenter: null, windowWidth: null, isReset: true));
+        public void ResetWindowLevelToDefault() => WindowLevelChanged?.Invoke(this, new ImagingWindowLevelChangedEventArgs(windowCenter: null, windowWidth: null, isReset: true));
 
         public void SetWindowLevel(double windowCenter, double windowWidth) => WindowLevelChanged?.Invoke(this, new ImagingWindowLevelChangedEventArgs(windowCenter, windowWidth, isReset: false));
 

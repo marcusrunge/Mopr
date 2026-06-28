@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Title" xml:space="preserve">
+    <value>MOPR</value>
+  </data>
+  <data name="CommandBar_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WindowLevel_CtLung" xml:space="preserve">
+    <value>CT Lung</value>
+  </data>
+  <data name="CommandBar_WindowLevel" xml:space="preserve">
+    <value>Window level</value>
+  </data>
+  <data name="Workbench_Properties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="Workbench_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Workbench_Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="Workbench_ShowSeries" xml:space="preserve">
+    <value>Show series</value>
+  </data>
+  <data name="WindowLevel_CtMediastinum" xml:space="preserve">
+    <value>CT Mediastinum</value>
+  </data>
+  <data name="WindowLevel_CtBone" xml:space="preserve">
+    <value>CT Bone</value>
+  </data>
+  <data name="WindowLevel_CtBrain" xml:space="preserve">
+    <value>CT Brain</value>
+  </data>
+  <data name="WindowLevel_Default" xml:space="preserve">
+    <value>W/L Default</value>
+  </data>
+  <data name="CommandBar_Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="CommandBar_Pan" xml:space="preserve">
+    <value>Pan</value>
+  </data>
+  <data name="CommandBar_Crosshair" xml:space="preserve">
+    <value>Crosshair</value>
+  </data>
+  <data name="CommandBar_ResetView" xml:space="preserve">
+    <value>Reset View</value>
+  </data>
+  <data name="CommandBar_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="CommandBar_Layout_Single" xml:space="preserve">
+    <value>Layout: Single</value>
+  </data>
+  <data name="CommandBar_Layout_TwoByTwo" xml:space="preserve">
+    <value>Layout: 2 × 2</value>
+  </data>
+  <data name="CommandBar_Layout_Mpr" xml:space="preserve">
+    <value>Layout: MPR</value>
+  </data>
+  <data name="CommandBar_Layout_AxialSagittalCoronal" xml:space="preserve">
+    <value>Layout: A/S/C</value>
+  </data>
+  <data name="CommandBar_Layout" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="CommandBar_Load" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="CommandBar_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="CommandBar_Canceling" xml:space="preserve">
+    <value>Canceling is beeing requested...</value>
+  </data>
+  <data name="CommandBar_SelectFolder" xml:space="preserve">
+    <value>Select folder...</value>
+  </data>
+  <data name="CommandBar_Open_DicomFolder" xml:space="preserve">
+    <value>Open DICOM folder</value>
+  </data>
+  <data name="CommandBar_LoadCanceled" xml:space="preserve">
+    <value>Loading cancelled</value>
+  </data>
+  <data name="CommandBar_LoadError" xml:space="preserve">
+    <value>Loading error</value>
+  </data>
+  <data name="Viewer_ViewPort_Single_Main" xml:space="preserve">
+    <value>Single</value>
+  </data>
+  <data name="Viewer_ViewPort_TwoByTwo_1" xml:space="preserve">
+    <value>Viewport 1</value>
+  </data>
+  <data name="Viewer_ViewPort_TwoByTwo_2" xml:space="preserve">
+    <value>Viewport 2</value>
+  </data>
+  <data name="Viewer_ViewPort_TwoByTwo_3" xml:space="preserve">
+    <value>Viewport 3</value>
+  </data>
+  <data name="Viewer_ViewPort_TwoByTwo_4" xml:space="preserve">
+    <value>Viewport 4</value>
+  </data>
+  <data name="Viewer_ViewPort_Mpr_Axial" xml:space="preserve">
+    <value>Axial</value>
+  </data>
+  <data name="Viewer_ViewPort_Mpr_Sagittal" xml:space="preserve">
+    <value>Sagittal</value>
+  </data>
+  <data name="Viewer_ViewPort_Mpr_Coronal" xml:space="preserve">
+    <value>Coronal</value>
+  </data>
+  <data name="Viewer_ViewPort_Mpr_Preview3D" xml:space="preserve">
+    <value>3D preview</value>
+  </data>
+  <data name="Viewer_ViewPort_Asc_Axial" xml:space="preserve">
+    <value>Axial</value>
+  </data>
+  <data name="Viewer_ViewPort_Asc_Sagittal" xml:space="preserve">
+    <value>Sagittal</value>
+  </data>
+  <data name="Viewer_ViewPort_Asc_Coronal" xml:space="preserve">
+    <value>Coronal</value>
+  </data>
+  <data name="Viewer_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Viewer_File_None" xml:space="preserve">
+    <value>No File</value>
+  </data>
+  <data name="Viewer_File_Actual" xml:space="preserve">
+    <value>Actual file</value>
+  </data>
+  <data name="Viewer_Layout_Single" xml:space="preserve">
+    <value>Layout: Single</value>
+  </data>
+  <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
+    <value>Layout: 2 × 2</value>
+  </data>
+  <data name="Viewer_Layout_Mpr" xml:space="preserve">
+    <value>Layout: MPR</value>
+  </data>
+  <data name="Viewer_Layout_AxialSagittalCoronal" xml:space="preserve">
+    <value>Layout: Axial / Sagittal / Coronal</value>
+  </data>
+  <data name="Viewer_Layout_Unknown" xml:space="preserve">
+    <value>Layout: Unknown</value>
+  </data>
+  <data name="Viewer_ViewPort" xml:space="preserve">
+    <value>Viewport</value>
+  </data>
+  <data name="Viewer_Pixel" xml:space="preserve">
+    <value>Pixel</value>
+  </data>
+  <data name="Viewer_NoSeries" xml:space="preserve">
+    <value>No active series</value>
+  </data>
+  <data name="Viewer_Title" xml:space="preserve">
+    <value>Image Viewer</value>
+  </data>
+  <data name="Viewer_WindowLevel" xml:space="preserve">
+    <value>Windowlevel</value>
+  </data>
+  <data name="Viewer_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Workbench_Study" xml:space="preserve">
+    <value>Study</value>
+  </data>
+  <data name="Workbench_Series_None" xml:space="preserve">
+    <value>No series active</value>
+  </data>
+  <data name="Workbench_Study_None" xml:space="preserve">
+    <value>No study opened</value>
+  </data>
+  <data name="PropertiesPanel_Series_None" xml:space="preserve">
+    <value>No series active</value>
+  </data>
+  <data name="PropertiesPanel_Propterties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="PropertiesPanel_Images" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="PropertiesPanel_CurrentImage" xml:space="preserve">
+    <value>Current image</value>
+  </data>
+  <data name="PropertiesPanel_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="PropertiesPanel_Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="PropertiesPanel_InstanceNumber" xml:space="preserve">
+    <value>Instance number</value>
+  </data>
+  <data name="PropertiesPanel_SOPInstanceUID" xml:space="preserve">
+    <value>SOP instance UID</value>
+  </data>
+  <data name="PropertiesPanel_Rows" xml:space="preserve">
+    <value>Rows</value>
+  </data>
+  <data name="PropertiesPanel_Colums" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="PropertiesPanel_DicomSeries" xml:space="preserve">
+    <value>DICOM-Series</value>
+  </data>
+  <data name="PropertiesPanel_Modality" xml:space="preserve">
+    <value>Modality</value>
+  </data>
+  <data name="PropertiesPanel_StudyDescription" xml:space="preserve">
+    <value>Study description</value>
+  </data>
+  <data name="PropertiesPanel_SeriesDescription" xml:space="preserve">
+    <value>Series description</value>
+  </data>
+  <data name="PropertiesPanel_StudyInstanceUID" xml:space="preserve">
+    <value>Study instance UID</value>
+  </data>
+  <data name="PropertiesPanel_SeriesInstanceUID" xml:space="preserve">
+    <value>Series instance UID</value>
+  </data>
+  <data name="PropertiesPanel_Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="PropertiesPanel_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="PropertiesPanel_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="PropertiesPanel_SeriesNumber" xml:space="preserve">
+    <value>Series number</value>
+  </data>
+  <data name="PropertiesPanel_SeriesId" xml:space="preserve">
+    <value>Series ID</value>
+  </data>
+  <data name="PropertiesPanel_StudyId" xml:space="preserve">
+    <value>Study ID</value>
+  </data>
+  <data name="PropertiesPanel_Files" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="PropertiesPanel_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="ViewportTile_Pixel" xml:space="preserve">
+    <value>Pixel</value>
+  </data>
+  <data name="ViewportTile_Ct" xml:space="preserve">
+    <value>CT</value>
+  </data>
+  <data name="ViewportTile_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="ViewportTile_NoFile" xml:space="preserve">
+    <value>No File</value>
+  </data>
+  <data name="ViewportTile_ActualFile" xml:space="preserve">
+    <value>Actual file</value>
+  </data>
+  <data name="ViewportTile_Series_None" xml:space="preserve">
+    <value>No series</value>
+  </data>
+  <data name="ViewportTile_Images" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="ViewportTile_WindowLevel" xml:space="preserve">
+    <value>Window level</value>
+  </data>
+  <data name="ViewportTile_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+</root>

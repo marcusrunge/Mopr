@@ -5,8 +5,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 {
     public static class FocusOnMouseDownBehavior
     {
-        public static readonly DependencyProperty IsEnabledProperty =
-            DependencyProperty.RegisterAttached("IsEnabled", typeof(bool), typeof(FocusOnMouseDownBehavior), new PropertyMetadata(false, OnIsEnabledChanged));
+        public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.RegisterAttached("IsEnabled", typeof(bool), typeof(FocusOnMouseDownBehavior), new PropertyMetadata(false, OnIsEnabledChanged));
 
         public static bool GetIsEnabled(DependencyObject obj) => (bool)obj.GetValue(IsEnabledProperty);
 

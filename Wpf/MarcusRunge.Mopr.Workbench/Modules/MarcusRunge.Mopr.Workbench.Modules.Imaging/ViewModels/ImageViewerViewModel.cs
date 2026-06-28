@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -73,21 +74,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             WindowLevelDragCompletedCommand = new DelegateCommand<string?>(OnWindowLevelDragCompleted);
             WindowLevelDragStartedCommand = new DelegateCommand<string?>(OnWindowLevelDragStarted);
 
-            SingleMainViewport = RegisterViewport("Single.Main", "Single");
+            SingleMainViewport = RegisterViewport("Single.Main", Resources.Viewer_ViewPort_Single_Main);
 
-            TwoByTwoViewport1 = RegisterViewport("TwoByTwo.Viewport1", "Viewport 1");
-            TwoByTwoViewport2 = RegisterViewport("TwoByTwo.Viewport2", "Viewport 2");
-            TwoByTwoViewport3 = RegisterViewport("TwoByTwo.Viewport3", "Viewport 3");
-            TwoByTwoViewport4 = RegisterViewport("TwoByTwo.Viewport4", "Viewport 4");
+            TwoByTwoViewport1 = RegisterViewport("TwoByTwo.Viewport1", Resources.Viewer_ViewPort_TwoByTwo_1);
+            TwoByTwoViewport2 = RegisterViewport("TwoByTwo.Viewport2", Resources.Viewer_ViewPort_TwoByTwo_2);
+            TwoByTwoViewport3 = RegisterViewport("TwoByTwo.Viewport3", Resources.Viewer_ViewPort_TwoByTwo_3);
+            TwoByTwoViewport4 = RegisterViewport("TwoByTwo.Viewport4", Resources.Viewer_ViewPort_TwoByTwo_4);
 
-            MprAxialViewport = RegisterViewport("Mpr.Axial", "Axial");
-            MprSagittalViewport = RegisterViewport("Mpr.Sagittal", "Sagittal");
-            MprCoronalViewport = RegisterViewport("Mpr.Coronal", "Coronal");
-            MprPreview3DViewport = RegisterViewport("Mpr.Preview3D", "3D / Preview");
+            MprAxialViewport = RegisterViewport("Mpr.Axial", Resources.Viewer_ViewPort_Mpr_Axial);
+            MprSagittalViewport = RegisterViewport("Mpr.Sagittal", Resources.Viewer_ViewPort_Mpr_Sagittal);
+            MprCoronalViewport = RegisterViewport("Mpr.Coronal", Resources.Viewer_ViewPort_Mpr_Coronal);
+            MprPreview3DViewport = RegisterViewport("Mpr.Preview3D", Resources.Viewer_ViewPort_Mpr_Preview3D);
 
-            AscAxialViewport = RegisterViewport("Asc.Axial", "Axial");
-            AscSagittalViewport = RegisterViewport("Asc.Sagittal", "Sagittal");
-            AscCoronalViewport = RegisterViewport("Asc.Coronal", "Coronal");
+            AscAxialViewport = RegisterViewport("Asc.Axial", Resources.Viewer_ViewPort_Asc_Axial);
+            AscSagittalViewport = RegisterViewport("Asc.Sagittal", Resources.Viewer_ViewPort_Asc_Sagittal);
+            AscCoronalViewport = RegisterViewport("Asc.Coronal", Resources.Viewer_ViewPort_Asc_Coronal);
 
             ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
             ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
@@ -139,7 +140,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     }
                 }
 
-                return activeViewport == null ? "Viewport: -" : $"Viewport: {activeViewport.Title}";
+                return activeViewport == null ? $"{Resources.Viewer_ViewPort}: -" : $"{Resources.Viewer_ViewPort}: {activeViewport.Title}";
             }
         }
 
@@ -159,7 +160,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel AscCoronalViewport { get; }
         public ViewportTileViewModel AscSagittalViewport { get; }
         public DelegateCommand<string?> ClearViewportCommand { get; }
-        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
+        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.Viewer_File}: -" : $"{Resources.Viewer_File}: {CurrentFileName}";
 
         public string? CurrentFileName
         {
@@ -186,7 +187,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? "Keine Datei" : $"Aktuelle Datei:{Environment.NewLine}{CurrentFilePath}";
+        public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? Resources.Viewer_File_None : $"{Resources.Viewer_File_Actual}:{Environment.NewLine}{CurrentFilePath}";
 
         public ImageSource? CurrentImage
         {
@@ -258,11 +259,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string LayoutDisplayText => CurrentLayout switch
         {
-            ImagingLayout.Single => "Layout: Einzelansicht",
-            ImagingLayout.TwoByTwo => "Layout: 2 × 2",
-            ImagingLayout.Mpr => "Layout: MPR",
-            ImagingLayout.AxialSagittalCoronal => "Layout: Axial / Sagittal / Coronal",
-            _ => "Layout: Unbekannt"
+            ImagingLayout.Single => Resources.Viewer_Layout_Single,
+            ImagingLayout.TwoByTwo => Resources.Viewer_Layout_TwoByTwo,
+            ImagingLayout.Mpr => Resources.Viewer_Layout_Mpr,
+            ImagingLayout.AxialSagittalCoronal => Resources.Viewer_Layout_AxialSagittalCoronal,
+            _ => Resources.Viewer_Layout_Unknown
         };
 
         public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand { get; }
@@ -270,7 +271,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel MprCoronalViewport { get; }
         public ViewportTileViewModel MprPreview3DViewport { get; }
         public ViewportTileViewModel MprSagittalViewport { get; }
-        public string PixelDisplayText => GetActiveViewportTile()?.CurrentPixelDisplayText ?? "Pixel: -";
+        public string PixelDisplayText => GetActiveViewportTile()?.CurrentPixelDisplayText ?? $"{Resources.Viewer_Pixel}: -";
         public DelegateCommand<ViewportPixelHoverInfo?> PixelHoverCommand { get; }
 
         public SeriesInfo? SelectedSeries
@@ -306,9 +307,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel TwoByTwoViewport2 { get; }
         public ViewportTileViewModel TwoByTwoViewport3 { get; }
         public ViewportTileViewModel TwoByTwoViewport4 { get; }
-        public string ViewerSubtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.Description}";
-        public string ViewerTitle => SelectedSeries == null ? "Image Viewer" : SelectedSeries.Name;
-        public string WindowDisplayText => GetActiveViewportTile()?.WindowDisplayText ?? "W/L: Auto";
+        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} · {SelectedSeries.Description}";
+        public string ViewerTitle => SelectedSeries == null ? Resources.Viewer_Title : SelectedSeries.Name;
+        public string WindowDisplayText => GetActiveViewportTile()?.WindowDisplayText ?? $"{Resources.Viewer_WindowLevel}: {Resources.Viewer_Default}";
         public DelegateCommand<ViewportWindowLevelDragInfo?> WindowLevelDragCommand { get; }
         public DelegateCommand<string?> WindowLevelDragCompletedCommand { get; }
         public DelegateCommand<string?> WindowLevelDragStartedCommand { get; }

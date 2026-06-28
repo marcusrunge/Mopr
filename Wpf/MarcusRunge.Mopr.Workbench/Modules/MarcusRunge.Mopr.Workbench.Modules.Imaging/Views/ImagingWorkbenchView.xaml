@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,7 +35,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="MOPR"
+                <TextBlock Text="{x:Static properties:Resources.App_Title}"
                            FontSize="24"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center" />
@@ -52,7 +53,7 @@
                 <StackPanel Grid.Column="6"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Button Content="Suche"
+                    <Button Content="{x:Static properties:Resources.Workbench_Search}"
                             Margin="0,0,8,0" />
                     <Button Content="☰" />
                 </StackPanel>
@@ -97,7 +98,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Serien"
+                            <TextBlock Text="{x:Static properties:Resources.Workbench_Series}"
                                        FontSize="20"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center" />
@@ -124,7 +125,7 @@
                             Padding="0"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            ToolTip="Serien einblenden">
+                            ToolTip="{x:Static properties:Resources.Workbench_ShowSeries}">
 
                         <Grid>
                             <StackPanel HorizontalAlignment="Center"
@@ -137,7 +138,7 @@
                                            HorizontalAlignment="Center"
                                            Margin="0,0,0,12" />
 
-                                <TextBlock Text="Serien"
+                                <TextBlock Text="{x:Static properties:Resources.Workbench_Series}"
                                            Foreground="#DDE5EC"
                                            FontSize="14"
                                            FontWeight="SemiBold"
@@ -202,7 +203,7 @@
                                     Command="{Binding TogglePropertiesPaneCommand}" />
 
                             <TextBlock Grid.Column="1"
-                                       Text="Eigenschaften"
+                                       Text="{x:Static properties:Resources.Workbench_Properties}"
                                        FontSize="20"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center" />

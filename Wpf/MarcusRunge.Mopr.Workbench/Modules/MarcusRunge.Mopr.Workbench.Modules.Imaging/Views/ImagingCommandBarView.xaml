@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -18,14 +19,14 @@
 
         <!-- Commands links -->
         <StackPanel Grid.Column="0"
-                Orientation="Horizontal"
-                VerticalAlignment="Center">
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
 
             <Button Content="{Binding OpenButtonText}"
-                Command="{Binding OpenCommand}"
-                Margin="0,0,8,0"/>
+                    Command="{Binding OpenCommand}"
+                    Margin="0,0,8,0"/>
             
-            <Button Content="Abbrechen"
+            <Button Content="{x:Static properties:Resources.CommandBar_Cancel}"
                     Command="{Binding CancelOpenCommand}"
                     Visibility="{Binding IsCancelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     Margin="0,0,8,0"/>
@@ -34,47 +35,47 @@
                 Command="{Binding LayoutCommand}"
                 Margin="0,0,8,0"/>
 
-            <ToggleButton Content="Fensterung"
+            <ToggleButton Content="{x:Static properties:Resources.CommandBar_WindowLevel}"
               Command="{Binding WindowLevelCommand}"
               IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
               Margin="0,0,8,0"/>
 
-            <Button Content="CT Lunge"
+            <Button Content="{x:Static properties:Resources.WindowLevel_CtLung}"
                     Command="{Binding LungWindowCommand}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="CT Weichteil"
+            <Button Content="{x:Static properties:Resources.WindowLevel_CtMediastinum}"
                     Command="{Binding MediastinumWindowCommand}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="CT Knochen"
+            <Button Content="{x:Static properties:Resources.WindowLevel_CtBone}"
                     Command="{Binding BoneWindowCommand}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="CT Gehirn"
+            <Button Content="{x:Static properties:Resources.WindowLevel_CtBrain}"
                     Command="{Binding BrainWindowCommand}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="W/L Reset"
-                    Command="{Binding ResetWindowCommand}"
+            <Button Content="{x:Static properties:Resources.WindowLevel_Default}"
+                    Command="{Binding ResetWindowLevelToDefaultCommand}"
                     Margin="0,0,8,0"/>
 
-            <ToggleButton Content="Zoom"
+            <ToggleButton Content="{x:Static properties:Resources.CommandBar_Zoom}"
                       Command="{Binding ZoomCommand}"
                       IsChecked="{Binding IsZoomActive, Mode=OneWay}"
                       Margin="0,0,8,0"/>
 
-            <ToggleButton Content="Pan"
+            <ToggleButton Content="{x:Static properties:Resources.CommandBar_Pan}"
                       Command="{Binding PanCommand}"
                       IsChecked="{Binding IsPanActive, Mode=OneWay}"
                       Margin="0,0,8,0"/>
 
-            <ToggleButton Content="Crosshair"
+            <ToggleButton Content="{x:Static properties:Resources.CommandBar_Crosshair}"
                       Command="{Binding CrosshairCommand}"
                       IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
                       Margin="0,0,8,0"/>
 
-            <Button Content="Reset"
+            <Button Content="{x:Static properties:Resources.CommandBar_ResetView}"
                 Command="{Binding ResetViewCommand}"
                 Margin="0,0,8,0"/>            
 
@@ -84,27 +85,27 @@
 
         <!-- Status rechts -->
         <Border Grid.Column="2"
-        VerticalAlignment="Center"
-        Padding="10,5"
-        CornerRadius="10"
-        Background="#0B2A32"
-        BorderBrush="#1C7F8C"
-        BorderThickness="1"
-        Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibilityConverter}}">
+                VerticalAlignment="Center"
+                Padding="10,5"
+                CornerRadius="10"
+                Background="#0B2A32"
+                BorderBrush="#1C7F8C"
+                BorderThickness="1"
+                Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <StackPanel Orientation="Horizontal"
-                VerticalAlignment="Center">
+                        VerticalAlignment="Center">
 
                 <Ellipse Width="7"
-                 Height="7"
-                 Fill="#60E1EB"
-                 Margin="0,0,8,0"/>
+                         Height="7"
+                         Fill="#60E1EB"
+                         Margin="0,0,8,0"/>
 
                 <TextBlock Text="{Binding StatusText}"
-                   Foreground="#BEEEF3"
-                   FontSize="12"
-                   FontWeight="SemiBold"
-                   VerticalAlignment="Center"/>
+                           Foreground="#BEEEF3"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
     </Grid>

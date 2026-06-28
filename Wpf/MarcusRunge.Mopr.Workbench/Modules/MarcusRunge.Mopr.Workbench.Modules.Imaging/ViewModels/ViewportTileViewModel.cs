@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System;
 using System.Collections.Generic;
@@ -68,19 +69,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     !CurrentPixelY.HasValue ||
                     !CurrentPixelValue.HasValue)
                 {
-                    return "Pixel: -";
+                    return $"{Resources.ViewportTile_Pixel}: -";
                 }
 
                 if (string.Equals(CurrentDicomFrame?.Modality,
-                        "CT", StringComparison.OrdinalIgnoreCase))
+                        $"{Resources.ViewportTile_Ct}", StringComparison.OrdinalIgnoreCase))
                 {
-                    return $"Pixel: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · HU={CurrentPixelValue.Value:0}";
+                    return $"{Resources.ViewportTile_Pixel}: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · HU={CurrentPixelValue.Value:0}";
                 }
 
-                return $"Pixel: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · Wert={CurrentPixelValue.Value:0}";
+                return $"{Resources.ViewportTile_Pixel}: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · Wert={CurrentPixelValue.Value:0}";
             }
         }
-        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? "Datei: -" : $"Datei: {CurrentFileName}";
+        public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.ViewportTile_File}: -" : $"{Resources.ViewportTile_File}: {CurrentFileName}";
 
         public string? CurrentFileName
         {
@@ -107,7 +108,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? "Keine Datei" : $"Aktuelle Datei:{Environment.NewLine}{CurrentFilePath}";
+        public string CurrentFileToolTipText => string.IsNullOrWhiteSpace(CurrentFilePath) ? Resources.ViewportTile_NoFile : $"{Resources.ViewportTile_ActualFile}:{Environment.NewLine}{CurrentFilePath}";
 
         public ImageSource? CurrentImage
         {
@@ -145,7 +146,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? "Keine Serie" : $"{Series.Modality} · {Series.ImageCount} Bilder";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} · {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -202,10 +203,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (!WindowCenter.HasValue || !WindowWidth.HasValue)
                 {
-                    return "W/L: Auto";
+                    return $"{Resources.ViewportTile_WindowLevel}: {Resources.ViewportTile_Default}";
                 }
 
-                return $"W/L: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
+                return $"{Resources.ViewportTile_WindowLevel}: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
             }
         }
 

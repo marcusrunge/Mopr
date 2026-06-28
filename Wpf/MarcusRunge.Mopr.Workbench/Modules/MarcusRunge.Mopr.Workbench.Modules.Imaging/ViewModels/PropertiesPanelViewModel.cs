@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -58,9 +59,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string Subtitle => SelectedSeries == null ? "Keine Serie aktiv" : $"{SelectedSeries.Modality} · {SelectedSeries.ImageCount} Bilder";
+        public string Subtitle => SelectedSeries == null ? Resources.PropertiesPanel_Series_None : $"{SelectedSeries.Modality} · {SelectedSeries.ImageCount} {Resources.PropertiesPanel_Images}";
 
-        public string Title => SelectedSeries == null ? "Eigenschaften" : SelectedSeries.Name;
+        public string Title => SelectedSeries == null ? Resources.PropertiesPanel_Propterties : SelectedSeries.Name;
 
         public override void Destroy()
         {
@@ -71,35 +72,35 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void AddDicomMetadata(DicomFileMetadata metadata)
         {
-            AddSection("Aktuelles Bild");
+            AddSection(Resources.PropertiesPanel_CurrentImage);
 
-            AddProperty("Datei", Path.GetFileName(metadata.FilePath));
-            AddProperty("Pfad", metadata.FilePath);
+            AddProperty(Resources.PropertiesPanel_File, Path.GetFileName(metadata.FilePath));
+            AddProperty(Resources.PropertiesPanel_Path, metadata.FilePath);
 
             if (metadata.InstanceNumber.HasValue)
             {
-                AddProperty("InstanceNumber", metadata.InstanceNumber.Value.ToString());
+                AddProperty(Resources.PropertiesPanel_InstanceNumber, metadata.InstanceNumber.Value.ToString());
             }
 
-            AddProperty("SOPInstanceUID", metadata.SopInstanceUid);
+            AddProperty(Resources.PropertiesPanel_SOPInstanceUID, metadata.SopInstanceUid);
 
             if (metadata.Rows.HasValue)
             {
-                AddProperty("Rows", metadata.Rows.Value.ToString());
+                AddProperty(Resources.PropertiesPanel_Rows, metadata.Rows.Value.ToString());
             }
 
             if (metadata.Columns.HasValue)
             {
-                AddProperty("Columns", metadata.Columns.Value.ToString());
+                AddProperty(Resources.PropertiesPanel_Colums, metadata.Columns.Value.ToString());
             }
 
-            AddSection("DICOM-Serie");
+            AddSection(Resources.PropertiesPanel_DicomSeries);
 
-            AddProperty("Modality", metadata.Modality);
-            AddProperty("StudyDescription", metadata.StudyDescription);
-            AddProperty("SeriesDescription", metadata.SeriesDescription);
-            AddProperty("StudyInstanceUID", metadata.StudyInstanceUid);
-            AddProperty("SeriesInstanceUID", metadata.SeriesInstanceUid);
+            AddProperty(Resources.PropertiesPanel_Modality, metadata.Modality);
+            AddProperty(Resources.PropertiesPanel_StudyDescription, metadata.StudyDescription);
+            AddProperty(Resources.PropertiesPanel_SeriesDescription, metadata.SeriesDescription);
+            AddProperty(Resources.PropertiesPanel_StudyInstanceUID, metadata.StudyInstanceUid);
+            AddProperty(Resources.PropertiesPanel_SeriesInstanceUID, metadata.SeriesInstanceUid);
         }
 
         private void AddProperty(string name, string? value)
@@ -166,32 +167,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             if (SelectedSeries == null)
             {
-                AddProperty("Status", "Keine Serie aktiv");
+                AddProperty(Resources.PropertiesPanel_Status, Resources.PropertiesPanel_Series_None);
                 return;
             }
 
-            AddSection("Serie");
+            AddSection(Resources.PropertiesPanel_Series);
 
-            AddProperty("Name", SelectedSeries.Name);
-            AddProperty("Modalität", SelectedSeries.Modality);
-            AddProperty("Beschreibung", SelectedSeries.Description);
-            AddProperty("Bilder", SelectedSeries.ImageCount.ToString());
+            AddProperty(Resources.PropertiesPanel_Name, SelectedSeries.Name);
+            AddProperty(Resources.PropertiesPanel_Modality, SelectedSeries.Modality);
+            AddProperty(Resources.PropertiesPanel_Description, SelectedSeries.Description);
+            AddProperty(Resources.PropertiesPanel_Images, SelectedSeries.ImageCount.ToString());
 
             if (SelectedSeries.SeriesNumber.HasValue)
             {
-                AddProperty("Seriennummer", SelectedSeries.SeriesNumber.Value.ToString());
+                AddProperty(Resources.PropertiesPanel_SeriesNumber, SelectedSeries.SeriesNumber.Value.ToString());
             }
 
-            AddProperty("Series Id", SelectedSeries.Id);
+            AddProperty(Resources.PropertiesPanel_SeriesId, SelectedSeries.Id);
 
             if (!string.IsNullOrWhiteSpace(SelectedSeries.StudyId))
             {
-                AddProperty("Study Id", SelectedSeries.StudyId);
+                AddProperty(Resources.PropertiesPanel_StudyId, SelectedSeries.StudyId);
             }
 
             var files = _core.ImagingService!.ImagingStudyService!.GetFilesForSeries(SelectedSeries.Id);
 
-            AddProperty("Dateien", files.Count.ToString());
+            AddProperty(Resources.PropertiesPanel_Files, files.Count.ToString());
 
             var currentMetadata = GetCurrentDicomMetadata();
 

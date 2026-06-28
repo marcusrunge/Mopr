@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
@@ -33,9 +34,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
 
-        public string CurrentSeriesDisplayText => SelectedSeries == null ? "Serie: Keine Serie aktiv" : $"Serie: {SelectedSeries.Name}";
+        public string CurrentSeriesDisplayText => SelectedSeries == null ? $"{Resources.Workbench_Series}: {Resources.Workbench_Series_None}" : $"{Resources.Workbench_Series}: {SelectedSeries.Name}";
 
-        public string CurrentStudyDisplayText => SelectedStudy == null ? "Studie: Keine Studie geöffnet" : $"Studie: {SelectedStudy.Name}";
+        public string CurrentStudyDisplayText => SelectedStudy == null ? $"{Resources.Workbench_Study}: {Resources.Workbench_Study_None}" : $"{Resources.Workbench_Study}: {SelectedStudy.Name}";
 
         public bool IsPropertiesPaneCollapsed => !IsPropertiesPaneVisible;
 

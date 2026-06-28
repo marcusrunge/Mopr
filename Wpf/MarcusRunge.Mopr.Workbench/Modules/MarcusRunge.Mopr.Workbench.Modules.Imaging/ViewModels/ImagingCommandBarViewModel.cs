@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
@@ -18,7 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImagingLayout _currentLayout;
         private bool _isBusy;
         private CancellationTokenSource? _openCancellationTokenSource;
-        private string _statusText = "Bereit";
+        private string _statusText = Resources.CommandBar_Status;
 
         public ImagingCommandBarViewModel(ICore core, IWpf wpf)
         {
@@ -31,23 +32,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
-            OpenCommand = new DelegateCommand(async () => await OpenAsync(), () => !IsBusy);
-            CancelOpenCommand = new DelegateCommand(CancelOpen, () => IsBusy);
-
-            LayoutCommand = new DelegateCommand(ChangeLayout);
-
-            ZoomCommand = new DelegateCommand(ActivateZoom);
-            PanCommand = new DelegateCommand(ActivatePan);
-            WindowLevelCommand = new DelegateCommand(ActivateWindowLevel);
-            CrosshairCommand = new DelegateCommand(ActivateCrosshair);
-
-            ResetViewCommand = new DelegateCommand(ResetView);
-            MoreCommand = new DelegateCommand(OpenMoreMenu);
-            LungWindowCommand = new DelegateCommand(ApplyLungWindow);
-            MediastinumWindowCommand = new DelegateCommand(ApplyMediastinumWindow);
             BoneWindowCommand = new DelegateCommand(ApplyBoneWindow);
             BrainWindowCommand = new DelegateCommand(ApplyBrainWindow);
-            ResetWindowCommand = new DelegateCommand(ResetWindow);
+            CancelOpenCommand = new DelegateCommand(CancelOpen, () => IsBusy);
+            CrosshairCommand = new DelegateCommand(ActivateCrosshair);
+            LayoutCommand = new DelegateCommand(ChangeLayout);
+            LungWindowCommand = new DelegateCommand(ApplyLungWindow);
+            MediastinumWindowCommand = new DelegateCommand(ApplyMediastinumWindow);
+            MoreCommand = new DelegateCommand(OpenMoreMenu);
+            OpenCommand = new DelegateCommand(async () => await OpenAsync(), () => !IsBusy);
+            PanCommand = new DelegateCommand(ActivatePan);
+            ResetViewCommand = new DelegateCommand(ResetView);
+            ResetWindowLevelToDefaultCommand = new DelegateCommand(ResetWindowLevelToDefault);
+            WindowLevelCommand = new DelegateCommand(ActivateWindowLevel);
+            ZoomCommand = new DelegateCommand(ActivateZoom);
         }
 
         public ImagingTool ActiveTool
@@ -112,16 +110,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string LayoutDisplayText => CurrentLayout switch
         {
-            ImagingLayout.Single => "Layout: Einzel",
-            ImagingLayout.TwoByTwo => "Layout: 2 × 2",
-            ImagingLayout.Mpr => "Layout: MPR",
-            ImagingLayout.AxialSagittalCoronal => "Layout: A/S/C",
-            _ => "Layout"
+            ImagingLayout.Single => Resources.CommandBar_Layout_Single,
+            ImagingLayout.TwoByTwo => Resources.CommandBar_Layout_TwoByTwo,
+            ImagingLayout.Mpr => Resources.CommandBar_Layout_Mpr,
+            ImagingLayout.AxialSagittalCoronal => Resources.CommandBar_Layout_AxialSagittalCoronal,
+            _ => Resources.CommandBar_Layout
         };
 
         public DelegateCommand MoreCommand { get; }
 
-        public string OpenButtonText => IsBusy ? "Laden..." : "Öffnen";
+        public string OpenButtonText => IsBusy ? Resources.CommandBar_Load : Resources.CommandBar_Open;
 
         public DelegateCommand OpenCommand { get; }
 
@@ -168,7 +166,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            StatusText = "Abbruch wird angefordert...";
+            StatusText = Resources.CommandBar_Canceling;
             _openCancellationTokenSource.Cancel();
         }
 
@@ -188,9 +186,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             try
             {
                 IsBusy = true;
-                StatusText = "Ordner auswählen...";
+                StatusText = Resources.CommandBar_SelectFolder;
 
-                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(title: "DICOM-Ordner öffnen");
+                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(title: Resources.CommandBar_Open_DicomFolder);
 
                 if (string.IsNullOrWhiteSpace(folderPath))
                 {
@@ -201,15 +199,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _openCancellationTokenSource = new CancellationTokenSource();
 
                 var progress = new Progress<ImagingStudyLoadProgress>(value =>
-                    {
-                        StatusText = value.DisplayText;
-                    });
+                {
+                    StatusText = value.DisplayText;
+                });
 
                 await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath, progress, _openCancellationTokenSource.Token);
 
                 if (_openCancellationTokenSource.IsCancellationRequested)
                 {
-                    StatusText = "Laden abgebrochen";
+                    StatusText = Resources.CommandBar_LoadCanceled;
                     return;
                 }
 
@@ -219,7 +217,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
             catch (Exception exception)
             {
-                StatusText = "Fehler beim Laden";
+                StatusText = Resources.CommandBar_LoadError;
                 System.Diagnostics.Debug.WriteLine(exception);
             }
             finally
@@ -238,7 +236,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private void ResetView()
         {
             _core.ImagingService!.ImagingViewportService!.Reset();
-            _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevel();
+            _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
             _core.ImagingService!.ImagingToolService!.ClearActiveTool();
         }
 
@@ -250,7 +248,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public DelegateCommand BrainWindowCommand { get; }
 
-        public DelegateCommand ResetWindowCommand { get; }
+        public DelegateCommand ResetWindowLevelToDefaultCommand { get; }
 
         private void ApplyLungWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: -600, windowWidth: 1500);
 
@@ -260,6 +258,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ApplyBrainWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 80);
 
-        private void ResetWindow() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevel();
+        private void ResetWindowLevelToDefault() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
     }
 }
