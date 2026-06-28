@@ -27,7 +27,10 @@
     </UserControl.Resources>
 
     <Border Style="{StaticResource ViewportBorderStyle}"
-            PreviewMouseLeftButtonDown="OnViewportPreviewMouseLeftButtonDown">
+            PreviewMouseLeftButtonDown="OnViewportPreviewMouseLeftButtonDown"
+            PreviewMouseMove="OnViewportPreviewMouseMove"
+            PreviewMouseLeftButtonUp="OnViewportPreviewMouseLeftButtonUp"
+            Tag="{Binding ViewportId, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Border.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Viewport leeren"

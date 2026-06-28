@@ -9,10 +9,14 @@
         <!-- Single Layout -->
         <Grid Visibility="{Binding IsSingleLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <viewports:ViewportTile Tile="{Binding SingleMainViewport}"
-                                    ViewportId="{Binding SingleMainViewport.ViewportId}"
-                                    ActiveViewportId="{Binding ActiveViewportId}"
-                                    SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
+                        ViewportId="{Binding SingleMainViewport.ViewportId}"
+                        ActiveViewportId="{Binding ActiveViewportId}"
+                        SelectViewportCommand="{Binding SelectViewportCommand}"
+                        ClearViewportCommand="{Binding ClearViewportCommand}"
+                        IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                        WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                        WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                        WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
         </Grid>
 
         <!-- 2 x 2 Layout -->
@@ -35,7 +39,11 @@
                                     ViewportId="{Binding TwoByTwoViewport1.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -43,7 +51,11 @@
                                     ViewportId="{Binding TwoByTwoViewport2.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -51,7 +63,11 @@
                                     ViewportId="{Binding TwoByTwoViewport3.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -59,7 +75,11 @@
                                     ViewportId="{Binding TwoByTwoViewport4.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />  
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />  
         </Grid>
 
         <!-- MPR Layout -->
@@ -82,7 +102,11 @@
                                     ViewportId="{Binding MprAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -90,7 +114,11 @@
                                     ViewportId="{Binding MprSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -98,7 +126,11 @@
                                     ViewportId="{Binding MprCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -125,21 +157,33 @@
                                     ViewportId="{Binding AscAxialViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Column="2"
                                     Tile="{Binding AscSagittalViewport}"
                                     ViewportId="{Binding AscSagittalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
 
             <viewports:ViewportTile Grid.Column="4"
                                     Tile="{Binding AscCoronalViewport}"
                                     ViewportId="{Binding AscCoronalViewport.ViewportId}"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
         </Grid>
     </Grid>
 </UserControl>
