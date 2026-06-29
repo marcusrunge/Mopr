@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Properties;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,30 +15,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
     {
         private static readonly IReadOnlyList<ViewportDescriptor> AxialSagittalCoronalViewports = new[]
         {
-            new ViewportDescriptor(id: "Asc.Axial", title: "Axial", orientation: ViewportOrientation.Axial),
-            new ViewportDescriptor(id: "Asc.Sagittal", title: "Sagittal", orientation: ViewportOrientation.Sagittal),
-            new ViewportDescriptor(id: "Asc.Coronal", title: "Coronal", orientation: ViewportOrientation.Coronal)
+            new ViewportDescriptor(id: "Asc.Axial", title: Resources.ImagingLayoutService_Axial, orientation: ViewportOrientation.Axial),
+            new ViewportDescriptor(id: "Asc.Sagittal", title: Resources.ImagingLayoutService_Sagittal, orientation: ViewportOrientation.Sagittal),
+            new ViewportDescriptor(id: "Asc.Coronal", title: Resources.ImagingLayoutService_Coronal, orientation: ViewportOrientation.Coronal)
         };
 
         private static readonly IReadOnlyList<ViewportDescriptor> MprViewports = new[]
         {
-            new ViewportDescriptor(id: "Mpr.Axial", title: "Axial", orientation: ViewportOrientation.Axial),
-            new ViewportDescriptor(id: "Mpr.Sagittal", title: "Sagittal", orientation: ViewportOrientation.Sagittal),
-            new ViewportDescriptor(id: "Mpr.Coronal", title: "Coronal", orientation: ViewportOrientation.Coronal),
-            new ViewportDescriptor(id: "Mpr.Preview3D", title: "3D / Preview", orientation: ViewportOrientation.VolumePreview, isInteractive: false)
+            new ViewportDescriptor(id: "Mpr.Axial", title: Resources.ImagingLayoutService_Axial, orientation: ViewportOrientation.Axial),
+            new ViewportDescriptor(id: "Mpr.Sagittal", title: Resources.ImagingLayoutService_Sagittal, orientation: ViewportOrientation.Sagittal),
+            new ViewportDescriptor(id: "Mpr.Coronal", title: Resources.ImagingLayoutService_Coronal, orientation: ViewportOrientation.Coronal),
+            new ViewportDescriptor(id: "Mpr.Preview3D", title: Resources.ImagingLayoutService_3dPreview, orientation: ViewportOrientation.VolumePreview, isInteractive: false)
         };
 
         private static readonly IReadOnlyList<ViewportDescriptor> SingleViewports = new[]
         {
-            new ViewportDescriptor(id: "Single.Main", title: "Single", orientation: ViewportOrientation.Generic)
+            new ViewportDescriptor(id: "Single.Main", title: Resources.ImagingLayoutService_SingleMain, orientation: ViewportOrientation.Generic)
         };
 
         private static readonly IReadOnlyList<ViewportDescriptor> TwoByTwoViewports = new[]
         {
-            new ViewportDescriptor(id: "TwoByTwo.Viewport1", title: "Viewport 1", orientation: ViewportOrientation.Generic),
-            new ViewportDescriptor(id: "TwoByTwo.Viewport2", title: "Viewport 2", orientation: ViewportOrientation.Generic),
-            new ViewportDescriptor(id: "TwoByTwo.Viewport3", title: "Viewport 3", orientation: ViewportOrientation.Generic),
-            new ViewportDescriptor(id: "TwoByTwo.Viewport4", title: "Viewport 4", orientation: ViewportOrientation.Generic)
+            new ViewportDescriptor(id: "TwoByTwo.Viewport1", title: Resources.ImagingLayoutService_ViewPort_TwoByTwo_1, orientation: ViewportOrientation.Generic),
+            new ViewportDescriptor(id: "TwoByTwo.Viewport2", title: Resources.ImagingLayoutService_ViewPort_TwoByTwo_2, orientation: ViewportOrientation.Generic),
+            new ViewportDescriptor(id: "TwoByTwo.Viewport3", title: Resources.ImagingLayoutService_ViewPort_TwoByTwo_3, orientation: ViewportOrientation.Generic),
+            new ViewportDescriptor(id: "TwoByTwo.Viewport4", title: Resources.ImagingLayoutService_ViewPort_TwoByTwo_4, orientation: ViewportOrientation.Generic)
         };
 
         private ImagingLayout _currentLayout = ImagingLayout.Single;

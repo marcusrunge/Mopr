@@ -59,5 +59,194 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die 3D / Preview ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_3dPreview {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_3dPreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Axial ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_Axial {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_Axial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Coronal ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_Coronal {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_Coronal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sagittal ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_Sagittal {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_Sagittal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Single ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_SingleMain {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_SingleMain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Viewport 1 ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_ViewPort_TwoByTwo_1 {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_ViewPort_TwoByTwo_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Viewport 2 ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_ViewPort_TwoByTwo_2 {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_ViewPort_TwoByTwo_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Viewport 3 ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_ViewPort_TwoByTwo_3 {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_ViewPort_TwoByTwo_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Viewport 4 ähnelt.
+        /// </summary>
+        public static string ImagingLayoutService_ViewPort_TwoByTwo_4 {
+            get {
+                return ResourceManager.GetString("ImagingLayoutService_ViewPort_TwoByTwo_4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_Dicom {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_Dicom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM-Metadata are beeing read... ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_DicomMetadataReadProgress {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_DicomMetadataReadProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Files ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_Files {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_Files", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Files found ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_FilesFoundProgress {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_FilesFoundProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Files are beeing searched... ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_FilesSearchProgress {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_FilesSearchProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Folder content ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_FolderContent {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_FolderContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die found ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_Found {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image Files ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_ImageFiles {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_ImageFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die in selected folder ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_InSelectedFolder {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_InSelectedFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading cancelled ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_LoadCanceled {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_LoadCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Scan completed ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_ScanCompletedProgress {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_ScanCompletedProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Series ähnelt.
+        /// </summary>
+        public static string ImagingStudyService_Series {
+            get {
+                return ResourceManager.GetString("ImagingStudyService_Series", resourceCulture);
+            }
+        }
     }
 }

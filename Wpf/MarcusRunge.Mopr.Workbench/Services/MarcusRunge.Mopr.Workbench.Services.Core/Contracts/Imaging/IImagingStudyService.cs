@@ -24,8 +24,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 
         DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId);
 
-        void LoadDemoStudy();
-
         Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
     }
 }

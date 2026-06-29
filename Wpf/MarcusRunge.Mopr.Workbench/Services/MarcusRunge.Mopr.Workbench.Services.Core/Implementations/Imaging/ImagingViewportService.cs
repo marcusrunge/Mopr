@@ -81,11 +81,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
         private void UpdateState(ImagingViewportState newState)
         {
-            if (_state.CurrentSlice == newState.CurrentSlice &&
-                _state.SliceCount == newState.SliceCount &&
-                Math.Abs(_state.ZoomFactor - newState.ZoomFactor) < 0.0001 &&
-                Math.Abs(_state.WindowValue - newState.WindowValue) < 0.0001 &&
-                Math.Abs(_state.LevelValue - newState.LevelValue) < 0.0001)
+            if (_state.CurrentSlice == newState.CurrentSlice && _state.SliceCount == newState.SliceCount && Math.Abs(_state.ZoomFactor - newState.ZoomFactor) < 0.0001 && Math.Abs(_state.WindowValue - newState.WindowValue) < 0.0001 && Math.Abs(_state.LevelValue - newState.LevelValue) < 0.0001)
             {
                 return;
             }
