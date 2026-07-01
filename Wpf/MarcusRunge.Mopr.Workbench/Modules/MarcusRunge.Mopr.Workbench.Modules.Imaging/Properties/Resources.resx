@@ -390,4 +390,40 @@
   <data name="ViewportTile_Default" xml:space="preserve">
     <value>Default</value>
   </data>
+  <data name="CommandBar_Measure" xml:space="preserve">
+    <value>Measure</value>
+  </data>
+  <data name="Tool_Measure" xml:space="preserve">
+    <value>Measure</value>
+  </data>
+  <data name="Status_MeasurementEmpty" xml:space="preserve">
+    <value>Measurement: -</value>
+  </data>
+  <data name="Status_MeasurementPixelFormat" xml:space="preserve">
+    <value>Measurement: {0:0.0} px</value>
+  </data>
+  <data name="Status_MeasurementPointFormat" xml:space="preserve">
+    <value>Point: X={0} Y={1}</value>
+  </data>
+  <data name="Viewer_Tool" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="Viewer_Tool_WindowLevel" xml:space="preserve">
+    <value>Window level</value>
+  </data>
+  <data name="Viewer_Tool_Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="Viewer_Tool_Pan" xml:space="preserve">
+    <value>Pan</value>
+  </data>
+  <data name="Viewer_Tool_Crosshair" xml:space="preserve">
+    <value>Crosshair</value>
+  </data>
+  <data name="Viewer_Tool_Measure" xml:space="preserve">
+    <value>Measure</value>
+  </data>
+  <data name="Viewer_Tool_None" xml:space="preserve">
+    <value>None</value>
+  </data>
 </root>

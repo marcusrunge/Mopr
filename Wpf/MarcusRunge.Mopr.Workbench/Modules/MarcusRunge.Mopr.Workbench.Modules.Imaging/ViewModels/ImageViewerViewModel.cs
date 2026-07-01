@@ -39,7 +39,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool _isSynchronizingSelectionFromViewport;
         private SeriesInfo? _selectedSeries;
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
-
+        private static string GetToolDisplayText(ImagingTool tool)
+        {
+            return tool switch
+            {
+                ImagingTool.WindowLevel => Resources.Viewer_Tool_WindowLevel,
+                ImagingTool.Zoom => Resources.Viewer_Tool_Zoom,
+                ImagingTool.Pan => Resources.Viewer_Tool_Pan,
+                ImagingTool.Crosshair => Resources.Viewer_Tool_Crosshair,
+                ImagingTool.Measure => Resources.Viewer_Tool_Measure,
+                _ => Resources.Viewer_Tool_None
+            };
+        }
         public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom)
         {
             _core = core;
@@ -119,7 +130,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string ActiveToolDisplayText => $"Werkzeug: {ActiveTool}";
+        public string ActiveToolDisplayText => $"{Resources.Viewer_Tool}: {ActiveTool}";
 
         public string ActiveViewportDisplayText
         {

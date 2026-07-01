@@ -61,23 +61,28 @@
                     Margin="0,0,8,0"/>
 
             <ToggleButton Content="{x:Static properties:Resources.CommandBar_Zoom}"
-                      Command="{Binding ZoomCommand}"
-                      IsChecked="{Binding IsZoomActive, Mode=OneWay}"
-                      Margin="0,0,8,0"/>
+                          Command="{Binding ZoomCommand}"
+                          IsChecked="{Binding IsZoomActive, Mode=OneWay}"
+                          Margin="0,0,8,0"/>
 
             <ToggleButton Content="{x:Static properties:Resources.CommandBar_Pan}"
-                      Command="{Binding PanCommand}"
-                      IsChecked="{Binding IsPanActive, Mode=OneWay}"
-                      Margin="0,0,8,0"/>
+                          Command="{Binding PanCommand}"
+                          IsChecked="{Binding IsPanActive, Mode=OneWay}"
+                          Margin="0,0,8,0"/>
 
             <ToggleButton Content="{x:Static properties:Resources.CommandBar_Crosshair}"
-                      Command="{Binding CrosshairCommand}"
-                      IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
-                      Margin="0,0,8,0"/>
+                          Command="{Binding CrosshairCommand}"
+                          IsChecked="{Binding IsCrosshairActive, Mode=OneWay}"
+                          Margin="0,0,8,0"/>
+
+            <ToggleButton Content="{x:Static properties:Resources.CommandBar_Measure}"
+                          Command="{Binding MeasureCommand}"
+                          IsChecked="{Binding IsMeasureActive, Mode=OneWay}"
+                          Margin="0,0,8,0"/>
 
             <Button Content="{x:Static properties:Resources.CommandBar_ResetView}"
-                Command="{Binding ResetViewCommand}"
-                Margin="0,0,8,0"/>            
+                    Command="{Binding ResetViewCommand}"
+                    Margin="0,0,8,0"/>
 
             <Button Content="..."
                 Command="{Binding MoreCommand}"/>

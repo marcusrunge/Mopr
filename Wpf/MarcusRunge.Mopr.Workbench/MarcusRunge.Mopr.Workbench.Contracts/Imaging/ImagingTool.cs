@@ -6,6 +6,7 @@
         Zoom = 1,
         Pan = 2,
         WindowLevel = 3,
-        Crosshair = 4
+        Crosshair = 4,
+        Measure = 5
     }
 }

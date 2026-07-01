@@ -78,7 +78,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
         protected override Task OnCreateAsync(IDicomBase @base, CancellationToken cancellationToken)
         {
             _base = @base;
-
             return Task.CompletedTask;
         }
 

@@ -66,8 +66,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
                     var firstInSeries = orderedFiles[0];
 
                     return new DicomSeriesImportResult(seriesInstanceUid: firstInSeries.SeriesInstanceUid ?? group.Key, modality: firstInSeries.Modality, seriesDescription: firstInSeries.SeriesDescription, files: orderedFiles);
-                })
-                    .OrderBy(series => series.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
+                }).OrderBy(series => series.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
 
                 return new DicomImportResult(folderPath: folderPath, studyInstanceUid: first.StudyInstanceUid, studyDescription: first.StudyDescription, series: groupedSeries);
             }

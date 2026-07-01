@@ -38,6 +38,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CrosshairCommand = new DelegateCommand(ActivateCrosshair);
             LayoutCommand = new DelegateCommand(ChangeLayout);
             LungWindowCommand = new DelegateCommand(ApplyLungWindow);
+            MeasureCommand = new DelegateCommand(ActivateMeasure);
             MediastinumWindowCommand = new DelegateCommand(ApplyMediastinumWindow);
             MoreCommand = new DelegateCommand(OpenMoreMenu);
             OpenCommand = new DelegateCommand(async () => await OpenAsync(), () => !IsBusy);
@@ -59,12 +60,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     RaisePropertyChanged(nameof(IsPanActive));
                     RaisePropertyChanged(nameof(IsWindowLevelActive));
                     RaisePropertyChanged(nameof(IsCrosshairActive));
+                    RaisePropertyChanged(nameof(IsMeasureActive));
                 }
             }
         }
 
+        public DelegateCommand BoneWindowCommand { get; }
+        public DelegateCommand BrainWindowCommand { get; }
         public DelegateCommand CancelOpenCommand { get; }
-
         public DelegateCommand CrosshairCommand { get; }
 
         public ImagingLayout CurrentLayout
@@ -97,15 +100,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public bool IsCancelVisible => IsBusy;
-
         public bool IsCrosshairActive => ActiveTool == ImagingTool.Crosshair;
-
+        public bool IsMeasureActive => ActiveTool == ImagingTool.Measure;
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
-
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
-
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
-
         public DelegateCommand LayoutCommand { get; }
 
         public string LayoutDisplayText => CurrentLayout switch
@@ -117,6 +116,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _ => Resources.CommandBar_Layout
         };
 
+        public DelegateCommand LungWindowCommand { get; }
+        public DelegateCommand MeasureCommand { get; }
+        public DelegateCommand MediastinumWindowCommand { get; }
+
         public DelegateCommand MoreCommand { get; }
 
         public string OpenButtonText => IsBusy ? Resources.CommandBar_Load : Resources.CommandBar_Open;
@@ -126,6 +129,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public DelegateCommand PanCommand { get; }
 
         public DelegateCommand ResetViewCommand { get; }
+
+        public DelegateCommand ResetWindowLevelToDefaultCommand { get; }
 
         public string StatusText
         {
@@ -153,11 +158,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ActivateCrosshair() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Crosshair);
 
+        private void ActivateMeasure()
+        {
+            if (ActiveTool == ImagingTool.Measure)
+            {
+                _core.ImagingService!.ImagingToolService!.ClearActiveTool();
+                return;
+            }
+            _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Measure);
+        }
+
         private void ActivatePan() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Pan);
 
         private void ActivateWindowLevel() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.WindowLevel);
 
         private void ActivateZoom() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Zoom);
+
+        private void ApplyBoneWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 300, windowWidth: 1500);
+
+        private void ApplyBrainWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 80);
+
+        private void ApplyLungWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: -600, windowWidth: 1500);
+
+        private void ApplyMediastinumWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 400);
 
         private void CancelOpen()
         {
@@ -239,24 +262,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
             _core.ImagingService!.ImagingToolService!.ClearActiveTool();
         }
-
-        public DelegateCommand LungWindowCommand { get; }
-
-        public DelegateCommand MediastinumWindowCommand { get; }
-
-        public DelegateCommand BoneWindowCommand { get; }
-
-        public DelegateCommand BrainWindowCommand { get; }
-
-        public DelegateCommand ResetWindowLevelToDefaultCommand { get; }
-
-        private void ApplyLungWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: -600, windowWidth: 1500);
-
-        private void ApplyMediastinumWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 400);
-
-        private void ApplyBoneWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 300, windowWidth: 1500);
-
-        private void ApplyBrainWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 80);
 
         private void ResetWindowLevelToDefault() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
     }

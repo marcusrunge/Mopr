@@ -169,6 +169,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measure ähnelt.
+        /// </summary>
+        public static string CommandBar_Measure {
+            get {
+                return ResourceManager.GetString("CommandBar_Measure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Open ähnelt.
         /// </summary>
         public static string CommandBar_Open {
@@ -457,6 +466,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement: - ähnelt.
+        /// </summary>
+        public static string Status_MeasurementEmpty {
+            get {
+                return ResourceManager.GetString("Status_MeasurementEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement: {0:0.0} px ähnelt.
+        /// </summary>
+        public static string Status_MeasurementPixelFormat {
+            get {
+                return ResourceManager.GetString("Status_MeasurementPixelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Point: X={0} Y={1} ähnelt.
+        /// </summary>
+        public static string Status_MeasurementPointFormat {
+            get {
+                return ResourceManager.GetString("Status_MeasurementPointFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measure ähnelt.
+        /// </summary>
+        public static string Tool_Measure {
+            get {
+                return ResourceManager.GetString("Tool_Measure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Default ähnelt.
         /// </summary>
         public static string Viewer_Default {
@@ -561,6 +606,69 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string Viewer_Title {
             get {
                 return ResourceManager.GetString("Viewer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tool ähnelt.
+        /// </summary>
+        public static string Viewer_Tool {
+            get {
+                return ResourceManager.GetString("Viewer_Tool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Crosshair ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_Crosshair {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_Crosshair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measure ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_Measure {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_Measure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die None ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_None {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pan ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_Pan {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_Pan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Window level ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_WindowLevel {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_WindowLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Zoom ähnelt.
+        /// </summary>
+        public static string Viewer_Tool_Zoom {
+            get {
+                return ResourceManager.GetString("Viewer_Tool_Zoom", resourceCulture);
             }
         }
         

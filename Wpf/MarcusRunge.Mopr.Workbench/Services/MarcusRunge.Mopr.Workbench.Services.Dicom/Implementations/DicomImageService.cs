@@ -232,8 +232,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
                 return (double)decimalValue;
             }
 
-            if (dataset.TryGetSingleValue<string>(tag, out var stringValue) &&
-                double.TryParse(stringValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsedValue))
+            if (dataset.TryGetSingleValue<string>(tag, out var stringValue) && double.TryParse(stringValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsedValue))
             {
                 return parsedValue;
             }
