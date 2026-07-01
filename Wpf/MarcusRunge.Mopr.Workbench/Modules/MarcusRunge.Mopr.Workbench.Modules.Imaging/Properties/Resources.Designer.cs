@@ -493,11 +493,47 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · HU={2:0} ähnelt.
+        /// </summary>
+        public static string Status_PixelCtFormat {
+            get {
+                return ResourceManager.GetString("Status_PixelCtFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: - ähnelt.
+        /// </summary>
+        public static string Status_PixelEmpty {
+            get {
+                return ResourceManager.GetString("Status_PixelEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · Value={2:0} ähnelt.
+        /// </summary>
+        public static string Status_PixelValueFormat {
+            get {
+                return ResourceManager.GetString("Status_PixelValueFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Measure ähnelt.
         /// </summary>
         public static string Tool_Measure {
             get {
                 return ResourceManager.GetString("Tool_Measure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Tool: {0} ähnelt.
+        /// </summary>
+        public static string Viewer_ActiveToolFormat {
+            get {
+                return ResourceManager.GetString("Viewer_ActiveToolFormat", resourceCulture);
             }
         }
         
@@ -808,6 +844,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Clear viewport ähnelt.
+        /// </summary>
+        public static string ViewportTile_ClearViewport {
+            get {
+                return ResourceManager.GetString("ViewportTile_ClearViewport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die CT ähnelt.
         /// </summary>
         public static string ViewportTile_Ct {
@@ -849,6 +894,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string ViewportTile_NoFile {
             get {
                 return ResourceManager.GetString("ViewportTile_NoFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No image ähnelt.
+        /// </summary>
+        public static string ViewportTile_NoImage {
+            get {
+                return ResourceManager.GetString("ViewportTile_NoImage", resourceCulture);
             }
         }
         

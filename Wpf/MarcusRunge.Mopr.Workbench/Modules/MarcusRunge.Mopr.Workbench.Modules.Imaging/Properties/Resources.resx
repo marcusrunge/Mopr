@@ -426,4 +426,22 @@
   <data name="Viewer_Tool_None" xml:space="preserve">
     <value>None</value>
   </data>
+  <data name="Viewer_ActiveToolFormat" xml:space="preserve">
+    <value>Tool: {0}</value>
+  </data>
+  <data name="Status_PixelEmpty" xml:space="preserve">
+    <value>Pixel: -</value>
+  </data>
+  <data name="Status_PixelCtFormat" xml:space="preserve">
+    <value>Pixel: X={0} Y={1} · HU={2:0}</value>
+  </data>
+  <data name="Status_PixelValueFormat" xml:space="preserve">
+    <value>Pixel: X={0} Y={1} · Value={2:0}</value>
+  </data>
+  <data name="ViewportTile_ClearViewport" xml:space="preserve">
+    <value>Clear viewport</value>
+  </data>
+  <data name="ViewportTile_NoImage" xml:space="preserve">
+    <value>No image</value>
+  </data>
 </root>

@@ -11,76 +11,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel(string viewportId, string title) : ViewModelBase
     {
+        private readonly ViewportMeasurementState _measurementState = new();
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
         private ImageSource? _currentImage;
+        private int? _currentPixelX, _currentPixelY;
         private int _currentSlice = 1, _sliceCount = 1;
         private SeriesInfo? _series;
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth, _currentPixelValue;
-        private int? _currentPixelX, _currentPixelY;
 
         public DicomImageFrame? CurrentDicomFrame
         {
             get => _currentDicomFrame;
             set => SetProperty(ref _currentDicomFrame, value);
         }
-        public int? CurrentPixelX
-        {
-            get => _currentPixelX;
-            private set
-            {
-                if (SetProperty(ref _currentPixelX, value))
-                {
-                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
-                }
-            }
-        }
 
-        public int? CurrentPixelY
-        {
-            get => _currentPixelY;
-            private set
-            {
-                if (SetProperty(ref _currentPixelY, value))
-                {
-                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
-                }
-            }
-        }
-
-        public double? CurrentPixelValue
-        {
-            get => _currentPixelValue;
-            private set
-            {
-                if (SetProperty(ref _currentPixelValue, value))
-                {
-                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
-                }
-            }
-        }
-
-        public string CurrentPixelDisplayText
-        {
-            get
-            {
-                if (!CurrentPixelX.HasValue ||
-                    !CurrentPixelY.HasValue ||
-                    !CurrentPixelValue.HasValue)
-                {
-                    return $"{Resources.ViewportTile_Pixel}: -";
-                }
-
-                if (string.Equals(CurrentDicomFrame?.Modality,
-                        $"{Resources.ViewportTile_Ct}", StringComparison.OrdinalIgnoreCase))
-                {
-                    return $"{Resources.ViewportTile_Pixel}: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · HU={CurrentPixelValue.Value:0}";
-                }
-
-                return $"{Resources.ViewportTile_Pixel}: X={CurrentPixelX.Value} Y={CurrentPixelY.Value} · Wert={CurrentPixelValue.Value:0}";
-            }
-        }
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.ViewportTile_File}: -" : $"{Resources.ViewportTile_File}: {CurrentFileName}";
 
         public string? CurrentFileName
@@ -121,19 +67,61 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
             }
         }
-        public void SetCurrentPixel(int pixelX, int pixelY, double value)
+
+        public string CurrentPixelDisplayText
         {
-            CurrentPixelX = pixelX;
-            CurrentPixelY = pixelY;
-            CurrentPixelValue = value;
+            get
+            {
+                if (!CurrentPixelX.HasValue || !CurrentPixelY.HasValue || !CurrentPixelValue.HasValue)
+                {
+                    return $"{Resources.ViewportTile_Pixel}: -";
+                }
+
+                if (string.Equals(CurrentDicomFrame?.Modality, "CT", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format(Resources.Status_PixelCtFormat, CurrentPixelX.Value, CurrentPixelY.Value, CurrentPixelValue.Value);
+                }
+
+                return string.Format(Resources.Status_PixelValueFormat, CurrentPixelX.Value, CurrentPixelY.Value, CurrentPixelValue.Value);
+            }
         }
 
-        public void ClearCurrentPixel()
+        public double? CurrentPixelValue
         {
-            CurrentPixelX = null;
-            CurrentPixelY = null;
-            CurrentPixelValue = null;
+            get => _currentPixelValue;
+            private set
+            {
+                if (SetProperty(ref _currentPixelValue, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
         }
+
+        public int? CurrentPixelX
+        {
+            get => _currentPixelX;
+            private set
+            {
+                if (SetProperty(ref _currentPixelX, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
+        }
+
+        public int? CurrentPixelY
+        {
+            get => _currentPixelY;
+            private set
+            {
+                if (SetProperty(ref _currentPixelY, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPixelDisplayText));
+                }
+            }
+        }
+
         public int CurrentSlice
         {
             get => _currentSlice;
@@ -147,10 +135,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} · {Series.ImageCount} {Resources.ViewportTile_Images}";
-
         public string DisplayTitle => Series == null ? Title : Series.Name;
-
         public bool IsEmptyViewerVisible => CurrentImage == null;
+
+        public string MeasurementDisplayText
+        {
+            get
+            {
+                var distancePixels = MeasurementState.DistancePixels;
+
+                if (!distancePixels.HasValue)
+                {
+                    return Resources.Status_MeasurementEmpty;
+                }
+
+                return string.Format(Resources.Status_MeasurementPixelFormat, distancePixels.Value);
+            }
+        }
+
+        public ViewportMeasurementState MeasurementState => _measurementState;
 
         public SeriesInfo? Series
         {
@@ -222,6 +225,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public void AddMeasurementPoint(int pixelX, int pixelY)
+        {
+            MeasurementState.SetNextPoint(pixelX, pixelY);
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
+        }
+
+        public void ClearCurrentPixel()
+        {
+            CurrentPixelX = null;
+            CurrentPixelY = null;
+            CurrentPixelValue = null;
+        }
+
+        public void ClearMeasurement()
+        {
+            MeasurementState.Clear();
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
+        }
+
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
 
         public void ResetWindowLevel()
@@ -230,8 +252,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             WindowWidth = null;
         }
 
+        public void SetCurrentPixel(int pixelX, int pixelY, double value)
+        {
+            CurrentPixelX = pixelX;
+            CurrentPixelY = pixelY;
+            CurrentPixelValue = value;
+        }
+
         public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
         {
+            ClearMeasurement();
+            ClearCurrentPixel();
+
             Series = series;
             SeriesFiles = files ?? [];
 
@@ -270,7 +302,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 CurrentDicomFrame = null;
                 CurrentImage = null;
+
                 ClearCurrentPixel();
+                ClearMeasurement();
             }
 
             CurrentSlice = slice;

@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports.ViewportTile"
-             
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels" 
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,7 +34,7 @@
             Tag="{Binding ViewportId, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Border.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Viewport leeren"
+                <MenuItem Header="{x:Static properties:Resources.ViewportTile_ClearViewport}"
                           Command="{Binding ClearViewportCommand}"
                           CommandParameter="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
             </ContextMenu>
@@ -85,7 +85,7 @@
                             VerticalAlignment="Center"
                             Visibility="{Binding Tile.IsEmptyViewerVisible, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                    <TextBlock Text="Kein Bild"
+                    <TextBlock Text="{x:Static properties:Resources.ViewportTile_NoImage}"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="#7D8790"
