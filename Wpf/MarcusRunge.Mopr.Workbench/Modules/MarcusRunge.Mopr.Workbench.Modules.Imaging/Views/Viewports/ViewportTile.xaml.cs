@@ -1,9 +1,9 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 {
@@ -18,7 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         public static readonly DependencyProperty MeasurementPointCommandProperty = DependencyProperty.Register(nameof(MeasurementPointCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty PixelHoverCommandProperty = DependencyProperty.Register(nameof(PixelHoverCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
         public static readonly DependencyProperty SelectViewportCommandProperty = DependencyProperty.Register(nameof(SelectViewportCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
-        public static readonly DependencyProperty TileProperty = DependencyProperty.Register(nameof(Tile), typeof(ViewportTileViewModel), typeof(ViewportTile), new PropertyMetadata(null));
+        public static readonly DependencyProperty TileProperty = DependencyProperty.Register(nameof(Tile), typeof(ViewportTileViewModel), typeof(ViewportTile), new PropertyMetadata(null, OnTileChanged));
         public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(nameof(Title), typeof(string), typeof(ViewportTile), new PropertyMetadata(string.Empty));
         public static readonly DependencyProperty ViewportIdProperty = DependencyProperty.Register(nameof(ViewportId), typeof(string), typeof(ViewportTile), new PropertyMetadata(string.Empty, OnViewportStateChanged));
         public static readonly DependencyProperty WindowLevelDragCommandProperty = DependencyProperty.Register(nameof(WindowLevelDragCommand), typeof(ICommand), typeof(ViewportTile), new PropertyMetadata(null));
@@ -28,7 +28,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         private bool _isWindowLevelDragging;
         private Point _windowLevelDragStartPosition;
 
-        public ViewportTile() => InitializeComponent();
+        public ViewportTile()
+        {
+            InitializeComponent();
+
+            Loaded += OnViewportTileLoaded;
+            Unloaded += OnViewportTileUnloaded;
+        }
 
         public string ActiveViewportId
         {
@@ -120,6 +126,26 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             set => SetValue(WindowLevelDragStartedCommandProperty, value);
         }
 
+        private static void OnTileChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        {
+            if (dependencyObject is not ViewportTile viewportTile)
+            {
+                return;
+            }
+
+            if (e.OldValue is ViewportTileViewModel oldTile)
+            {
+                oldTile.PropertyChanged -= viewportTile.OnTilePropertyChanged;
+            }
+
+            if (e.NewValue is ViewportTileViewModel newTile)
+            {
+                newTile.PropertyChanged += viewportTile.OnTilePropertyChanged;
+            }
+
+            viewportTile.UpdateMeasurementOverlay();
+        }
+
         private static void OnViewportStateChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
             if (dependencyObject is ViewportTile tile)
@@ -139,70 +165,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             }
         }
 
-        private ViewportPixelHoverInfo? TryCreatePixelHoverInfo(MouseEventArgs e)
-        {
-            if (Tile?.CurrentDicomFrame == null)
-            {
-                return null;
-            }
-
-            if (ViewportImage.Source == null)
-            {
-                return null;
-            }
-
-            var source = ViewportImage.Source;
-
-            var sourceWidth = source is BitmapSource bitmapSource
-                ? bitmapSource.PixelWidth
-                : source.Width;
-
-            var sourceHeight = source is BitmapSource bitmapSource2
-                ? bitmapSource2.PixelHeight
-                : source.Height;
-
-            if (sourceWidth <= 0 ||
-                sourceHeight <= 0 ||
-                ViewportImage.ActualWidth <= 0 ||
-                ViewportImage.ActualHeight <= 0)
-            {
-                return null;
-            }
-
-            var scale = Math.Min(
-                ViewportImage.ActualWidth / sourceWidth,
-                ViewportImage.ActualHeight / sourceHeight);
-
-            if (scale <= 0)
-            {
-                return null;
-            }
-
-            var displayedWidth = sourceWidth * scale;
-            var displayedHeight = sourceHeight * scale;
-
-            var offsetX = (ViewportImage.ActualWidth - displayedWidth) / 2.0;
-            var offsetY = (ViewportImage.ActualHeight - displayedHeight) / 2.0;
-
-            var position = e.GetPosition(ViewportImage);
-
-            if (position.X < offsetX ||
-                position.Y < offsetY ||
-                position.X >= offsetX + displayedWidth ||
-                position.Y >= offsetY + displayedHeight)
-            {
-                return null;
-            }
-
-            var pixelX = (int)((position.X - offsetX) / scale);
-            var pixelY = (int)((position.Y - offsetY) / scale);
-
-            return new ViewportPixelHoverInfo(
-                ViewportId,
-                pixelX,
-                pixelY);
-        }
-
         private void ExecutePixelHover(int? pixelX, int? pixelY)
         {
             var hoverInfo = new ViewportPixelHoverInfo(ViewportId, pixelX, pixelY);
@@ -212,6 +174,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 PixelHoverCommand.Execute(hoverInfo);
             }
         }
+
+        private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.MeasurementDisplayText), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.MeasurementOverlayLabelText), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentImage), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentFilePath), StringComparison.Ordinal))
+            {
+                UpdateMeasurementOverlay();
+            }
+        }
+
+        private void OnViewportImageSizeChanged(object sender, SizeChangedEventArgs e) => UpdateMeasurementOverlay();
 
         private void OnViewportMouseLeave(object sender, MouseEventArgs e) => ExecutePixelHover(null, null);
 
@@ -230,12 +202,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
             if (IsMeasureActive)
             {
-                var hoverInfo = TryCreatePixelHoverInfo(e);
+                var pointInfo = TryCreateMeasurementPointInfo(e);
 
-                if (hoverInfo != null &&
-                    MeasurementPointCommand?.CanExecute(hoverInfo) == true)
+                if (pointInfo != null && MeasurementPointCommand?.CanExecute(pointInfo) == true)
                 {
-                    MeasurementPointCommand.Execute(hoverInfo);
+                    MeasurementPointCommand.Execute(pointInfo);
+                    UpdateMeasurementOverlay();
                 }
 
                 e.Handled = true;
@@ -301,6 +273,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             e.Handled = true;
         }
 
+        private void OnViewportTileLoaded(object sender, RoutedEventArgs e)
+        {
+            if (Tile != null)
+            {
+                Tile.PropertyChanged -= OnTilePropertyChanged;
+                Tile.PropertyChanged += OnTilePropertyChanged;
+            }
+
+            UpdateMeasurementOverlay();
+        }
+
+        private void OnViewportTileUnloaded(object sender, RoutedEventArgs e) => Tile?.PropertyChanged -= OnTilePropertyChanged;
+
         private void ReportPixelHover(MouseEventArgs e)
         {
             var hoverInfo = TryCreatePixelHoverInfo(e);
@@ -314,6 +299,186 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             ExecutePixelHover(hoverInfo.PixelX, hoverInfo.PixelY);
         }
 
+        private bool TryConvertImagePointToHostPosition(double imageX, double imageY, out Point position)
+        {
+            position = default;
+
+            if (!TryGetImageDisplayGeometry(out var scale, out var offsetX, out var offsetY, out var frameWidth, out var frameHeight))
+            {
+                return false;
+            }
+
+            if (imageX < 0 || imageY < 0 || imageX >= frameWidth || imageY >= frameHeight)
+            {
+                return false;
+            }
+
+            position = new Point(offsetX + imageX * scale, offsetY + imageY * scale);
+
+            return true;
+        }
+
+        private ViewportMeasurementPointInfo? TryCreateMeasurementPointInfo(MouseEventArgs e)
+        {
+            if (!TryGetImageDisplayGeometry(out var scale, out var offsetX, out var offsetY, out var frameWidth, out var frameHeight))
+            {
+                return null;
+            }
+
+            var position = e.GetPosition(ViewportImageHost);
+
+            var displayedWidth = frameWidth * scale;
+            var displayedHeight = frameHeight * scale;
+
+            if (position.X < offsetX || position.Y < offsetY || position.X >= offsetX + displayedWidth || position.Y >= offsetY + displayedHeight)
+            {
+                return null;
+            }
+
+            var imageX = (position.X - offsetX) / scale;
+            var imageY = (position.Y - offsetY) / scale;
+
+            if (imageX < 0 || imageY < 0 || imageX >= frameWidth || imageY >= frameHeight)
+            {
+                return null;
+            }
+
+            return new ViewportMeasurementPointInfo(ViewportId, imageX, imageY);
+        }
+
+        private ViewportPixelHoverInfo? TryCreatePixelHoverInfo(MouseEventArgs e)
+        {
+            if (!TryGetImageDisplayGeometry(out var scale, out var offsetX, out var offsetY, out var frameWidth, out var frameHeight))
+            {
+                return null;
+            }
+
+            var position = e.GetPosition(ViewportImageHost);
+
+            var displayedWidth = frameWidth * scale;
+            var displayedHeight = frameHeight * scale;
+
+            if (position.X < offsetX || position.Y < offsetY || position.X >= offsetX + displayedWidth || position.Y >= offsetY + displayedHeight)
+            {
+                return null;
+            }
+
+            var pixelX = (int)((position.X - offsetX) / scale);
+            var pixelY = (int)((position.Y - offsetY) / scale);
+
+            if (pixelX < 0 || pixelY < 0 || pixelX >= frameWidth || pixelY >= frameHeight)
+            {
+                return null;
+            }
+
+            return new ViewportPixelHoverInfo(ViewportId, pixelX, pixelY);
+        }
+
+        private bool TryGetImageDisplayGeometry(out double scale, out double offsetX, out double offsetY, out int frameWidth, out int frameHeight)
+        {
+            scale = 0;
+            offsetX = 0;
+            offsetY = 0;
+            frameWidth = 0;
+            frameHeight = 0;
+
+            var frame = Tile?.CurrentDicomFrame;
+
+            if (frame == null)
+            {
+                return false;
+            }
+
+            frameWidth = frame.Width;
+            frameHeight = frame.Height;
+
+            if (frameWidth <= 0 || frameHeight <= 0 || ViewportImageHost.ActualWidth <= 0 || ViewportImageHost.ActualHeight <= 0)
+            {
+                return false;
+            }
+
+            scale = Math.Min(ViewportImageHost.ActualWidth / frameWidth, ViewportImageHost.ActualHeight / frameHeight);
+
+            if (scale <= 0)
+            {
+                return false;
+            }
+
+            var displayedWidth = frameWidth * scale;
+            var displayedHeight = frameHeight * scale;
+
+            offsetX = (ViewportImageHost.ActualWidth - displayedWidth) / 2.0;
+            offsetY = (ViewportImageHost.ActualHeight - displayedHeight) / 2.0;
+
+            return true;
+        }
+
         private void UpdateIsActive() => IsActive = !string.IsNullOrWhiteSpace(ViewportId) && string.Equals(ViewportId, ActiveViewportId, StringComparison.Ordinal);
+
+        private void UpdateMeasurementOverlay()
+        {
+            if (Tile?.MeasurementState == null || !Tile.MeasurementState.HasFirstPoint)
+            {
+                MeasurementOverlayCanvas.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var firstX = Tile.MeasurementState.FirstPointX!.Value;
+            var firstY = Tile.MeasurementState.FirstPointY!.Value;
+
+            if (!TryConvertImagePointToHostPosition(firstX, firstY, out var firstPoint))
+            {
+                MeasurementOverlayCanvas.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            MeasurementOverlayCanvas.Visibility = Visibility.Visible;
+
+            Canvas.SetLeft(MeasurementFirstPoint, firstPoint.X);
+            Canvas.SetTop(MeasurementFirstPoint, firstPoint.Y);
+
+            MeasurementFirstPoint.Visibility = Visibility.Visible;
+
+            if (!Tile.MeasurementState.HasSecondPoint)
+            {
+                MeasurementLine.Visibility = Visibility.Collapsed;
+                MeasurementSecondPoint.Visibility = Visibility.Collapsed;
+                MeasurementLabelBorder.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var secondX = Tile.MeasurementState.SecondPointX!.Value;
+            var secondY = Tile.MeasurementState.SecondPointY!.Value;
+
+            if (!TryConvertImagePointToHostPosition(secondX, secondY, out var secondPoint))
+            {
+                MeasurementLine.Visibility = Visibility.Collapsed;
+                MeasurementSecondPoint.Visibility = Visibility.Collapsed;
+                MeasurementLabelBorder.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            MeasurementSecondPoint.Visibility = Visibility.Visible;
+
+            Canvas.SetLeft(MeasurementSecondPoint, secondPoint.X);
+            Canvas.SetTop(MeasurementSecondPoint, secondPoint.Y);
+
+            MeasurementLine.Visibility = Visibility.Visible;
+            MeasurementLine.X1 = firstPoint.X;
+            MeasurementLine.Y1 = firstPoint.Y;
+            MeasurementLine.X2 = secondPoint.X;
+            MeasurementLine.Y2 = secondPoint.Y;
+
+            MeasurementLabelTextBlock.Text = Tile.MeasurementOverlayLabelText;
+
+            MeasurementLabelBorder.Visibility = string.IsNullOrWhiteSpace(Tile.MeasurementOverlayLabelText) ? Visibility.Collapsed : Visibility.Visible;
+
+            var labelX = (firstPoint.X + secondPoint.X) / 2.0 + 8.0;
+            var labelY = (firstPoint.Y + secondPoint.Y) / 2.0 - 22.0;
+
+            Canvas.SetLeft(MeasurementLabelBorder, Math.Max(0, labelX));
+
+            Canvas.SetTop(MeasurementLabelBorder, Math.Max(0, labelY));
+        }
     }
 }

@@ -28,7 +28,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.ViewportTile_File}: -" : $"{Resources.ViewportTile_File}: {CurrentFileName}";
+        public string MeasurementOverlayLabelText
+        {
+            get
+            {
+                var distancePixels = MeasurementState.DistancePixels;
 
+                if (!distancePixels.HasValue)
+                {
+                    return string.Empty;
+                }
+
+                return string.Format(Resources.Measurement_LabelPixelFormat, distancePixels.Value);
+            }
+        }
         public string? CurrentFileName
         {
             get => _currentFileName;
@@ -225,11 +238,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public void AddMeasurementPoint(int pixelX, int pixelY)
+
+        public void AddMeasurementPoint(double imageX, double imageY)
         {
-            MeasurementState.SetNextPoint(pixelX, pixelY);
+            MeasurementState.SetNextPoint(imageX, imageY);
+
             RaisePropertyChanged(nameof(MeasurementDisplayText));
+            RaisePropertyChanged(nameof(MeasurementOverlayLabelText));
         }
+
 
         public void ClearCurrentPixel()
         {
@@ -242,6 +259,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             MeasurementState.Clear();
             RaisePropertyChanged(nameof(MeasurementDisplayText));
+            RaisePropertyChanged(nameof(MeasurementOverlayLabelText));
         }
 
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);

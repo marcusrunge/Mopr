@@ -1,9 +1,9 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports.ViewportTile"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
-             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:ViewportTileViewModel}">
@@ -11,16 +11,16 @@
     <UserControl.Resources>
         <Style x:Key="ViewportBorderStyle"
                TargetType="Border">
-            <Setter Property="Background" Value="#05080A"/>
-            <Setter Property="BorderBrush" Value="#1F2933"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="#05080A" />
+            <Setter Property="BorderBrush" Value="#1F2933" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=UserControl}}"
                              Value="True">
-                    <Setter Property="BorderBrush" Value="#60E1EB"/>
-                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="BorderBrush" Value="#60E1EB" />
+                    <Setter Property="BorderThickness" Value="2" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -41,8 +41,8 @@
         </Border.ContextMenu>
         <Grid ClipToBounds="True">
             <Grid.RowDefinitions>
-                <RowDefinition Height="34"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="34" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
@@ -53,8 +53,8 @@
 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="{Binding Tile.DisplayTitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -63,23 +63,89 @@
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
-                               ToolTip="{Binding Tile.DisplayTitle, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                               ToolTip="{Binding Tile.DisplayTitle, RelativeSource={RelativeSource AncestorType=UserControl}}" />
 
                     <TextBlock Grid.Column="1"
                                Text="{Binding Tile.SliceDisplayText, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                Foreground="#6F7B86"
                                FontSize="11"
                                Margin="12,0,0,0"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="1"
+            <Grid x:Name="ViewportImageHost"
+                  Grid.Row="1"
                   Background="#020405">
+
+                <Grid.Style>
+                    <Style TargetType="{x:Type Grid}">
+                        <Setter Property="Cursor" Value="{x:Null}" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMeasureActive, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             Value="True">
+                                <Setter Property="Cursor" Value="Cross" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+
                 <Image x:Name="ViewportImage"
                        Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                       SizeChanged="OnViewportImageSizeChanged"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                <Canvas x:Name="MeasurementOverlayCanvas"
+                        IsHitTestVisible="False"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+
+                    <Line x:Name="MeasurementLine"
+                          Stroke="#60E1EB"
+                          StrokeThickness="1.5"
+                          SnapsToDevicePixels="True" />
+
+                    <Ellipse x:Name="MeasurementFirstPoint"
+                             Width="8"
+                             Height="8"
+                             Stroke="#60E1EB"
+                             StrokeThickness="1.5"
+                             Fill="#2600E5FF"
+                             RenderTransformOrigin="0.5,0.5">
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform X="-4" Y="-4"/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+
+                    <Ellipse x:Name="MeasurementSecondPoint"
+                             Width="8"
+                             Height="8"
+                             Stroke="#60E1EB"
+                             StrokeThickness="1.5"
+                             Fill="#2600E5FF"
+                             RenderTransformOrigin="0.5,0.5">
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform X="-4" Y="-4"/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+
+                    <Border x:Name="MeasurementLabelBorder"
+                            Background="#CC10161C"
+                            BorderBrush="#60E1EB"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="5,2">
+
+                        <TextBlock x:Name="MeasurementLabelTextBlock"
+                                   Foreground="#DDE5EC"
+                                   FontSize="11"
+                                   FontWeight="SemiBold" />
+                    </Border>
+                </Canvas>
 
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
@@ -89,13 +155,13 @@
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="#7D8790"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center" />
 
                     <TextBlock Text="{Binding Tile.DisplaySubtitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                FontSize="12"
                                Foreground="#58636E"
                                Margin="0,6,0,0"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center" />
                 </StackPanel>
             </Grid>
         </Grid>

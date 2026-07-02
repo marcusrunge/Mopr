@@ -444,4 +444,7 @@
   <data name="ViewportTile_NoImage" xml:space="preserve">
     <value>No image</value>
   </data>
+  <data name="Measurement_LabelPixelFormat" xml:space="preserve">
+    <value>{0:0.0} px</value>
+  </data>
 </root>

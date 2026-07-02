@@ -67,7 +67,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             ClearViewportCommand = new DelegateCommand<string?>(ClearViewport);
             KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
-            MeasurementPointCommand = new DelegateCommand<ViewportPixelHoverInfo?>(OnMeasurementPoint);
+            MeasurementPointCommand = new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPoint);
             MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
             PixelHoverCommand = new DelegateCommand<ViewportPixelHoverInfo?>(OnPixelHover);
             SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
@@ -283,7 +283,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string MeasurementDisplayText => GetActiveViewportTile()?.MeasurementDisplayText ?? Resources.Status_MeasurementEmpty;
 
-        public DelegateCommand<ViewportPixelHoverInfo?> MeasurementPointCommand { get; }
+        public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPointCommand { get; }
 
         public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand { get; }
 
@@ -742,9 +742,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        private void OnMeasurementPoint(ViewportPixelHoverInfo? hoverInfo)
+        private void OnMeasurementPoint(ViewportMeasurementPointInfo? pointInfo)
         {
-            if (hoverInfo == null || !hoverInfo.HasPixel || string.IsNullOrWhiteSpace(hoverInfo.ViewportId))
+            if (pointInfo == null || string.IsNullOrWhiteSpace(pointInfo.ViewportId))
             {
                 return;
             }
@@ -754,7 +754,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            if (!_viewportTiles.TryGetValue(hoverInfo.ViewportId, out var tile))
+            if (!_viewportTiles.TryGetValue(pointInfo.ViewportId, out var tile))
             {
                 return;
             }
@@ -766,17 +766,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            var pixelX = hoverInfo.PixelX!.Value;
-            var pixelY = hoverInfo.PixelY!.Value;
-
-            if (pixelX < 0 || pixelY < 0 || pixelX >= frame.Width || pixelY >= frame.Height)
+            if (pointInfo.ImageX < 0 || pointInfo.ImageY < 0 || pointInfo.ImageX >= frame.Width || pointInfo.ImageY >= frame.Height)
             {
                 return;
             }
 
-            tile.AddMeasurementPoint(
-                pixelX,
-                pixelY);
+            tile.AddMeasurementPoint(pointInfo.ImageX, pointInfo.ImageY);
 
             if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
             {

@@ -20,16 +20,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public int? FirstPointX { get; private set; }
+        public double? FirstPointX { get; private set; }
 
-        public int? FirstPointY { get; private set; }
+        public double? FirstPointY { get; private set; }
 
         public bool HasFirstPoint => FirstPointX.HasValue && FirstPointY.HasValue;
         public bool HasMeasurement => HasFirstPoint && HasSecondPoint;
         public bool HasSecondPoint => SecondPointX.HasValue && SecondPointY.HasValue;
-        public int? SecondPointX { get; private set; }
+        public double? SecondPointX { get; private set; }
 
-        public int? SecondPointY { get; private set; }
+        public double? SecondPointY { get; private set; }
 
         public void Clear()
         {
@@ -39,19 +39,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SecondPointY = null;
         }
 
-        public void SetNextPoint(int pixelX, int pixelY)
+        public void SetNextPoint(double imageX, double imageY)
         {
             if (!HasFirstPoint || HasSecondPoint)
             {
-                FirstPointX = pixelX;
-                FirstPointY = pixelY;
+                FirstPointX = imageX;
+                FirstPointY = imageY;
                 SecondPointX = null;
                 SecondPointY = null;
                 return;
             }
 
-            SecondPointX = pixelX;
-            SecondPointY = pixelY;
+            SecondPointX = imageX;
+            SecondPointY = imageY;
         }
     }
 }

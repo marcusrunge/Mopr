@@ -250,6 +250,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0:0.0} px ähnelt.
+        /// </summary>
+        public static string Measurement_LabelPixelFormat {
+            get {
+                return ResourceManager.GetString("Measurement_LabelPixelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Columns ähnelt.
         /// </summary>
         public static string PropertiesPanel_Colums {
