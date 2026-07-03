@@ -2,6 +2,7 @@
              xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:loc="clr-namespace:MarcusRunge.Toolbox.Localization.Wpf;assembly=MarcusRunge.Toolbox.Localization.Wpf"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
@@ -12,6 +13,9 @@
              Focusable="True"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Resources>
+        <loc:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+    </UserControl.Resources>
 
     <Grid Background="#030506"
           ClipToBounds="True"
@@ -79,7 +83,7 @@
 
                         <!-- Layout -->
                         <TextBlock Grid.Column="4"
-                                   Text="{Binding LayoutDisplayText}"
+                                   Text="{Binding CurrentLayout, Converter={StaticResource EnumDescriptionValueConverter}}"
                                    Foreground="#8FA0AD"
                                    VerticalAlignment="Center"
                                    FontSize="12" />
@@ -154,13 +158,13 @@
                                        Foreground="#8FA0AD"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Margin="16,0,0,0"/>
+                                       Margin="16,0,0,0" />
 
                             <TextBlock Text="{Binding MeasurementDisplayText}"
                                        Foreground="#8FA0AD"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Margin="16,0,0,0"/>
+                                       Margin="16,0,0,0" />
                         </StackPanel>
                     </Grid>
                 </Border>

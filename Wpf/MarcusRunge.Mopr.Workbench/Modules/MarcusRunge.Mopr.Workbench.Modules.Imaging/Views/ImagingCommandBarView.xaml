@@ -1,15 +1,19 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImagingCommandBarView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:loc="clr-namespace:MarcusRunge.Toolbox.Localization.Wpf;assembly=MarcusRunge.Toolbox.Localization.Wpf"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              d:DataContext="{d:DesignInstance Type=viewmodels:ImagingCommandBarViewModel}"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
-
+    <UserControl.Resources>
+        <loc:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+    </UserControl.Resources>
+    
     <Grid Margin="12,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -31,7 +35,7 @@
                     Visibility="{Binding IsCancelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="{Binding LayoutDisplayText}"
+            <Button Content="{Binding CurrentLayout, Converter={StaticResource EnumDescriptionValueConverter}}"
                 Command="{Binding LayoutCommand}"
                 Margin="0,0,8,0"/>
 

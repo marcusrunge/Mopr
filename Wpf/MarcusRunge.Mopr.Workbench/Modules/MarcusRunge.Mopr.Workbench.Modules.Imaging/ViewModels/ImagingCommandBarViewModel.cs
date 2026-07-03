@@ -76,8 +76,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             private set
             {
                 if (SetProperty(ref _currentLayout, value))
-                {
-                    RaisePropertyChanged(nameof(LayoutDisplayText));
+                {                    
                 }
             }
         }
@@ -106,15 +105,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
         public DelegateCommand LayoutCommand { get; }
-
-        public string LayoutDisplayText => CurrentLayout switch
-        {
-            ImagingLayout.Single => Resources.CommandBar_Layout_Single,
-            ImagingLayout.TwoByTwo => Resources.CommandBar_Layout_TwoByTwo,
-            ImagingLayout.Mpr => Resources.CommandBar_Layout_Mpr,
-            ImagingLayout.AxialSagittalCoronal => Resources.CommandBar_Layout_AxialSagittalCoronal,
-            _ => Resources.CommandBar_Layout
-        };
 
         public DelegateCommand LungWindowCommand { get; }
         public DelegateCommand MeasureCommand { get; }

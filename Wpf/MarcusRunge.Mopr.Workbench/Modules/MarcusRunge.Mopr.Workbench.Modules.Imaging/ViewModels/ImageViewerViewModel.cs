@@ -214,7 +214,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _currentLayout, value))
                 {
-                    RaisePropertyChanged(nameof(LayoutDisplayText));
                     RaisePropertyChanged(nameof(ActiveViewportDisplayText));
                     RaisePropertyChanged(nameof(IsSingleLayoutVisible));
                     RaisePropertyChanged(nameof(IsTwoByTwoLayoutVisible));
@@ -271,15 +270,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
 
         public DelegateCommand<KeyEventArgs?> KeyDownCommand { get; }
-
-        public string LayoutDisplayText => CurrentLayout switch
-        {
-            ImagingLayout.Single => Resources.Viewer_Layout_Single,
-            ImagingLayout.TwoByTwo => Resources.Viewer_Layout_TwoByTwo,
-            ImagingLayout.Mpr => Resources.Viewer_Layout_Mpr,
-            ImagingLayout.AxialSagittalCoronal => Resources.Viewer_Layout_AxialSagittalCoronal,
-            _ => Resources.Viewer_Layout_Unknown
-        };
 
         public string MeasurementDisplayText => GetActiveViewportTile()?.MeasurementDisplayText ?? Resources.Status_MeasurementEmpty;
 
