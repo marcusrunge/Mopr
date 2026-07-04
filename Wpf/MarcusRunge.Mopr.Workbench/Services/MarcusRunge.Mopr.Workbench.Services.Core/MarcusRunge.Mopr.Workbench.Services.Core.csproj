@@ -7,7 +7,7 @@
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Core</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Core</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.2" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
   </ItemGroup>
 

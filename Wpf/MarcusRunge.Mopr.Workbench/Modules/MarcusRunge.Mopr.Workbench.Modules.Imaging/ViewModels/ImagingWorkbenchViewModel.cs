@@ -21,15 +21,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool _isSeriesPaneVisible = true;
         private SeriesInfo? _selectedSeries;
         private StudyInfo? _selectedStudy;
+        private DelegateCommand? _toggleSeriesPaneCommand, _togglePropertiesPaneCommand;
 
         public ImagingWorkbenchViewModel(ICore core)
         {
             _core = core;
 
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
-
-            ToggleSeriesPaneCommand = new DelegateCommand(ToggleSeriesPane);
-            TogglePropertiesPaneCommand = new DelegateCommand(TogglePropertiesPane);
 
             ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
@@ -100,9 +98,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public GridLength SeriesPaneWidth => IsSeriesPaneVisible ? new GridLength(DefaultSeriesPaneWidth) : new GridLength(CollapsedPaneWidth);
-        public DelegateCommand TogglePropertiesPaneCommand { get; }
 
-        public DelegateCommand ToggleSeriesPaneCommand { get; }
+        public DelegateCommand TogglePropertiesPaneCommand => _togglePropertiesPaneCommand ??= new DelegateCommand(TogglePropertiesPane);
+
+        public DelegateCommand ToggleSeriesPaneCommand => _toggleSeriesPaneCommand ??= new DelegateCommand(ToggleSeriesPane);
 
         public override void Destroy()
         {

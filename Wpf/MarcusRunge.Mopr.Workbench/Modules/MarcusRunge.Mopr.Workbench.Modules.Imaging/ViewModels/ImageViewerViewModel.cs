@@ -31,13 +31,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
         private string _activeViewportId = "Single.Main";
+        private DelegateCommand<string?>? _clearViewportCommand, _selectViewportCommand, _windowLevelDragCompletedCommand, _windowLevelDragStartedCommand;
         private string? _currentFileName, _currentFilePath, _windowLevelDragViewportId;
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1, _sliceCount = 1;
         private CancellationTokenSource? _imageLoadCancellationTokenSource;
         private bool _isSynchronizingSelectionFromViewport;
+        private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
+        private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand;
+        private DelegateCommand<MouseWheelEventArgs?>? _mouseWheelCommand;
+        private DelegateCommand<ViewportPixelHoverInfo?>? _pixelHoverCommand;
         private SeriesInfo? _selectedSeries;
+        private DelegateCommand<ViewportWindowLevelDragInfo?>? _windowLevelDragCommand;
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
 
         public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom)
@@ -64,16 +70,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
             _core.ImagingService!.ImagingWindowLevelService!.WindowLevelChanged += OnWindowLevelChanged;
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
-
-            ClearViewportCommand = new DelegateCommand<string?>(ClearViewport);
-            KeyDownCommand = new DelegateCommand<KeyEventArgs?>(OnKeyDown);
-            MeasurementPointCommand = new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPoint);
-            MouseWheelCommand = new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
-            PixelHoverCommand = new DelegateCommand<ViewportPixelHoverInfo?>(OnPixelHover);
-            SelectViewportCommand = new DelegateCommand<string?>(SelectViewport);
-            WindowLevelDragCommand = new DelegateCommand<ViewportWindowLevelDragInfo?>(OnWindowLevelDrag);
-            WindowLevelDragCompletedCommand = new DelegateCommand<string?>(OnWindowLevelDragCompleted);
-            WindowLevelDragStartedCommand = new DelegateCommand<string?>(OnWindowLevelDragStarted);
 
             SingleMainViewport = RegisterViewport("Single.Main", Resources.Viewer_ViewPort_Single_Main);
 
@@ -164,7 +160,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel AscSagittalViewport { get; }
 
-        public DelegateCommand<string?> ClearViewportCommand { get; }
+        public DelegateCommand<string?> ClearViewportCommand => _clearViewportCommand ??= new DelegateCommand<string?>(ClearViewport);
 
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.Viewer_File}: -" : $"{Resources.Viewer_File}: {CurrentFileName}";
 
@@ -269,13 +265,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
 
-        public DelegateCommand<KeyEventArgs?> KeyDownCommand { get; }
+        public DelegateCommand<KeyEventArgs?> KeyDownCommand => _keyDownCommand ??= new DelegateCommand<KeyEventArgs?>(OnKeyDown);
 
         public string MeasurementDisplayText => GetActiveViewportTile()?.MeasurementDisplayText ?? Resources.Status_MeasurementEmpty;
 
-        public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPointCommand { get; }
+        public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPointCommand => _measurementPointCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPoint);
 
-        public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand { get; }
+        public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand => _mouseWheelCommand ??= new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
 
         public ViewportTileViewModel MprAxialViewport { get; }
 
@@ -287,7 +283,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string PixelDisplayText => GetActiveViewportTile()?.CurrentPixelDisplayText ?? $"{Resources.Viewer_Pixel}: -";
 
-        public DelegateCommand<ViewportPixelHoverInfo?> PixelHoverCommand { get; }
+        public DelegateCommand<ViewportPixelHoverInfo?> PixelHoverCommand => _pixelHoverCommand ??= new DelegateCommand<ViewportPixelHoverInfo?>(OnPixelHover);
 
         public SeriesInfo? SelectedSeries
         {
@@ -302,7 +298,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public DelegateCommand<string?> SelectViewportCommand { get; }
+        public DelegateCommand<string?> SelectViewportCommand => _selectViewportCommand ??= new DelegateCommand<string?>(SelectViewport);
 
         public ViewportTileViewModel SingleMainViewport { get; }
 
@@ -334,11 +330,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string WindowDisplayText => GetActiveViewportTile()?.WindowDisplayText ?? $"{Resources.Viewer_WindowLevel}: {Resources.Viewer_Default}";
 
-        public DelegateCommand<ViewportWindowLevelDragInfo?> WindowLevelDragCommand { get; }
+        public DelegateCommand<ViewportWindowLevelDragInfo?> WindowLevelDragCommand => _windowLevelDragCommand ??= new DelegateCommand<ViewportWindowLevelDragInfo?>(OnWindowLevelDrag);
 
-        public DelegateCommand<string?> WindowLevelDragCompletedCommand { get; }
+        public DelegateCommand<string?> WindowLevelDragCompletedCommand => _windowLevelDragCompletedCommand ??= new DelegateCommand<string?>(OnWindowLevelDragCompleted);
 
-        public DelegateCommand<string?> WindowLevelDragStartedCommand { get; }
+        public DelegateCommand<string?> WindowLevelDragStartedCommand => _windowLevelDragStartedCommand ??= new DelegateCommand<string?>(OnWindowLevelDragStarted);
 
         public string ZoomDisplayText => $"{ZoomFactor:P0}";
 

@@ -16,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly ICore _core;
         private readonly IWpf _wpf;
         private ImagingTool _activeTool;
+        private DelegateCommand? _boneWindowCommand, _brainWindowCommand, _cancelOpenCommand, _crosshairCommand, _layoutCommand, _lungWindowCommand, _measureCommand, _mediastinumWindowCommand, _moreCommand, _openCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
         private bool _isBusy;
         private CancellationTokenSource? _openCancellationTokenSource;
@@ -31,22 +32,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
-
-            BoneWindowCommand = new DelegateCommand(ApplyBoneWindow);
-            BrainWindowCommand = new DelegateCommand(ApplyBrainWindow);
-            CancelOpenCommand = new DelegateCommand(CancelOpen, () => IsBusy);
-            CrosshairCommand = new DelegateCommand(ActivateCrosshair);
-            LayoutCommand = new DelegateCommand(ChangeLayout);
-            LungWindowCommand = new DelegateCommand(ApplyLungWindow);
-            MeasureCommand = new DelegateCommand(ActivateMeasure);
-            MediastinumWindowCommand = new DelegateCommand(ApplyMediastinumWindow);
-            MoreCommand = new DelegateCommand(OpenMoreMenu);
-            OpenCommand = new DelegateCommand(async () => await OpenAsync(), () => !IsBusy);
-            PanCommand = new DelegateCommand(ActivatePan);
-            ResetViewCommand = new DelegateCommand(ResetView);
-            ResetWindowLevelToDefaultCommand = new DelegateCommand(ResetWindowLevelToDefault);
-            WindowLevelCommand = new DelegateCommand(ActivateWindowLevel);
-            ZoomCommand = new DelegateCommand(ActivateZoom);
         }
 
         public ImagingTool ActiveTool
@@ -65,10 +50,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public DelegateCommand BoneWindowCommand { get; }
-        public DelegateCommand BrainWindowCommand { get; }
-        public DelegateCommand CancelOpenCommand { get; }
-        public DelegateCommand CrosshairCommand { get; }
+        public DelegateCommand BoneWindowCommand => _boneWindowCommand ??= new DelegateCommand(ApplyBoneWindow);
+
+        public DelegateCommand BrainWindowCommand => _brainWindowCommand ??= new DelegateCommand(ApplyBrainWindow);
+
+        public DelegateCommand CancelOpenCommand => _cancelOpenCommand ??= new DelegateCommand(CancelOpen, CanCancelOpen);
+
+        public DelegateCommand CrosshairCommand => _crosshairCommand ??= new DelegateCommand(ActivateCrosshair);
 
         public ImagingLayout CurrentLayout
         {
@@ -76,7 +64,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             private set
             {
                 if (SetProperty(ref _currentLayout, value))
-                {                    
+                {
                 }
             }
         }
@@ -90,8 +78,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _isBusy, value))
                 {
-                    OpenCommand.RaiseCanExecuteChanged();
-                    CancelOpenCommand.RaiseCanExecuteChanged();
+                    _openCommand?.RaiseCanExecuteChanged();
+                    _cancelOpenCommand?.RaiseCanExecuteChanged();
                     RaisePropertyChanged(nameof(OpenButtonText));
                     RaisePropertyChanged(nameof(IsCancelVisible));
                 }
@@ -104,23 +92,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
-        public DelegateCommand LayoutCommand { get; }
+        public DelegateCommand LayoutCommand => _layoutCommand ??= new DelegateCommand(ChangeLayout);
 
-        public DelegateCommand LungWindowCommand { get; }
-        public DelegateCommand MeasureCommand { get; }
-        public DelegateCommand MediastinumWindowCommand { get; }
+        public DelegateCommand LungWindowCommand => _lungWindowCommand ??= new DelegateCommand(ApplyLungWindow);
 
-        public DelegateCommand MoreCommand { get; }
+        public DelegateCommand MeasureCommand => _measureCommand ??= new DelegateCommand(ActivateMeasure);
+
+        public DelegateCommand MediastinumWindowCommand => _mediastinumWindowCommand ??= new DelegateCommand(ApplyMediastinumWindow);
+
+        public DelegateCommand MoreCommand => _moreCommand ??= new DelegateCommand(OpenMoreMenu);
 
         public string OpenButtonText => IsBusy ? Resources.CommandBar_Load : Resources.CommandBar_Open;
 
-        public DelegateCommand OpenCommand { get; }
+        public DelegateCommand OpenCommand => _openCommand ??= new DelegateCommand(async () => await OpenAsync(), CanOpen);
 
-        public DelegateCommand PanCommand { get; }
+        public DelegateCommand PanCommand => _panCommand ??= new DelegateCommand(ActivatePan);
 
-        public DelegateCommand ResetViewCommand { get; }
+        public DelegateCommand ResetViewCommand => _resetViewCommand ??= new DelegateCommand(ResetView);
 
-        public DelegateCommand ResetWindowLevelToDefaultCommand { get; }
+        public DelegateCommand ResetWindowLevelToDefaultCommand => _resetWindowLevelToDefaultCommand ??= new DelegateCommand(ResetWindowLevelToDefault);
 
         public string StatusText
         {
@@ -134,9 +124,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public DelegateCommand WindowLevelCommand { get; }
+        public DelegateCommand WindowLevelCommand => _windowLevelCommand ??= new DelegateCommand(ActivateWindowLevel);
 
-        public DelegateCommand ZoomCommand { get; }
+        public DelegateCommand ZoomCommand => _zoomCommand ??= new DelegateCommand(ActivateZoom);
 
         public override void Destroy()
         {
@@ -172,6 +162,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ApplyMediastinumWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 40, windowWidth: 400);
 
+        private bool CanCancelOpen() => IsBusy;
+
         private void CancelOpen()
         {
             if (_openCancellationTokenSource == null)
@@ -182,6 +174,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             StatusText = Resources.CommandBar_Canceling;
             _openCancellationTokenSource.Cancel();
         }
+
+        private bool CanOpen() => !IsBusy;
 
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
