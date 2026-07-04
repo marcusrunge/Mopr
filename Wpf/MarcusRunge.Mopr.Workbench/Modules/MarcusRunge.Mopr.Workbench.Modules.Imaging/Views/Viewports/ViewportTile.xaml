@@ -1,13 +1,17 @@
 ﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports.ViewportTile"
+             xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"             
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:ViewportTileViewModel}">
-
+    <i:Interaction.Behaviors>
+        <behaviors:ViewportInteractionBehavior />
+    </i:Interaction.Behaviors>
     <UserControl.Resources>
         <Style x:Key="ViewportBorderStyle"
                TargetType="Border">
@@ -26,11 +30,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource ViewportBorderStyle}"
-            PreviewMouseLeftButtonDown="OnViewportPreviewMouseLeftButtonDown"
-            PreviewMouseMove="OnViewportPreviewMouseMove"
-            PreviewMouseLeftButtonUp="OnViewportPreviewMouseLeftButtonUp"
-            MouseLeave="OnViewportMouseLeave"
+    <Border Style="{StaticResource ViewportBorderStyle}"          
             Tag="{Binding ViewportId, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Border.ContextMenu>
             <ContextMenu>
@@ -77,6 +77,8 @@
             <Grid x:Name="ViewportImageHost"
                   Grid.Row="1"
                   Background="#020405">
+
+             
 
                 <Grid.Style>
                     <Style TargetType="{x:Type Grid}">
