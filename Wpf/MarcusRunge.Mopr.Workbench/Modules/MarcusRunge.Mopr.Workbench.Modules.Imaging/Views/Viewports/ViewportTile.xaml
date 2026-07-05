@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"             
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
+             xmlns:viewports="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              mc:Ignorable="d"
@@ -76,9 +77,7 @@
 
             <Grid x:Name="ViewportImageHost"
                   Grid.Row="1"
-                  Background="#020405">
-
-             
+                  Background="#020405">             
 
                 <Grid.Style>
                     <Style TargetType="{x:Type Grid}">
@@ -97,57 +96,12 @@
                 <Image x:Name="ViewportImage"
                        Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Stretch="Uniform"
-                       SizeChanged="OnViewportImageSizeChanged"
                        RenderOptions.BitmapScalingMode="HighQuality" />
 
-                <Canvas x:Name="MeasurementOverlayCanvas"
-                        IsHitTestVisible="False"
-                        Visibility="Collapsed"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch">
 
-                    <Line x:Name="MeasurementLine"
-                          Stroke="#60E1EB"
-                          StrokeThickness="1.5"
-                          SnapsToDevicePixels="True" />
-
-                    <Ellipse x:Name="MeasurementFirstPoint"
-                             Width="8"
-                             Height="8"
-                             Stroke="#60E1EB"
-                             StrokeThickness="1.5"
-                             Fill="#2600E5FF"
-                             RenderTransformOrigin="0.5,0.5">
-                        <Ellipse.RenderTransform>
-                            <TranslateTransform X="-4" Y="-4"/>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
-
-                    <Ellipse x:Name="MeasurementSecondPoint"
-                             Width="8"
-                             Height="8"
-                             Stroke="#60E1EB"
-                             StrokeThickness="1.5"
-                             Fill="#2600E5FF"
-                             RenderTransformOrigin="0.5,0.5">
-                        <Ellipse.RenderTransform>
-                            <TranslateTransform X="-4" Y="-4"/>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
-
-                    <Border x:Name="MeasurementLabelBorder"
-                            Background="#CC10161C"
-                            BorderBrush="#60E1EB"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Padding="5,2">
-
-                        <TextBlock x:Name="MeasurementLabelTextBlock"
-                                   Foreground="#DDE5EC"
-                                   FontSize="11"
-                                   FontWeight="SemiBold" />
-                    </Border>
-                </Canvas>
+                <viewports:MeasurementOverlayControl Tile="{Binding Tile, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch" />
 
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"

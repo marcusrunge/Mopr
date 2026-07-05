@@ -40,6 +40,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool _isSynchronizingSelectionFromViewport;
         private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
         private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand;
+        private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPreviewCommand;
         private DelegateCommand<MouseWheelEventArgs?>? _mouseWheelCommand;
         private DelegateCommand<ViewportPixelHoverInfo?>? _pixelHoverCommand;
         private SeriesInfo? _selectedSeries;
@@ -250,27 +251,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public bool HasSeriesFiles => ActiveSeriesFiles.Count > 0;
-
         public bool IsAxialSagittalCoronalLayoutVisible => CurrentLayout == ImagingLayout.AxialSagittalCoronal;
-
         public bool IsEmptyViewerVisible => CurrentImage == null;
-
         public bool IsMeasureActive => ActiveTool == ImagingTool.Measure;
-
         public bool IsMprLayoutVisible => CurrentLayout == ImagingLayout.Mpr;
-
         public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
-
         public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
-
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
-
         public DelegateCommand<KeyEventArgs?> KeyDownCommand => _keyDownCommand ??= new DelegateCommand<KeyEventArgs?>(OnKeyDown);
-
         public string MeasurementDisplayText => GetActiveViewportTile()?.MeasurementDisplayText ?? Resources.Status_MeasurementEmpty;
-
         public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPointCommand => _measurementPointCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPoint);
-
+        public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPreviewCommand => _measurementPreviewCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPreview);
         public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand => _mouseWheelCommand ??= new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
 
         public ViewportTileViewModel MprAxialViewport { get; }
@@ -757,7 +748,44 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            tile.AddMeasurementPoint(pointInfo.ImageX, pointInfo.ImageY);
+            tile.BeginOrCompleteMeasurement(pointInfo.ImageX, pointInfo.ImageY);
+
+            if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
+            {
+                RaisePropertyChanged(nameof(MeasurementDisplayText));
+            }
+        }
+
+        private void OnMeasurementPreview(ViewportMeasurementPointInfo? pointInfo)
+        {
+            if (pointInfo == null || string.IsNullOrWhiteSpace(pointInfo.ViewportId))
+            {
+                return;
+            }
+
+            if (ActiveTool != ImagingTool.Measure)
+            {
+                return;
+            }
+
+            if (!_viewportTiles.TryGetValue(pointInfo.ViewportId, out var tile))
+            {
+                return;
+            }
+
+            var frame = tile.CurrentDicomFrame;
+
+            if (frame == null)
+            {
+                return;
+            }
+
+            if (pointInfo.ImageX < 0 || pointInfo.ImageY < 0 || pointInfo.ImageX >= frame.Width || pointInfo.ImageY >= frame.Height)
+            {
+                return;
+            }
+
+            tile.UpdateMeasurementDraft(pointInfo.ImageX, pointInfo.ImageY);
 
             if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
             {

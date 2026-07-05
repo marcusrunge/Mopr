@@ -447,4 +447,7 @@
   <data name="Measurement_LabelPixelFormat" xml:space="preserve">
     <value>{0:0.0} px</value>
   </data>
+  <data name="Measurement_DraftLabel" xml:space="preserve">
+    <value>Measuring...</value>
+  </data>
 </root>

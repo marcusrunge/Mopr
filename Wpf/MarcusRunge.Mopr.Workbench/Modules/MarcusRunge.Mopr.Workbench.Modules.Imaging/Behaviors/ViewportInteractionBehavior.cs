@@ -160,6 +160,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
         {
             ReportPixelHover(e);
 
+            if (AssociatedObject.IsMeasureActive)
+            {
+                var previewPointInfo = TryCreateMeasurementPointInfo(e);
+
+                if (previewPointInfo != null && AssociatedObject.MeasurementPreviewCommand?.CanExecute(previewPointInfo) == true)
+                {
+                    AssociatedObject.MeasurementPreviewCommand.Execute(previewPointInfo);
+                }
+            }
+
             if (!_isWindowLevelDragging)
             {
                 return;

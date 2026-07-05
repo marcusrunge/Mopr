@@ -9,17 +9,18 @@
         <!-- Single Layout -->
         <Grid Visibility="{Binding IsSingleLayoutVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <viewports:ViewportTile Tile="{Binding SingleMainViewport}"
-                        ViewportId="{Binding SingleMainViewport.ViewportId}"
-                        ActiveViewportId="{Binding ActiveViewportId}"
-                        SelectViewportCommand="{Binding SelectViewportCommand}"
-                        ClearViewportCommand="{Binding ClearViewportCommand}"
-                        IsWindowLevelActive="{Binding IsWindowLevelActive}"
-                        WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
-                        WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
-                        WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
-                        PixelHoverCommand="{Binding PixelHoverCommand}"
-                        IsMeasureActive="{Binding IsMeasureActive}"
-                        MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    ViewportId="{Binding SingleMainViewport.ViewportId}"
+                                    ActiveViewportId="{Binding ActiveViewportId}"
+                                    SelectViewportCommand="{Binding SelectViewportCommand}"
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"
+                                    IsWindowLevelActive="{Binding IsWindowLevelActive}"
+                                    IsMeasureActive="{Binding IsMeasureActive}"
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"
+                                    WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
+                                    WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
+                                    WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" />
         </Grid>
 
         <!-- 2 x 2 Layout -->
@@ -49,7 +50,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -64,7 +66,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -79,7 +82,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -94,7 +98,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"/>  
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>  
         </Grid>
 
         <!-- MPR Layout -->
@@ -124,7 +129,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"/>
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="0"
                                     Grid.Column="2"
@@ -139,7 +145,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"/>
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="0"
@@ -154,7 +161,8 @@
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
                                     PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"/>
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}"/>
 
             <viewports:ViewportTile Grid.Row="2"
                                     Grid.Column="2"
@@ -163,9 +171,7 @@
                                     IsInteractive="False"
                                     ActiveViewportId="{Binding ActiveViewportId}"
                                     SelectViewportCommand="{Binding SelectViewportCommand}"
-                                    ClearViewportCommand="{Binding ClearViewportCommand}"
-                                    IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    ClearViewportCommand="{Binding ClearViewportCommand}"/>
         </Grid>
 
         <!-- Axial / Sagittal / Coronal Layout -->
@@ -188,8 +194,10 @@
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}" />
 
             <viewports:ViewportTile Grid.Column="2"
                                     Tile="{Binding AscSagittalViewport}"
@@ -201,8 +209,10 @@
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}" 
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}" />
 
             <viewports:ViewportTile Grid.Column="4"
                                     Tile="{Binding AscCoronalViewport}"
@@ -214,8 +224,10 @@
                                     WindowLevelDragStartedCommand="{Binding WindowLevelDragStartedCommand}"
                                     WindowLevelDragCommand="{Binding WindowLevelDragCommand}"
                                     WindowLevelDragCompletedCommand="{Binding WindowLevelDragCompletedCommand}"
+                                    PixelHoverCommand="{Binding PixelHoverCommand}"
                                     IsMeasureActive="{Binding IsMeasureActive}"
-                                    MeasurementPointCommand="{Binding MeasurementPointCommand}" />
+                                    MeasurementPointCommand="{Binding MeasurementPointCommand}"
+                                    MeasurementPreviewCommand="{Binding MeasurementPreviewCommand}" />
         </Grid>
     </Grid>
 </UserControl>

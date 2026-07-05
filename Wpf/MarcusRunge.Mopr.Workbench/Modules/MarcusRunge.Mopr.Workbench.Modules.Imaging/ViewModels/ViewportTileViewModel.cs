@@ -4,6 +4,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Media;
 
@@ -11,7 +12,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel(string viewportId, string title) : ViewModelBase
     {
-        private readonly ViewportMeasurementState _measurementState = new();
+
+        private ViewportMeasurementViewModel? _activeMeasurementDraft;
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
         private ImageSource? _currentImage;
@@ -21,6 +23,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth, _currentPixelValue;
 
+
+        public ViewportMeasurementViewModel? ActiveMeasurementDraft
+        {
+            get => _activeMeasurementDraft;
+            private set
+            {
+                if (SetProperty(ref _activeMeasurementDraft, value))
+                {
+                    RaisePropertyChanged(nameof(MeasurementDisplayText));
+                }
+            }
+        }
+
         public DicomImageFrame? CurrentDicomFrame
         {
             get => _currentDicomFrame;
@@ -28,20 +43,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.ViewportTile_File}: -" : $"{Resources.ViewportTile_File}: {CurrentFileName}";
-        public string MeasurementOverlayLabelText
-        {
-            get
-            {
-                var distancePixels = MeasurementState.DistancePixels;
 
-                if (!distancePixels.HasValue)
-                {
-                    return string.Empty;
-                }
-
-                return string.Format(Resources.Measurement_LabelPixelFormat, distancePixels.Value);
-            }
-        }
         public string? CurrentFileName
         {
             get => _currentFileName;
@@ -155,18 +157,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             get
             {
-                var distancePixels = MeasurementState.DistancePixels;
+                var lastMeasurement = Measurements.Count > 0 ? Measurements[^1] : null;
 
-                if (!distancePixels.HasValue)
+                if (lastMeasurement?.DistancePixels == null)
                 {
                     return Resources.Status_MeasurementEmpty;
                 }
 
-                return string.Format(Resources.Status_MeasurementPixelFormat, distancePixels.Value);
+                return string.Format(Resources.Status_MeasurementPixelFormat, lastMeasurement.DistancePixels.Value);
             }
         }
 
-        public ViewportMeasurementState MeasurementState => _measurementState;
+        public ObservableCollection<ViewportMeasurementViewModel> Measurements { get; } = [];
 
         public SeriesInfo? Series
         {
@@ -238,15 +240,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-
-        public void AddMeasurementPoint(double imageX, double imageY)
+        public void BeginOrCompleteMeasurement(double imageX, double imageY)
         {
-            MeasurementState.SetNextPoint(imageX, imageY);
+            if (ActiveMeasurementDraft == null)
+            {
+                ActiveMeasurementDraft = new ViewportMeasurementViewModel(
+                    imageX,
+                    imageY);
 
-            RaisePropertyChanged(nameof(MeasurementDisplayText));
-            RaisePropertyChanged(nameof(MeasurementOverlayLabelText));
+                RaiseMeasurementPropertiesChanged();
+
+                return;
+            }
+
+            ActiveMeasurementDraft.Complete(
+                imageX,
+                imageY);
+
+            Measurements.Add(ActiveMeasurementDraft);
+
+            ActiveMeasurementDraft = null;
+
+            RaiseMeasurementPropertiesChanged();
         }
-
 
         public void ClearCurrentPixel()
         {
@@ -255,11 +271,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentPixelValue = null;
         }
 
-        public void ClearMeasurement()
+        public void ClearMeasurements()
         {
-            MeasurementState.Clear();
-            RaisePropertyChanged(nameof(MeasurementDisplayText));
-            RaisePropertyChanged(nameof(MeasurementOverlayLabelText));
+            Measurements.Clear();
+            ActiveMeasurementDraft = null;
+
+            RaiseMeasurementPropertiesChanged();
         }
 
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
@@ -279,7 +296,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
         {
-            ClearMeasurement();
+            ClearMeasurements();
             ClearCurrentPixel();
 
             Series = series;
@@ -322,7 +339,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 CurrentImage = null;
 
                 ClearCurrentPixel();
-                ClearMeasurement();
+                ClearMeasurements();
             }
 
             CurrentSlice = slice;
@@ -334,6 +351,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             WindowCenter = windowCenter;
             WindowWidth = windowWidth;
+        }
+
+        public void UpdateMeasurementDraft(double imageX, double imageY)
+        {
+            if (ActiveMeasurementDraft == null)
+            {
+                return;
+            }
+
+            ActiveMeasurementDraft.SetPreviewEndPoint(imageX, imageY);
+
+            RaiseMeasurementPropertiesChanged();
+        }
+
+        private void RaiseMeasurementPropertiesChanged()
+        {
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
+            RaisePropertyChanged(nameof(ActiveMeasurementDraft));
+            RaisePropertyChanged(nameof(Measurements));
         }
 
         private void UpdateCurrentFile()

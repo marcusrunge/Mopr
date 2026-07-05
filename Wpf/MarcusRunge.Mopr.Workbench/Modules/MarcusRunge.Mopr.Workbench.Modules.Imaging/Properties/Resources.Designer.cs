@@ -250,6 +250,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measuring... ähnelt.
+        /// </summary>
+        public static string Measurement_DraftLabel {
+            get {
+                return ResourceManager.GetString("Measurement_DraftLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die {0:0.0} px ähnelt.
         /// </summary>
         public static string Measurement_LabelPixelFormat {
