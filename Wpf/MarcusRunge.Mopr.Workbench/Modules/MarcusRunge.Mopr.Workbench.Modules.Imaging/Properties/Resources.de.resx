@@ -126,9 +126,6 @@
   <data name="WindowLevel_CtLung" xml:space="preserve">
     <value>CT Lunge</value>
   </data>
-  <data name="CommandBar_WindowLevel" xml:space="preserve">
-    <value>Fensterung</value>
-  </data>
   <data name="Workbench_Properties" xml:space="preserve">
     <value>Eigenschaften</value>
   </data>
@@ -150,8 +147,8 @@
   <data name="WindowLevel_CtBrain" xml:space="preserve">
     <value>CT Gehirn</value>
   </data>
-  <data name="WindowLevel_Default" xml:space="preserve">
-    <value>Fensterung Standard</value>
+  <data name="WindowLevel_ResetToDefault" xml:space="preserve">
+    <value>W/L Standard</value>
   </data>
   <data name="CommandBar_Zoom" xml:space="preserve">
     <value>Zoom</value>
@@ -449,5 +446,8 @@
   </data>
   <data name="Measurement_DraftLabel" xml:space="preserve">
     <value>Messung...</value>
+  </data>
+  <data name="WindowLevel_Presets" xml:space="preserve">
+    <value>W/L Presets</value>
   </data>
 </root>

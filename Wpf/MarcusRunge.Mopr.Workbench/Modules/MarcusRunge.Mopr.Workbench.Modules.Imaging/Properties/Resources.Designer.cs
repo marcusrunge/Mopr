@@ -232,15 +232,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Window level ähnelt.
-        /// </summary>
-        public static string CommandBar_WindowLevel {
-            get {
-                return ResourceManager.GetString("CommandBar_WindowLevel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Zoom ähnelt.
         /// </summary>
         public static string CommandBar_Zoom {
@@ -988,11 +979,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die W/L Presets ähnelt.
+        /// </summary>
+        public static string WindowLevel_Presets {
+            get {
+                return ResourceManager.GetString("WindowLevel_Presets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die W/L Default ähnelt.
         /// </summary>
-        public static string WindowLevel_Default {
+        public static string WindowLevel_ResetToDefault {
             get {
-                return ResourceManager.GetString("WindowLevel_Default", resourceCulture);
+                return ResourceManager.GetString("WindowLevel_ResetToDefault", resourceCulture);
             }
         }
         

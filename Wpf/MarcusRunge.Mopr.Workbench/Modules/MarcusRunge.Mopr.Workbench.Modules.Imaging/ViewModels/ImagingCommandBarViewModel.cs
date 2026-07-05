@@ -16,7 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly ICore _core;
         private readonly IWpf _wpf;
         private ImagingTool _activeTool;
-        private DelegateCommand? _boneWindowCommand, _brainWindowCommand, _cancelOpenCommand, _crosshairCommand, _layoutCommand, _lungWindowCommand, _measureCommand, _mediastinumWindowCommand, _moreCommand, _openCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
+        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _cancelOpenCommand, _crosshairCommand, _layoutCommand, _applyCtLungWindowCommand, _measureCommand, _applyCtMediastinumWindowCommand, _moreCommand, _openCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
         private bool _isBusy;
         private CancellationTokenSource? _openCancellationTokenSource;
@@ -50,10 +50,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public DelegateCommand BoneWindowCommand => _boneWindowCommand ??= new DelegateCommand(ApplyBoneWindow);
-
-        public DelegateCommand BrainWindowCommand => _brainWindowCommand ??= new DelegateCommand(ApplyBrainWindow);
-
+        public DelegateCommand ApplyCtBoneWindowCommand => _applyCtBoneWindowCommand ??= new DelegateCommand(ApplyBoneWindow);
+        public DelegateCommand ApplyCtBrainWindowCommand => _applyCtBrainWindowCommand ??= new DelegateCommand(ApplyBrainWindow);
+        public DelegateCommand ApplyCtLungWindowCommand => _applyCtLungWindowCommand ??= new DelegateCommand(ApplyLungWindow);
+        public DelegateCommand ApplyCtMediastinumWindowCommand => _applyCtMediastinumWindowCommand ??= new DelegateCommand(ApplyMediastinumWindow);        
         public DelegateCommand CancelOpenCommand => _cancelOpenCommand ??= new DelegateCommand(CancelOpen, CanCancelOpen);
 
         public DelegateCommand CrosshairCommand => _crosshairCommand ??= new DelegateCommand(ActivateCrosshair);
@@ -87,18 +87,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public bool IsCancelVisible => IsBusy;
+
         public bool IsCrosshairActive => ActiveTool == ImagingTool.Crosshair;
+
         public bool IsMeasureActive => ActiveTool == ImagingTool.Measure;
+
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
+
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
+
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
+
         public DelegateCommand LayoutCommand => _layoutCommand ??= new DelegateCommand(ChangeLayout);
 
-        public DelegateCommand LungWindowCommand => _lungWindowCommand ??= new DelegateCommand(ApplyLungWindow);
-
         public DelegateCommand MeasureCommand => _measureCommand ??= new DelegateCommand(ActivateMeasure);
-
-        public DelegateCommand MediastinumWindowCommand => _mediastinumWindowCommand ??= new DelegateCommand(ApplyMediastinumWindow);
 
         public DelegateCommand MoreCommand => _moreCommand ??= new DelegateCommand(OpenMoreMenu);
 

@@ -12,6 +12,59 @@
              prism:ViewModelLocator.AutoWireViewModel="True">
     <UserControl.Resources>
         <loc:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+        <Style x:Key="CommandBarDropDownButtonStyle"
+       TargetType="Button">
+            <Setter Property="Background"
+            Value="Transparent" />
+            <Setter Property="Foreground"
+            Value="#DDE5EC" />
+            <Setter Property="BorderThickness"
+            Value="0" />
+            <Setter Property="HorizontalContentAlignment"
+            Value="Left" />
+            <Setter Property="Padding"
+            Value="10,6" />
+            <Setter Property="MinWidth"
+            Value="160" />
+            <Setter Property="Cursor"
+            Value="Hand" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="4"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                             Value="True">
+                                <Setter TargetName="Root"
+                                Property="Background"
+                                Value="#1B2730" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed"
+                             Value="True">
+                                <Setter TargetName="Root"
+                                Property="Background"
+                                Value="#22333D" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled"
+                             Value="False">
+                                <Setter Property="Opacity"
+                                Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     
     <Grid Margin="12,0">
@@ -36,33 +89,64 @@
                     Margin="0,0,8,0"/>
 
             <Button Content="{Binding CurrentLayout, Converter={StaticResource EnumDescriptionValueConverter}}"
-                Command="{Binding LayoutCommand}"
-                Margin="0,0,8,0"/>
-
-            <ToggleButton Content="{x:Static properties:Resources.CommandBar_WindowLevel}"
-              Command="{Binding WindowLevelCommand}"
-              IsChecked="{Binding IsWindowLevelActive, Mode=OneWay}"
-              Margin="0,0,8,0"/>
-
-            <Button Content="{x:Static properties:Resources.WindowLevel_CtLung}"
-                    Command="{Binding LungWindowCommand}"
+                    Command="{Binding LayoutCommand}"
                     Margin="0,0,8,0"/>
 
-            <Button Content="{x:Static properties:Resources.WindowLevel_CtMediastinum}"
-                    Command="{Binding MediastinumWindowCommand}"
-                    Margin="0,0,8,0"/>
+            <ToggleButton x:Name="WindowLevelPresetsToggleButton" 
+                          IsChecked="{Binding IsOpen, ElementName=WindowLevelPresetsPopup, Mode=TwoWay}"
+                          Margin="0,0,8,0"
+                          MinWidth="108">
 
-            <Button Content="{x:Static properties:Resources.WindowLevel_CtBone}"
-                    Command="{Binding BoneWindowCommand}"
-                    Margin="0,0,8,0"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Static properties:Resources.WindowLevel_Presets}" />
+                    <TextBlock Text="▾"
+                               Margin="6,0,0,0" />
+                </StackPanel>
+            </ToggleButton>
 
-            <Button Content="{x:Static properties:Resources.WindowLevel_CtBrain}"
-                    Command="{Binding BrainWindowCommand}"
-                    Margin="0,0,8,0"/>
+            <Popup x:Name="WindowLevelPresetsPopup"
+                   PlacementTarget="{Binding ElementName=WindowLevelPresetsToggleButton}"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   PopupAnimation="Fade">
 
-            <Button Content="{x:Static properties:Resources.WindowLevel_Default}"
-                    Command="{Binding ResetWindowLevelToDefaultCommand}"
-                    Margin="0,0,8,0"/>
+                <Border Background="#10161C"
+                        BorderBrush="#2A3944"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="4"
+                        MinWidth="180">
+
+                    <StackPanel>
+
+                        <Button Content="{x:Static properties:Resources.WindowLevel_CtLung}"
+                                Command="{Binding ApplyCtLungWindowCommand}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Button Content="{x:Static properties:Resources.WindowLevel_CtMediastinum}"
+                                Command="{Binding ApplyCtMediastinumWindowCommand}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Button Content="{x:Static properties:Resources.WindowLevel_CtBone}"
+                                Command="{Binding ApplyCtBoneWindowCommand}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Button Content="{x:Static properties:Resources.WindowLevel_CtBrain}"
+                                Command="{Binding ApplyCtBrainWindowCommand}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Border Height="1"
+                                Background="#2A3944"
+                                Margin="4,4" />
+
+                        <Button Content="{x:Static properties:Resources.WindowLevel_ResetToDefault}"
+                                Command="{Binding ResetWindowLevelToDefaultCommand}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                    </StackPanel>
+                </Border>
+            </Popup>
 
             <ToggleButton Content="{x:Static properties:Resources.CommandBar_Zoom}"
                           Command="{Binding ZoomCommand}"
