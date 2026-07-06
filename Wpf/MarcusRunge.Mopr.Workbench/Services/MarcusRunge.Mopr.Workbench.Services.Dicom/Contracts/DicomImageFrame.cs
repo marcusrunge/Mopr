@@ -13,7 +13,9 @@
             PhotometricInterpretation = photometricInterpretation;
             Modality = modality;
         }
+        public double? PixelSpacingX { get; set; }
 
+        public double? PixelSpacingY { get; set; }
         public double? DefaultWindowCenter { get; }
         public double? DefaultWindowWidth { get; }
         public string FilePath { get; }

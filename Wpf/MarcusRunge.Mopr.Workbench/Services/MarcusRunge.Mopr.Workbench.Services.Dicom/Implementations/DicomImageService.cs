@@ -65,10 +65,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
                 var defaultWindowWidth = GetDouble(dataset, DicomTag.WindowWidth);
 
                 var photometricInterpretation = GetString(dataset, DicomTag.PhotometricInterpretation);
-
                 var modality = GetString(dataset, DicomTag.Modality);
 
-                return new DicomImageFrame(filePath: filePath, width: width, height: height, values: values, defaultWindowCenter: defaultWindowCenter, defaultWindowWidth: defaultWindowWidth, photometricInterpretation: photometricInterpretation, modality: modality);
+                var pixelSpacing = GetPixelSpacing(dataset);
+
+                var imageFrame = new DicomImageFrame(filePath: filePath, width: width, height: height, values: values, defaultWindowCenter: defaultWindowCenter, defaultWindowWidth: defaultWindowWidth, photometricInterpretation: photometricInterpretation, modality: modality);
+
+                if (pixelSpacing.HasValue)
+                {
+                    imageFrame.PixelSpacingY = pixelSpacing.Value.RowSpacing;
+                    imageFrame.PixelSpacingX = pixelSpacing.Value.ColumnSpacing;
+                }
+
+                return imageFrame;
             }
             catch (OperationCanceledException)
             {
@@ -266,6 +275,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             return null;
         }
 
+        private static PixelSpacingInfo? GetPixelSpacing(DicomDataset dataset)
+        {
+            if (dataset.TryGetValues<double>(DicomTag.PixelSpacing, out var doubleValues) &&
+                doubleValues.Length >= 2 && doubleValues[0] > 0 && doubleValues[1] > 0)
+            {
+                return new PixelSpacingInfo(rowSpacing: doubleValues[0], columnSpacing: doubleValues[1]);
+            }
+
+            if (dataset.TryGetValues<float>(DicomTag.PixelSpacing, out var floatValues) && floatValues.Length >= 2 && floatValues[0] > 0 && floatValues[1] > 0)
+            {
+                return new PixelSpacingInfo(rowSpacing: floatValues[0], columnSpacing: floatValues[1]);
+            }
+
+            if (dataset.TryGetValues<decimal>(DicomTag.PixelSpacing, out var decimalValues) && decimalValues.Length >= 2 && decimalValues[0] > 0 && decimalValues[1] > 0)
+            {
+                return new PixelSpacingInfo(rowSpacing: (double)decimalValues[0], columnSpacing: (double)decimalValues[1]);
+            }
+
+            if (dataset.TryGetValues<string>(DicomTag.PixelSpacing, out var stringValues) && stringValues.Length >= 2 && double.TryParse(stringValues[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var rowSpacing) && double.TryParse(stringValues[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var columnSpacing) && rowSpacing > 0 && columnSpacing > 0)
+            {
+                return new PixelSpacingInfo(rowSpacing: rowSpacing, columnSpacing: columnSpacing);
+            }
+
+            return null;
+        }
+
         private static string? GetString(DicomDataset dataset, DicomTag tag)
         {
             if (dataset.TryGetSingleValue<string>(tag, out var value))
@@ -282,6 +317,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             {
                 pixels[i] = (byte)(255 - pixels[i]);
             }
+        }
+
+        private readonly struct PixelSpacingInfo
+        {
+            public PixelSpacingInfo(double rowSpacing, double columnSpacing)
+            {
+                RowSpacing = rowSpacing;
+                ColumnSpacing = columnSpacing;
+            }
+
+            public double ColumnSpacing { get; }
+            public double RowSpacing { get; }
         }
     }
 }

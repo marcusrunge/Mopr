@@ -6,10 +6,26 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportMeasurementViewModel(double startImageX, double startImageY) : ViewModelBase
     {
-        private double? _endImageX;
-        private double? _endImageY;
-        private double? _previewEndImageX;
-        private double? _previewEndImageY;
+        private double? _endImageX, _endImageY, _pixelSpacingX, _pixelSpacingY, _previewEndImageX, _previewEndImageY;
+
+        public double? DistanceMillimeters
+        {
+            get
+            {
+                if (!IsComplete || !HasPixelSpacing)
+                {
+                    return null;
+                }
+
+                return CalculatePhysicalDistance(
+                    StartImageX,
+                    StartImageY,
+                    EndImageX!.Value,
+                    EndImageY!.Value,
+                    PixelSpacingX!.Value,
+                    PixelSpacingY!.Value);
+            }
+        }
 
         public double? DistancePixels
         {
@@ -48,22 +64,76 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public bool HasPixelSpacing => PixelSpacingX.HasValue && PixelSpacingY.HasValue && PixelSpacingX.Value > 0 && PixelSpacingY.Value > 0;
+
         public bool HasPreviewEndPoint => PreviewEndImageX.HasValue && PreviewEndImageY.HasValue;
+
         public Guid Id { get; } = Guid.NewGuid();
 
         public bool IsComplete => EndImageX.HasValue && EndImageY.HasValue;
+
         public bool IsDraft => !IsComplete;
 
         public string LabelText
         {
             get
             {
-                if (!DistancePixels.HasValue)
+                if (DistanceMillimeters.HasValue)
                 {
-                    return string.Empty;
+                    return string.Format(Resources.Measurement_LabelMillimeterFormat, DistanceMillimeters.Value);
                 }
 
-                return string.Format(Resources.Measurement_LabelPixelFormat, DistancePixels.Value);
+                if (DistancePixels.HasValue)
+                {
+                    return string.Format(Resources.Measurement_LabelPixelFormat, DistancePixels.Value);
+                }
+
+                return string.Empty;
+            }
+        }
+
+        public double? PixelSpacingX
+        {
+            get => _pixelSpacingX;
+            private set
+            {
+                if (SetProperty(ref _pixelSpacingX, value))
+                {
+                    RaiseMeasurementPropertiesChanged();
+                    RaisePreviewPropertiesChanged();
+                }
+            }
+        }
+
+        public double? PixelSpacingY
+        {
+            get => _pixelSpacingY;
+            private set
+            {
+                if (SetProperty(ref _pixelSpacingY, value))
+                {
+                    RaiseMeasurementPropertiesChanged();
+                    RaisePreviewPropertiesChanged();
+                }
+            }
+        }
+
+        public double? PreviewDistanceMillimeters
+        {
+            get
+            {
+                if (!HasPreviewEndPoint || !HasPixelSpacing)
+                {
+                    return null;
+                }
+
+                return CalculatePhysicalDistance(
+                    StartImageX,
+                    StartImageY,
+                    PreviewEndImageX!.Value,
+                    PreviewEndImageY!.Value,
+                    PixelSpacingX!.Value,
+                    PixelSpacingY!.Value);
             }
         }
 
@@ -108,12 +178,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             get
             {
-                if (!PreviewDistancePixels.HasValue)
+                if (PreviewDistanceMillimeters.HasValue)
                 {
-                    return string.Empty;
+                    return string.Format(Resources.Measurement_LabelMillimeterFormat, PreviewDistanceMillimeters.Value);
                 }
 
-                return string.Format(Resources.Measurement_LabelPixelFormat, PreviewDistancePixels.Value);
+                if (PreviewDistancePixels.HasValue)
+                {
+                    return string.Format(Resources.Measurement_LabelPixelFormat, PreviewDistancePixels.Value);
+                }
+
+                return string.Empty;
             }
         }
 
@@ -133,6 +208,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePreviewPropertiesChanged();
         }
 
+        public void SetPixelSpacing(double? pixelSpacingX, double? pixelSpacingY)
+        {
+            PixelSpacingX = pixelSpacingX;
+            PixelSpacingY = pixelSpacingY;
+        }
+
         public void SetPreviewEndPoint(double imageX, double imageY)
         {
             PreviewEndImageX = imageX;
@@ -147,11 +228,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
+        private static double CalculatePhysicalDistance(double x1, double y1, double x2, double y2, double pixelSpacingX, double pixelSpacingY)
+        {
+            var dxMillimeters = (x2 - x1) * pixelSpacingX;
+            var dyMillimeters = (y2 - y1) * pixelSpacingY;
+
+            return Math.Sqrt(dxMillimeters * dxMillimeters + dyMillimeters * dyMillimeters);
+        }
+
         private void RaiseMeasurementPropertiesChanged()
         {
             RaisePropertyChanged(nameof(IsComplete));
             RaisePropertyChanged(nameof(IsDraft));
             RaisePropertyChanged(nameof(DistancePixels));
+            RaisePropertyChanged(nameof(DistanceMillimeters));
             RaisePropertyChanged(nameof(LabelText));
         }
 
@@ -159,6 +249,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             RaisePropertyChanged(nameof(HasPreviewEndPoint));
             RaisePropertyChanged(nameof(PreviewDistancePixels));
+            RaisePropertyChanged(nameof(PreviewDistanceMillimeters));
             RaisePropertyChanged(nameof(PreviewLabelText));
         }
     }

@@ -250,6 +250,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0:0.0} mm ähnelt.
+        /// </summary>
+        public static string Measurement_LabelMillimeterFormat {
+            get {
+                return ResourceManager.GetString("Measurement_LabelMillimeterFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die {0:0.0} px ähnelt.
         /// </summary>
         public static string Measurement_LabelPixelFormat {
@@ -480,6 +489,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string Status_MeasurementEmpty {
             get {
                 return ResourceManager.GetString("Status_MeasurementEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement: {0:0.0} mm ähnelt.
+        /// </summary>
+        public static string Status_MeasurementMillimeterFormat {
+            get {
+                return ResourceManager.GetString("Status_MeasurementMillimeterFormat", resourceCulture);
             }
         }
         

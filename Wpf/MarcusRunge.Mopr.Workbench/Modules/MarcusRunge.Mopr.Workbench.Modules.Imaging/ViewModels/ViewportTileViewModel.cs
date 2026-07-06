@@ -12,7 +12,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel(string viewportId, string title) : ViewModelBase
     {
-
         private ViewportMeasurementViewModel? _activeMeasurementDraft;
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
@@ -22,7 +21,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private SeriesInfo? _series;
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth, _currentPixelValue;
-
 
         public ViewportMeasurementViewModel? ActiveMeasurementDraft
         {
@@ -157,14 +155,34 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             get
             {
+                if (ActiveMeasurementDraft?.PreviewDistanceMillimeters.HasValue == true)
+                {
+                    return string.Format(Resources.Status_MeasurementMillimeterFormat, ActiveMeasurementDraft.PreviewDistanceMillimeters.Value);
+                }
+
+                if (ActiveMeasurementDraft?.PreviewDistancePixels.HasValue == true)
+                {
+                    return string.Format(Resources.Status_MeasurementPixelFormat, ActiveMeasurementDraft.PreviewDistancePixels.Value);
+                }
+
                 var lastMeasurement = Measurements.Count > 0 ? Measurements[^1] : null;
 
-                if (lastMeasurement?.DistancePixels == null)
+                if (lastMeasurement == null)
                 {
                     return Resources.Status_MeasurementEmpty;
                 }
 
-                return string.Format(Resources.Status_MeasurementPixelFormat, lastMeasurement.DistancePixels.Value);
+                if (lastMeasurement.DistanceMillimeters.HasValue)
+                {
+                    return string.Format(Resources.Status_MeasurementMillimeterFormat, lastMeasurement.DistanceMillimeters.Value);
+                }
+
+                if (lastMeasurement.DistancePixels.HasValue)
+                {
+                    return string.Format(Resources.Status_MeasurementPixelFormat, lastMeasurement.DistancePixels.Value);
+                }
+
+                return Resources.Status_MeasurementEmpty;
             }
         }
 
@@ -244,18 +262,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             if (ActiveMeasurementDraft == null)
             {
-                ActiveMeasurementDraft = new ViewportMeasurementViewModel(
-                    imageX,
-                    imageY);
+                ActiveMeasurementDraft = new ViewportMeasurementViewModel(imageX, imageY);
+
+                ActiveMeasurementDraft.SetPixelSpacing(CurrentDicomFrame?.PixelSpacingX, CurrentDicomFrame?.PixelSpacingY);
 
                 RaiseMeasurementPropertiesChanged();
 
                 return;
             }
 
-            ActiveMeasurementDraft.Complete(
-                imageX,
-                imageY);
+            ActiveMeasurementDraft.SetPixelSpacing(CurrentDicomFrame?.PixelSpacingX, CurrentDicomFrame?.PixelSpacingY);
+
+            ActiveMeasurementDraft.Complete(imageX, imageY);
 
             Measurements.Add(ActiveMeasurementDraft);
 

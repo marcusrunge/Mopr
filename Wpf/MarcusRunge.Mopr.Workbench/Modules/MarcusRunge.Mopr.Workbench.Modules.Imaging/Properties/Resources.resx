@@ -450,4 +450,10 @@
   <data name="WindowLevel_Presets" xml:space="preserve">
     <value>W/L Presets</value>
   </data>
+  <data name="Measurement_LabelMillimeterFormat" xml:space="preserve">
+    <value>{0:0.0} mm</value>
+  </data>
+  <data name="Status_MeasurementMillimeterFormat" xml:space="preserve">
+    <value>Measurement: {0:0.0} mm</value>
+  </data>
 </root>
