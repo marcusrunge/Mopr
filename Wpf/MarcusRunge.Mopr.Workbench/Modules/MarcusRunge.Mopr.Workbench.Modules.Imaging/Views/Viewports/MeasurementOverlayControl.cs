@@ -132,8 +132,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
             Children.Add(border);
         }
-
-        private void DrawLine(Point startPoint, Point endPoint, bool isDraft)
+        private void DrawLine(Point startPoint, Point endPoint, bool isDraft, bool isSelected)
         {
             var line = new Line
             {
@@ -141,8 +140,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 Y1 = startPoint.Y,
                 X2 = endPoint.X,
                 Y2 = endPoint.Y,
-                Stroke = new SolidColorBrush(Color.FromRgb(0x60, 0xE1, 0xEB)),
-                StrokeThickness = 1.5,
+                Stroke = new SolidColorBrush(isSelected ? Color.FromRgb(0x9A, 0xF7, 0xFF) : Color.FromRgb(0x60, 0xE1, 0xEB)),
+                StrokeThickness = isSelected ? 2.5 : 1.5,
                 SnapsToDevicePixels = true
             };
 
@@ -153,18 +152,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
             Children.Add(line);
         }
-
-        private void DrawMarker(Point point)
+        private void DrawMarker(Point point, bool isSelected)
         {
+            var size = isSelected ? 10.0 : 8.0;
+            var halfSize = size / 2.0;
+
             var marker = new Ellipse
             {
-                Width = 8,
-                Height = 8,
-                Stroke = new SolidColorBrush(Color.FromRgb(0x60, 0xE1, 0xEB)),
-                StrokeThickness = 1.5,
+                Width = size,
+                Height = size,
+                Stroke = new SolidColorBrush(isSelected ? Color.FromRgb(0x9A, 0xF7, 0xFF) : Color.FromRgb(0x60, 0xE1, 0xEB)),
+                StrokeThickness = isSelected ? 2.0 : 1.5,
                 Fill = new SolidColorBrush(Color.FromArgb(0x26, 0x00, 0xE5, 0xFF)),
                 RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new TranslateTransform(-4, -4)
+                RenderTransform = new TranslateTransform(-halfSize, -halfSize)
             };
 
             SetLeft(marker, point.X);
@@ -214,7 +215,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 return;
             }
 
-            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentImage), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentFilePath), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.Measurements), StringComparison.Ordinal))
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.SelectedMeasurement), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentImage), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentFilePath), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.Measurements), StringComparison.Ordinal))
             {
                 UpdateOverlay();
             }
@@ -259,10 +260,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 return false;
             }
 
-            DrawLine(startPoint, endPoint, isDraft: false);
+            DrawLine(startPoint, endPoint, isDraft: false, isSelected: measurement.IsSelected);
 
-            DrawMarker(startPoint);
-            DrawMarker(endPoint);
+            DrawMarker(startPoint, measurement.IsSelected);
+
+            DrawMarker(endPoint, measurement.IsSelected);
 
             if (!string.IsNullOrWhiteSpace(measurement.LabelText))
             {
@@ -272,15 +274,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             return true;
         }
 
-        private bool TryDrawDraftMeasurement(
-            ViewportMeasurementViewModel measurement)
+        private bool TryDrawDraftMeasurement(ViewportMeasurementViewModel measurement)
         {
             if (!TryConvertImagePointToHostPosition(measurement.StartImageX, measurement.StartImageY, out var startPoint))
             {
                 return false;
             }
 
-            DrawMarker(startPoint);
+            DrawMarker(startPoint, isSelected: false);
 
             if (!measurement.PreviewEndImageX.HasValue || !measurement.PreviewEndImageY.HasValue)
             {
@@ -292,9 +293,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 return true;
             }
 
-            DrawLine(startPoint, previewEndPoint, isDraft: true);
+            DrawLine(startPoint, previewEndPoint, isDraft: true, isSelected: false);
 
-            DrawMarker(previewEndPoint);
+            DrawMarker(previewEndPoint, isSelected: false);
 
             if (!string.IsNullOrWhiteSpace(measurement.PreviewLabelText))
             {

@@ -241,6 +241,60 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Clear measurements ähnelt.
+        /// </summary>
+        public static string Measurement_ClearAll {
+            get {
+                return ResourceManager.GetString("Measurement_ClearAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement ähnelt.
+        /// </summary>
+        public static string Measurement_DefaultTitle {
+            get {
+                return ResourceManager.GetString("Measurement_DefaultTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement {0:0.0} mm ähnelt.
+        /// </summary>
+        public static string Measurement_DefaultTitleMillimeterFormat {
+            get {
+                return ResourceManager.GetString("Measurement_DefaultTitleMillimeterFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurement {0:0.0} px ähnelt.
+        /// </summary>
+        public static string Measurement_DefaultTitlePixelFormat {
+            get {
+                return ResourceManager.GetString("Measurement_DefaultTitlePixelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Delete measurement ähnelt.
+        /// </summary>
+        public static string Measurement_Delete {
+            get {
+                return ResourceManager.GetString("Measurement_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Description ähnelt.
+        /// </summary>
+        public static string Measurement_Description {
+            get {
+                return ResourceManager.GetString("Measurement_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Measuring... ähnelt.
         /// </summary>
         public static string Measurement_DraftLabel {
@@ -264,6 +318,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string Measurement_LabelPixelFormat {
             get {
                 return ResourceManager.GetString("Measurement_LabelPixelFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurements ähnelt.
+        /// </summary>
+        public static string Measurement_ListTitle {
+            get {
+                return ResourceManager.GetString("Measurement_ListTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Selected measurement ähnelt.
+        /// </summary>
+        public static string Measurement_SelectedTitle {
+            get {
+                return ResourceManager.GetString("Measurement_SelectedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Title ähnelt.
+        /// </summary>
+        public static string Measurement_Title {
+            get {
+                return ResourceManager.GetString("Measurement_Title", resourceCulture);
             }
         }
         
@@ -480,6 +561,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string PropertiesPanel_StudyInstanceUID {
             get {
                 return ResourceManager.GetString("PropertiesPanel_StudyInstanceUID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM ähnelt.
+        /// </summary>
+        public static string PropertiesPanel_Tab_Dicom {
+            get {
+                return ResourceManager.GetString("PropertiesPanel_Tab_Dicom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Measurements ähnelt.
+        /// </summary>
+        public static string PropertiesPanel_Tab_Measurements {
+            get {
+                return ResourceManager.GetString("PropertiesPanel_Tab_Measurements", resourceCulture);
             }
         }
         

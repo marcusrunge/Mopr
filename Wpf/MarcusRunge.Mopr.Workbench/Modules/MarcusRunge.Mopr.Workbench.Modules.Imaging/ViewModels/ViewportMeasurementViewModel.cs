@@ -6,7 +6,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportMeasurementViewModel(double startImageX, double startImageY) : ViewModelBase
     {
+        private string? _description, _title;
         private double? _endImageX, _endImageY, _pixelSpacingX, _pixelSpacingY, _previewEndImageX, _previewEndImageY;
+        private bool _isSelected;
+        private DateTime? _modifiedAt;
+
+        public DateTime CreatedAt { get; } = DateTime.Now;
+
+        public string? Description
+        {
+            get => _description;
+            set
+            {
+                if (SetProperty(ref _description, value))
+                {
+                    Touch();
+                }
+            }
+        }
+
+        public string DisplayTitle
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    return Title;
+                }
+
+                if (DistanceMillimeters.HasValue)
+                {
+                    return string.Format(
+                        Resources.Measurement_DefaultTitleMillimeterFormat,
+                        DistanceMillimeters.Value);
+                }
+
+                if (DistancePixels.HasValue)
+                {
+                    return string.Format(
+                        Resources.Measurement_DefaultTitlePixelFormat,
+                        DistancePixels.Value);
+                }
+
+                return Resources.Measurement_DefaultTitle;
+            }
+        }
 
         public double? DistanceMillimeters
         {
@@ -74,6 +118,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool IsDraft => !IsComplete;
 
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
         public string LabelText
         {
             get
@@ -90,6 +140,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
                 return string.Empty;
             }
+        }
+
+        public DateTime? ModifiedAt
+        {
+            get => _modifiedAt;
+            private set => SetProperty(ref _modifiedAt, value);
         }
 
         public double? PixelSpacingX
@@ -196,6 +252,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public double StartImageY { get; } = startImageY;
 
+        public string? Title
+        {
+            get => _title;
+            set
+            {
+                if (SetProperty(ref _title, value))
+                {
+                    Touch();
+                    RaisePropertyChanged(nameof(DisplayTitle));
+                }
+            }
+        }
+
         public void Complete(double imageX, double imageY)
         {
             EndImageX = imageX;
@@ -243,6 +312,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePropertyChanged(nameof(DistancePixels));
             RaisePropertyChanged(nameof(DistanceMillimeters));
             RaisePropertyChanged(nameof(LabelText));
+            RaisePropertyChanged(nameof(DisplayTitle));
         }
 
         private void RaisePreviewPropertiesChanged()
@@ -252,5 +322,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePropertyChanged(nameof(PreviewDistanceMillimeters));
             RaisePropertyChanged(nameof(PreviewLabelText));
         }
+
+        private void Touch() => ModifiedAt = DateTime.Now;
     }
 }

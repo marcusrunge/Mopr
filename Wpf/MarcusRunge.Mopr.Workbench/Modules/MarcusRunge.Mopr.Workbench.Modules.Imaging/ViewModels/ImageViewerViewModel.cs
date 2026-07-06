@@ -2,6 +2,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -9,6 +10,7 @@ using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -36,22 +38,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1, _sliceCount = 1;
+        private DelegateCommand? _deleteSelectedMeasurementCommand, _clearActiveMeasurementsCommand;
         private CancellationTokenSource? _imageLoadCancellationTokenSource;
         private bool _isSynchronizingSelectionFromViewport;
         private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
-        private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand;
-        private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPreviewCommand;
+        private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand, _measurementPreviewCommand;
         private DelegateCommand<MouseWheelEventArgs?>? _mouseWheelCommand;
         private DelegateCommand<ViewportPixelHoverInfo?>? _pixelHoverCommand;
         private SeriesInfo? _selectedSeries;
         private DelegateCommand<ViewportWindowLevelDragInfo?>? _windowLevelDragCommand;
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
+        private readonly IImagingMeasurementContext _measurementContext;
 
-        public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom)
+        public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom, IImagingMeasurementContext measurementContext)
         {
             _core = core;
             _wpf = wpf;
             _dicom = dicom;
+            _measurementContext = measurementContext;
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -91,6 +95,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ApplyViewportState(_core.ImagingService!.ImagingViewportService!.State);
             ApplySelectedSeries(_core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
+
+        public ObservableCollection<ViewportMeasurementViewModel> ActiveMeasurements => GetActiveViewportTile()?.Measurements ?? [];
 
         public IReadOnlyList<string> ActiveSeriesFiles
         {
@@ -160,6 +166,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel AscCoronalViewport { get; }
 
         public ViewportTileViewModel AscSagittalViewport { get; }
+
+        public DelegateCommand ClearActiveMeasurementsCommand => _clearActiveMeasurementsCommand ??= new DelegateCommand(ClearActiveMeasurements);
 
         public DelegateCommand<string?> ClearViewportCommand => _clearViewportCommand ??= new DelegateCommand<string?>(ClearViewport);
 
@@ -250,18 +258,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public DelegateCommand DeleteSelectedMeasurementCommand => _deleteSelectedMeasurementCommand ??= new DelegateCommand(DeleteSelectedMeasurement);
+
         public bool HasSeriesFiles => ActiveSeriesFiles.Count > 0;
+
         public bool IsAxialSagittalCoronalLayoutVisible => CurrentLayout == ImagingLayout.AxialSagittalCoronal;
+
         public bool IsEmptyViewerVisible => CurrentImage == null;
+
         public bool IsMeasureActive => ActiveTool == ImagingTool.Measure;
+
         public bool IsMprLayoutVisible => CurrentLayout == ImagingLayout.Mpr;
+
         public bool IsSingleLayoutVisible => CurrentLayout == ImagingLayout.Single;
+
         public bool IsTwoByTwoLayoutVisible => CurrentLayout == ImagingLayout.TwoByTwo;
+
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
+
         public DelegateCommand<KeyEventArgs?> KeyDownCommand => _keyDownCommand ??= new DelegateCommand<KeyEventArgs?>(OnKeyDown);
+
         public string MeasurementDisplayText => GetActiveViewportTile()?.MeasurementDisplayText ?? Resources.Status_MeasurementEmpty;
+
         public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPointCommand => _measurementPointCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPoint);
+
         public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPreviewCommand => _measurementPreviewCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPreview);
+
         public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand => _mouseWheelCommand ??= new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
 
         public ViewportTileViewModel MprAxialViewport { get; }
@@ -275,6 +297,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public string PixelDisplayText => GetActiveViewportTile()?.CurrentPixelDisplayText ?? $"{Resources.Viewer_Pixel}: -";
 
         public DelegateCommand<ViewportPixelHoverInfo?> PixelHoverCommand => _pixelHoverCommand ??= new DelegateCommand<ViewportPixelHoverInfo?>(OnPixelHover);
+
+        public ViewportMeasurementViewModel? SelectedMeasurement
+        {
+            get => GetActiveViewportTile()?.SelectedMeasurement;
+            set
+            {
+                var activeTile = GetActiveViewportTile();
+
+                if (activeTile == null)
+                {
+                    return;
+                }
+
+                activeTile.SelectMeasurement(value);
+
+                RaisePropertyChanged(nameof(SelectedMeasurement));
+                RaisePropertyChanged(nameof(MeasurementDisplayText));
+            }
+        }
 
         public SeriesInfo? SelectedSeries
         {
@@ -436,6 +477,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             TryLoadCurrentImageForViewport(tile);
         }
 
+        private void ClearActiveMeasurements()
+        {
+            var activeTile = GetActiveViewportTile();
+
+            if (activeTile == null)
+            {
+                return;
+            }
+
+            activeTile.ClearMeasurements();
+
+            RaisePropertyChanged(nameof(ActiveMeasurements));
+            RaisePropertyChanged(nameof(SelectedMeasurement));
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
+        }
+
         private void ClearAllViewports(bool syncActiveViewport, bool clearSelection)
         {
             foreach (var tile in _viewportTiles.Values)
@@ -505,6 +562,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     _isSynchronizingSelectionFromViewport = false;
                 }
             }
+        }
+
+        private void DeleteSelectedMeasurement()
+        {
+            var activeTile = GetActiveViewportTile();
+
+            if (activeTile == null)
+            {
+                return;
+            }
+
+            activeTile.DeleteSelectedMeasurement();
+
+            RaisePropertyChanged(nameof(ActiveMeasurements));
+            RaisePropertyChanged(nameof(SelectedMeasurement));
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
         }
 
         private ViewportTileViewModel? GetActiveViewportTile() => _viewportTiles.TryGetValue(ActiveViewportId, out var tile) ? tile : null;
@@ -752,6 +825,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
             {
+                RaisePropertyChanged(nameof(ActiveMeasurements));
+                RaisePropertyChanged(nameof(SelectedMeasurement));
                 RaisePropertyChanged(nameof(MeasurementDisplayText));
             }
         }
@@ -1133,6 +1208,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePropertyChanged(nameof(WindowDisplayText));
             RaisePropertyChanged(nameof(PixelDisplayText));
             RaisePropertyChanged(nameof(MeasurementDisplayText));
+
+            _measurementContext.SetActiveViewport(tile);
 
             _core.ImagingService!.ImagingViewportService!.SetSlice(tile.CurrentSlice, tile.SliceCount);
         }

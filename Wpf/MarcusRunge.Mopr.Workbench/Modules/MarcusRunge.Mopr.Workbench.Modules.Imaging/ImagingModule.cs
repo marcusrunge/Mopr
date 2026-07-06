@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Core;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Views;
 using Prism.Ioc;
 using Prism.Modularity;
@@ -10,7 +11,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
     {
         public void OnInitialized(IContainerProvider containerProvider)
         {
-            //regionManager.RequestNavigate(RegionNames.ContentRegion, "ImagingWorkbenchView");
             regionManager.RegisterViewWithRegion(RegionNames.ContentRegion, typeof(ImagingWorkbenchView));
             regionManager.RegisterViewWithRegion(RegionNames.ImagingCommandBarRegion, typeof(ImagingCommandBarView));
             regionManager.RegisterViewWithRegion(RegionNames.PropertiesRegion, typeof(PropertiesPanelView));
@@ -20,6 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<IImagingMeasurementContext, ImagingMeasurementContext>();
             containerRegistry.RegisterForNavigation<ImageViewerView>();
             containerRegistry.RegisterForNavigation<ImagingCommandBarView>();
             containerRegistry.RegisterForNavigation<ImagingWorkbenchView>();

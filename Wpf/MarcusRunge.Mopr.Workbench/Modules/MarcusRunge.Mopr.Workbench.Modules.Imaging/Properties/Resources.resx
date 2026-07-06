@@ -456,4 +456,37 @@
   <data name="Status_MeasurementMillimeterFormat" xml:space="preserve">
     <value>Measurement: {0:0.0} mm</value>
   </data>
+  <data name="Measurement_DefaultTitle" xml:space="preserve">
+    <value>Measurement</value>
+  </data>
+  <data name="Measurement_DefaultTitleMillimeterFormat" xml:space="preserve">
+    <value>Measurement {0:0.0} mm</value>
+  </data>
+  <data name="Measurement_DefaultTitlePixelFormat" xml:space="preserve">
+    <value>Measurement {0:0.0} px</value>
+  </data>
+  <data name="Measurement_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Measurement_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Measurement_ListTitle" xml:space="preserve">
+    <value>Measurements</value>
+  </data>
+  <data name="Measurement_Delete" xml:space="preserve">
+    <value>Delete measurement</value>
+  </data>
+  <data name="Measurement_ClearAll" xml:space="preserve">
+    <value>Clear measurements</value>
+  </data>
+  <data name="Measurement_SelectedTitle" xml:space="preserve">
+    <value>Selected measurement</value>
+  </data>
+  <data name="PropertiesPanel_Tab_Dicom" xml:space="preserve">
+    <value>DICOM</value>
+  </data>
+  <data name="PropertiesPanel_Tab_Measurements" xml:space="preserve">
+    <value>Measurements</value>
+  </data>
 </root>
