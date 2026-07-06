@@ -38,7 +38,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1, _sliceCount = 1;
-        private DelegateCommand? _deleteSelectedMeasurementCommand, _clearActiveMeasurementsCommand;
         private CancellationTokenSource? _imageLoadCancellationTokenSource;
         private bool _isSynchronizingSelectionFromViewport;
         private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
@@ -167,8 +166,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel AscSagittalViewport { get; }
 
-        public DelegateCommand ClearActiveMeasurementsCommand => _clearActiveMeasurementsCommand ??= new DelegateCommand(ClearActiveMeasurements);
-
         public DelegateCommand<string?> ClearViewportCommand => _clearViewportCommand ??= new DelegateCommand<string?>(ClearViewport);
 
         public string CurrentFileDisplayText => string.IsNullOrWhiteSpace(CurrentFileName) ? $"{Resources.Viewer_File}: -" : $"{Resources.Viewer_File}: {CurrentFileName}";
@@ -257,8 +254,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 TryLoadCurrentImageForViewport(activeTile);
             }
         }
-
-        public DelegateCommand DeleteSelectedMeasurementCommand => _deleteSelectedMeasurementCommand ??= new DelegateCommand(DeleteSelectedMeasurement);
 
         public bool HasSeriesFiles => ActiveSeriesFiles.Count > 0;
 
@@ -562,22 +557,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     _isSynchronizingSelectionFromViewport = false;
                 }
             }
-        }
-
-        private void DeleteSelectedMeasurement()
-        {
-            var activeTile = GetActiveViewportTile();
-
-            if (activeTile == null)
-            {
-                return;
-            }
-
-            activeTile.DeleteSelectedMeasurement();
-
-            RaisePropertyChanged(nameof(ActiveMeasurements));
-            RaisePropertyChanged(nameof(SelectedMeasurement));
-            RaisePropertyChanged(nameof(MeasurementDisplayText));
         }
 
         private ViewportTileViewModel? GetActiveViewportTile() => _viewportTiles.TryGetValue(ActiveViewportId, out var tile) ? tile : null;

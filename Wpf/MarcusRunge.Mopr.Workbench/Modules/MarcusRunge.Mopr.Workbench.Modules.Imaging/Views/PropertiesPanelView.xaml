@@ -124,7 +124,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
     </UserControl.Resources>
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
@@ -257,8 +256,10 @@
                                            FontWeight="SemiBold"
                                            Margin="0,0,0,8" />
 
-                                <ListBox ItemsSource="{Binding ActiveMeasurements}"
+                                <ListBox x:Name="MeasurementsListBox"
+                                         ItemsSource="{Binding ActiveMeasurements}"
                                          SelectedItem="{Binding SelectedMeasurement, Mode=TwoWay}"
+                                         SelectionMode="Extended"
                                          MinHeight="120"
                                          MaxHeight="220"
                                          Background="#0B1116"
@@ -266,6 +267,14 @@
                                          BorderThickness="1"
                                          Foreground="#DDE5EC"
                                          Padding="2">
+
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="{x:Static properties:Resources.Measurement_Delete}"
+                                                      Command="{Binding PlacementTarget.DataContext.DeleteSelectedMeasurementsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding PlacementTarget.SelectedItems, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
 
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
@@ -275,6 +284,7 @@
                                                     Value="0" />
                                             <Setter Property="Margin"
                                                     Value="0,0,0,2" />
+                                            
                                         </Style>
                                     </ListBox.ItemContainerStyle>
 
@@ -342,18 +352,6 @@
                                              MinHeight="70"
                                              AcceptsReturn="True"
                                              TextWrapping="Wrap" />
-
-                                    <StackPanel Orientation="Horizontal"
-                                                HorizontalAlignment="Right"
-                                                Margin="0,4,0,0">
-
-                                        <Button Content="{x:Static properties:Resources.Measurement_Delete}"
-                                                Command="{Binding DeleteSelectedMeasurementCommand}"
-                                                Margin="0,0,8,0" />
-
-                                        <Button Content="{x:Static properties:Resources.Measurement_ClearAll}"
-                                                Command="{Binding ClearActiveMeasurementsCommand}" />
-                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

@@ -6,6 +6,9 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Prism.Commands;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -17,13 +20,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly ICore _core;
 
         private readonly IImagingMeasurementContext _measurementContext;
-        private DelegateCommand? _clearActiveMeasurementsCommand;
-        private int _currentSlice = 1;
-        private DelegateCommand? _deleteSelectedMeasurementCommand;
+        private int _currentSlice = 1;        
+        private DelegateCommand<IList?>? _deleteSelectedMeasurementsCommand;
         private SeriesInfo? _selectedSeries;
         private StudyInfo? _selectedStudy;
 
-        public PropertiesPanelViewModel(    ICore core,    IImagingMeasurementContext measurementContext)
+        public PropertiesPanelViewModel(ICore core, IImagingMeasurementContext measurementContext)
         {
             _core = core;
             _measurementContext = measurementContext;
@@ -32,22 +34,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged += OnSelectedSeriesChanged;
             _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
-            (_measurementContext as INotifyPropertyChanged)?.PropertyChanged += OnMeasurementContextPropertyChanged;
+            _measurementContext.PropertyChanged += OnMeasurementContextPropertyChanged;
 
             _currentSlice = _core.ImagingService!.ImagingViewportService!.State.CurrentSlice;
 
-            ApplySelection(
-                _core.ImagingService!.ImagingSelectionService!.SelectedStudy,
-                _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
+            ApplySelection(_core.ImagingService!.ImagingSelectionService!.SelectedStudy, _core.ImagingService!.ImagingSelectionService!.SelectedSeries);
         }
 
         public ObservableCollection<ViewportMeasurementViewModel> ActiveMeasurements => _measurementContext.ActiveMeasurements;
 
-        public DelegateCommand ClearActiveMeasurementsCommand => _clearActiveMeasurementsCommand ??= new DelegateCommand(ClearActiveMeasurements);
-
-        public DelegateCommand DeleteSelectedMeasurementCommand => _deleteSelectedMeasurementCommand ??= new DelegateCommand(DeleteSelectedMeasurement);
-
-        public bool HasActiveMeasurements => _measurementContext.HasActiveMeasurements;
+        public DelegateCommand<IList?> DeleteSelectedMeasurementsCommand => _deleteSelectedMeasurementsCommand ??= new DelegateCommand<IList?>(DeleteSelectedMeasurements);
 
         public bool HasSelectedMeasurement => _measurementContext.HasSelectedMeasurement;
 
@@ -99,7 +95,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             _core.ImagingService!.ImagingSelectionService!.SelectedSeriesChanged -= OnSelectedSeriesChanged;
             _core.ImagingService!.ImagingViewportService!.StateChanged -= OnViewportStateChanged;
-            (_measurementContext as INotifyPropertyChanged)?.PropertyChanged -= OnMeasurementContextPropertyChanged;
+            _measurementContext.PropertyChanged -= OnMeasurementContextPropertyChanged;
 
             base.Destroy();
         }
@@ -157,16 +153,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RebuildProperties();
         }
 
-        private void ClearActiveMeasurements()
+        private void DeleteSelectedMeasurements(IList? selectedItems)
         {
-            _measurementContext.ClearActiveMeasurements();
+            if (selectedItems == null || selectedItems.Count == 0)
+            {
+                return;
+            }
 
-            RaiseMeasurementPropertiesChanged();
-        }
+            var measurements = new List<ViewportMeasurementViewModel>();
 
-        private void DeleteSelectedMeasurement()
-        {
-            _measurementContext.DeleteSelectedMeasurement();
+            foreach (var selectedItem in selectedItems)
+            {
+                if (selectedItem is ViewportMeasurementViewModel measurement)
+                {
+                    measurements.Add(measurement);
+                }
+            }
+
+            if (measurements.Count == 0)
+            {
+                return;
+            }
+
+            _measurementContext.DeleteMeasurements(measurements);
 
             RaiseMeasurementPropertiesChanged();
         }
@@ -197,7 +206,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnMeasurementContextPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IImagingMeasurementContext.ActiveMeasurements) || e.PropertyName == nameof(IImagingMeasurementContext.SelectedMeasurement) || e.PropertyName == nameof(IImagingMeasurementContext.HasActiveMeasurements) || e.PropertyName == nameof(IImagingMeasurementContext.HasSelectedMeasurement))
+            if (string.Equals(e.PropertyName, nameof(IImagingMeasurementContext.ActiveMeasurements), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(IImagingMeasurementContext.SelectedMeasurement), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(IImagingMeasurementContext.HasSelectedMeasurement), StringComparison.Ordinal))
             {
                 RaiseMeasurementPropertiesChanged();
             }
@@ -221,7 +230,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             RaisePropertyChanged(nameof(ActiveMeasurements));
             RaisePropertyChanged(nameof(SelectedMeasurement));
-            RaisePropertyChanged(nameof(HasActiveMeasurements));
             RaisePropertyChanged(nameof(HasSelectedMeasurement));
         }
 

@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
-using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Prism.Mvvm;
@@ -326,18 +325,37 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaiseMeasurementPropertiesChanged();
         }
 
-        public void DeleteSelectedMeasurement()
+        public void DeleteMeasurements(IEnumerable<ViewportMeasurementViewModel> measurements)
         {
-            if (SelectedMeasurement == null)
+            if (measurements == null)
             {
                 return;
             }
 
-            var measurementToRemove = SelectedMeasurement;
+            var measurementsToRemove = new List<ViewportMeasurementViewModel>();
 
-            SelectedMeasurement = null;
+            foreach (var measurement in measurements)
+            {
+                if (measurement != null && Measurements.Contains(measurement) && !measurementsToRemove.Contains(measurement))
+                {
+                    measurementsToRemove.Add(measurement);
+                }
+            }
 
-            Measurements.Remove(measurementToRemove);
+            if (measurementsToRemove.Count == 0)
+            {
+                return;
+            }
+
+            if (SelectedMeasurement != null && measurementsToRemove.Contains(SelectedMeasurement))
+            {
+                SelectedMeasurement = null;
+            }
+
+            foreach (var measurement in measurementsToRemove)
+            {
+                Measurements.Remove(measurement);
+            }
 
             RaiseMeasurementPropertiesChanged();
         }

@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -13,8 +14,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         private ViewportTileViewModel? _activeViewport;
 
         public ObservableCollection<ViewportMeasurementViewModel> ActiveMeasurements => _activeViewport?.Measurements ?? _emptyMeasurements;
-
-        public bool HasActiveMeasurements => ActiveMeasurements.Count > 0;
 
         public bool HasSelectedMeasurement => SelectedMeasurement != null;
 
@@ -34,26 +33,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             }
         }
 
-        public void ClearActiveMeasurements()
+        public void DeleteMeasurements(IEnumerable<ViewportMeasurementViewModel> measurements)
         {
             if (_activeViewport == null)
             {
                 return;
             }
 
-            _activeViewport.ClearMeasurements();
-
-            RaiseMeasurementContextChanged();
-        }
-
-        public void DeleteSelectedMeasurement()
-        {
-            if (_activeViewport == null)
-            {
-                return;
-            }
-
-            _activeViewport.DeleteSelectedMeasurement();
+            _activeViewport.DeleteMeasurements(measurements);
 
             RaiseMeasurementContextChanged();
         }
@@ -86,6 +73,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
 
             _activeViewport.Measurements.CollectionChanged -= OnMeasurementsCollectionChanged;
             _activeViewport.Measurements.CollectionChanged += OnMeasurementsCollectionChanged;
+
+            foreach (var measurement in _activeViewport.Measurements)
+            {
+                measurement.PropertyChanged -= OnMeasurementPropertyChanged;
+                measurement.PropertyChanged += OnMeasurementPropertyChanged;
+            }
         }
 
         private void DetachActiveViewport()
@@ -97,11 +90,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
 
             _activeViewport.PropertyChanged -= OnActiveViewportPropertyChanged;
             _activeViewport.Measurements.CollectionChanged -= OnMeasurementsCollectionChanged;
+
+            foreach (var measurement in _activeViewport.Measurements)
+            {
+                measurement.PropertyChanged -= OnMeasurementPropertyChanged;
+            }
         }
 
         private void OnActiveViewportPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ViewportTileViewModel.SelectedMeasurement) || e.PropertyName == nameof(ViewportTileViewModel.Measurements) || e.PropertyName == nameof(ViewportTileViewModel.MeasurementDisplayText))
+            if (e.PropertyName == nameof(ViewportTileViewModel.SelectedMeasurement) || e.PropertyName == nameof(ViewportTileViewModel.Measurements) || e.PropertyName == nameof(ViewportTileViewModel.ActiveMeasurementDraft) || e.PropertyName == nameof(ViewportTileViewModel.MeasurementDisplayText))
+            {
+                RaiseMeasurementContextChanged();
+            }
+        }
+
+        private void OnMeasurementPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewportMeasurementViewModel.DisplayTitle) || e.PropertyName == nameof(ViewportMeasurementViewModel.LabelText) || e.PropertyName == nameof(ViewportMeasurementViewModel.IsSelected) || e.PropertyName == nameof(ViewportMeasurementViewModel.Title) || e.PropertyName == nameof(ViewportMeasurementViewModel.Description))
             {
                 RaiseMeasurementContextChanged();
             }
@@ -109,6 +115,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
 
         private void OnMeasurementsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.OldItems != null)
+            {
+                foreach (ViewportMeasurementViewModel measurement in e.OldItems)
+                {
+                    measurement.PropertyChanged -= OnMeasurementPropertyChanged;
+                }
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (ViewportMeasurementViewModel measurement in e.NewItems)
+                {
+                    measurement.PropertyChanged -= OnMeasurementPropertyChanged;
+                    measurement.PropertyChanged += OnMeasurementPropertyChanged;
+                }
+            }
+
             RaiseMeasurementContextChanged();
         }
 
@@ -116,7 +139,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         {
             RaisePropertyChanged(nameof(ActiveMeasurements));
             RaisePropertyChanged(nameof(SelectedMeasurement));
-            RaisePropertyChanged(nameof(HasActiveMeasurements));
             RaisePropertyChanged(nameof(HasSelectedMeasurement));
         }
     }
