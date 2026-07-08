@@ -1,11 +1,13 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 {
     // Internal base for modules; holds optional service references for derived types.
-    internal abstract class PersistenceBase : IPersistenceBase, IPersistence
+    internal abstract class PersistenceBase(ILogger? logger) : IPersistenceBase, IPersistence
     {
         // Backing field for IInstanceRepository (assigned by derived modules)
         protected IInstanceRepository? _instance;
@@ -23,18 +25,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         protected IUserRepository? _user;
 
         // Lock object to synchronize access to the ExceptionThrown event handlers.
-        private readonly object _exceptionThrownLock = new object();
+        private readonly Lock _exceptionThrownLock = new();
 
         // Logger instance for logging within the module.
-        private readonly ILogger? _logger;
+        private readonly ILogger? _logger = logger;
 
         // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
-
-        protected PersistenceBase(ILogger? logger)
-        {
-            _logger = logger;
-        }
 
         /// <inheritdoc/>
         public event Action<Exception> ExceptionThrown
@@ -48,6 +45,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 lock (_exceptionThrownLock) _exceptionThrown -= value;
             }
         }
+
+        /// <inheritdoc/>
+        PersistenceConfiguration IPersistenceBase.Configuration => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        IDbContextFactory<PersistenceDbContext> IPersistenceBase.DbContextFactory => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public IInstanceRepository? Instance => _instance;
@@ -66,6 +69,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IUserRepository? User => _user;
+
+        /// <inheritdoc/>
+        Task IPersistenceBase.InitializeDatabaseAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc/>
         void IPersistenceBase.OnExceptionThrown(Exception exception)
@@ -97,6 +106,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                     _logger?.LogError(callbackException, "Exception thrown by ExceptionThrown event handler.");
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        Task<bool> IPersistenceBase.TestConnectionAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
