@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence
@@ -19,19 +20,28 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
     /// </summary>
     public class PersistenceFactory : IPersistenceFactory
     {
+        // Reference to the application lifetime, used for managing application shutdown and cancellation.
+        private IApplicationLifetime? _applicationLifetime;
         // Stores the singleton-like module instance created by this factory (lazy-created).
         private static IPersistence? _moduleInstance;
 
         // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
 
-        public PersistenceFactory()
+        // Observable for the persistence configuration.
+        private readonly IObservable<PersistenceConfiguration> _persistenceConfigurationObservable;
+
+        public PersistenceFactory(IApplicationLifetime applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
         {
+            _applicationLifetime = applicationLifetime;
+            _persistenceConfigurationObservable = persistenceConfigurationObservable;
         }
 
-        public PersistenceFactory(ILogger? logger)
+        public PersistenceFactory(ILogger? logger, IApplicationLifetime applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
         {
             _logger = logger;
+            _applicationLifetime = applicationLifetime;
+            _persistenceConfigurationObservable = persistenceConfigurationObservable;
         }
 
 
@@ -45,6 +55,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
                Purpose/intent:
                - Ensures consumers get a single shared module instance per process/app-domain-like context,
                  created on first demand. */
-            _moduleInstance ??= new Implementations.Persistence(_logger);
+            _moduleInstance ??= new Implementations.Persistence(_logger, _applicationLifetime, _persistenceConfigurationObservable);
     }
 }

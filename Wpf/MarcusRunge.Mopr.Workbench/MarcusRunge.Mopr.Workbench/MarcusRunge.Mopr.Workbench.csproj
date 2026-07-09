@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Persistence\MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" />

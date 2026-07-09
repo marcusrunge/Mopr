@@ -6,6 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
     // Concrete IInstanceRepository implementation using the CreatableBase lifecycle (sync create + optional async init).
     internal class InstanceRepository : CreateableBindableBase<IInstanceRepository, InstanceRepository, IPersistenceBase>, IInstanceRepository
     {
+        private IPersistenceBase? _base;
         protected override void OnCreate(IPersistenceBase @base)
         {
             // What happens here:
@@ -19,6 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Notes:
             // - Avoid long-running or blocking work here; that belongs into OnCreateAsync to keep creation fast
             //   and reduce lock hold time during instance publication.
+            _base = @base;
         }
 
         protected override Task OnCreateAsync(IPersistenceBase @base, CancellationToken cancellationToken) =>

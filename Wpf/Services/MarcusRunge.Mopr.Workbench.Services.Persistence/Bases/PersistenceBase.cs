@@ -1,13 +1,16 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 {
     // Internal base for modules; holds optional service references for derived types.
-    internal abstract class PersistenceBase(ILogger? logger) : IPersistenceBase, IPersistence
+    internal abstract class PersistenceBase : IPersistenceBase, IPersistence
     {
         // Backing field for IInstanceRepository (assigned by derived modules)
         protected IInstanceRepository? _instance;
@@ -24,18 +27,73 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         // Backing field for IUserRepository (assigned by derived modules)
         protected IUserRepository? _user;
 
+        // Reference to the application lifetime, used for managing application shutdown and cancellation.
+        private readonly IApplicationLifetime? _applicationLifetime;
+
         // Lock object to synchronize access to the ExceptionThrown event handlers.
         private readonly Lock _exceptionThrownLock = new();
 
+        // Semaphore to ensure that database initialization is performed only once, even in multi-threaded scenarios.
+        private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
+
         // Logger instance for logging within the module.
-        private readonly ILogger? _logger = logger;
+        private readonly ILogger? _logger;
+
+        // Subscription to the persistence configuration observable; used to receive updates and initialize the database accordingly.
+        private readonly IDisposable? _persistenceConfigurationSubscription;
+
+        // Registration for application shutdown; used to dispose of the persistence configuration subscription when the application is stopping.
+        private readonly CancellationTokenRegistration _shutdownRegistration;
+
+        // Factory for creating instances of the PersistenceDbContext; used for database operations.
+        private IDbContextFactory<PersistenceDbContext>? _dbContextFactory;
 
         // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
 
+        // Backing field for the configuration; set by constructor subscription.
+        private PersistenceConfiguration? _persistenceConfiguration;
+
+        private ServiceProvider? _serviceProvider;
+
+        internal PersistenceBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration>? persistenceConfigurationObservable)
+        {
+            _logger = logger;
+            _applicationLifetime = applicationLifetime;
+            // Ensure that the application lifetime is not null; throw an exception if it is.
+            if (applicationLifetime is null)
+            {
+                throw new ArgumentNullException(nameof(applicationLifetime), "Application lifetime cannot be null.");
+            }
+            // Register a callback to dispose of the persistence configuration subscription when the application is stopping.
+            _shutdownRegistration = applicationLifetime.ApplicationStopping.Register(() =>
+            {
+                try
+                {
+                    // Dispose of the persistence configuration subscription to clean up resources and prevent memory leaks.
+                    _persistenceConfigurationSubscription?.Dispose();
+                }
+                catch { }
+                try
+                {
+                    // Dispose of the service provider to clean up resources and prevent memory leaks.
+                    _serviceProvider?.Dispose();
+                }
+                catch { }
+            });
+
+            // Subscribe to the persistence configuration observable to receive updates and initialize the database accordingly.
+            _persistenceConfigurationSubscription = persistenceConfigurationObservable?.Subscribe(configuration =>
+            {
+                // Handle the configuration change asynchronously, allowing for dynamic updates to the database connection string and reinitialization of the database.
+                _ = HandleConfigurationChangedAsync(configuration);
+            });
+        }
+
         /// <inheritdoc/>
         public event Action<Exception> ExceptionThrown
         {
+            // Use a lock to ensure thread-safe addition and removal of event handlers.
             add
             {
                 lock (_exceptionThrownLock) _exceptionThrown += value;
@@ -47,10 +105,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         }
 
         /// <inheritdoc/>
-        PersistenceConfiguration IPersistenceBase.Configuration => throw new NotImplementedException();
+        IApplicationLifetime? IPersistenceBase.ApplicationLifetime => _applicationLifetime;
 
         /// <inheritdoc/>
-        IDbContextFactory<PersistenceDbContext> IPersistenceBase.DbContextFactory => throw new NotImplementedException();
+        PersistenceConfiguration? IPersistenceBase.Configuration => _persistenceConfiguration;
 
         /// <inheritdoc/>
         public IInstanceRepository? Instance => _instance;
@@ -71,9 +129,40 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         public IUserRepository? User => _user;
 
         /// <inheritdoc/>
-        Task IPersistenceBase.InitializeDatabaseAsync(CancellationToken cancellationToken)
+        PersistenceDbContext IPersistenceBase.CreateDbContext()
         {
-            throw new NotImplementedException();
+            // Ensure that the DbContextFactory has been initialized before attempting to create a new DbContext instance.
+            if (_dbContextFactory == null)
+            {
+                // If the DbContextFactory is null, throw an InvalidOperationException to indicate that persistence has not been configured.
+                throw new InvalidOperationException("Persistence has not been configured.");
+            }
+            // Use the DbContextFactory to create and return a new instance of the PersistenceDbContext.
+            return _dbContextFactory.CreateDbContext();
+        }
+
+        /// <inheritdoc/>
+        async Task IPersistenceBase.InitializeDatabaseAsync(CancellationToken cancellationToken)
+        {
+            // Ensure that only one thread can perform the database initialization at a time.
+            await _initializationSemaphore.WaitAsync(cancellationToken);
+            // Use a try-finally block to ensure that the semaphore is released even if an exception occurs during initialization.
+            try
+            {
+                // Ensure that the DbContextFactory has been initialized before attempting to create a new DbContext instance.
+                await using var context = (_dbContextFactory?.CreateDbContext()) ?? throw new InvalidOperationException("Failed to create database context.");
+                // Check for any pending migrations that need to be applied to the database.
+                var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken);
+                // If there are any pending migrations, apply them to the database to ensure that it is up-to-date with the current schema.
+                if (pendingMigrations.Any())
+                {
+                    await context.Database.MigrateAsync(cancellationToken);
+                }
+            }
+            finally
+            {
+                _initializationSemaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
@@ -109,9 +198,81 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         }
 
         /// <inheritdoc/>
-        Task<bool> IPersistenceBase.TestConnectionAsync(CancellationToken cancellationToken)
+        async Task<PersistenceConnectionTestResult> IPersistenceBase.TestConnectionAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // Attempt to create a new DbContext and test the database connection.
+            try
+            {
+                // Ensure that the DbContextFactory has been initialized before attempting to create a new DbContext instance.
+                if (_dbContextFactory == null)
+                {
+                    // If the DbContextFactory is null, throw an InvalidOperationException to indicate that persistence has not been configured.
+                    throw new InvalidOperationException("Persistence has not been configured.");
+                }
+                // Create a new DbContext instance using the provided factory.
+                await using var context = _dbContextFactory.CreateDbContext();
+                // Test if the database connection can be established.
+                var result = await context.Database.CanConnectAsync(cancellationToken);
+                // Return the result of the connection test, indicating success or failure.
+                return new PersistenceConnectionTestResult
+                {
+                    IsSuccessful = result,
+                    Message = result ? "Connection successful." : "Connection failed."
+                };
+            }
+            catch (Exception exception)
+            {
+                // If an exception occurs during the connection test, log it and notify any registered handlers.
+                ((IPersistenceBase)this).OnExceptionThrown(exception);
+                // Return a result indicating the failure and include the exception details.
+                return new PersistenceConnectionTestResult
+                {
+                    IsSuccessful = false,
+                    Message = exception.Message,
+                    Exception = exception
+                };
+            }
+        }
+
+        // Handles changes to the persistence configuration by rebuilding the DbContextFactory and initializing the database.
+        private async Task HandleConfigurationChangedAsync(PersistenceConfiguration configuration)
+        {
+            // If the new configuration's connection string is null, empty, or whitespace, or if it matches the existing configuration's connection string, no action is needed.
+            if (string.IsNullOrWhiteSpace(configuration.ConnectionString) || _persistenceConfiguration?.ConnectionString == configuration.ConnectionString)
+            {
+                return;
+            }
+
+            // Use a try-catch block to handle any exceptions that may occur during the configuration change handling process.
+            try
+            {
+                // Update the internal configuration reference with the new configuration.
+                _persistenceConfiguration = configuration;
+
+                // Rebuild the DbContextFactory with the new configuration, allowing for dynamic updates to the database connection string.
+                RebuildDbContextFactory(configuration);
+                // Initialize the database asynchronously, ensuring that any pending migrations are applied and the database is ready for use.
+                await ((IPersistenceBase)this).InitializeDatabaseAsync(CancellationToken.None);
+            }
+            catch (Exception exception)
+            {
+                ((IPersistenceBase)this).OnExceptionThrown(exception);
+            }
+        }
+
+        // Rebuilds the DbContextFactory with the provided configuration, allowing for dynamic updates to the database connection string.
+        private void RebuildDbContextFactory(PersistenceConfiguration configuration)
+        {
+            // Create a new service collection to configure the DbContextFactory with the updated connection string.
+            var services = new ServiceCollection();
+            // Add the PersistenceDbContext to the service collection, configuring it to use SQL Server with the provided connection string.
+            services.AddDbContextFactory<PersistenceDbContext>(options => options.UseSqlServer(configuration.ConnectionString));
+            // Dispose of the existing service provider, if any, to clean up resources and prevent memory leaks.
+            _serviceProvider?.Dispose();
+            // Build the service provider from the configured services, allowing for dependency injection and service resolution.
+            _serviceProvider = services.BuildServiceProvider();
+            // Retrieve the newly configured DbContextFactory from the service provider, replacing the existing factory with one that uses the updated connection string.
+            _dbContextFactory = _serviceProvider.GetRequiredService<IDbContextFactory<PersistenceDbContext>>();
         }
     }
 }

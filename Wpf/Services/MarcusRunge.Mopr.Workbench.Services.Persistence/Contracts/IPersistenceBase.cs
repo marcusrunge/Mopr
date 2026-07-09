@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,19 +11,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     internal interface IPersistenceBase
     {
         /// <summary>
-        /// Gets the persistence configuration.
+        /// Gets the application lifetime.
         /// </summary>
-        internal PersistenceConfiguration Configuration { get; }
+        internal IApplicationLifetime? ApplicationLifetime { get; }
 
         /// <summary>
-        /// Gets the database context factory.
+        /// Gets the persistence configuration.
         /// </summary>
-        internal IDbContextFactory<PersistenceDbContext> DbContextFactory { get; }
+        internal PersistenceConfiguration? Configuration { get; }
 
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.
         /// </summary>
         internal ILogger? Logger { get; }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="PersistenceDbContext"/> class.
+        /// </summary>
+        /// <returns>The created DbContext instance.</returns>
+        internal PersistenceDbContext CreateDbContext();
 
         /// <summary>
         /// Initializes the database.
@@ -42,6 +49,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        internal Task<bool> TestConnectionAsync(CancellationToken cancellationToken);
+        internal Task<PersistenceConnectionTestResult> TestConnectionAsync(CancellationToken cancellationToken);
     }
 }

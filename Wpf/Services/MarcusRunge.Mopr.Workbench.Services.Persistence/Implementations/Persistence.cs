@@ -1,4 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Bases;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Bases;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
@@ -6,7 +8,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
     // Concrete internal module implementation that wires up services for this module instance.
     internal class Persistence : PersistenceBase
     {
-        internal Persistence(ILogger? logger) : base(logger)
+        internal Persistence(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : base(logger, applicationLifetime, persistenceConfigurationObservable)
         {
             // What happens here:
             // - The assembly constructor performs "composition" for this module instance by creating and assigning
