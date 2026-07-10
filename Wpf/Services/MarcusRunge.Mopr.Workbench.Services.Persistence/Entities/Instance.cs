@@ -5,10 +5,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     /// <summary>
     /// Represents a DICOM SOP instance.
     /// </summary>
-    public class Instance : BindableEntityBase
+    public class Instance : AuditableEntityBase
     {
         private Series? _series;
-        private int _seriesId, _instanceNumber;
+        private int _seriesId;
+        private int? _instanceNumber;
         private string? _sopInstanceUid, _filePath;
 
         /// <summary>
@@ -19,7 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// <summary>
         /// Gets or sets the instance number.
         /// </summary>
-        public int InstanceNumber { get => _instanceNumber; set => SetProperty(ref _instanceNumber, value); }
+        public int? InstanceNumber { get => _instanceNumber; set => SetProperty(ref _instanceNumber, value); }
 
         /// <summary>
         /// Gets or sets the measurements.

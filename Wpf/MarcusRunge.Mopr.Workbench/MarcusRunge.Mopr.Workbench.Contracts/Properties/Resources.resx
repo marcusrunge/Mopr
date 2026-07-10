@@ -117,6 +117,60 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="MeasurementType_Angle" xml:space="preserve">
+    <value>Angle</value>
+  </data>
+  <data name="MeasurementType_Annotation" xml:space="preserve">
+    <value>Annotation</value>
+  </data>
+  <data name="MeasurementType_Area" xml:space="preserve">
+    <value>Area</value>
+  </data>
+  <data name="MeasurementType_Ellipse" xml:space="preserve">
+    <value>Ellipse</value>
+  </data>
+  <data name="MeasurementType_Freehand" xml:space="preserve">
+    <value>Freehand</value>
+  </data>
+  <data name="MeasurementType_Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="MeasurementType_Point" xml:space="preserve">
+    <value>Point</value>
+  </data>
+  <data name="MeasurementType_Polygon" xml:space="preserve">
+    <value>Polygon</value>
+  </data>
+  <data name="MeasurementType_Rectangle" xml:space="preserve">
+    <value>Rectangle</value>
+  </data>
+  <data name="MeasurementType_Roi3D" xml:space="preserve">
+    <value>3D ROI</value>
+  </data>
+  <data name="MeasurementType_Segmentation" xml:space="preserve">
+    <value>Segmentation</value>
+  </data>
+  <data name="MeasurementType_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="MeasurementType_UnrealObject" xml:space="preserve">
+    <value>Unreal Object</value>
+  </data>
+  <data name="MeasurementType_Volume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="UnrealObjectType_PointCloud" xml:space="preserve">
+    <value>Point cloud</value>
+  </data>
+  <data name="UnrealObjectType_Segmentation" xml:space="preserve">
+    <value>Segmentation</value>
+  </data>
+  <data name="UnrealObjectType_StaticMesh" xml:space="preserve">
+    <value>StaticMesh</value>
+  </data>
+  <data name="UnrealObjectType_Volume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
   <data name="Viewer_Layout_AxialSagittalCoronal" xml:space="preserve">
     <value>Layout: Axial / Sagittal / Coronal</value>
   </data>
@@ -149,5 +203,23 @@
   </data>
   <data name="Viewer_Tool_Zoom" xml:space="preserve">
     <value>Zoom</value>
+  </data>
+  <data name="ViewportOrientation_Axial" xml:space="preserve">
+    <value>Axial</value>
+  </data>
+  <data name="ViewportOrientation_Coronal" xml:space="preserve">
+    <value>Coronal</value>
+  </data>
+  <data name="ViewportOrientation_Generic" xml:space="preserve">
+    <value>Generic</value>
+  </data>
+  <data name="ViewportOrientation_Sagittal" xml:space="preserve">
+    <value>Sagittal</value>
+  </data>
+  <data name="ViewportOrientation_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ViewportOrientation_VolumePreview" xml:space="preserve">
+    <value>Volume preview</value>
   </data>
 </root>

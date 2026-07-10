@@ -5,7 +5,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     /// <summary>
     /// Represents an unreal object within the MOPR system.
     /// </summary>
-    public class UnrealObject : BindableEntityBase
+    public class UnrealObject : AuditableEntityBase
     {
         private Instance? _instance;
         private int _instanceId;

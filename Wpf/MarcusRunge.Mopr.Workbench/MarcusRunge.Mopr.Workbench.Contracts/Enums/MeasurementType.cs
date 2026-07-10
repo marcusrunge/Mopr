@@ -1,8 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Properties;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Properties;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Enums
+namespace MarcusRunge.Mopr.Workbench.Contracts.Enums
 {
     /// <summary>
     /// Represents the type of a measurement.
@@ -15,31 +15,37 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Enums
         /// </summary>
         [LocalizedDescription("MeasurementType_Unknown", typeof(Resources))]
         Unknown = 0,
+
         /// <summary>
         /// Gets the length measurement type.
         /// </summary>
         [LocalizedDescription("MeasurementType_Length", typeof(Resources))]
         Length = 1,
+
         /// <summary>
         /// Gets the angle measurement type.
         /// </summary>
         [LocalizedDescription("MeasurementType_Angle", typeof(Resources))]
         Angle = 2,
+
         /// <summary>
         /// Gets the area measurement type.
         /// </summary>
         [LocalizedDescription("MeasurementType_Area", typeof(Resources))]
         Area = 3,
+
         /// <summary>
         /// Gets the ellipse measurement type.
         /// </summary>
         [LocalizedDescription("MeasurementType_Ellipse", typeof(Resources))]
         Ellipse = 4,
+
         /// <summary>
         /// Gets the rectangle measurement type.
         /// </summary>
         [LocalizedDescription("MeasurementType_Rectangle", typeof(Resources))]
         Rectangle = 5,
+
         /// <summary>
         /// Gets the polygon measurement type.
         /// </summary>
@@ -65,9 +71,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Enums
         Roi3D = 9,
 
         /// <summary>
-        /// Gets the unreal object measurement type.
+        /// Gets the freehand measurement type.
         /// </summary>
-        [LocalizedDescription("MeasurementType_UnrealObject", typeof(Resources))]
-        UnrealObject = 10
+        [LocalizedDescription("MeasurementType_Freehand", typeof(Resources))]
+        Freehand = 10,
+
+        /// <summary>
+        /// Gets the point measurement type.
+        /// </summary>
+        [LocalizedDescription("MeasurementType_Point", typeof(Resources))]
+        Point = 11,
+
+        /// <summary>
+        /// Gets the segmentation measurement type.
+        /// </summary>
+        [LocalizedDescription("MeasurementType_Segmentation", typeof(Resources))]
+        Segmentation = 12,
     }
 }

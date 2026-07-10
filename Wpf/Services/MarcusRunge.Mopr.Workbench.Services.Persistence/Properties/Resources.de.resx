@@ -117,37 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MeasurementType_Angle" xml:space="preserve">
-    <value>Winkel</value>
-  </data>
-  <data name="MeasurementType_Annotation" xml:space="preserve">
-    <value>Annotation</value>
-  </data>
-  <data name="MeasurementType_Area" xml:space="preserve">
-    <value>Fläche</value>
-  </data>
-  <data name="MeasurementType_Ellipse" xml:space="preserve">
-    <value>Ellipse</value>
-  </data>
-  <data name="MeasurementType_Length" xml:space="preserve">
-    <value>Länge</value>
-  </data>
-  <data name="MeasurementType_Polygon" xml:space="preserve">
-    <value>Polygon</value>
-  </data>
-  <data name="MeasurementType_Rectangle" xml:space="preserve">
-    <value>Rechteck</value>
-  </data>
-  <data name="MeasurementType_Roi3D" xml:space="preserve">
-    <value>3D-ROI</value>
-  </data>
-  <data name="MeasurementType_Unknown" xml:space="preserve">
-    <value>Unbekannt</value>
-  </data>
-  <data name="MeasurementType_UnrealObject" xml:space="preserve">
-    <value>Unreal-Objekt</value>
-  </data>
-  <data name="MeasurementType_Volume" xml:space="preserve">
-    <value>Volumen</value>
-  </data>
 </root>

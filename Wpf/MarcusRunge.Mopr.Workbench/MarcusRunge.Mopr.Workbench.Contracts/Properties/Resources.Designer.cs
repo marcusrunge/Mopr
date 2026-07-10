@@ -61,6 +61,168 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Angle ähnelt.
+        /// </summary>
+        public static string MeasurementType_Angle {
+            get {
+                return ResourceManager.GetString("MeasurementType_Angle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Annotation ähnelt.
+        /// </summary>
+        public static string MeasurementType_Annotation {
+            get {
+                return ResourceManager.GetString("MeasurementType_Annotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Area ähnelt.
+        /// </summary>
+        public static string MeasurementType_Area {
+            get {
+                return ResourceManager.GetString("MeasurementType_Area", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Ellipse ähnelt.
+        /// </summary>
+        public static string MeasurementType_Ellipse {
+            get {
+                return ResourceManager.GetString("MeasurementType_Ellipse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Freehand ähnelt.
+        /// </summary>
+        public static string MeasurementType_Freehand {
+            get {
+                return ResourceManager.GetString("MeasurementType_Freehand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Length ähnelt.
+        /// </summary>
+        public static string MeasurementType_Length {
+            get {
+                return ResourceManager.GetString("MeasurementType_Length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Point ähnelt.
+        /// </summary>
+        public static string MeasurementType_Point {
+            get {
+                return ResourceManager.GetString("MeasurementType_Point", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Polygon ähnelt.
+        /// </summary>
+        public static string MeasurementType_Polygon {
+            get {
+                return ResourceManager.GetString("MeasurementType_Polygon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rectangle ähnelt.
+        /// </summary>
+        public static string MeasurementType_Rectangle {
+            get {
+                return ResourceManager.GetString("MeasurementType_Rectangle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die 3D ROI ähnelt.
+        /// </summary>
+        public static string MeasurementType_Roi3D {
+            get {
+                return ResourceManager.GetString("MeasurementType_Roi3D", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Segmentation ähnelt.
+        /// </summary>
+        public static string MeasurementType_Segmentation {
+            get {
+                return ResourceManager.GetString("MeasurementType_Segmentation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown ähnelt.
+        /// </summary>
+        public static string MeasurementType_Unknown {
+            get {
+                return ResourceManager.GetString("MeasurementType_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unreal Object ähnelt.
+        /// </summary>
+        public static string MeasurementType_UnrealObject {
+            get {
+                return ResourceManager.GetString("MeasurementType_UnrealObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Volume ähnelt.
+        /// </summary>
+        public static string MeasurementType_Volume {
+            get {
+                return ResourceManager.GetString("MeasurementType_Volume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Point cloud ähnelt.
+        /// </summary>
+        public static string UnrealObjectType_PointCloud {
+            get {
+                return ResourceManager.GetString("UnrealObjectType_PointCloud", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Segmentation ähnelt.
+        /// </summary>
+        public static string UnrealObjectType_Segmentation {
+            get {
+                return ResourceManager.GetString("UnrealObjectType_Segmentation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die StaticMesh ähnelt.
+        /// </summary>
+        public static string UnrealObjectType_StaticMesh {
+            get {
+                return ResourceManager.GetString("UnrealObjectType_StaticMesh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Volume ähnelt.
+        /// </summary>
+        public static string UnrealObjectType_Volume {
+            get {
+                return ResourceManager.GetString("UnrealObjectType_Volume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Layout: Axial / Sagittal / Coronal ähnelt.
         /// </summary>
         public static string Viewer_Layout_AxialSagittalCoronal {
@@ -156,6 +318,60 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         public static string Viewer_Tool_Zoom {
             get {
                 return ResourceManager.GetString("Viewer_Tool_Zoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Axial ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_Axial {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_Axial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Coronal ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_Coronal {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_Coronal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Generic ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_Generic {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_Generic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sagittal ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_Sagittal {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_Sagittal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_Unknown {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Volume preview ähnelt.
+        /// </summary>
+        public static string ViewportOrientation_VolumePreview {
+            get {
+                return ResourceManager.GetString("ViewportOrientation_VolumePreview", resourceCulture);
             }
         }
     }

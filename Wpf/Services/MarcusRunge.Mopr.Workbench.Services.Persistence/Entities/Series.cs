@@ -5,7 +5,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     /// <summary>
     /// Represents a DICOM series.
     /// </summary>
-    public class Series : BindableEntityBase
+    public class Series : AuditableEntityBase
     {
         private string? _seriesInstanceUid, _description, _modality;
         private Study? _study;

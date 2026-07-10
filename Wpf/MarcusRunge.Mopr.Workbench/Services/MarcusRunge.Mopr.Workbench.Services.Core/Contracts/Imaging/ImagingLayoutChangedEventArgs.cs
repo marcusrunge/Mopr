@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
