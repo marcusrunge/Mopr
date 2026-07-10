@@ -13,7 +13,6 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Models
         }
 
         public string Id { get; }
-
         public bool IsInteractive { get; }
         public ViewportOrientation Orientation { get; }
         public string Title { get; }
