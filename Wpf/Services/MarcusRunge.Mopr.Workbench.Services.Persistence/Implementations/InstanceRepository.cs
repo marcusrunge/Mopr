@@ -1,34 +1,94 @@
 ﻿using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 {
-    // Concrete IInstanceRepository implementation using the CreatableBase lifecycle (sync create + optional async init).
     internal class InstanceRepository : CreateableBindableBase<IInstanceRepository, InstanceRepository, IPersistenceBase>, IInstanceRepository
     {
+        // Backing field for the IPersistenceBase instance
         private IPersistenceBase? _base;
-        protected override void OnCreate(IPersistenceBase @base)
+
+        // Property to access the IPersistenceBase instance, throwing an exception if it has not been initialized
+        private IPersistenceBase Base => _base ?? throw new InvalidOperationException("Repository has not been initialized.");
+
+        public async Task AddAsync(Instance entity, CancellationToken cancellationToken = default)
         {
-            // What happens here:
-            // - This is the synchronous creation hook executed exactly once for the singleton-like instance.
-            // - Use this method to perform quick, non-async setup that must happen before the instance is published
-            //   to other callers (e.g., assigning references, initializing cheap state, wiring non-async dependencies).
-            //
-            // Current behavior:
-            // - Intentionally empty: ServiceA requires no synchronous initialization at creation time.
-            //
-            // Notes:
-            // - Avoid long-running or blocking work here; that belongs into OnCreateAsync to keep creation fast
-            //   and reduce lock hold time during instance publication.
-            _base = @base;
+            // Check if the entity parameter is null and throw an exception if it is
+            ArgumentNullException.ThrowIfNull(entity);
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to add the entity to the Instances DbSet and save changes to the database
+            await context.Instances.AddAsync(entity, cancellationToken);
+            // Save changes to the database asynchronously
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-        protected override Task OnCreateAsync(IPersistenceBase @base, CancellationToken cancellationToken) =>
-            /*What happens here:
-              - This is the asynchronous initialization hook that runs after the instance exists.
-              - It is invoked by the base lifecycle to perform potentially expensive/IO work without blocking creation.
-              - Returning Task.CompletedTask signals: "no async initialization required" for ServiceA.
-              - The provided cancellationToken is not used here because there is nothing to cancel. */
-            Task.CompletedTask;
+        /// <inheritdoc/>
+        public async Task DeleteAsync(Instance entity, CancellationToken cancellationToken = default)
+        {
+            // Check if the entity parameter is null and throw an exception if it is
+            ArgumentNullException.ThrowIfNull(entity);
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to remove the entity from the Instances DbSet and save changes to the database
+            context.Instances.Remove(entity);
+            // Save changes to the database asynchronously
+            await context.SaveChangesAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<Instance?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            // Check if the id is valid and throw an ArgumentOutOfRangeException if it is not
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Id must be a positive integer.");
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to query the Instances DbSet, including related Measurements and UnrealObjects, and return the first instance that matches the specified id
+            return await context.Instances.AsNoTracking().Include(x => x.Measurements).Include(x => x.UnrealObjects).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<Instance>> GetBySeriesIdAsync(int seriesId, CancellationToken cancellationToken = default)
+        {
+            // Check if the seriesId is valid and throw an ArgumentOutOfRangeException if it is not
+            if (seriesId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(seriesId), "SeriesId must be a positive integer.");
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to query the Instances DbSet and return a list of instances that match the specified seriesId, without tracking changes
+            return await context.Instances.AsNoTracking().Where(x => x.SeriesId == seriesId).AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<Instance?> GetBySopInstanceUidAsync(string sopInstanceUid, CancellationToken cancellationToken = default)
+        {
+            // Check if the sopInstanceUid parameter is null and throw an exception if it is
+            ArgumentNullException.ThrowIfNull(sopInstanceUid);
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to query the Instances DbSet, including related Measurements and UnrealObjects, and return the first instance that matches the specified sopInstanceUid
+            return await context.Instances.AsNoTracking().Include(x => x.Measurements).Include(x => x.UnrealObjects).FirstOrDefaultAsync(x => x.SopInstanceUid == sopInstanceUid, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateAsync(Instance entity, CancellationToken cancellationToken = default)
+        {
+            // Check if the entity parameter is null and throw an exception if it is
+            ArgumentNullException.ThrowIfNull(entity);
+            // Create a new instance of the PersistenceDbContext using the Base property
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            // Use Entity Framework Core to update the entity in the Instances DbSet and save changes to the database
+            context.Instances.Update(entity);
+            // Save changes to the database asynchronously
+            await context.SaveChangesAsync(cancellationToken);
+        }
+
+        protected override void OnCreate(IPersistenceBase @base) => _base = @base;
+
+        protected override Task OnCreateAsync(IPersistenceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }
