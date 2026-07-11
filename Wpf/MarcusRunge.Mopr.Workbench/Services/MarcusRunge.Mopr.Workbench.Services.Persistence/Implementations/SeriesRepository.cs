@@ -66,7 +66,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Create a new instance of the PersistenceDbContext using the Base property
             await using PersistenceDbContext context = Base.CreateDbContext();
             // Retrieve the list of Series entities with the specified studyId from the database asynchronously, without tracking changes
-            return await context.Series.Where(x => x.StudyId == studyId).AsNoTracking().ToListAsync(cancellationToken);
+            return await context.Series.AsNoTracking().Where(x => x.StudyId == studyId).ToListAsync(cancellationToken);
         }
         /// <inheritdoc/>
         public async Task UpdateAsync(Series entity, CancellationToken cancellationToken = default)

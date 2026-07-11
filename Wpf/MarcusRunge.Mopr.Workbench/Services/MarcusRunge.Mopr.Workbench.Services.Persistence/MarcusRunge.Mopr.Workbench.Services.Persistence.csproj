@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
