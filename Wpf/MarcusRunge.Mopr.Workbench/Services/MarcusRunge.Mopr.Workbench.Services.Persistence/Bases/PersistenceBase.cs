@@ -260,18 +260,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             }
         }
 
-        // Rebuilds the DbContextFactory with the provided configuration, allowing for dynamic updates to the database connection string.
+        // Rebuilds the DbContextFactory using the current persistence configuration.
         private void RebuildDbContextFactory(PersistenceConfiguration configuration)
         {
-            // Create a new service collection to configure the DbContextFactory with the updated connection string.
+            // Create a new service collection for rebuilding the DbContextFactory.
             var services = new ServiceCollection();
-            // Add the PersistenceDbContext to the service collection, configuring it to use SQL Server with the provided connection string.
-            services.AddDbContextFactory<PersistenceDbContext>(options => options.UseSqlServer(configuration.ConnectionString));
+            // Add the PersistenceDbContext to the service collection using the configured database provider.
+            services.AddDbContextFactory<PersistenceDbContext>(
+                options =>
+                {
+                    switch (configuration.Mode)
+                    {
+                        case PersistenceMode.Sqlite:
+                            options.UseSqlite(configuration.ConnectionString);
+                            break;
+
+                        case PersistenceMode.SqlServer:
+                        default:
+                            options.UseSqlServer(configuration.ConnectionString);
+                            break;
+                    }
+                });
             // Dispose of the existing service provider, if any, to clean up resources and prevent memory leaks.
             _serviceProvider?.Dispose();
-            // Build the service provider from the configured services, allowing for dependency injection and service resolution.
+            // Build the service provider from the configured services.
             _serviceProvider = services.BuildServiceProvider();
-            // Retrieve the newly configured DbContextFactory from the service provider, replacing the existing factory with one that uses the updated connection string.
+            // Retrieve the newly configured DbContextFactory.
             _dbContextFactory = _serviceProvider.GetRequiredService<IDbContextFactory<PersistenceDbContext>>();
         }
     }

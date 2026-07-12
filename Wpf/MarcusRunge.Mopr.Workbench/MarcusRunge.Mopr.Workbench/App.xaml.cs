@@ -46,7 +46,8 @@ namespace MarcusRunge.Mopr.Workbench
             var subject = Container.Resolve<BehaviorSubject<PersistenceConfiguration>>();
             subject.OnNext(new PersistenceConfiguration
             {
-                ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;"
+                ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;",
+                Mode = PersistenceMode.SqlServer
             });
         }
 
