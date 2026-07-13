@@ -54,10 +54,15 @@ namespace MarcusRunge.Mopr.Workbench
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
+            var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
+            containerRegistry.RegisterInstance(persistenceConfigurationSubject);
+            containerRegistry.RegisterInstance<IObservable<PersistenceConfiguration>>(persistenceConfigurationSubject);
 
-            var subject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
-            containerRegistry.RegisterInstance(subject);
-            containerRegistry.RegisterInstance<IObservable<PersistenceConfiguration>>(subject);
+            var applicationConfiguration = new ApplicationConfiguration();
+            containerRegistry.RegisterInstance<IApplicationConfiguration>(applicationConfiguration);
+            var applicationConfigurationSubject = new BehaviorSubject<IApplicationConfiguration>(applicationConfiguration);
+            containerRegistry.RegisterInstance(applicationConfigurationSubject);
+            containerRegistry.RegisterInstance<IObservable<IApplicationConfiguration>>(applicationConfigurationSubject);
 
             containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
             containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
