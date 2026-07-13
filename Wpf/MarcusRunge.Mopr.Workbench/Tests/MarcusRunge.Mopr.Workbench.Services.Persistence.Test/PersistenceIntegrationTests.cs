@@ -1,10 +1,10 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
     [TestCaseOrderer(typeof(PriorityOrderer))]
-    public sealed class PersistenceIntegrationTests(
-        PersistenceFixture fixture) : IClassFixture<PersistenceFixture>
+    public sealed class PersistenceIntegrationTests(PersistenceFixture fixture) : IClassFixture<PersistenceFixture>
     {
         private readonly PersistenceFixture _fixture = fixture;
 
@@ -93,6 +93,59 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Instance? loaded = await _fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(_fixture.SopInstanceUid, TestContext.Current.CancellationToken);
             Assert.NotNull(loaded);
             Assert.Equal(_fixture.SopInstanceUid, loaded!.SopInstanceUid);
+        }
+
+        [Fact, Priority(8)]
+        public async Task Measurement_Should_Be_Saved_And_Loaded()
+        {
+            Measurement measurement = new()
+            {
+                InstanceId = _fixture.InstanceId,
+                CreatedByUserId = _fixture.UserId,
+                MeasurementType = MeasurementType.Length,
+                Title = "Test Measurement",
+                DataJson = "{}"
+            };
+            await _fixture.Persistence!.Measurement!.AddAsync(measurement, TestContext.Current.CancellationToken);
+            Measurement? loaded = await _fixture.Persistence.Measurement.GetByIdAsync(measurement.Id, TestContext.Current.CancellationToken);
+            Assert.NotNull(loaded);
+            _fixture.MeasurementId = loaded!.Id;
+        }
+
+        [Fact, Priority(9)]
+        public async Task Measurement_Should_Be_Found_By_InstanceId()
+        {
+            IList<Measurement> measurements = await _fixture.Persistence!.Measurement!.GetByInstanceIdAsync(_fixture.InstanceId, TestContext.Current.CancellationToken);
+            Assert.Single(measurements);
+            Assert.Equal(_fixture.MeasurementId, measurements[0].Id);
+        }
+
+        [Fact, Priority(10)]
+        public async Task Study_Should_Be_Updated()
+        {
+            Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(_fixture.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Assert.NotNull(study);
+            study!.Description = "Updated";
+            await _fixture.Persistence.Study.UpdateAsync(study, TestContext.Current.CancellationToken);
+            Study? loaded = await _fixture.Persistence.Study.GetByStudyInstanceUidAsync(_fixture.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Assert.Equal("Updated", loaded!.Description);
+        }
+
+        [Fact, Priority(11)]
+        public async Task Study_Should_Set_ModifiedAtUtc()
+        {
+            Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(_fixture.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Assert.NotNull(study);
+            Assert.NotNull(study!.ModifiedAtUtc);
+        }
+
+        [Fact, Priority(12)]
+        public async Task Study_Should_Load_Assigned_Series()
+        {
+            Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(_fixture.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Assert.NotNull(study);
+            Assert.Single(study!.Series);
+            Assert.Equal(_fixture.SeriesId, study.Series.First().Id);
         }
     }
 }
