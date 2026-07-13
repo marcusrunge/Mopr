@@ -271,8 +271,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 {
                     switch (configuration.Mode)
                     {
-                        case PersistenceMode.Sqlite:
-                            options.UseSqlite(configuration.ConnectionString);
+                        case PersistenceMode.InMemory:
+                            options.UseInMemoryDatabase("MoprTestDb");
                             break;
 
                         case PersistenceMode.SqlServer:

@@ -3,6 +3,6 @@
     public enum PersistenceMode
     {
         SqlServer,
-        Sqlite
+        InMemory
     }
 }
