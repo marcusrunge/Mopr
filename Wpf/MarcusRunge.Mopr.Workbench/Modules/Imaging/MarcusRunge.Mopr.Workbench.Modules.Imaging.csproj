@@ -9,9 +9,9 @@
     <PackageReference Include="Prism.Wpf" Version="9.0.537" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
-    <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Core\MarcusRunge.Mopr.Workbench.Services.Core.csproj" />
-    <ProjectReference Include="..\..\Services\MarcusRunge.Mopr.Workbench.Services.Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
+    <ProjectReference Include="..\..\Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
+    <ProjectReference Include="..\..\Services\Core\MarcusRunge.Mopr.Workbench.Services.Core.csproj" />
+    <ProjectReference Include="..\..\Services\Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

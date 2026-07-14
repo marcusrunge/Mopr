@@ -7,6 +7,8 @@ using MarcusRunge.Mopr.Workbench.Services.Dicom;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Views;
@@ -66,10 +68,16 @@ namespace MarcusRunge.Mopr.Workbench
 
             containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
             containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
+
             containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>()));
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
+
             containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
+            
+            containerRegistry.RegisterSingleton<IRepositoryFactory, RepositoryFactory>();
+            containerRegistry.RegisterSingleton<IRepository>(provider => provider.Resolve<IRepositoryFactory>().Create());
+
             containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }

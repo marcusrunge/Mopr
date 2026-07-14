@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
 	<PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\MarcusRunge.Mopr.Workbench.Modules.Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
+    <ProjectReference Include="..\..\Modules\Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
   </ItemGroup>
 
 </Project>

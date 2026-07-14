@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MarcusRunge.Mopr.Workbench.Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
-    <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Services.Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
+    <ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+    <ProjectReference Include="..\Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
   </ItemGroup>
 
   <ItemGroup>

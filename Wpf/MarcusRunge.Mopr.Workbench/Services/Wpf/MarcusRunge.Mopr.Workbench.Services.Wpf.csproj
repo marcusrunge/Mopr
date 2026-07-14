@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MarcusRunge.Mopr.Workbench.Services.Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
+    <ProjectReference Include="..\Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
   </ItemGroup>
 
   <ItemGroup>
