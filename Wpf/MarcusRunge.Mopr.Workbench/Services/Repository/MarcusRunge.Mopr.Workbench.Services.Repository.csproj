@@ -9,7 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="MarcusRunge.Base" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+	<PackageReference Include="System.Reactive" Version="6.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

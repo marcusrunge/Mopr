@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Bases;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Bases;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
@@ -6,7 +7,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     // Concrete internal module implementation that wires up services for this module instance.
     internal class Repository : RepositoryBase
     {
-        internal Repository(ILogger? logger) : base(logger)
+        internal Repository(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable) : base(logger, applicationLifetime, applicationConfigurationObservable)
         {
             // What happens here:
             // - The assembly constructor performs "composition" for this module instance by creating and assigning

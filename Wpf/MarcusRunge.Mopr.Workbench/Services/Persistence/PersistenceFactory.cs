@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
     public class PersistenceFactory : IPersistenceFactory
     {
         // Reference to the application lifetime, used for managing application shutdown and cancellation.
-        private IApplicationLifetime? _applicationLifetime;
+        private readonly IApplicationLifetime? _applicationLifetime;
         // Stores the singleton-like module instance created by this factory (lazy-created).
         private static IPersistence? _moduleInstance;
 

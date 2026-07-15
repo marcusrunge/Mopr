@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
 {
@@ -7,6 +8,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
     /// </summary>
     internal interface IRepositoryBase
     {
+        /// <summary>
+        /// Gets the application configuration.
+        /// </summary>
+        internal IApplicationConfiguration? ApplicationConfiguration { get; }
+
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.
         /// </summary>
