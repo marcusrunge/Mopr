@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Application;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
@@ -8,9 +7,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     internal class DicomRepositoryService : CreateableBindableBase<IDicomRepositoryService, DicomRepositoryService, IRepositoryBase>, IDicomRepositoryService
     {
         private IRepositoryBase? _base;
+        private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
 
         /// <inheritdoc/>
-        public string CreateRelativePath(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid) => Path.Combine(studyInstanceUid, seriesInstanceUid, $"{sopInstanceUid}.dcm");
+        public string CreateRelativePath(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(studyInstanceUid);
+            ArgumentException.ThrowIfNullOrWhiteSpace(seriesInstanceUid);
+            ArgumentException.ThrowIfNullOrWhiteSpace(sopInstanceUid);
+
+            return Path.Combine(studyInstanceUid, seriesInstanceUid, $"{sopInstanceUid}.dcm");
+        }
 
         /// <inheritdoc/>
         public bool Exists(string relativePath) => File.Exists(GetAbsolutePath(relativePath));
@@ -19,11 +26,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         public string GetAbsolutePath(string relativePath)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(relativePath);
-            string repositoryPath = _base?.ApplicationConfiguration?.Repository?.DicomRepositoryPath ?? throw new InvalidOperationException("The DICOM repository path has not been configured.");
+            string repositoryPath = Base.ApplicationConfiguration?.Repository?.DicomRepositoryPath ?? throw new InvalidOperationException("The DICOM repository path has not been configured.");
             return Path.Combine(repositoryPath, relativePath);
         }
 
-        protected override void OnCreate(IRepositoryBase @base) => _base = @base;
+        protected override void OnCreate(IRepositoryBase @base)
+        {
+            _base = @base;
+            _ = Base.ApplicationConfiguration?.Repository?.DicomRepositoryPath ?? throw new InvalidOperationException("DICOM repository path is missing.");
+        }
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
     }

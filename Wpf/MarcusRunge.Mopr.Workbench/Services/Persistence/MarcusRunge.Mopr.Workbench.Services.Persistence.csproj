@@ -8,8 +8,8 @@
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Persistence</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Persistence</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.3" />
-    <PackageReference Include="MarcusRunge.Base.EntityFramework" Version="1.0.3" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.4" />
+    <PackageReference Include="MarcusRunge.Base.EntityFramework" Version="1.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
