@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 {
@@ -8,6 +9,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     {
         private IRepositoryBase? _base;
         private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+
+        /// <inheritdoc/>
+        public DicomRepositoryPathInfo CreatePathInfo(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)
+        {
+            string relativePath = CreateRelativePath(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+            return new DicomRepositoryPathInfo
+            {
+                StudyInstanceUid = studyInstanceUid,
+                SeriesInstanceUid = seriesInstanceUid,
+                SopInstanceUid = sopInstanceUid,
+                RelativePath = relativePath,
+                AbsolutePath = GetAbsolutePath(relativePath)
+            };
+        }
 
         /// <inheritdoc/>
         public string CreateRelativePath(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)

@@ -17,7 +17,7 @@ internal class InstanceConfiguration : AuditableEntityConfigurationBase<Instance
         builder.HasIndex(x => x.SopInstanceUid)
                .IsUnique();
 
-        builder.Property(x => x.FilePath)
+        builder.Property(x => x.RelativeFilePath)
                .HasMaxLength(2048);
 
         builder.HasMany(x => x.Measurements)

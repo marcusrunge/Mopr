@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -22,6 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         private readonly Lock _exceptionThrownLock = new();
 
         private readonly ILogger? _logger;
+        private readonly IPersistence? _persistence;
 
         // Registration for application shutdown; used to dispose of the persistence configuration subscription when the application is stopping.
         private readonly CancellationTokenRegistration _shutdownRegistration;
@@ -31,10 +33,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
 
-        internal RepositoryBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable)
+        internal RepositoryBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime;
+            _persistence = persistence;
 
             // Ensure that the application lifetime is not null; throw an exception if it is.
             if (applicationLifetime is null)
@@ -49,7 +52,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
                     // Dispose of the persistence configuration subscription to clean up resources and prevent memory leaks.
                     _applicationConfigurationSubscription?.Dispose();
                 }
-                catch { }                
+                catch { }
             });
 
             // Subscribe to the persistence configuration observable to receive updates and initialize the database accordingly.
@@ -81,6 +84,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
 
         /// <inheritdoc/>
         ILogger? IRepositoryBase.Logger => _logger;
+
+        /// <inheritdoc/>
+        IPersistence? IRepositoryBase.Persistence => _persistence;
 
         /// <inheritdoc/>
         public IDicomRepositoryRepairService? RepositoryRepairService => _repositoryRepairService;

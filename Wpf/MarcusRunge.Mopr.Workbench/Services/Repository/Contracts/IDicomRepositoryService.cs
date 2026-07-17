@@ -1,10 +1,21 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
+﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
 {
     /// <summary>
     /// Defines the public contract of the DICOM repository service.
     /// </summary>
     public interface IDicomRepositoryService
     {
+        /// <summary>
+        /// Creates the path information.
+        /// </summary>
+        /// <param name="studyInstanceUid">The study instance uid.</param>
+        /// <param name="seriesInstanceUid">The series instance uid.</param>
+        /// <param name="sopInstanceUid">The sop instance uid.</param>
+        /// <returns>The DICOM repository path info.</returns>
+        DicomRepositoryPathInfo CreatePathInfo(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
+
         /// <summary>
         /// Creates the relative path.
         /// </summary>

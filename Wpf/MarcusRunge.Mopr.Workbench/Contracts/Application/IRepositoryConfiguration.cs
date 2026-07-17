@@ -4,5 +4,6 @@
     {
         bool AutomaticallyRepairPaths { get; }
         string DicomRepositoryPath { get; }
+        bool VerifyRepositoryOnStartup { get; }
     }
 }

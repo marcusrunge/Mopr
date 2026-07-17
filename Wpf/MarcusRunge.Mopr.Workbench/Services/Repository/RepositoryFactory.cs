@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -30,18 +31,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository
 
         // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
+        private readonly IPersistence _persistence;
 
-        public RepositoryFactory(IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable)
+        public RepositoryFactory(IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence persistence)
         {
             _applicationLifetime = applicationLifetime;
             _applicationConfigurationObservable = applicationConfigurationObservable;
+            _persistence = persistence;
         }
 
-        public RepositoryFactory(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable)
+        public RepositoryFactory(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence persistence)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime;
             _applicationConfigurationObservable = applicationConfigurationObservable;
+            _persistence = persistence;
         }
 
         /// <inheritdoc/>
@@ -54,6 +58,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository
                Purpose/intent:
                - Ensures consumers get a single shared module instance per process/app-domain-like context,
                  created on first demand. */
-            _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable);
+            _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable, _persistence);
     }
 }

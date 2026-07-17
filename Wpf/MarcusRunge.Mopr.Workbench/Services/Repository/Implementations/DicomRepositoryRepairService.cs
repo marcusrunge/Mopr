@@ -1,11 +1,22 @@
 ﻿using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 {
     // Concrete IDicomRepositoryRepairService implementation using the CreatableBase lifecycle (sync create + optional async init).
     internal class DicomRepositoryRepairService : CreateableBindableBase<IDicomRepositoryRepairService, DicomRepositoryRepairService, IRepositoryBase>, IDicomRepositoryRepairService
     {
+        private IRepositoryBase? _base;
+
+        private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+
+        /// <inheritdoc/>
+        public Task<DicomRepositoryRepairResult> RepairAsync(DicomRepositoryRepairRequest request, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void OnCreate(IRepositoryBase @base)
         {
             // What happens here:
@@ -19,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             // Notes:
             // - Avoid long-running or blocking work here; that belongs into OnCreateAsync to keep creation fast
             //   and reduce lock hold time during instance publication.
+            _base = @base;
         }
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) =>

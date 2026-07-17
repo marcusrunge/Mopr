@@ -108,8 +108,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FilePath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     InstanceNumber = table.Column<int>(type: "int", nullable: true),
+                    RelativeFilePath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     SeriesId = table.Column<int>(type: "int", nullable: false),
                     SopInstanceUid = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),

@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
@@ -17,6 +18,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
         /// Gets the ILogger instance used for logging within the module.
         /// </summary>
         internal ILogger? Logger { get; }
+
+        /// <summary>
+        /// Gets the persistence for using within the module.
+        /// </summary>
+        internal IPersistence? Persistence { get; }
 
         /// <summary>
         /// Called when [exception thrown].

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+    <ProjectReference Include="..\Persistence\MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

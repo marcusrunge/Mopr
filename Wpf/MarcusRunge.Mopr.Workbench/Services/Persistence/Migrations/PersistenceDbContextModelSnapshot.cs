@@ -17,7 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -36,10 +36,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FilePath")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
                     b.Property<int?>("InstanceNumber")
                         .HasColumnType("int");
 
@@ -48,6 +44,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
 
                     b.Property<int?>("ModifiedByUserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("RelativeFilePath")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
