@@ -117,5 +117,36 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 }
             }
         }
+
+        [Fact, Priority(9)]
+        public async Task Import_Should_Find_No_Dicom_Files()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+                File.WriteAllText(Path.Combine(directory, "A.txt"), "Test");
+                File.WriteAllText(Path.Combine(directory, "B.txt"), "Test");
+                File.WriteAllText(Path.Combine(directory, "C.txt"), "Test");
+                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
+                {
+                    SourcePath = directory,
+                    SourceType = ImportSourceType.Directory
+                }, TestContext.Current.CancellationToken);
+
+                Assert.Equal(3, result.DiscoveredFiles);
+                Assert.Equal(0, result.ValidDicomFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
+            }
+            finally
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
     }
 }

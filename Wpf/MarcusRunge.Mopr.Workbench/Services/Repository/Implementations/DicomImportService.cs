@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Base;
+﻿using FellowOakDicom;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
@@ -16,33 +17,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
-
             ArgumentException.ThrowIfNullOrWhiteSpace(request.SourcePath);
 
             DicomImportResult result = new();
 
             if (!Directory.Exists(request.SourcePath))
             {
-                result.FailedFiles++;
-
-                result.Errors.Add($"Source path '{request.SourcePath}' does not exist.");
-
+                result.FailedFiles++; result.Errors.Add($"Source path '{request.SourcePath}' does not exist.");
                 return result;
             }
 
-            result.DiscoveredFiles = request.SourceType switch
-            {
-                ImportSourceType.Directory => Directory.EnumerateFiles(request.SourcePath, "*", SearchOption.AllDirectories).Count(),
-                ImportSourceType.CdRom => throw new NotSupportedException(),
-                ImportSourceType.Dvd => throw new NotSupportedException(),
-                ImportSourceType.UsbDrive => throw new NotSupportedException(),
-                ImportSourceType.IsoImage => throw new NotSupportedException(),
-                ImportSourceType.NetworkShare => throw new NotSupportedException(),
-                ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
-                _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
-            };
-            await Task.CompletedTask;
+            IList<DicomImportFileInfo> fileInfos =
+                request.SourceType switch
+                {
+                    ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
+                    ImportSourceType.CdRom => throw new NotSupportedException(),
+                    ImportSourceType.Dvd => throw new NotSupportedException(),
+                    ImportSourceType.UsbDrive => throw new NotSupportedException(),
+                    ImportSourceType.IsoImage => throw new NotSupportedException(),
+                    ImportSourceType.NetworkShare => throw new NotSupportedException(),
+                    ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
+                    _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
+                };
 
+            result.DiscoveredFiles = fileInfos.Count;
+            result.ValidDicomFiles = fileInfos.Count(fileInfo => fileInfo.IsDicomFile);
+            await Task.CompletedTask;
             return result;
         }
 
@@ -70,6 +70,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
               - The provided cancellationToken is not used here because there is nothing to cancel. */
             Task.CompletedTask;
 
-        private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(file => new DicomImportFileInfo { FileName = Path.GetFileName(file), FilePath = file })];
+        private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(file => new DicomImportFileInfo { FileName = Path.GetFileName(file), FilePath = file, IsDicomFile = IsDicomFile(file) })];
+
+        private static bool IsDicomFile(string filePath)
+        {
+            try
+            {
+                DicomFile.Open(filePath);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

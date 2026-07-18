@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
     public sealed class DicomImportFileInfo
     {
@@ -17,6 +13,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public string FilePath { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the file is a valid DICOM file.
+        /// </summary>
+        public bool IsDicomFile { get; set; }
+
+        /// <summary>
         /// Gets or sets the series instance uid.
         /// </summary>
         public string SeriesInstanceUid { get; set; } = string.Empty;
@@ -29,6 +30,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// <summary>
         /// Gets or sets the study instance uid.
         /// </summary>
-        public string StudyInstanceUid { get; set; } = string.Empty;
+        public string StudyInstanceUid { get; set; } = string.Empty;        
     }
 }

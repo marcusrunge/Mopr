@@ -29,5 +29,10 @@
         /// Gets or sets the number of skipped files.
         /// </summary>
         public int SkippedFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of valid DICOM files.
+        /// </summary>
+        public int ValidDicomFiles { get; set; }
     }
 }
