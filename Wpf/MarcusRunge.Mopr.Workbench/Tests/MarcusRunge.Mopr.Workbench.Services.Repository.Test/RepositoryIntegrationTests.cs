@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
+﻿using FellowOakDicom;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
@@ -145,6 +146,187 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 if (Directory.Exists(directory))
                 {
                     Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Fact, Priority(10)]
+        public async Task Import_Should_Find_Valid_Dicom_File()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+
+                string filePath = Path.Combine(directory, "Image.dcm");
+
+                DicomDataset dataset = new()
+                {
+                    {
+                        DicomTag.SOPClassUID,
+                        DicomUID.SecondaryCaptureImageStorage
+                    },
+                    {
+                        DicomTag.SOPInstanceUID,
+                        DicomUID.Generate()
+                    }
+                };
+
+                DicomFile dicomFile = new(dataset);
+
+                await dicomFile.SaveAsync(filePath);
+
+                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
+                {
+                    SourcePath = directory,
+                    SourceType = ImportSourceType.Directory
+                }, TestContext.Current.CancellationToken);
+
+                Assert.Equal(1, result.DiscoveredFiles);
+                Assert.Equal(1, result.ValidDicomFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Equal(0, result.ImportableFiles);
+                Assert.Empty(result.Errors);
+                DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+                Assert.True(fileInfo.IsDicomFile);
+                Assert.False(fileInfo.IsImportable);
+                Assert.Equal("Image.dcm", fileInfo.FileName);
+                Assert.Equal(filePath, fileInfo.FilePath);
+            }
+            finally
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Fact, Priority(11)]
+        public async Task Import_Should_Read_Dicom_Instance_Uids()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+                string filePath = Path.Combine(directory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                DicomDataset dataset = new()
+                {
+                    {
+                        DicomTag.SOPClassUID,
+                        DicomUID.SecondaryCaptureImageStorage
+                    },
+                    {
+                        DicomTag.StudyInstanceUID,
+                        studyInstanceUid
+                    },
+                    {
+                        DicomTag.SeriesInstanceUID,
+                        seriesInstanceUid
+                    },
+                    {
+                        DicomTag.SOPInstanceUID,
+                        sopInstanceUid
+                    }
+                };
+
+                DicomFile dicomFile = new(dataset);
+
+                await dicomFile.SaveAsync(filePath);
+
+                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
+                {
+                    SourcePath = directory,
+                    SourceType = ImportSourceType.Directory
+                }, TestContext.Current.CancellationToken);
+
+                Assert.Equal(1, result.DiscoveredFiles);
+                Assert.Equal(1, result.ValidDicomFiles);
+                Assert.Equal(1, result.ImportableFiles);
+                DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+                Assert.True(fileInfo.IsDicomFile);
+                Assert.True(fileInfo.IsImportable);
+                Assert.Equal(studyInstanceUid.UID, fileInfo.StudyInstanceUid);
+                Assert.Equal(seriesInstanceUid.UID, fileInfo.SeriesInstanceUid);
+                Assert.Equal(sopInstanceUid.UID, fileInfo.SopInstanceUid);
+            }
+            finally
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory, true);
+                }
+            }
+        }
+
+        [Fact, Priority(12)]
+        public async Task Import_Should_Distinguish_Dicom_And_Non_Dicom_Files()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+
+                string childDirectory = Path.Combine(directory, "Child");
+
+                Directory.CreateDirectory(childDirectory);
+
+                string dicomFilePath = Path.Combine(childDirectory, "Image.dcm");
+                string textFilePath = Path.Combine(directory, "Readme.txt");
+
+                DicomDataset dataset = new()        {
+                    {
+                        DicomTag.SOPClassUID,
+                        DicomUID.SecondaryCaptureImageStorage
+                    },
+                    {
+                        DicomTag.StudyInstanceUID,
+                        DicomUID.Generate()
+                    },
+                    {
+                        DicomTag.SeriesInstanceUID,
+                        DicomUID.Generate()
+                    },
+                    {
+                        DicomTag.SOPInstanceUID,
+                        DicomUID.Generate()
+                    }
+                };
+
+                DicomFile dicomFile = new(dataset);
+                await dicomFile.SaveAsync(dicomFilePath);
+
+                await File.WriteAllTextAsync(textFilePath, "This is not a DICOM file.", TestContext.Current.CancellationToken);
+
+                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
+                {
+                    SourcePath = directory,
+                    SourceType = ImportSourceType.Directory
+                },
+                            TestContext.Current.CancellationToken);
+
+                Assert.Equal(2, result.DiscoveredFiles);
+                Assert.Equal(1, result.ValidDicomFiles);
+                Assert.Equal(1, result.ImportableFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
+                Assert.Contains(result.Files, fileInfo => fileInfo.FilePath == dicomFilePath && fileInfo.IsDicomFile);
+                Assert.Contains(result.Files, fileInfo => fileInfo.FilePath == textFilePath && !fileInfo.IsDicomFile);
+            }
+            finally
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(
+                        directory,
+                        true);
                 }
             }
         }

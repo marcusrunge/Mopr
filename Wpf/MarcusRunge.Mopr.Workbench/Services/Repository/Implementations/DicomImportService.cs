@@ -27,40 +27,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 return result;
             }
 
-            IList<DicomImportFileInfo> fileInfos =
-                request.SourceType switch
-                {
-                    ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
-                    ImportSourceType.CdRom => throw new NotSupportedException(),
-                    ImportSourceType.Dvd => throw new NotSupportedException(),
-                    ImportSourceType.UsbDrive => throw new NotSupportedException(),
-                    ImportSourceType.IsoImage => throw new NotSupportedException(),
-                    ImportSourceType.NetworkShare => throw new NotSupportedException(),
-                    ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
-                    _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
-                };
+            IList<DicomImportFileInfo> fileInfos = request.SourceType switch
+            {
+                ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
+                ImportSourceType.CdRom => throw new NotSupportedException(),
+                ImportSourceType.Dvd => throw new NotSupportedException(),
+                ImportSourceType.UsbDrive => throw new NotSupportedException(),
+                ImportSourceType.IsoImage => throw new NotSupportedException(),
+                ImportSourceType.NetworkShare => throw new NotSupportedException(),
+                ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
+                _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
+            };
 
-            result.DiscoveredFiles = fileInfos.Count;
-            result.ValidDicomFiles = fileInfos.Count(fileInfo => fileInfo.IsDicomFile);
+            foreach (DicomImportFileInfo fileInfo in fileInfos)
+            {
+                result.Files.Add(fileInfo);
+            }
+
             await Task.CompletedTask;
             return result;
         }
 
-        protected override void OnCreate(IRepositoryBase @base)
-        {
-            // What happens here:
-            // - This is the synchronous creation hook executed exactly once for the singleton-like instance.
-            // - Use this method to perform quick, non-async setup that must happen before the instance is published
-            //   to other callers (e.g., assigning references, initializing cheap state, wiring non-async dependencies).
-            //
-            // Current behavior:
-            // - Intentionally empty: ServiceB requires no synchronous initialization at creation time.
-            //
-            // Notes:
-            // - Avoid long-running or blocking work here; that belongs into OnCreateAsync to keep creation fast
-            //   and reduce lock hold time during instance publication.
+        protected override void OnCreate(IRepositoryBase @base) =>
+            // Store the repository base required by subsequent import operations.
             _base = @base;
-        }
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) =>
             /*What happens here:
@@ -70,19 +60,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
               - The provided cancellationToken is not used here because there is nothing to cancel. */
             Task.CompletedTask;
 
-        private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(file => new DicomImportFileInfo { FileName = Path.GetFileName(file), FilePath = file, IsDicomFile = IsDicomFile(file) })];
-
-        private static bool IsDicomFile(string filePath)
+        private static DicomImportFileInfo CreateFileInfo(string filePath)
         {
+            DicomImportFileInfo fileInfo = new()
+            {
+                FileName = Path.GetFileName(filePath),
+                FilePath = filePath
+            };
+
+            DicomFile dicomFile;
+
             try
             {
-                DicomFile.Open(filePath);
-                return true;
+                dicomFile = DicomFile.Open(filePath);
             }
             catch
             {
-                return false;
+                return fileInfo;
             }
+
+            fileInfo.IsDicomFile = true;
+            fileInfo.StudyInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty);
+            fileInfo.SeriesInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty);
+            fileInfo.SopInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
+            return fileInfo;
         }
+
+        private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(CreateFileInfo)];
     }
 }

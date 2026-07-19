@@ -18,6 +18,12 @@
         public bool IsDicomFile { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the DICOM file contains
+        /// all identifiers required for repository import.
+        /// </summary>
+        public bool IsImportable => IsDicomFile && !string.IsNullOrWhiteSpace(StudyInstanceUid) && !string.IsNullOrWhiteSpace(SeriesInstanceUid) && !string.IsNullOrWhiteSpace(SopInstanceUid);
+
+        /// <summary>
         /// Gets or sets the series instance uid.
         /// </summary>
         public string SeriesInstanceUid { get; set; } = string.Empty;
@@ -30,6 +36,6 @@
         /// <summary>
         /// Gets or sets the study instance uid.
         /// </summary>
-        public string StudyInstanceUid { get; set; } = string.Empty;        
+        public string StudyInstanceUid { get; set; } = string.Empty;
     }
 }

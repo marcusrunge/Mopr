@@ -6,9 +6,9 @@
     public sealed class DicomImportResult
     {
         /// <summary>
-        /// Gets or sets the number of discovered files.
+        /// Gets the number of discovered files.
         /// </summary>
-        public int DiscoveredFiles { get; set; }
+        public int DiscoveredFiles => Files.Count;
 
         /// <summary>
         /// Gets the collection of import errors.
@@ -21,6 +21,17 @@
         public int FailedFiles { get; set; }
 
         /// <summary>
+        /// Gets the collection of discovered file information.
+        /// </summary>
+        public IList<DicomImportFileInfo> Files { get; } = [];
+
+        /// <summary>
+        /// Gets the number of DICOM files that contain all identifiers
+        /// required for repository import.
+        /// </summary>
+        public int ImportableFiles => Files.Count(fileInfo => fileInfo.IsImportable);
+
+        /// <summary>
         /// Gets or sets the number of successfully imported files.
         /// </summary>
         public int ImportedFiles { get; set; }
@@ -31,8 +42,8 @@
         public int SkippedFiles { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of valid DICOM files.
+        /// Gets the number of valid DICOM files.
         /// </summary>
-        public int ValidDicomFiles { get; set; }
+        public int ValidDicomFiles => Files.Count(fileInfo => fileInfo.IsDicomFile);
     }
 }
