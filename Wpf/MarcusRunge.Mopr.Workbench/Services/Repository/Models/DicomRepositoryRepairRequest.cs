@@ -1,13 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
+    /// <summary>
+    /// Represents a repository repair request.
+    /// </summary>
     public sealed class DicomRepositoryRepairRequest
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the repository index
+        /// should be rebuilt.
+        /// </summary>
         public bool RebuildRepositoryIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether missing or misplaced
+        /// files should be repaired.
+        /// </summary>
         public bool RepairMissingFiles { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether persisted repository
+        /// files should be verified.
+        /// </summary>
         public bool VerifyFiles { get; set; } = true;
     }
 }

@@ -11,6 +11,11 @@
         public IList<string> Errors { get; } = [];
 
         /// <summary>
+        /// Gets or sets the number of files found at an unexpected repository location.
+        /// </summary>
+        public int MisplacedFiles { get; set; }
+
+        /// <summary>
         /// Gets or sets the missing files.
         /// </summary>
         public int MissingFiles { get; set; }
