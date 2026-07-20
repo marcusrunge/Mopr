@@ -128,11 +128,59 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
         private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(CreateFileInfo)];
 
-        private async Task ImportFileAsync(DicomImportFileInfo fileInfo, DicomImportResult result, bool allowOverwrite, CancellationToken cancellationToken)
+        private static async Task<bool> FilesAreEqualAsync(string firstPath, string secondPath, CancellationToken cancellationToken)
+        {
+            FileInfo firstFileInfo = new(firstPath);
+            FileInfo secondFileInfo = new(secondPath);
+
+            if (firstFileInfo.Length != secondFileInfo.Length)
+            {
+                return false;
+            }
+
+            const int bufferSize = 81920;
+
+            byte[] firstBuffer = new byte[bufferSize];
+            byte[] secondBuffer = new byte[bufferSize];
+
+            await using FileStream firstStream = new(firstPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            await using FileStream secondStream = new(secondPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
+
+            while (true)
+            {
+                int firstBytesRead = await firstStream.ReadAsync(firstBuffer, cancellationToken);
+                int secondBytesRead = await secondStream.ReadAsync(secondBuffer, cancellationToken);
+
+                if (firstBytesRead != secondBytesRead)
+                {
+                    return false;
+                }
+
+                if (firstBytesRead == 0)
+                {
+                    return true;
+                }
+
+                if (!firstBuffer.AsSpan(0, firstBytesRead).SequenceEqual(secondBuffer.AsSpan(0, secondBytesRead)))
+                {
+                    return false;
+                }
+            }
+        }
+
+        private async Task ImportFileAsync(
+            DicomImportFileInfo fileInfo,
+    DicomImportResult result,
+    bool allowOverwrite,
+    CancellationToken cancellationToken)
         {
             try
             {
-                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(fileInfo.StudyInstanceUid, fileInfo.SeriesInstanceUid, fileInfo.SopInstanceUid);
+                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(
+                    fileInfo.StudyInstanceUid,
+                    fileInfo.SeriesInstanceUid,
+                    fileInfo.SopInstanceUid);
+
                 string? destinationDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
 
                 if (string.IsNullOrWhiteSpace(destinationDirectory))
@@ -142,10 +190,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 Directory.CreateDirectory(destinationDirectory);
 
-                await CopyFileAsync(fileInfo.FilePath, pathInfo.AbsolutePath, allowOverwrite, cancellationToken);
+                if (File.Exists(pathInfo.AbsolutePath) && !allowOverwrite)
+                {
+                    bool filesAreEqual = await FilesAreEqualAsync(
+                        fileInfo.FilePath,
+                        pathInfo.AbsolutePath,
+                        cancellationToken);
+
+                    if (!filesAreEqual)
+                    {
+                        throw new IOException($"A different file already exists at repository path '{pathInfo.RelativePath}'.");
+                    }
+
+                    fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
+                    result.SkippedFiles++;
+                    return;
+                }
+
+                await CopyFileAsync(
+                    fileInfo.FilePath,
+                    pathInfo.AbsolutePath,
+                    allowOverwrite,
+                    cancellationToken);
 
                 fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
-
                 result.ImportedFiles++;
             }
             catch (OperationCanceledException)
@@ -155,7 +223,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             catch (Exception exception)
             {
                 result.FailedFiles++;
-
                 result.Errors.Add($"File '{fileInfo.FilePath}' could not be imported: {exception.Message}");
             }
         }

@@ -359,8 +359,184 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
                 byte[] sourceBytes = await File.ReadAllBytesAsync(sourceFilePath, TestContext.Current.CancellationToken);
                 byte[] destinationBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
-                
+
                 Assert.Equal(sourceBytes, destinationBytes);
+            }
+            finally
+            {
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
+        [Fact, Priority(15)]
+        public async Task Import_Should_Skip_Existing_Identical_Dicom_File()
+        {
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
+
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult firstResult = await ImportAsync(sourceDirectory);
+                DicomImportResult secondResult = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, firstResult.ImportedFiles);
+                Assert.Equal(0, firstResult.SkippedFiles);
+                Assert.Equal(0, firstResult.FailedFiles);
+                Assert.Empty(firstResult.Errors);
+
+                Assert.Equal(1, secondResult.DiscoveredFiles);
+                Assert.Equal(1, secondResult.ValidDicomFiles);
+                Assert.Equal(1, secondResult.ImportableFiles);
+                Assert.Equal(0, secondResult.ImportedFiles);
+                Assert.Equal(1, secondResult.SkippedFiles);
+                Assert.Equal(0, secondResult.FailedFiles);
+                Assert.Empty(secondResult.Errors);
+
+                DicomImportFileInfo fileInfo = Assert.Single(secondResult.Files);
+
+                Assert.Equal(pathInfo.RelativePath, fileInfo.RelativeRepositoryPath);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+
+                byte[] sourceBytes = await File.ReadAllBytesAsync(sourceFilePath, TestContext.Current.CancellationToken);
+                byte[] destinationBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+
+                Assert.Equal(sourceBytes, destinationBytes);
+            }
+            finally
+            {
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
+        [Fact, Priority(16)]
+        public async Task Import_Should_Report_Conflict_When_Existing_Dicom_File_Is_Different()
+        {
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
+
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult firstResult = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, firstResult.ImportedFiles);
+                Assert.Equal(0, firstResult.SkippedFiles);
+                Assert.Equal(0, firstResult.FailedFiles);
+                Assert.Empty(firstResult.Errors);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+
+                byte[] originalRepositoryBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+
+                DicomFile changedDicomFile = await DicomFile.OpenAsync(sourceFilePath);
+                changedDicomFile.Dataset.AddOrUpdate(DicomTag.StudyDescription, "Changed study description");
+                await changedDicomFile.SaveAsync(sourceFilePath);
+
+                DicomImportResult secondResult = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, secondResult.DiscoveredFiles);
+                Assert.Equal(1, secondResult.ValidDicomFiles);
+                Assert.Equal(1, secondResult.ImportableFiles);
+                Assert.Equal(0, secondResult.ImportedFiles);
+                Assert.Equal(0, secondResult.SkippedFiles);
+                Assert.Equal(1, secondResult.FailedFiles);
+                Assert.Single(secondResult.Errors);
+
+                DicomImportFileInfo fileInfo = Assert.Single(secondResult.Files);
+
+                Assert.True(fileInfo.IsDicomFile);
+                Assert.True(fileInfo.IsImportable);
+                Assert.Empty(fileInfo.RelativeRepositoryPath);
+
+                byte[] currentRepositoryBytes = await File.ReadAllBytesAsync(
+                    pathInfo.AbsolutePath,
+                    TestContext.Current.CancellationToken);
+
+                Assert.Equal(originalRepositoryBytes, currentRepositoryBytes);
+            }
+            finally
+            {
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
+        [Fact, Priority(17)]
+        public async Task Import_Should_Overwrite_Different_Dicom_File_When_Allowed()
+        {
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
+
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult firstResult = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, firstResult.ImportedFiles);
+                Assert.Equal(0, firstResult.SkippedFiles);
+                Assert.Equal(0, firstResult.FailedFiles);
+                Assert.Empty(firstResult.Errors);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+
+                byte[] originalRepositoryBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+
+                DicomFile changedDicomFile = DicomFile.Open(sourceFilePath);
+                changedDicomFile.Dataset.AddOrUpdate(DicomTag.StudyDescription, "Changed study description");
+
+                await changedDicomFile.SaveAsync(sourceFilePath);
+
+                byte[] changedSourceBytes = await File.ReadAllBytesAsync(sourceFilePath, TestContext.Current.CancellationToken);
+
+                Assert.NotEqual(originalRepositoryBytes, changedSourceBytes);
+
+                DicomImportResult secondResult = await ImportAsync(sourceDirectory, allowOverwrite: true);
+
+                Assert.Equal(1, secondResult.DiscoveredFiles);
+                Assert.Equal(1, secondResult.ValidDicomFiles);
+                Assert.Equal(1, secondResult.ImportableFiles);
+                Assert.Equal(1, secondResult.ImportedFiles);
+                Assert.Equal(0, secondResult.SkippedFiles);
+                Assert.Equal(0, secondResult.FailedFiles);
+                Assert.Empty(secondResult.Errors);
+
+                DicomImportFileInfo fileInfo = Assert.Single(secondResult.Files);
+
+                Assert.Equal(pathInfo.RelativePath, fileInfo.RelativeRepositoryPath);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+
+                byte[] currentRepositoryBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+
+                Assert.Equal(changedSourceBytes, currentRepositoryBytes);
+                Assert.NotEqual(originalRepositoryBytes, currentRepositoryBytes);
             }
             finally
             {
