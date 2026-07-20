@@ -1,5 +1,7 @@
 ﻿using FellowOakDicom;
 using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
@@ -13,13 +15,23 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IRepositoryBase? _base;
 
         private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+        private IInstanceRepository InstanceRepository => Persistence.Instance ?? throw new InvalidOperationException("The instance repository has not been initialized.");
+        private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
+        private ISeriesRepository SeriesRepository => Persistence.Series ?? throw new InvalidOperationException("The series repository has not been initialized.");
+        private IStudyRepository StudyRepository => Persistence.Study ?? throw new InvalidOperationException("The study repository has not been initialized.");
+        private IUserRepository UserRepository => Persistence.User ?? throw new InvalidOperationException("The user repository has not been initialized.");
 
         /// <inheritdoc/>
         public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentException.ThrowIfNullOrWhiteSpace(request.SourcePath);
+
+            if (request.CreatedByUserId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(request), "The ID of the user executing the import must be a positive integer.");
+            }
 
             DicomImportResult result = new();
 
@@ -60,7 +72,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     continue;
                 }
 
-                await ImportFileAsync(fileInfo, result, request.AllowOverwrite, cancellationToken);
+                await ImportFileAsync(fileInfo, result, request.AllowOverwrite, request.CreatedByUserId, cancellationToken);
             }
 
             return result;
@@ -168,18 +180,78 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task ImportFileAsync(
-            DicomImportFileInfo fileInfo,
-    DicomImportResult result,
-    bool allowOverwrite,
-    CancellationToken cancellationToken)
+        private async Task PersistFileAsync(DicomImportFileInfo fileInfo, int createdByUserId, CancellationToken cancellationToken)
+        {
+            User? user = await UserRepository.GetByIdAsync(createdByUserId, cancellationToken) ?? throw new InvalidOperationException($"The user with ID '{createdByUserId}' does not exist.");
+            Study? study = await StudyRepository.GetByStudyInstanceUidAsync(fileInfo.StudyInstanceUid, cancellationToken);
+
+            if (study is null)
+            {
+                study = new Study
+                {
+                    StudyInstanceUid = fileInfo.StudyInstanceUid,
+                    CreatedByUserId = createdByUserId
+                };
+
+                await StudyRepository.AddAsync(study, cancellationToken);
+            }
+
+            Series? series = await SeriesRepository.GetBySeriesInstanceUidAsync(fileInfo.SeriesInstanceUid, cancellationToken);
+
+            if (series is null)
+            {
+                series = new Series
+                {
+                    SeriesInstanceUid = fileInfo.SeriesInstanceUid,
+                    StudyId = study.Id,
+                    CreatedByUserId = createdByUserId
+                };
+
+                await SeriesRepository.AddAsync(series, cancellationToken);
+            }
+            else if (series.StudyId != study.Id)
+            {
+                throw new InvalidOperationException($"Series '{fileInfo.SeriesInstanceUid}' belongs to a different study.");
+            }
+
+            Instance? instance = await InstanceRepository.GetBySopInstanceUidAsync(fileInfo.SopInstanceUid, cancellationToken);
+
+            if (instance is null)
+            {
+                instance = new Instance
+                {
+                    SopInstanceUid = fileInfo.SopInstanceUid,
+                    RelativeFilePath = fileInfo.RelativeRepositoryPath,
+                    SeriesId = series.Id,
+                    CreatedByUserId = createdByUserId
+                };
+
+                await InstanceRepository.AddAsync(instance, cancellationToken);
+
+                return;
+            }
+
+            if (instance.SeriesId != series.Id)
+            {
+                throw new InvalidOperationException(
+                    $"Instance '{fileInfo.SopInstanceUid}' belongs to a different series.");
+            }
+
+            if (instance.RelativeFilePath != fileInfo.RelativeRepositoryPath)
+            {
+                instance.RelativeFilePath = fileInfo.RelativeRepositoryPath;
+                instance.ModifiedAtUtc = DateTime.UtcNow;
+                instance.ModifiedByUserId = createdByUserId;
+
+                await InstanceRepository.UpdateAsync(instance, cancellationToken);
+            }
+        }
+
+        private async Task ImportFileAsync(DicomImportFileInfo fileInfo, DicomImportResult result, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
         {
             try
             {
-                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(
-                    fileInfo.StudyInstanceUid,
-                    fileInfo.SeriesInstanceUid,
-                    fileInfo.SopInstanceUid);
+                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(fileInfo.StudyInstanceUid, fileInfo.SeriesInstanceUid, fileInfo.SopInstanceUid);
 
                 string? destinationDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
 
@@ -192,10 +264,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 if (File.Exists(pathInfo.AbsolutePath) && !allowOverwrite)
                 {
-                    bool filesAreEqual = await FilesAreEqualAsync(
-                        fileInfo.FilePath,
-                        pathInfo.AbsolutePath,
-                        cancellationToken);
+                    bool filesAreEqual = await FilesAreEqualAsync(fileInfo.FilePath, pathInfo.AbsolutePath, cancellationToken);
 
                     if (!filesAreEqual)
                     {
@@ -203,17 +272,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     }
 
                     fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
+
+                    await PersistFileAsync(fileInfo, createdByUserId, cancellationToken);
+
                     result.SkippedFiles++;
                     return;
                 }
 
-                await CopyFileAsync(
-                    fileInfo.FilePath,
-                    pathInfo.AbsolutePath,
-                    allowOverwrite,
-                    cancellationToken);
+                await CopyFileAsync(fileInfo.FilePath, pathInfo.AbsolutePath, allowOverwrite, cancellationToken);
 
                 fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
+
+                await PersistFileAsync(fileInfo, createdByUserId, cancellationToken);
+
                 result.ImportedFiles++;
             }
             catch (OperationCanceledException)

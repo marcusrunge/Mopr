@@ -1,4 +1,5 @@
 ﻿using FellowOakDicom;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
@@ -545,6 +546,69 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             }
         }
 
+        [Fact, Priority(18)]
+        public async Task Import_Should_Persist_Study_Series_And_Instance()
+        {
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
+
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult result = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, result.ImportedFiles);
+                Assert.Equal(0, result.SkippedFiles);
+
+                Assert.True(result.FailedFiles == 0, string.Join(Environment.NewLine, result.Errors));
+
+                Assert.Empty(result.Errors);
+                Assert.NotNull(_fixture.Persistence);
+                Assert.NotNull(_fixture.TestUser);
+
+                Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(studyInstanceUid.UID, TestContext.Current.CancellationToken);
+
+                Assert.NotNull(study);
+                Assert.True(study.Id > 0);
+                Assert.Equal(studyInstanceUid.UID, study.StudyInstanceUid);
+                Assert.Equal(_fixture.TestUser!.Id, study.CreatedByUserId);
+
+                Series? series = await _fixture.Persistence.Series!.GetBySeriesInstanceUidAsync(seriesInstanceUid.UID, TestContext.Current.CancellationToken);
+
+                Assert.NotNull(series);
+                Assert.True(series.Id > 0);
+                Assert.Equal(seriesInstanceUid.UID, series.SeriesInstanceUid);
+                Assert.Equal(study.Id, series.StudyId);
+                Assert.Equal(_fixture.TestUser.Id, series.CreatedByUserId);
+
+                Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(sopInstanceUid.UID, TestContext.Current.CancellationToken);
+
+                Assert.NotNull(instance);
+                Assert.True(instance.Id > 0);
+                Assert.Equal(sopInstanceUid.UID, instance.SopInstanceUid);
+                Assert.Equal(series.Id, instance.SeriesId);
+                Assert.Equal(pathInfo.RelativePath, instance.RelativeFilePath);
+                Assert.Equal(_fixture.TestUser.Id, instance.CreatedByUserId);
+
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+            }
+            finally
+            {
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
+
         private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid)
         {
             return _fixture.Repository!.RepositoryService!.CreatePathInfo(studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
@@ -558,7 +622,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                     SourcePath = sourcePath,
                     SourceType = ImportSourceType.Directory,
                     AllowOverwrite = allowOverwrite,
-                    ExecuteRepositoryRepair = false
+                    ExecuteRepositoryRepair = false,
+                    CreatedByUserId = _fixture.TestUser!.Id
                 },
                 TestContext.Current.CancellationToken);
         }
