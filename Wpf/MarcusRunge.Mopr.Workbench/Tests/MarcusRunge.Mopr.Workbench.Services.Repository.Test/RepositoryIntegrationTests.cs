@@ -23,6 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         {
             string path = _fixture.Repository!.RepositoryService!.CreateRelativePath("1.2.3", "4.5.6", "7.8.9");
             string expected = Path.Combine("1.2.3", "4.5.6", "7.8.9.dcm");
+
             Assert.Equal(expected, path);
         }
 
@@ -30,6 +31,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         public void CreatePathInfo_Should_Create_PathInformation()
         {
             DicomRepositoryPathInfo pathInfo = _fixture.Repository!.RepositoryService!.CreatePathInfo("1.2.3", "4.5.6", "7.8.9");
+
             Assert.Equal("1.2.3", pathInfo.StudyInstanceUid);
             Assert.Equal("4.5.6", pathInfo.SeriesInstanceUid);
             Assert.Equal("7.8.9", pathInfo.SopInstanceUid);
@@ -41,6 +43,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         public void Exists_Should_Return_False_For_Missing_File()
         {
             bool exists = _fixture.Repository!.RepositoryService!.Exists(Path.Combine("DoesNotExist", "File.dcm"));
+
             Assert.False(exists);
         }
 
@@ -49,17 +52,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         {
             string relativePath = Path.Combine("1.2.3", "4.5.6", "7.8.9.dcm");
             string absolutePath = _fixture.Repository!.RepositoryService!.GetAbsolutePath(relativePath);
+
             Assert.Contains(relativePath, absolutePath);
         }
 
         [Fact, Priority(6)]
         public async Task Import_Should_Return_Error_For_Missing_Directory()
         {
-            DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-            {
-                SourcePath = Guid.NewGuid().ToString(),
-                SourceType = ImportSourceType.Directory
-            }, TestContext.Current.CancellationToken);
+            DicomImportResult result = await ImportAsync(Guid.NewGuid().ToString("N"));
+
+            Assert.Equal(0, result.DiscoveredFiles);
+            Assert.Equal(0, result.ValidDicomFiles);
+            Assert.Equal(0, result.ImportableFiles);
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
             Assert.Equal(1, result.FailedFiles);
             Assert.NotEmpty(result.Errors);
         }
@@ -67,268 +73,365 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         [Fact, Priority(7)]
         public async Task Import_Should_Count_Files()
         {
-            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string directory = CreateTemporaryDirectory();
+
             try
             {
-                Directory.CreateDirectory(directory);
                 File.WriteAllText(Path.Combine(directory, "A.dcm"), "Test");
                 File.WriteAllText(Path.Combine(directory, "B.dcm"), "Test");
                 File.WriteAllText(Path.Combine(directory, "C.dcm"), "Test");
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = directory,
-                    SourceType = ImportSourceType.Directory
-                }, TestContext.Current.CancellationToken);
+
+                DicomImportResult result = await ImportAsync(directory);
+
                 Assert.Equal(3, result.DiscoveredFiles);
+                Assert.Equal(0, result.ValidDicomFiles);
+                Assert.Equal(0, result.ImportableFiles);
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(3, result.SkippedFiles);
                 Assert.Equal(0, result.FailedFiles);
                 Assert.Empty(result.Errors);
             }
             finally
             {
-                if (Directory.Exists(directory))
-                {
-                    Directory.Delete(directory, true);
-                }
+                DeleteDirectory(directory);
             }
         }
 
         [Fact, Priority(8)]
         public async Task Import_Should_Count_Files_In_SubDirectories()
         {
-            string root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string directory = CreateTemporaryDirectory();
+
             try
             {
-                Directory.CreateDirectory(root);
-                string child = Path.Combine(root, "Child");
-                Directory.CreateDirectory(child);
-                File.WriteAllText(Path.Combine(root, "A.dcm"), "Test");
-                File.WriteAllText(Path.Combine(child, "B.dcm"), "Test");
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = root,
-                    SourceType = ImportSourceType.Directory
-                }, TestContext.Current.CancellationToken);
+                string childDirectory = Path.Combine(directory, "Child");
+
+                Directory.CreateDirectory(childDirectory);
+                File.WriteAllText(Path.Combine(directory, "A.dcm"), "Test");
+                File.WriteAllText(Path.Combine(childDirectory, "B.dcm"), "Test");
+
+                DicomImportResult result = await ImportAsync(directory);
+
                 Assert.Equal(2, result.DiscoveredFiles);
+                Assert.Equal(0, result.ValidDicomFiles);
+                Assert.Equal(0, result.ImportableFiles);
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(2, result.SkippedFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
             }
             finally
             {
-                if (Directory.Exists(root))
-                {
-                    Directory.Delete(root, true);
-                }
+                DeleteDirectory(directory);
             }
         }
 
         [Fact, Priority(9)]
         public async Task Import_Should_Find_No_Dicom_Files()
         {
-            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string directory = CreateTemporaryDirectory();
 
             try
             {
-                Directory.CreateDirectory(directory);
                 File.WriteAllText(Path.Combine(directory, "A.txt"), "Test");
                 File.WriteAllText(Path.Combine(directory, "B.txt"), "Test");
                 File.WriteAllText(Path.Combine(directory, "C.txt"), "Test");
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = directory,
-                    SourceType = ImportSourceType.Directory
-                }, TestContext.Current.CancellationToken);
+
+                DicomImportResult result = await ImportAsync(directory);
 
                 Assert.Equal(3, result.DiscoveredFiles);
                 Assert.Equal(0, result.ValidDicomFiles);
+                Assert.Equal(0, result.ImportableFiles);
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(3, result.SkippedFiles);
                 Assert.Equal(0, result.FailedFiles);
                 Assert.Empty(result.Errors);
             }
             finally
             {
-                if (Directory.Exists(directory))
-                {
-                    Directory.Delete(directory, true);
-                }
+                DeleteDirectory(directory);
             }
         }
 
         [Fact, Priority(10)]
         public async Task Import_Should_Find_Valid_Dicom_File()
         {
-            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string directory = CreateTemporaryDirectory();
 
             try
             {
-                Directory.CreateDirectory(directory);
-
                 string filePath = Path.Combine(directory, "Image.dcm");
+                DicomUID sopInstanceUid = DicomUID.Generate();
 
-                DicomDataset dataset = new()
-                {
-                    {
-                        DicomTag.SOPClassUID,
-                        DicomUID.SecondaryCaptureImageStorage
-                    },
-                    {
-                        DicomTag.SOPInstanceUID,
-                        DicomUID.Generate()
-                    }
-                };
+                await CreateDicomFileAsync(filePath, null, null, sopInstanceUid);
 
-                DicomFile dicomFile = new(dataset);
-
-                await dicomFile.SaveAsync(filePath);
-
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = directory,
-                    SourceType = ImportSourceType.Directory
-                }, TestContext.Current.CancellationToken);
+                DicomImportResult result = await ImportAsync(directory);
 
                 Assert.Equal(1, result.DiscoveredFiles);
                 Assert.Equal(1, result.ValidDicomFiles);
-                Assert.Equal(0, result.FailedFiles);
                 Assert.Equal(0, result.ImportableFiles);
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(1, result.SkippedFiles);
+                Assert.Equal(0, result.FailedFiles);
                 Assert.Empty(result.Errors);
+
                 DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+
                 Assert.True(fileInfo.IsDicomFile);
                 Assert.False(fileInfo.IsImportable);
                 Assert.Equal("Image.dcm", fileInfo.FileName);
                 Assert.Equal(filePath, fileInfo.FilePath);
+                Assert.Equal(sopInstanceUid.UID, fileInfo.SopInstanceUid);
+                Assert.Empty(fileInfo.StudyInstanceUid);
+                Assert.Empty(fileInfo.SeriesInstanceUid);
+                Assert.Empty(fileInfo.RelativeRepositoryPath);
             }
             finally
             {
-                if (Directory.Exists(directory))
-                {
-                    Directory.Delete(directory, true);
-                }
+                DeleteDirectory(directory);
             }
         }
 
         [Fact, Priority(11)]
         public async Task Import_Should_Read_Dicom_Instance_Uids()
         {
-            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
 
             try
             {
-                Directory.CreateDirectory(directory);
-                string filePath = Path.Combine(directory, "Image.dcm");
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
                 DicomUID studyInstanceUid = DicomUID.Generate();
                 DicomUID seriesInstanceUid = DicomUID.Generate();
                 DicomUID sopInstanceUid = DicomUID.Generate();
 
-                DicomDataset dataset = new()
-                {
-                    {
-                        DicomTag.SOPClassUID,
-                        DicomUID.SecondaryCaptureImageStorage
-                    },
-                    {
-                        DicomTag.StudyInstanceUID,
-                        studyInstanceUid
-                    },
-                    {
-                        DicomTag.SeriesInstanceUID,
-                        seriesInstanceUid
-                    },
-                    {
-                        DicomTag.SOPInstanceUID,
-                        sopInstanceUid
-                    }
-                };
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
 
-                DicomFile dicomFile = new(dataset);
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
 
-                await dicomFile.SaveAsync(filePath);
-
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = directory,
-                    SourceType = ImportSourceType.Directory
-                }, TestContext.Current.CancellationToken);
+                DicomImportResult result = await ImportAsync(sourceDirectory);
 
                 Assert.Equal(1, result.DiscoveredFiles);
                 Assert.Equal(1, result.ValidDicomFiles);
                 Assert.Equal(1, result.ImportableFiles);
+                Assert.Equal(1, result.ImportedFiles);
+                Assert.Equal(0, result.SkippedFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
+
                 DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+
                 Assert.True(fileInfo.IsDicomFile);
                 Assert.True(fileInfo.IsImportable);
                 Assert.Equal(studyInstanceUid.UID, fileInfo.StudyInstanceUid);
                 Assert.Equal(seriesInstanceUid.UID, fileInfo.SeriesInstanceUid);
                 Assert.Equal(sopInstanceUid.UID, fileInfo.SopInstanceUid);
+                Assert.Equal(pathInfo.RelativePath, fileInfo.RelativeRepositoryPath);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
             }
             finally
             {
-                if (Directory.Exists(directory))
-                {
-                    Directory.Delete(directory, true);
-                }
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
             }
         }
 
         [Fact, Priority(12)]
         public async Task Import_Should_Distinguish_Dicom_And_Non_Dicom_Files()
         {
-            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
 
             try
             {
-                Directory.CreateDirectory(directory);
-
-                string childDirectory = Path.Combine(directory, "Child");
+                string childDirectory = Path.Combine(sourceDirectory, "Child");
+                string dicomFilePath = Path.Combine(childDirectory, "Image.dcm");
+                string textFilePath = Path.Combine(sourceDirectory, "Readme.txt");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
 
                 Directory.CreateDirectory(childDirectory);
 
-                string dicomFilePath = Path.Combine(childDirectory, "Image.dcm");
-                string textFilePath = Path.Combine(directory, "Readme.txt");
-
-                DicomDataset dataset = new()        {
-                    {
-                        DicomTag.SOPClassUID,
-                        DicomUID.SecondaryCaptureImageStorage
-                    },
-                    {
-                        DicomTag.StudyInstanceUID,
-                        DicomUID.Generate()
-                    },
-                    {
-                        DicomTag.SeriesInstanceUID,
-                        DicomUID.Generate()
-                    },
-                    {
-                        DicomTag.SOPInstanceUID,
-                        DicomUID.Generate()
-                    }
-                };
-
-                DicomFile dicomFile = new(dataset);
-                await dicomFile.SaveAsync(dicomFilePath);
-
+                await CreateDicomFileAsync(dicomFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
                 await File.WriteAllTextAsync(textFilePath, "This is not a DICOM file.", TestContext.Current.CancellationToken);
 
-                DicomImportResult result = await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
-                {
-                    SourcePath = directory,
-                    SourceType = ImportSourceType.Directory
-                },
-                            TestContext.Current.CancellationToken);
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult result = await ImportAsync(sourceDirectory);
 
                 Assert.Equal(2, result.DiscoveredFiles);
                 Assert.Equal(1, result.ValidDicomFiles);
                 Assert.Equal(1, result.ImportableFiles);
+                Assert.Equal(1, result.ImportedFiles);
+                Assert.Equal(1, result.SkippedFiles);
                 Assert.Equal(0, result.FailedFiles);
                 Assert.Empty(result.Errors);
-                Assert.Contains(result.Files, fileInfo => fileInfo.FilePath == dicomFilePath && fileInfo.IsDicomFile);
-                Assert.Contains(result.Files, fileInfo => fileInfo.FilePath == textFilePath && !fileInfo.IsDicomFile);
+                DicomImportFileInfo importedFile = Assert.Single(result.Files, fileInfo => fileInfo.FilePath == dicomFilePath);
+                DicomImportFileInfo skippedFile = Assert.Single(result.Files, fileInfo => fileInfo.FilePath == textFilePath);
+                Assert.True(importedFile.IsDicomFile);
+                Assert.True(importedFile.IsImportable);
+                Assert.Equal(pathInfo.RelativePath, importedFile.RelativeRepositoryPath);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+                Assert.False(skippedFile.IsDicomFile);
+                Assert.False(skippedFile.IsImportable);
+                Assert.Empty(skippedFile.RelativeRepositoryPath);
             }
             finally
             {
-                if (Directory.Exists(directory))
-                {
-                    Directory.Delete(
-                        directory,
-                        true);
-                }
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
             }
+        }
+
+        [Fact, Priority(13)]
+        public async Task Import_Should_Not_Mark_Dicom_File_As_Importable_When_Series_Uid_Is_Missing()
+        {
+            string directory = CreateTemporaryDirectory();
+
+            try
+            {
+                string filePath = Path.Combine(directory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(filePath, studyInstanceUid, null, sopInstanceUid);
+
+                DicomImportResult result = await ImportAsync(directory);
+
+                Assert.Equal(1, result.DiscoveredFiles);
+                Assert.Equal(1, result.ValidDicomFiles);
+                Assert.Equal(0, result.ImportableFiles);
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(1, result.SkippedFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
+
+                DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+
+                Assert.True(fileInfo.IsDicomFile);
+                Assert.False(fileInfo.IsImportable);
+                Assert.Equal(studyInstanceUid.UID, fileInfo.StudyInstanceUid);
+                Assert.Empty(fileInfo.SeriesInstanceUid);
+                Assert.Equal(sopInstanceUid.UID, fileInfo.SopInstanceUid);
+                Assert.Empty(fileInfo.RelativeRepositoryPath);
+            }
+            finally
+            {
+                DeleteDirectory(directory);
+            }
+        }
+
+        [Fact, Priority(14)]
+        public async Task Import_Should_Copy_Importable_Dicom_File_To_Repository()
+        {
+            string sourceDirectory = CreateTemporaryDirectory();
+            string? repositoryStudyDirectory = null;
+
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceDirectory, "Image.dcm");
+                DicomUID studyInstanceUid = DicomUID.Generate();
+                DicomUID seriesInstanceUid = DicomUID.Generate();
+                DicomUID sopInstanceUid = DicomUID.Generate();
+
+                await CreateDicomFileAsync(sourceFilePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+                DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+                DicomImportResult result = await ImportAsync(sourceDirectory);
+
+                Assert.Equal(1, result.DiscoveredFiles);
+                Assert.Equal(1, result.ValidDicomFiles);
+                Assert.Equal(1, result.ImportableFiles);
+                Assert.Equal(1, result.ImportedFiles);
+                Assert.Equal(0, result.SkippedFiles);
+                Assert.Equal(0, result.FailedFiles);
+                Assert.Empty(result.Errors);
+
+                DicomImportFileInfo fileInfo = Assert.Single(result.Files);
+
+                Assert.Equal(pathInfo.RelativePath, fileInfo.RelativeRepositoryPath);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+
+                byte[] sourceBytes = await File.ReadAllBytesAsync(sourceFilePath, TestContext.Current.CancellationToken);
+                byte[] destinationBytes = await File.ReadAllBytesAsync(pathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+                
+                Assert.Equal(sourceBytes, destinationBytes);
+            }
+            finally
+            {
+                DeleteDirectory(sourceDirectory);
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
+        private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid)
+        {
+            return _fixture.Repository!.RepositoryService!.CreatePathInfo(studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
+        }
+
+        private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false)
+        {
+            return await _fixture.Repository!.ImportService!.ImportAsync(
+                new DicomImportRequest
+                {
+                    SourcePath = sourcePath,
+                    SourceType = ImportSourceType.Directory,
+                    AllowOverwrite = allowOverwrite,
+                    ExecuteRepositoryRepair = false
+                },
+                TestContext.Current.CancellationToken);
+        }
+
+        private static async Task CreateDicomFileAsync(string filePath, DicomUID? studyInstanceUid, DicomUID? seriesInstanceUid, DicomUID sopInstanceUid)
+        {
+            DicomDataset dataset = new()
+            {
+                { DicomTag.SOPClassUID, DicomUID.SecondaryCaptureImageStorage },
+                { DicomTag.SOPInstanceUID, sopInstanceUid }
+            };
+
+            if (studyInstanceUid is not null)
+            {
+                dataset.Add(DicomTag.StudyInstanceUID, studyInstanceUid);
+            }
+
+            if (seriesInstanceUid is not null)
+            {
+                dataset.Add(DicomTag.SeriesInstanceUID, seriesInstanceUid);
+            }
+
+            DicomFile dicomFile = new(dataset);
+
+            await dicomFile.SaveAsync(filePath);
+        }
+
+        private static string CreateTemporaryDirectory()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+            Directory.CreateDirectory(directory);
+
+            return directory;
+        }
+
+        private static void DeleteDirectory(string? directory)
+        {
+            if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        private static string? GetRepositoryStudyDirectory(DicomRepositoryPathInfo pathInfo)
+        {
+            string? seriesDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
+
+            return seriesDirectory is null ? null : Path.GetDirectoryName(seriesDirectory);
         }
     }
 }

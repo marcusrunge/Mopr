@@ -24,6 +24,11 @@
         public bool IsImportable => IsDicomFile && !string.IsNullOrWhiteSpace(StudyInstanceUid) && !string.IsNullOrWhiteSpace(SeriesInstanceUid) && !string.IsNullOrWhiteSpace(SopInstanceUid);
 
         /// <summary>
+        /// Gets or sets the relative path of the imported file inside the repository.
+        /// </summary>
+        public string RelativeRepositoryPath { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the series instance uid.
         /// </summary>
         public string SeriesInstanceUid { get; set; } = string.Empty;

@@ -10,7 +10,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// <summary>
         /// Gets or sets a value indicating whether existing instances may be overwritten.
         /// </summary>
-        public bool AllowOverwrite { get; set; }
+        public bool AllowOverwrite { get; set; }               
 
         /// <summary>
         /// Gets or sets a value indicating whether repository repair should be executed after import.
