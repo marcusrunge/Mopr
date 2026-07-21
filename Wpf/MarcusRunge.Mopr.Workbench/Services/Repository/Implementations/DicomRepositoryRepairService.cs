@@ -108,7 +108,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                                 continue;
                             }
 
-                            filesBySopInstanceUid.TryAdd(sopInstanceUid, filePath);
+                            if (!filesBySopInstanceUid.TryAdd(sopInstanceUid, filePath))
+                            {
+                                result.DuplicateFiles++;
+                            }
                         }
                         catch (OperationCanceledException)
                         {
@@ -146,9 +149,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (string.IsNullOrWhiteSpace(instance.SopInstanceUid))
             {
                 result.MissingFiles++;
-
                 AddError(result, $"Instance with ID '{instance.Id}' has no SOP instance UID.");
-
                 return;
             }
 
@@ -160,7 +161,34 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 if (File.Exists(expectedAbsolutePath))
                 {
-                    return;
+                    try
+                    {
+                        string actualSopInstanceUid = await ReadSopInstanceUidAsync(expectedAbsolutePath, cancellationToken);
+
+                        if (string.Equals(actualSopInstanceUid, instance.SopInstanceUid, StringComparison.Ordinal))
+                        {
+                            return;
+                        }
+
+                        result.IdentityMismatchFiles++;
+                        AddError(result, $"Repository file '{expectedAbsolutePath}' contains SOP instance UID " + $"'{actualSopInstanceUid}', but instance '{instance.Id}' expects " + $"'{instance.SopInstanceUid}'.");
+                        return;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (DicomFileException)
+                    {
+                        result.IdentityMismatchFiles++;
+                        AddError(result, $"Repository file '{expectedAbsolutePath}' for instance " + $"'{instance.SopInstanceUid}' is not a valid DICOM file.");
+                        return;
+                    }
+                    catch (Exception exception)
+                    {
+                        AddError(result, $"Repository file '{expectedAbsolutePath}' for instance " + $"'{instance.SopInstanceUid}' could not be verified: " + exception.Message, exception);
+                        return;
+                    }
                 }
             }
 
@@ -179,9 +207,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (string.IsNullOrWhiteSpace(expectedAbsolutePath))
             {
                 result.MissingFiles++;
-
                 AddError(result, $"Instance '{instance.SopInstanceUid}' has no expected repository path.");
-
                 return;
             }
 
@@ -190,14 +216,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (string.IsNullOrWhiteSpace(expectedDirectory))
             {
                 AddError(result, $"The expected repository directory for instance " + $"'{instance.SopInstanceUid}' could not be determined.");
-
                 return;
             }
 
+            // Race-condition protection:
+            // The destination may have been occupied after the initial check.
             if (File.Exists(expectedAbsolutePath))
             {
                 AddError(result, $"The expected repository path '{expectedAbsolutePath}' " + $"for instance '{instance.SopInstanceUid}' is already occupied.");
-
                 return;
             }
 
@@ -212,7 +238,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 }, cancellationToken);
 
                 repositoryFiles[instance.SopInstanceUid] = expectedAbsolutePath;
-
                 result.RepairedFiles++;
             }
             catch (OperationCanceledException)
@@ -223,6 +248,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 AddError(result, $"File for instance '{instance.SopInstanceUid}' could not be repaired " + $"from '{actualFilePath}' to '{expectedAbsolutePath}': " + exception.Message, exception);
             }
+        }
+
+        private static async Task<string> ReadSopInstanceUidAsync(string filePath, CancellationToken cancellationToken)
+        {
+            return await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                DicomFile dicomFile = DicomFile.Open(filePath);
+
+                return dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
+            },
+                cancellationToken);
         }
     }
 }
