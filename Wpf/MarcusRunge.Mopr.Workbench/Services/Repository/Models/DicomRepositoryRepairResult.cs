@@ -34,6 +34,12 @@
         public int MissingFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of valid DICOM files that are not associated
+        /// with a persisted instance.
+        /// </summary>
+        public int OrphanedFiles { get; set; }
+
+        /// <summary>
         /// Gets or sets the repaired files.
         /// </summary>
         public int RepairedFiles { get; set; }

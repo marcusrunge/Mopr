@@ -33,6 +33,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             IDictionary<string, string> repositoryFiles = await CreateRepositoryFileIndexAsync(result, cancellationToken);
 
+            HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
+
             IList<Study> studies = await StudyRepository.GetAllAsync(cancellationToken);
 
             foreach (Study study in studies)
@@ -51,10 +53,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        if (!string.IsNullOrWhiteSpace(instance.SopInstanceUid))
+                        {
+                            persistedSopInstanceUids.Add(instance.SopInstanceUid);
+                        }
+
                         await VerifyInstanceAsync(instance, repositoryFiles, request, result, cancellationToken);
                     }
                 }
             }
+
+            RegisterOrphanedFiles(repositoryFiles, persistedSopInstanceUids, result, cancellationToken);
 
             return result;
         }
@@ -62,6 +71,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         protected override void OnCreate(IRepositoryBase @base) => _base = @base;
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        private static async Task<string> ReadSopInstanceUidAsync(string filePath, CancellationToken cancellationToken)
+        {
+            return await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                DicomFile dicomFile = DicomFile.Open(filePath);
+
+                return dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
+            },
+                cancellationToken);
+        }
+
+        private static void RegisterOrphanedFiles(IDictionary<string, string> repositoryFiles, ISet<string> persistedSopInstanceUids, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        {
+            foreach (string sopInstanceUid in repositoryFiles.Keys)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!persistedSopInstanceUids.Contains(sopInstanceUid))
+                {
+                    result.OrphanedFiles++;
+                }
+            }
+        }
 
         private void AddError(DicomRepositoryRepairResult result, string message, Exception? exception = null)
         {
@@ -248,19 +283,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 AddError(result, $"File for instance '{instance.SopInstanceUid}' could not be repaired " + $"from '{actualFilePath}' to '{expectedAbsolutePath}': " + exception.Message, exception);
             }
-        }
-
-        private static async Task<string> ReadSopInstanceUidAsync(string filePath, CancellationToken cancellationToken)
-        {
-            return await Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                DicomFile dicomFile = DicomFile.Open(filePath);
-
-                return dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
-            },
-                cancellationToken);
         }
     }
 }

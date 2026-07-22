@@ -977,6 +977,52 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             }
         }
 
+        [Fact, Priority(25)]
+        public async Task Repair_Should_Detect_Orphaned_Dicom_File()
+        {
+            DicomUID studyInstanceUid = DicomUID.Generate();
+            DicomUID seriesInstanceUid = DicomUID.Generate();
+            DicomUID sopInstanceUid = DicomUID.Generate();
+
+            DicomRepositoryPathInfo pathInfo = CreatePathInfo(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+            string? repositoryStudyDirectory = GetRepositoryStudyDirectory(pathInfo);
+
+            DicomRepositoryRepairRequest repairRequest = new()
+            {
+                VerifyFiles = true,
+                RepairMissingFiles = false,
+                RebuildRepositoryIndex = false
+            };
+
+            DicomRepositoryRepairResult initialRepairResult = await _fixture.Repository!.RepositoryRepairService!.RepairAsync(repairRequest, TestContext.Current.CancellationToken);
+
+            try
+            {
+                string? repositorySeriesDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
+                Assert.False(string.IsNullOrWhiteSpace(repositorySeriesDirectory));
+                await Task.Run(() => Directory.CreateDirectory(repositorySeriesDirectory!), TestContext.Current.CancellationToken);
+                await CreateDicomFileAsync(pathInfo.AbsolutePath, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+                Instance? persistedInstance = await _fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(sopInstanceUid.UID, TestContext.Current.CancellationToken);
+                Assert.Null(persistedInstance);
+                DicomRepositoryRepairResult repairResult = await _fixture.Repository!.RepositoryRepairService!.RepairAsync(repairRequest, TestContext.Current.CancellationToken);
+                Assert.Equal(initialRepairResult.ScannedFiles, repairResult.ScannedFiles);
+                Assert.Equal(initialRepairResult.OrphanedFiles + 1, repairResult.OrphanedFiles);
+                Assert.Equal(initialRepairResult.MissingFiles, repairResult.MissingFiles);
+                Assert.Equal(initialRepairResult.MisplacedFiles, repairResult.MisplacedFiles);
+                Assert.Equal(initialRepairResult.IdentityMismatchFiles, repairResult.IdentityMismatchFiles);
+                Assert.Equal(initialRepairResult.DuplicateFiles, repairResult.DuplicateFiles);
+                Assert.Equal(initialRepairResult.RepairedFiles, repairResult.RepairedFiles);
+                Assert.Equal(initialRepairResult.Errors.Count, repairResult.Errors.Count);
+                Assert.True(File.Exists(pathInfo.AbsolutePath));
+            }
+            finally
+            {
+                DeleteDirectory(repositoryStudyDirectory);
+            }
+        }
+
         private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => _fixture.Repository!.RepositoryService!.CreatePathInfo(studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
 
         private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false) => await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
