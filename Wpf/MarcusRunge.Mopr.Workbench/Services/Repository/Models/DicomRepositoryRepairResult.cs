@@ -24,6 +24,12 @@
         public int IdentityMismatchFiles { get; set; }
 
         /// <summary>
+        /// Gets the structured technical repository issues detected
+        /// during verification or repair.
+        /// </summary>
+        public IList<DicomRepositoryIssue> Issues { get; } = [];
+
+        /// <summary>
         /// Gets or sets the number of files found at an unexpected repository location.
         /// </summary>
         public int MisplacedFiles { get; set; }

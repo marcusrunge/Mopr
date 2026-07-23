@@ -117,25 +117,133 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ImportSourceType_CdRom" xml:space="preserve">
-    <value>CD-ROM</value>
+  <data name="MirasAlertLevel_Advisory" xml:space="preserve">
+    <value>Hinweis</value>
   </data>
-  <data name="ImportSourceType_Directory" xml:space="preserve">
-    <value>Ordner</value>
+  <data name="MirasAlertLevel_Caution" xml:space="preserve">
+    <value>Achtung</value>
   </data>
-  <data name="ImportSourceType_Dvd" xml:space="preserve">
-    <value>DVD</value>
+  <data name="MirasAlertLevel_Normal" xml:space="preserve">
+    <value>Normal</value>
   </data>
-  <data name="ImportSourceType_IsoImage" xml:space="preserve">
-    <value>ISO-Abbild</value>
+  <data name="MirasAlertLevel_Warning" xml:space="preserve">
+    <value>Kritisch</value>
   </data>
-  <data name="ImportSourceType_NetworkShare" xml:space="preserve">
-    <value>Netzwerkfreigabe</value>
+  <data name="MirasIssueState_ActionAvailable" xml:space="preserve">
+    <value>Maßnahme verfügbar</value>
   </data>
-  <data name="ImportSourceType_Unknown" xml:space="preserve">
-    <value>Unbekannt</value>
+  <data name="MirasIssueState_ActionRequired" xml:space="preserve">
+    <value>MIRAS Aktion erforderlich</value>
   </data>
-  <data name="ImportSourceType_UsbDrive" xml:space="preserve">
-    <value>USB-Laufwerk</value>
+  <data name="MirasIssueState_AutomaticallyResolved" xml:space="preserve">
+    <value>Automatisch behoben</value>
+  </data>
+  <data name="MirasIssueState_Deferred" xml:space="preserve">
+    <value>Zurückgestellt</value>
+  </data>
+  <data name="MirasIssueState_Detected" xml:space="preserve">
+    <value>Erkannt</value>
+  </data>
+  <data name="MirasIssueState_ManuallyResolved" xml:space="preserve">
+    <value>Behoben</value>
+  </data>
+  <data name="MirasIssueState_ResolutionFailed" xml:space="preserve">
+    <value>Reparatur fehlgeschlagen</value>
+  </data>
+  <data name="MirasIssueType_DuplicateFile" xml:space="preserve">
+    <value>Zusätzliche Bildkopie</value>
+  </data>
+  <data name="MirasIssueType_IdentityMismatch" xml:space="preserve">
+    <value>Konflikt bei der Bildzuordnung</value>
+  </data>
+  <data name="MirasIssueType_IncompleteImport" xml:space="preserve">
+    <value>Unvollständiger Import</value>
+  </data>
+  <data name="MirasIssueType_InvalidDicomFile" xml:space="preserve">
+    <value>Ungültige DICOM-Datei</value>
+  </data>
+  <data name="MirasIssueType_MisplacedFile" xml:space="preserve">
+    <value>Bilddatei wurde verschoben</value>
+  </data>
+  <data name="MirasIssueType_MissingFile" xml:space="preserve">
+    <value>Bilddatei fehlt</value>
+  </data>
+  <data name="MirasIssueType_OrphanedFile" xml:space="preserve">
+    <value>Nicht registrierte Bilddatei</value>
+  </data>
+  <data name="MirasIssueType_PersistenceUnavailable" xml:space="preserve">
+    <value>Datenbank nicht erreichbar</value>
+  </data>
+  <data name="MirasIssueType_RelationshipConflict" xml:space="preserve">
+    <value>Konflikt bei der Untersuchungszuordnung</value>
+  </data>
+  <data name="MirasIssueType_RepositoryUnavailable" xml:space="preserve">
+    <value>Bildspeicher nicht erreichbar</value>
+  </data>
+  <data name="MirasIssueType_Unknown" xml:space="preserve">
+    <value> Unbekanntes Problem</value>
+  </data>
+  <data name="MirasIssueType_UnreadableFile" xml:space="preserve">
+    <value>Bilddatei nicht lesbar</value>
+  </data>
+  <data name="MirasIssue_DuplicateFile_Description" xml:space="preserve">
+    <value>Mehrere Kopien desselben Bildes wurden gefunden. Es wurde keine Datei verändert.</value>
+  </data>
+  <data name="MirasIssue_IdentityMismatch_Description" xml:space="preserve">
+    <value>Eine Bilddatei konnte nicht sicher zugeordnet werden. Es wurde keine Datei verändert.</value>
+  </data>
+  <data name="MirasIssue_IncompleteImport_Description" xml:space="preserve">
+    <value>Ein früherer Import wurde möglicherweise nicht vollständig abgeschlossen.</value>
+  </data>
+  <data name="MirasIssue_InvalidDicomFile_Description" xml:space="preserve">
+    <value>Eine gespeicherte Bilddatei enthält keine gültigen medizinischen Bilddaten.</value>
+  </data>
+  <data name="MirasIssue_MisplacedFile_Description" xml:space="preserve">
+    <value>Eine Bilddatei wurde an einem anderen Speicherort wiedergefunden.</value>
+  </data>
+  <data name="MirasIssue_MissingFile_Description" xml:space="preserve">
+    <value>Ein zu dieser Untersuchung gehörendes Bild konnte nicht gefunden werden.</value>
+  </data>
+  <data name="MirasIssue_OrphanedFile_Description" xml:space="preserve">
+    <value>Eine Bilddatei ist vorhanden, wird aber derzeit nicht in MOPR angezeigt.</value>
+  </data>
+  <data name="MirasIssue_PersistenceUnavailable_Description" xml:space="preserve">
+    <value>Die Bilddatenbank ist momentan nicht erreichbar.</value>
+  </data>
+  <data name="MirasIssue_RelationshipConflict_Description" xml:space="preserve">
+    <value>Ein Bild konnte seiner Untersuchung nicht sicher zugeordnet werden.</value>
+  </data>
+  <data name="MirasIssue_UnreadableFile_Description" xml:space="preserve">
+    <value>Eine Bilddatei konnte nicht gelesen werden.</value>
+  </data>
+  <data name="MirasRecommendedAction_ContactAdministrator" xml:space="preserve">
+    <value>Technische Unterstützung anfordern</value>
+  </data>
+  <data name="MirasRecommendedAction_LocateFile" xml:space="preserve">
+    <value>Bilddatei suchen</value>
+  </data>
+  <data name="MirasRecommendedAction_None" xml:space="preserve">
+    <value>Keine Maßnahme erforderlich</value>
+  </data>
+  <data name="MirasRecommendedAction_RebuildPersistenceEntry" xml:space="preserve">
+    <value>Bild wieder in die Übersicht aufnehmen</value>
+  </data>
+  <data name="MirasRecommendedAction_ReconnectRepository" xml:space="preserve">
+    <value>Speicherverbindung prüfen</value>
+  </data>
+  <data name="MirasRecommendedAction_RestoreExpectedLocation" xml:space="preserve">
+    <value>Bilddatei wiederherstellen</value>
+  </data>
+  <data name="MirasRecommendedAction_RetryOperation" xml:space="preserve">
+    <value>Erneut versuchen</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewConflict" xml:space="preserve">
+    <value>Konflikt überprüfen</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewDuplicate" xml:space="preserve">
+    <value>Zusätzliche Kopie überprüfen</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewInvalidFile" xml:space="preserve">
+    <value>Bilddatei überprüfen</value>
   </data>
 </root>

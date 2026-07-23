@@ -117,25 +117,136 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ImportSourceType_CdRom" xml:space="preserve">
-    <value>CD-ROM</value>
+  <data name="MirasAlertLevel_Advisory" xml:space="preserve">
+    <value>Advisory</value>
   </data>
-  <data name="ImportSourceType_Directory" xml:space="preserve">
-    <value>Ordner</value>
+  <data name="MirasAlertLevel_Caution" xml:space="preserve">
+    <value>Caution</value>
   </data>
-  <data name="ImportSourceType_Dvd" xml:space="preserve">
-    <value>DVD</value>
+  <data name="MirasAlertLevel_Normal" xml:space="preserve">
+    <value>Normal</value>
   </data>
-  <data name="ImportSourceType_IsoImage" xml:space="preserve">
-    <value>ISO-Abbild</value>
+  <data name="MirasAlertLevel_Warning" xml:space="preserve">
+    <value>Warning</value>
   </data>
-  <data name="ImportSourceType_NetworkShare" xml:space="preserve">
-    <value>Netzwerkfreigabe</value>
+  <data name="MirasIssueState_ActionAvailable" xml:space="preserve">
+    <value>Action available</value>
   </data>
-  <data name="ImportSourceType_Unknown" xml:space="preserve">
-    <value>Unbekannt</value>
+  <data name="MirasIssueState_ActionRequired" xml:space="preserve">
+    <value>MIRAS action required</value>
   </data>
-  <data name="ImportSourceType_UsbDrive" xml:space="preserve">
-    <value>USB-Laufwerk</value>
+  <data name="MirasIssueState_AutomaticallyResolved" xml:space="preserve">
+    <value>Automatically resolved</value>
+  </data>
+  <data name="MirasIssueState_Deferred" xml:space="preserve">
+    <value>Deferred</value>
+  </data>
+  <data name="MirasIssueState_Detected" xml:space="preserve">
+    <value>Detected</value>
+  </data>
+  <data name="MirasIssueState_ManuallyResolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="MirasIssueState_ResolutionFailed" xml:space="preserve">
+    <value>Resolution failed</value>
+  </data>
+  <data name="MirasIssueType_DuplicateFile" xml:space="preserve">
+    <value>Duplicate image file</value>
+  </data>
+  <data name="MirasIssueType_IdentityMismatch" xml:space="preserve">
+    <value>Image identity conflict</value>
+  </data>
+  <data name="MirasIssueType_IncompleteImport" xml:space="preserve">
+    <value>Incomplete import</value>
+  </data>
+  <data name="MirasIssueType_InvalidDicomFile" xml:space="preserve">
+    <value>Invalid DICOM file</value>
+  </data>
+  <data name="MirasIssueType_MisplacedFile" xml:space="preserve">
+    <value>Image file moved</value>
+  </data>
+  <data name="MirasIssueType_MissingFile" xml:space="preserve">
+    <value>Image file missing</value>
+  </data>
+  <data name="MirasIssueType_OrphanedFile" xml:space="preserve">
+    <value>Unregistered image file</value>
+  </data>
+  <data name="MirasIssueType_PersistenceUnavailable" xml:space="preserve">
+    <value>Database unavailable</value>
+  </data>
+  <data name="MirasIssueType_RelationshipConflict" xml:space="preserve">
+    <value>Image assignment conflict</value>
+  </data>
+  <data name="MirasIssueType_RepositoryUnavailable" xml:space="preserve">
+    <value>Image repository unavailable</value>
+  </data>
+  <data name="MirasIssueType_Unknown" xml:space="preserve">
+    <value>Unknown issue</value>
+  </data>
+  <data name="MirasIssueType_UnreadableFile" xml:space="preserve">
+    <value>Image file unreadable</value>
+  </data>
+  <data name="MirasIssue_DuplicateFile_Description" xml:space="preserve">
+    <value>Multiple copies of the same image were found. No file was changed.</value>
+  </data>
+  <data name="MirasIssue_IdentityMismatch_Description" xml:space="preserve">
+    <value>An image file could not be safely assigned. No file was changed.</value>
+  </data>
+  <data name="MirasIssue_IncompleteImport_Description" xml:space="preserve">
+    <value>An earlier import operation may not have completed.</value>
+  </data>
+  <data name="MirasIssue_InvalidDicomFile_Description" xml:space="preserve">
+    <value>A stored image file does not contain valid medical image data.</value>
+  </data>
+  <data name="MirasIssue_MisplacedFile_Description" xml:space="preserve">
+    <value>An image file was found at a different storage location.</value>
+  </data>
+  <data name="MirasIssue_MissingFile_Description" xml:space="preserve">
+    <value>An image belonging to this examination could not be found.</value>
+  </data>
+  <data name="MirasIssue_OrphanedFile_Description" xml:space="preserve">
+    <value>An image file is available but is not currently shown in MOPR.</value>
+  </data>
+  <data name="MirasIssue_PersistenceUnavailable_Description" xml:space="preserve">
+    <value>The image database is currently unavailable.</value>
+  </data>
+  <data name="MirasIssue_RelationshipConflict_Description" xml:space="preserve">
+    <value>An image could not be safely assigned to its examination.</value>
+  </data>
+  <data name="MirasIssue_RepositoryUnavailable_Description" xml:space="preserve">
+    <value>Der Bildspeicher ist momentan nicht erreichbar.</value>
+  </data>
+  <data name="MirasIssue_UnreadableFile_Description" xml:space="preserve">
+    <value>An image file could not be read.</value>
+  </data>
+  <data name="MirasRecommendedAction_ContactAdministrator" xml:space="preserve">
+    <value>Request technical assistance</value>
+  </data>
+  <data name="MirasRecommendedAction_LocateFile" xml:space="preserve">
+    <value>Locate image file</value>
+  </data>
+  <data name="MirasRecommendedAction_None" xml:space="preserve">
+    <value>No action required</value>
+  </data>
+  <data name="MirasRecommendedAction_RebuildPersistenceEntry" xml:space="preserve">
+    <value>Restore image registration</value>
+  </data>
+  <data name="MirasRecommendedAction_ReconnectRepository" xml:space="preserve">
+    <value>Check storage connection</value>
+  </data>
+  <data name="MirasRecommendedAction_RestoreExpectedLocation" xml:space="preserve">
+    <value>Restore image file</value>
+  </data>
+  <data name="MirasRecommendedAction_RetryOperation" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewConflict" xml:space="preserve">
+    <value>Review conflict</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewDuplicate" xml:space="preserve">
+    <value>Review duplicate</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewInvalidFile" xml:space="preserve">
+    <value>Review image file</value>
   </data>
 </root>

@@ -13,6 +13,7 @@
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Persistence/MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" Id="c974e841-20d0-427c-8838-c0a2b2f3ee3b" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Repository/MarcusRunge.Mopr.Workbench.Services.Repository.csproj" Id="a06b9358-8f85-426b-be5e-d5ed03d7fc12" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Wpf/MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" Id="08043b25-74e3-4e71-b355-16c23a38bf9f" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Services/Miras/MarcusRunge.Mopr.Workbench.Services.Miras.csproj" Id="ae8056c9-8960-40b9-8703-0712c54825d5" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests/MarcusRunge.Mopr.Workbench.Modules.Imaging.Tests.csproj" />

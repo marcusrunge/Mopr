@@ -3,6 +3,7 @@ using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
@@ -230,6 +231,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (!repositoryFiles.TryGetValue(instance.SopInstanceUid, out string? actualFilePath))
             {
                 result.MissingFiles++;
+
+                result.Issues.Add(new DicomRepositoryIssue
+                {
+                    IssueType = DicomRepositoryIssueType.MissingFile,
+                    InstanceId = instance.Id,
+                    ExpectedFilePath = expectedAbsolutePath ?? string.Empty,
+                    ExpectedSopInstanceUid = instance.SopInstanceUid,
+                    CanResolveAutomatically = false,
+                    TechnicalDetails = $"No repository file was found for persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}'."
+                });
+
                 return;
             }
 

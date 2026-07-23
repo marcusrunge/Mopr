@@ -22,6 +22,7 @@
     <PackageReference Include="System.Reactive" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Services\Miras\MarcusRunge.Mopr.Workbench.Services.Miras.csproj" />
     <ProjectReference Include="..\Services\Persistence\MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" />
     <ProjectReference Include="..\Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
     <ProjectReference Include="..\Modules\Imaging\MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />

@@ -5,6 +5,8 @@ using MarcusRunge.Mopr.Workbench.Services.Core;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Miras;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository;
@@ -77,6 +79,9 @@ namespace MarcusRunge.Mopr.Workbench
             
             containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<ApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
             containerRegistry.RegisterSingleton<IRepository>(provider => provider.Resolve<IRepositoryFactory>().Create());
+
+            containerRegistry.RegisterSingleton<IMirasFactory, MirasFactory>();
+            containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
 
             containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());

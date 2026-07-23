@@ -1,8 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Properties;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Properties;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Repository.Enums
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Enums
 {
     /// <summary>
     /// Defines the type of an issue detected by MIRAS.

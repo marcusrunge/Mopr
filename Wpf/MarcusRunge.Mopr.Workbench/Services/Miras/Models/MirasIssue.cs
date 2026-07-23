@@ -1,6 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
     /// <summary>
     /// Represents a structured repository integrity issue detected by MIRAS.
@@ -36,6 +36,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// Gets or sets the expected SOP instance UID.
         /// </summary>
         public string ExpectedSopInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets the unique identifier of this MIRAS issue.
+        /// </summary>
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// Gets or sets the identifier of the persisted instance, if available.
