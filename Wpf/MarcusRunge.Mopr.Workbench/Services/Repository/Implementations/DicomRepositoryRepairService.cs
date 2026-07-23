@@ -38,6 +38,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
 
+            HashSet<string> associatedRepositoryFilePaths = new(StringComparer.OrdinalIgnoreCase);
+
             IList<Study> studies = await StudyRepository.GetAllAsync(cancellationToken);
 
             foreach (Study study in studies)
@@ -61,12 +63,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                             persistedSopInstanceUids.Add(instance.SopInstanceUid);
                         }
 
-                        await VerifyInstanceAsync(instance, repositoryFiles, request, result, cancellationToken);
+                        await VerifyInstanceAsync(instance, repositoryFiles, associatedRepositoryFilePaths, request, result, cancellationToken);
                     }
                 }
             }
 
-            RegisterOrphanedFiles(repositoryFiles, persistedSopInstanceUids, result, cancellationToken);
+            RegisterOrphanedFiles(repositoryFiles, persistedSopInstanceUids, associatedRepositoryFilePaths, result, cancellationToken);
 
             return result;
         }
@@ -121,16 +123,48 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private static void RegisterOrphanedFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> persistedSopInstanceUids, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private static void RegisterOrphanedFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> persistedSopInstanceUids, ISet<string> associatedRepositoryFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
-            foreach (string sopInstanceUid in repositoryFiles.Keys)
+            foreach (KeyValuePair<string, DicomRepositoryFileIndexEntry> item in repositoryFiles)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!persistedSopInstanceUids.Contains(sopInstanceUid))
+                string sopInstanceUid = item.Key;
+                DicomRepositoryFileIndexEntry indexEntry = item.Value;
+
+                /*
+                 * A persisted instance with this SOP instance UID exists.
+                 * Its physical files are therefore not orphaned.
+                 */
+                if (persistedSopInstanceUids.Contains(sopInstanceUid))
                 {
-                    result.OrphanedFiles++;
+                    continue;
                 }
+
+                /*
+                 * Exclude physical files that were already associated with a
+                 * persisted instance during verification, for example a valid
+                 * DICOM file with the wrong identity at an expected location.
+                 */
+                IList<string> orphanedFilePaths = [.. indexEntry.FilePaths.Where(filePath => !associatedRepositoryFilePaths.Contains(filePath))];
+
+                if (orphanedFilePaths.Count == 0)
+                {
+                    continue;
+                }
+
+                result.OrphanedFiles++;
+
+                result.Issues.Add(new DicomRepositoryIssue
+                {
+                    IssueType = DicomRepositoryIssueType.OrphanedFile,
+                    ActualFilePath = orphanedFilePaths.Count == 1 ? orphanedFilePaths[0] : string.Empty,
+                    ActualSopInstanceUid = sopInstanceUid,
+                    CanResolveAutomatically = false,
+                    AutomaticallyResolved = false,
+                    DetectedAtUtc = DateTime.UtcNow,
+                    TechnicalDetails = $"The repository contains DICOM data with SOP instance UID '{sopInstanceUid}', but no corresponding persisted instance exists for the unassociated file locations. The discovered orphaned locations are: {string.Join(", ", orphanedFilePaths.Select(filePath => $"'{filePath}'"))}. No file or persistence record was changed."
+                });
             }
         }
 
@@ -223,7 +257,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 cancellationToken);
         }
 
-        private async Task VerifyInstanceAsync(Instance instance, IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private async Task VerifyInstanceAsync(Instance instance, IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             result.ScannedFiles++;
 
@@ -242,23 +276,40 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 if (File.Exists(expectedAbsolutePath))
                 {
+                    /*
+                     * The physical file occupies the expected location of a persisted
+                     * instance. It is therefore handled as part of that instance's
+                     * verification and must not later be registered as an unrelated
+                     * orphaned file.
+                     */
+                    associatedRepositoryFilePaths.Add(expectedAbsolutePath);
+
                     try
                     {
                         string actualSopInstanceUid = await ReadSopInstanceUidAsync(expectedAbsolutePath, cancellationToken);
 
                         if (string.Equals(actualSopInstanceUid, instance.SopInstanceUid, StringComparison.Ordinal))
                         {
-                            /*
-                             * The expected file is valid and has the correct identity.
-                             *
-                             * A possible duplicate has already been registered from
-                             * the complete repository index. No file is changed here.
-                             */
                             return;
                         }
 
                         result.IdentityMismatchFiles++;
-                        AddError(result, $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{instance.SopInstanceUid}'.");
+                        string technicalDetails = $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{instance.SopInstanceUid}'.";
+
+                        result.Issues.Add(new DicomRepositoryIssue
+                        {
+                            IssueType = DicomRepositoryIssueType.IdentityMismatch,
+                            InstanceId = instance.Id,
+                            ExpectedFilePath = expectedAbsolutePath,
+                            ActualFilePath = expectedAbsolutePath,
+                            ExpectedSopInstanceUid = instance.SopInstanceUid,
+                            ActualSopInstanceUid = actualSopInstanceUid,
+                            CanResolveAutomatically = false,
+                            AutomaticallyResolved = false,
+                            DetectedAtUtc = DateTime.UtcNow,
+                            TechnicalDetails = technicalDetails
+                        });
+                        AddError(result, technicalDetails);
                         return;
                     }
                     catch (OperationCanceledException)
@@ -282,7 +333,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (!repositoryFiles.TryGetValue(instance.SopInstanceUid, out DicomRepositoryFileIndexEntry? indexEntry) || indexEntry.FilePaths.Count == 0)
             {
                 result.MissingFiles++;
-
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.MissingFile,
@@ -293,7 +343,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     AutomaticallyResolved = false,
                     TechnicalDetails = $"No repository file was found for persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}'."
                 });
-
                 return;
             }
 
@@ -319,7 +368,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
              * of whether it is repaired during this operation.
              */
             result.MisplacedFiles++;
-
             if (!request.RepairMissingFiles)
             {
                 result.Issues.Add(new DicomRepositoryIssue
@@ -334,7 +382,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     AutomaticallyResolved = false,
                     TechnicalDetails = $"Repository file for persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}' was found at '{actualFilePath}' instead of the expected location '{expectedAbsolutePath ?? string.Empty}'."
                 });
-
                 return;
             }
 
@@ -345,12 +392,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (string.IsNullOrWhiteSpace(expectedAbsolutePath))
             {
                 AddError(result, $"Instance '{instance.SopInstanceUid}' has no expected repository path.");
-
                 return;
             }
 
             string repairDestinationPath = expectedAbsolutePath;
-
             string? expectedDirectory = Path.GetDirectoryName(repairDestinationPath);
 
             if (string.IsNullOrWhiteSpace(expectedDirectory))
@@ -374,16 +419,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                await Task.Run(
-                    () =>
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        Directory.CreateDirectory(expectedDirectory);
-                        cancellationToken.ThrowIfCancellationRequested();
-                        File.Move(actualFilePath, repairDestinationPath);
-                    },
-                    cancellationToken);
+                await Task.Run(() =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    Directory.CreateDirectory(expectedDirectory);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    File.Move(actualFilePath, repairDestinationPath);
+                }, cancellationToken);
 
                 /*
                  * Keep the in-memory index consistent with the physical move.
@@ -392,9 +434,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                  */
                 indexEntry.FilePaths.Clear();
                 indexEntry.FilePaths.Add(repairDestinationPath);
-
                 result.RepairedFiles++;
-
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.MisplacedFile,
