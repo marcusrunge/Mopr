@@ -24,6 +24,12 @@
         public int IdentityMismatchFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of files at persisted repository locations
+        /// that do not contain valid DICOM data.
+        /// </summary>
+        public int InvalidDicomFiles { get; set; }
+
+        /// <summary>
         /// Gets the structured technical repository issues detected
         /// during verification or repair.
         /// </summary>

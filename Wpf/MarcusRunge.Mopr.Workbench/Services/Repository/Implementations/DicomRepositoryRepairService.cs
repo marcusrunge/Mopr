@@ -318,8 +318,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     }
                     catch (DicomFileException)
                     {
-                        result.IdentityMismatchFiles++;
-                        AddError(result, $"Repository file '{expectedAbsolutePath}' for instance '{instance.SopInstanceUid}' is not a valid DICOM file.");
+                        result.InvalidDicomFiles++;
+                        string technicalDetails = $"Repository file '{expectedAbsolutePath}' for persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}' is not a valid DICOM file.";
+                        result.Issues.Add(new DicomRepositoryIssue
+                        {
+                            IssueType = DicomRepositoryIssueType.InvalidDicomFile,
+                            InstanceId = instance.Id,
+                            ExpectedFilePath = expectedAbsolutePath,
+                            ActualFilePath = expectedAbsolutePath,
+                            ExpectedSopInstanceUid = instance.SopInstanceUid,
+                            CanResolveAutomatically = false,
+                            AutomaticallyResolved = false,
+                            DetectedAtUtc = DateTime.UtcNow,
+                            TechnicalDetails = technicalDetails
+                        }); AddError(result, technicalDetails);
                         return;
                     }
                     catch (Exception exception)
