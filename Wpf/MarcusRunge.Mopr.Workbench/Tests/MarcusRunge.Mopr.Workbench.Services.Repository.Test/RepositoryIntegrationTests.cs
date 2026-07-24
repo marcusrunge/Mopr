@@ -1051,6 +1051,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 await Task.Run(() =>
                 {
                     Directory.CreateDirectory(misplacedDirectory);
+
                     File.Move(pathInfo.AbsolutePath, misplacedFilePath);
                 }, TestContext.Current.CancellationToken);
 
@@ -1072,9 +1073,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 Assert.Equal(initialRepairResult.MissingFiles, repairResult.MissingFiles);
 
                 /*
-                 * MisplacedFiles counts every detected misplaced file, while
-                 * RepairedFiles counts successfully completed repairs.
-                */
+                 * The current counter semantics count unresolved misplaced files.
+                 * A successfully repaired misplaced file therefore does not increase
+                 * MisplacedFiles.
+                 */
                 Assert.Equal(initialRepairResult.MisplacedFiles + 1, repairResult.MisplacedFiles);
                 Assert.Equal(initialRepairResult.RepairedFiles + 1, repairResult.RepairedFiles);
                 Assert.Equal(initialRepairResult.Issues.Count + 1, repairResult.Issues.Count);
