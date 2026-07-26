@@ -60,5 +60,10 @@
         /// Gets or sets the scanned files.
         /// </summary>
         public int ScannedFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of repository files that could not be read or inspected.
+        /// </summary>
+        public int UnreadableFiles { get; set; }
     }
 }

@@ -1490,6 +1490,64 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             }
         }
 
+        [Fact, Priority(33)]
+        public async Task Repair_Should_Create_UnreadableFile_Issue()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+            DicomRepositoryRepairResult initialRepairResult = await RepairAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+            byte[] fileBytesBeforeCheck = await File.ReadAllBytesAsync(scenario.PathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+
+            DateTime checkStartedAtUtc = DateTime.UtcNow;
+
+            DicomRepositoryRepairResult repairResult;
+
+            using (FileStream lockedFile = scenario.LockRepositoryFile())
+            {
+                Assert.False(lockedFile.SafeFileHandle.IsInvalid);
+                repairResult = await RepairAsync();
+            }
+
+            DateTime checkCompletedAtUtc = DateTime.UtcNow;
+
+            Assert.Equal(initialRepairResult.ScannedFiles + 1, repairResult.ScannedFiles);
+            Assert.Equal(initialRepairResult.UnreadableFiles + 1, repairResult.UnreadableFiles);
+            Assert.Equal(initialRepairResult.InvalidDicomFiles, repairResult.InvalidDicomFiles);
+            Assert.Equal(initialRepairResult.IdentityMismatchFiles, repairResult.IdentityMismatchFiles);
+            Assert.Equal(initialRepairResult.MissingFiles, repairResult.MissingFiles);
+            Assert.Equal(initialRepairResult.MisplacedFiles, repairResult.MisplacedFiles);
+            Assert.Equal(initialRepairResult.DuplicateFiles, repairResult.DuplicateFiles);
+            Assert.Equal(initialRepairResult.OrphanedFiles, repairResult.OrphanedFiles);
+            Assert.Equal(initialRepairResult.RepairedFiles, repairResult.RepairedFiles);
+            Assert.Equal(initialRepairResult.Issues.Count + 1, repairResult.Issues.Count);
+            Assert.Equal(initialRepairResult.Errors.Count + 1, repairResult.Errors.Count);
+
+            DicomRepositoryIssue issue = Assert.Single(repairResult.Issues, item => item.IssueType == DicomRepositoryIssueType.UnreadableFile && item.InstanceId == instance.Id && item.ExpectedSopInstanceUid == scenario.SopInstanceUid.UID);
+
+            Assert.NotEqual(Guid.Empty, issue.Id);
+            Assert.Equal(instance.Id, issue.InstanceId);
+            Assert.Equal(scenario.PathInfo.AbsolutePath, issue.ExpectedFilePath);
+            Assert.Equal(scenario.PathInfo.AbsolutePath, issue.ActualFilePath);
+            Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+            Assert.Empty(issue.ActualSopInstanceUid);
+            Assert.False(issue.CanResolveAutomatically);
+            Assert.False(issue.AutomaticallyResolved);
+            Assert.Null(issue.ResolvedAtUtc);
+            Assert.InRange(issue.DetectedAtUtc, checkStartedAtUtc, checkCompletedAtUtc);
+            Assert.Contains(instance.Id.ToString(), issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains(scenario.SopInstanceUid.UID, issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains(scenario.PathInfo.AbsolutePath, issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains("could not be read", issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains("No file was changed", issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+
+            byte[] fileBytesAfterCheck = await File.ReadAllBytesAsync(scenario.PathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+            Assert.Equal(fileBytesBeforeCheck, fileBytesAfterCheck);
+        }
+
         private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => _fixture.Repository!.RepositoryService!.CreatePathInfo(studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
 
         private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false) => await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest

@@ -13,10 +13,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             RebuildRepositoryIndex = false
         };
 
-        private async Task<DicomRepositoryRepairResult> RepairAsync(bool repairMissingFiles = true) => await RepairAsync(CreateRepairRequest(repairMissingFiles));
-
-        private async Task<DicomRepositoryRepairResult> RepairAsync(DicomRepositoryRepairRequest request) => await _fixture.Repository!.RepositoryRepairService!.RepairAsync(request, TestContext.Current.CancellationToken);
-
         private async Task<RepositoryTestScenario> CreateRepositoryScenarioAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null)
         {
             RepositoryTestScenario scenario = new(this);
@@ -24,21 +20,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             return scenario;
         }
 
+        private async Task<DicomRepositoryRepairResult> RepairAsync(bool repairMissingFiles = true) => await RepairAsync(CreateRepairRequest(repairMissingFiles));
+
+        private async Task<DicomRepositoryRepairResult> RepairAsync(DicomRepositoryRepairRequest request) => await _fixture.Repository!.RepositoryRepairService!.RepairAsync(request, TestContext.Current.CancellationToken);
+
         private sealed class RepositoryTestScenario(RepositoryIntegrationTests owner) : IDisposable
         {
             public DicomRepositoryPathInfo PathInfo { get; private set; } = default!;
-            public string? RepositoryStudyDirectory { get; set; }
-            public DicomUID SeriesInstanceUid { get; private set; } = DicomUID.Generate();
-            public DicomUID SopInstanceUid { get; private set; } = DicomUID.Generate();
-            public string SourceDirectory { get; } = CreateTemporaryDirectory();
-            public string SourceFilePath { get; private set; } = string.Empty;
-            public DicomUID StudyInstanceUid { get; private set; } = DicomUID.Generate();
 
-            public void Dispose()
-            {
-                DeleteDirectory(SourceDirectory);
-                DeleteDirectory(RepositoryStudyDirectory);
-            }
+            public string? RepositoryStudyDirectory { get; set; }
+
+            public DicomUID SeriesInstanceUid { get; private set; } = DicomUID.Generate();
+
+            public DicomUID SopInstanceUid { get; private set; } = DicomUID.Generate();
+
+            public string SourceDirectory { get; } = CreateTemporaryDirectory();
+
+            public string SourceFilePath { get; private set; } = string.Empty;
+
+            public DicomUID StudyInstanceUid { get; private set; } = DicomUID.Generate();
 
             public async Task<string> CopyRepositoryFileAsync(string directoryName = "Duplicate", string fileName = "DuplicateImage.bin")
             {
@@ -58,6 +58,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 Assert.False(string.IsNullOrWhiteSpace(repositorySeriesDirectory));
                 await Task.Run(() => Directory.CreateDirectory(repositorySeriesDirectory!), TestContext.Current.CancellationToken);
                 await CreateDicomFileAsync(PathInfo.AbsolutePath, StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
+            }
+
+            public void Dispose()
+            {
+                DeleteDirectory(SourceDirectory);
+                DeleteDirectory(RepositoryStudyDirectory);
             }
 
             public async Task<Instance> GetPersistedInstanceAsync()
@@ -92,6 +98,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 PathInfo = owner.CreatePathInfo(StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
                 RepositoryStudyDirectory = GetRepositoryStudyDirectory(PathInfo);
             }
+
+            public FileStream LockRepositoryFile() => new(PathInfo.AbsolutePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 
             public async Task<string> MoveRepositoryFileAsync(string directoryName = "Misplaced", string fileName = "RenamedImage.bin")
             {
