@@ -1120,6 +1120,108 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             }
         }
 
+        [Fact, Priority(38)]
+        public async Task Repair_Should_Create_RelationshipConflict_When_Dicom_Study_Differs()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+            DicomRepositoryRepairResult initial = await RepairAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+            DicomUID actualStudyInstanceUid = DicomUID.Generate();
+
+            /*
+             * The SOP and Series identities remain correct. Only the Study identity
+             * inside the physical DICOM file contradicts the persisted hierarchy.
+             */
+            await scenario.ReplaceRepositoryFileHierarchyAsync(actualStudyInstanceUid, scenario.SeriesInstanceUid);
+
+            byte[] bytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+            DicomRepositoryRepairResult result = await RepairAsync();
+
+            Assert.Equal(initial.RelationshipConflicts + 1, result.RelationshipConflicts);
+            Assert.Equal(initial.IdentityMismatchFiles, result.IdentityMismatchFiles);
+            Assert.Equal(initial.MisplacedFiles, result.MisplacedFiles);
+            Assert.Equal(initial.RepairedFiles, result.RepairedFiles);
+            Assert.Equal(initial.Issues.Count + 1, result.Issues.Count);
+            Assert.Equal(initial.Errors.Count + 1, result.Errors.Count);
+
+            DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.RelationshipConflict && item.InstanceId == instance.Id);
+
+            Assert.Equal(scenario.StudyInstanceUid.UID, issue.ExpectedStudyInstanceUid);
+            Assert.Equal(actualStudyInstanceUid.UID, issue.ActualStudyInstanceUid);
+            Assert.Equal(scenario.SeriesInstanceUid.UID, issue.ExpectedSeriesInstanceUid);
+            Assert.Equal(scenario.SeriesInstanceUid.UID, issue.ActualSeriesInstanceUid);
+            Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+            Assert.Equal(scenario.SopInstanceUid.UID, issue.ActualSopInstanceUid);
+            Assert.False(issue.CanResolveAutomatically);
+            Assert.False(issue.AutomaticallyResolved);
+            Assert.Null(issue.ResolvedAtUtc);
+            Assert.Contains("Study identity matches: False", issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains("Series identity matches: True", issue.TechnicalDetails, StringComparison.Ordinal);
+
+            /*
+             * A hierarchy conflict must not rewrite either the DICOM metadata or the
+             * persisted database relationship.
+             */
+            Assert.Equal(bytesBefore, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+
+            Instance persistedInstance = await scenario.GetPersistedInstanceAsync();
+            Assert.Equal(instance.SeriesId, persistedInstance.SeriesId);
+        }
+
+        [Fact, Priority(39)]
+        public async Task Repair_Should_Create_RelationshipConflict_When_Dicom_Series_Differs()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+            DicomRepositoryRepairResult initial = await RepairAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+            DicomUID actualSeriesInstanceUid = DicomUID.Generate();
+
+            /*
+             * The SOP and Study identities remain correct. Only the Series identity
+             * inside the physical DICOM file contradicts the persisted hierarchy.
+             */
+            await scenario.ReplaceRepositoryFileHierarchyAsync(scenario.StudyInstanceUid, actualSeriesInstanceUid);
+
+            byte[] bytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+            DicomRepositoryRepairResult result = await RepairAsync();
+
+            Assert.Equal(initial.RelationshipConflicts + 1, result.RelationshipConflicts);
+            Assert.Equal(initial.IdentityMismatchFiles, result.IdentityMismatchFiles);
+            Assert.Equal(initial.MisplacedFiles, result.MisplacedFiles);
+            Assert.Equal(initial.RepairedFiles, result.RepairedFiles);
+            Assert.Equal(initial.Issues.Count + 1, result.Issues.Count);
+            Assert.Equal(initial.Errors.Count + 1, result.Errors.Count);
+
+            DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.RelationshipConflict && item.InstanceId == instance.Id);
+
+            Assert.Equal(scenario.StudyInstanceUid.UID, issue.ExpectedStudyInstanceUid);
+            Assert.Equal(scenario.StudyInstanceUid.UID, issue.ActualStudyInstanceUid);
+            Assert.Equal(scenario.SeriesInstanceUid.UID, issue.ExpectedSeriesInstanceUid);
+            Assert.Equal(actualSeriesInstanceUid.UID, issue.ActualSeriesInstanceUid);
+            Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+            Assert.Equal(scenario.SopInstanceUid.UID, issue.ActualSopInstanceUid);
+            Assert.False(issue.CanResolveAutomatically);
+            Assert.False(issue.AutomaticallyResolved);
+            Assert.Null(issue.ResolvedAtUtc);
+            Assert.Contains("Study identity matches: True", issue.TechnicalDetails, StringComparison.Ordinal);
+            Assert.Contains("Series identity matches: False", issue.TechnicalDetails, StringComparison.Ordinal);
+
+            /*
+             * The repository reports the conflict but must not move the instance to a
+             * different persisted Series or rewrite the medical file.
+             */
+            Assert.Equal(bytesBefore, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+
+            Instance persistedInstance = await scenario.GetPersistedInstanceAsync();
+            Assert.Equal(instance.SeriesId, persistedInstance.SeriesId);
+        }
+
         private static async Task AssertFilesEqualAsync(string expectedPath, string actualPath) => Assert.Equal(await ReadAllBytesAsync(expectedPath), await ReadAllBytesAsync(actualPath));
 
         private static async Task<byte[]> ReadAllBytesAsync(string filePath) => await File.ReadAllBytesAsync(filePath, TestContext.Current.CancellationToken);

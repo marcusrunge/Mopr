@@ -64,7 +64,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                             persistedSopInstanceUids.Add(instance.SopInstanceUid);
                         }
 
-                        await VerifyInstanceAsync(instance, repositoryFiles, unreadableRepositoryFilePaths, associatedRepositoryFilePaths, request, result, cancellationToken);
+                        await VerifyInstanceAsync(study, series, instance, repositoryFiles, unreadableRepositoryFilePaths, associatedRepositoryFilePaths, request, result, cancellationToken);
                     }
                 }
             }
@@ -89,16 +89,65 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return exception.InnerException is not null && IsFileReadException(exception.InnerException);
         }
 
-        private static async Task<string> ReadSopInstanceUidAsync(string filePath, CancellationToken cancellationToken)
+        private static async Task<DicomRepositoryFileIdentity> ReadDicomIdentityAsync(string filePath, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
+                /*
+                 * All hierarchy identifiers are read during the same physical file
+                 * operation. This allows the repository to compare the DICOM file with
+                 * the persisted Study-Series-Instance hierarchy without reopening it.
+                 */
                 DicomFile dicomFile = DicomFile.Open(filePath);
 
-                return dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
+                return new DicomRepositoryFileIdentity
+                {
+                    StudyInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty),
+                    SeriesInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty),
+                    SopInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty)
+                };
             }, cancellationToken);
+        }
+
+        private static void RegisterDicomHierarchyConflict(Study study, Series series, Instance instance, string filePath, DicomRepositoryFileIdentity actualIdentity, DicomRepositoryRepairResult result)
+        {
+            /*
+             * The SOP identity identifies the expected instance, but the Study or
+             * Series identity stored inside the physical DICOM file contradicts the
+             * persisted hierarchy.
+             *
+             * Neither the database relationships nor the medical file may be changed
+             * automatically because the repository cannot determine which hierarchy
+             * represents the medically correct assignment.
+             */
+            result.RelationshipConflicts++;
+
+            bool studyMatches = string.Equals(actualIdentity.StudyInstanceUid, study.StudyInstanceUid, StringComparison.Ordinal);
+            bool seriesMatches = string.Equals(actualIdentity.SeriesInstanceUid, series.SeriesInstanceUid, StringComparison.Ordinal);
+
+            string technicalDetails = $"Repository file '{filePath}' for persisted instance '{instance.Id}' has inconsistent DICOM hierarchy identifiers. Expected Study Instance UID '{study.StudyInstanceUid}' and Series Instance UID '{series.SeriesInstanceUid}', but the physical file contains Study Instance UID '{actualIdentity.StudyInstanceUid}' and Series Instance UID '{actualIdentity.SeriesInstanceUid}'. Study identity matches: {studyMatches}. Series identity matches: {seriesMatches}. No file or persistence relationship was changed.";
+
+            result.Issues.Add(new DicomRepositoryIssue
+            {
+                IssueType = DicomRepositoryIssueType.RelationshipConflict,
+                InstanceId = instance.Id,
+                ExpectedFilePath = filePath,
+                ActualFilePath = filePath,
+                ExpectedStudyInstanceUid = study.StudyInstanceUid!,
+                ActualStudyInstanceUid = actualIdentity.StudyInstanceUid,
+                ExpectedSeriesInstanceUid = series.SeriesInstanceUid!,
+                ActualSeriesInstanceUid = actualIdentity.SeriesInstanceUid,
+                ExpectedSopInstanceUid = instance.SopInstanceUid!,
+                ActualSopInstanceUid = actualIdentity.SopInstanceUid,
+                CanResolveAutomatically = false,
+                AutomaticallyResolved = false,
+                DetectedAtUtc = DateTime.UtcNow,
+                TechnicalDetails = technicalDetails
+            });
+
+            result.Errors.Add(technicalDetails);
         }
 
         private static void RegisterDuplicateFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
@@ -370,7 +419,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }, cancellationToken);
         }
 
-        private async Task VerifyInstanceAsync(Instance instance, IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> unreadableRepositoryFilePaths, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private async Task VerifyInstanceAsync(Study study, Series series, Instance instance, IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> unreadableRepositoryFilePaths, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             result.ScannedFiles++;
 
@@ -410,10 +459,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                     try
                     {
-                        string actualSopInstanceUid = await ReadSopInstanceUidAsync(expectedAbsolutePath, cancellationToken);
+                        DicomRepositoryFileIdentity actualIdentity = await ReadDicomIdentityAsync(expectedAbsolutePath, cancellationToken);
 
-                        if (string.Equals(actualSopInstanceUid, persistedSopInstanceUid, StringComparison.Ordinal))
+                        if (string.Equals(actualIdentity.SopInstanceUid, persistedSopInstanceUid, StringComparison.Ordinal))
                         {
+                            /*
+                             * A matching SOP Instance UID identifies the expected instance, but the
+                             * physical file must also belong to the persisted Study and Series.
+                             */
+                            bool studyMatches = string.Equals(actualIdentity.StudyInstanceUid, study.StudyInstanceUid, StringComparison.Ordinal);
+                            bool seriesMatches = string.Equals(actualIdentity.SeriesInstanceUid, series.SeriesInstanceUid, StringComparison.Ordinal);
+
+                            if (!studyMatches || !seriesMatches)
+                            {
+                                RegisterDicomHierarchyConflict(study, series, instance, expectedAbsolutePath, actualIdentity, result);
+                            }
+
                             return;
                         }
 
@@ -427,8 +488,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         }
 
                         string technicalDetails = string.IsNullOrWhiteSpace(recoveryCandidateFilePath)
-                            ? $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. No unique recovery candidate was found."
-                            : $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. A unique recovery candidate was found at '{recoveryCandidateFilePath}'. No file was changed.";
+                            ? $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualIdentity.SopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. No unique recovery candidate was found."
+                            : $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualIdentity.SopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. A unique recovery candidate was found at '{recoveryCandidateFilePath}'. No file was changed.";
 
                         result.Issues.Add(new DicomRepositoryIssue
                         {
@@ -438,7 +499,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                             ActualFilePath = expectedAbsolutePath,
                             RecoveryCandidateFilePath = recoveryCandidateFilePath,
                             ExpectedSopInstanceUid = persistedSopInstanceUid,
-                            ActualSopInstanceUid = actualSopInstanceUid,
+                            ActualSopInstanceUid = actualIdentity.SopInstanceUid,
                             CanResolveAutomatically = false,
                             AutomaticallyResolved = false,
                             DetectedAtUtc = DateTime.UtcNow,

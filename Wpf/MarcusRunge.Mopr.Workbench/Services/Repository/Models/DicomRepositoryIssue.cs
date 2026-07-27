@@ -13,6 +13,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public string ActualFilePath { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the Series Instance UID read from the physical file, if available.
+        /// </summary>
+        public string ActualSeriesInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the Study Instance UID read from the physical file, if available.
+        /// </summary>
+        public string ActualStudyInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the SOP instance UID read from the physical file,
         /// if available.
         /// </summary>
@@ -39,6 +49,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// Gets or sets the expected physical file path, if available.
         /// </summary>
         public string ExpectedFilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the persisted expected Series Instance UID, if available.
+        /// </summary>
+        public string ExpectedSeriesInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the persisted expected Study Instance UID, if available.
+        /// </summary>
+        public string ExpectedStudyInstanceUid { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the expected SOP instance UID, if available.

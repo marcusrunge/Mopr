@@ -112,6 +112,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             public async Task ReplaceRepositoryFileAsync(DicomUID sopInstanceUid) => await CreateDicomFileAsync(PathInfo.AbsolutePath, StudyInstanceUid, SeriesInstanceUid, sopInstanceUid);
 
+            public async Task ReplaceRepositoryFileHierarchyAsync(DicomUID studyInstanceUid, DicomUID seriesInstanceUid)
+            {
+                /*
+                 * The SOP Instance UID remains unchanged so the repository still
+                 * identifies the expected instance. Only the DICOM Study-Series hierarchy
+                 * is changed to create a controlled relationship conflict.
+                 */
+                await CreateDicomFileAsync(PathInfo.AbsolutePath, studyInstanceUid, seriesInstanceUid, SopInstanceUid);
+            }
+
             public async Task ReplaceRepositoryFileWithInvalidContentAsync(string content = "This is not a valid DICOM file.") => await File.WriteAllTextAsync(PathInfo.AbsolutePath, content, TestContext.Current.CancellationToken);
 
             public async Task<Instance> SetRelativeFilePathAsync(string relativeFilePath)
