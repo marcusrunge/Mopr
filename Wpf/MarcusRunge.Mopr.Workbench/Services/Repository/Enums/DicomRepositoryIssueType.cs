@@ -52,7 +52,7 @@
         IncompleteImport,
 
         /// <summary>
-        /// Persisted study, series or instance relationships are inconsistent.
+        /// Persisted study, series, instance or dependent entity relationships are inconsistent.
         /// </summary>
         RelationshipConflict
     }

@@ -16,6 +16,11 @@
         IInstanceRepository? Instance { get; }
 
         /// <summary>
+        /// Gets the Persistence integrity service.
+        /// </summary>
+        IPersistenceIntegrityService? Integrity { get; }
+
+        /// <summary>
         /// Gets the measurement repository.
         /// </summary>
         IMeasurementRepository? Measurement { get; }

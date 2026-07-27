@@ -14,6 +14,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         // Backing field for IInstanceRepository (assigned by derived modules)
         protected IInstanceRepository? _instance;
 
+        // Backing field for IPersistenceIntegrityService (assigned by derived modules)
+        protected IPersistenceIntegrityService? _integrity;
+
         // Backing field for IMeasurementRepository (assigned by derived modules)
         protected IMeasurementRepository? _measurement;
 
@@ -114,6 +117,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IInstanceRepository? Instance => _instance;
+
+        /// <inheritdoc/>
+        public IPersistenceIntegrityService? Integrity => _integrity;
 
         /// <inheritdoc/>
         ILogger? IPersistenceBase.Logger => _logger;
