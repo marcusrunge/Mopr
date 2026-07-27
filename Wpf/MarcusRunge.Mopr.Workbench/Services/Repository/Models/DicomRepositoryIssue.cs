@@ -62,6 +62,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public DicomRepositoryIssueType IssueType { get; set; }
 
         /// <summary>
+        /// Gets or sets the physical path of a uniquely identified recovery
+        /// candidate, if one exists. The presence of a candidate does not imply
+        /// that automatic recovery is safe or permitted.
+        /// </summary>
+        public string RecoveryCandidateFilePath { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the UTC date and time when an automatic repair
         /// completed successfully.
         /// </summary>

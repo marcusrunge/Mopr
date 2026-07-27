@@ -27,17 +27,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         private sealed class RepositoryTestScenario(RepositoryIntegrationTests owner) : IDisposable
         {
             public DicomRepositoryPathInfo PathInfo { get; private set; } = default!;
-
             public string? RepositoryStudyDirectory { get; set; }
-
             public DicomUID SeriesInstanceUid { get; private set; } = DicomUID.Generate();
-
             public DicomUID SopInstanceUid { get; private set; } = DicomUID.Generate();
-
             public string SourceDirectory { get; } = CreateTemporaryDirectory();
-
             public string SourceFilePath { get; private set; } = string.Empty;
-
             public DicomUID StudyInstanceUid { get; private set; } = DicomUID.Generate();
 
             public async Task<string> CopyRepositoryFileAsync(string directoryName = "Duplicate", string fileName = "DuplicateImage.bin")
@@ -52,11 +46,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 return filePath;
             }
 
+            public async Task<string> CreateIncompleteImportFileAsync(string fileName = "Interrupted.dcm.importing", string content = "Incomplete import data")
+            {
+                string directory = Path.GetDirectoryName(PathInfo.AbsolutePath)!;
+                string filePath = Path.Combine(directory, fileName);
+                await Task.Run(() => Directory.CreateDirectory(directory), TestContext.Current.CancellationToken);
+                await File.WriteAllTextAsync(filePath, content, TestContext.Current.CancellationToken);
+                return filePath;
+            }
+
             public async Task CreateOrphanedRepositoryFileAsync()
             {
-                string? repositorySeriesDirectory = Path.GetDirectoryName(PathInfo.AbsolutePath);
-                Assert.False(string.IsNullOrWhiteSpace(repositorySeriesDirectory));
-                await Task.Run(() => Directory.CreateDirectory(repositorySeriesDirectory!), TestContext.Current.CancellationToken);
+                string directory = Path.GetDirectoryName(PathInfo.AbsolutePath)!;
+                await Task.Run(() => Directory.CreateDirectory(directory), TestContext.Current.CancellationToken);
                 await CreateDicomFileAsync(PathInfo.AbsolutePath, StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
             }
 
@@ -66,12 +68,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 DeleteDirectory(RepositoryStudyDirectory);
             }
 
-            public async Task<Instance> GetPersistedInstanceAsync()
-            {
-                Instance? instance = await owner._fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(SopInstanceUid.UID, TestContext.Current.CancellationToken);
-                Assert.NotNull(instance);
-                return instance;
-            }
+            public async Task<Instance> GetPersistedInstanceAsync() => Assert.IsType<Instance>(await TryGetPersistedInstanceAsync());
 
             public async Task<DicomImportResult> ImportSuccessfullyAsync(bool allowOverwrite = false)
             {
@@ -116,6 +113,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             public async Task ReplaceRepositoryFileAsync(DicomUID sopInstanceUid) => await CreateDicomFileAsync(PathInfo.AbsolutePath, StudyInstanceUid, SeriesInstanceUid, sopInstanceUid);
 
             public async Task ReplaceRepositoryFileWithInvalidContentAsync(string content = "This is not a valid DICOM file.") => await File.WriteAllTextAsync(PathInfo.AbsolutePath, content, TestContext.Current.CancellationToken);
+
+            public async Task<Instance> SetRelativeFilePathAsync(string relativeFilePath)
+            {
+                Instance instance = await GetPersistedInstanceAsync();
+                instance.RelativeFilePath = relativeFilePath;
+
+                // Persistence queries are detached; UpdateAsync persists the deliberate test state.
+                await owner._fixture.Persistence!.Instance!.UpdateAsync(instance, TestContext.Current.CancellationToken);
+
+                Instance updated = await GetPersistedInstanceAsync();
+                Assert.Equal(relativeFilePath, updated.RelativeFilePath);
+                return updated;
+            }
+
+            public async Task<Instance?> TryGetPersistedInstanceAsync() => await owner._fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(SopInstanceUid.UID, TestContext.Current.CancellationToken);
         }
     }
 }

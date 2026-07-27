@@ -32,9 +32,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 return result;
             }
 
+            HashSet<string> incompleteImportFilePaths = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> unreadableRepositoryFilePaths = new(StringComparer.OrdinalIgnoreCase);
-            IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles = await CreateRepositoryFileIndexAsync(result, unreadableRepositoryFilePaths, cancellationToken);
+            IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles = await CreateRepositoryFileIndexAsync(result, incompleteImportFilePaths, unreadableRepositoryFilePaths, cancellationToken);
 
+            RegisterIncompleteImportFiles(incompleteImportFilePaths, result, cancellationToken);
             RegisterDuplicateFiles(repositoryFiles, result, cancellationToken);
 
             HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
@@ -131,6 +133,54 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
+        private static void RegisterIncompleteImportFiles(HashSet<string> incompleteImportFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        {
+            foreach (string filePath in incompleteImportFilePaths)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                result.IncompleteImportFiles++;
+
+                result.Issues.Add(new DicomRepositoryIssue
+                {
+                    IssueType = DicomRepositoryIssueType.IncompleteImport,
+                    ActualFilePath = filePath,
+                    CanResolveAutomatically = false,
+                    AutomaticallyResolved = false,
+                    DetectedAtUtc = DateTime.UtcNow,
+                    TechnicalDetails = $"Temporary repository file '{filePath}' indicates an incomplete import operation. The file was not deleted, renamed or otherwise modified."
+                });
+            }
+        }
+
+        private static void RegisterMissingRelativeFilePathConflict(Instance instance, string actualFilePath, DicomRepositoryRepairResult result)
+        {
+            /*
+             * The physical file can be identified, but Persistence does not define
+             * its canonical repository destination. Deriving or changing that
+             * relationship automatically could attach medical data incorrectly.
+             */
+            result.RelationshipConflicts++;
+
+            string technicalDetails = $"Persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}' has no relative repository file path. The matching physical file was found at '{actualFilePath}', but no canonical destination can be determined. No file or persistence relationship was changed.";
+
+            result.Issues.Add(new DicomRepositoryIssue
+            {
+                IssueType = DicomRepositoryIssueType.RelationshipConflict,
+                InstanceId = instance.Id,
+                ActualFilePath = actualFilePath,
+                RecoveryCandidateFilePath = actualFilePath,
+                ExpectedSopInstanceUid = instance.SopInstanceUid!,
+                ActualSopInstanceUid = instance.SopInstanceUid!,
+                CanResolveAutomatically = false,
+                AutomaticallyResolved = false,
+                DetectedAtUtc = DateTime.UtcNow,
+                TechnicalDetails = technicalDetails
+            });
+
+            result.Errors.Add(technicalDetails);
+        }
+
         private static void RegisterOrphanedFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> persistedSopInstanceUids, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             foreach (KeyValuePair<string, DicomRepositoryFileIndexEntry> item in repositoryFiles)
@@ -225,7 +275,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task<Dictionary<string, DicomRepositoryFileIndexEntry>> CreateRepositoryFileIndexAsync(DicomRepositoryRepairResult result, HashSet<string> unreadableRepositoryFilePaths, CancellationToken cancellationToken)
+        private async Task<Dictionary<string, DicomRepositoryFileIndexEntry>> CreateRepositoryFileIndexAsync(DicomRepositoryRepairResult result, HashSet<string> incompleteImportFilePaths, HashSet<string> unreadableRepositoryFilePaths, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -246,6 +296,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                         if (filePath.EndsWith(".importing", StringComparison.OrdinalIgnoreCase))
                         {
+                            incompleteImportFilePaths.Add(filePath);
                             continue;
                         }
 
@@ -368,7 +419,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                         result.IdentityMismatchFiles++;
 
-                        string technicalDetails = $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'.";
+                        string recoveryCandidateFilePath = string.Empty;
+
+                        if (repositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
+                        {
+                            recoveryCandidateFilePath = recoveryEntry.FilePaths[0];
+                        }
+
+                        string technicalDetails = string.IsNullOrWhiteSpace(recoveryCandidateFilePath)
+                            ? $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. No unique recovery candidate was found."
+                            : $"Repository file '{expectedAbsolutePath}' contains SOP instance UID '{actualSopInstanceUid}', but instance '{instance.Id}' expects '{persistedSopInstanceUid}'. A unique recovery candidate was found at '{recoveryCandidateFilePath}'. No file was changed.";
 
                         result.Issues.Add(new DicomRepositoryIssue
                         {
@@ -376,6 +436,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                             InstanceId = instance.Id,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
+                            RecoveryCandidateFilePath = recoveryCandidateFilePath,
                             ExpectedSopInstanceUid = persistedSopInstanceUid,
                             ActualSopInstanceUid = actualSopInstanceUid,
                             CanResolveAutomatically = false,
@@ -401,7 +462,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     {
                         result.InvalidDicomFiles++;
 
-                        string technicalDetails = $"Repository file '{expectedAbsolutePath}' for persisted instance '{instance.Id}' with SOP instance UID '{persistedSopInstanceUid}' is not a valid DICOM file.";
+                        /*
+                         * A valid file with the expected SOP instance UID may still exist at
+                         * another repository location. It is exposed as a recovery candidate
+                         * only when exactly one physical candidate exists.
+                         *
+                         * Even an unambiguous candidate must not replace the invalid file
+                         * automatically because the expected path is already occupied.
+                         */
+                        string recoveryCandidateFilePath = string.Empty;
+
+                        if (repositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
+                        {
+                            recoveryCandidateFilePath = recoveryEntry.FilePaths[0];
+                        }
+
+                        string technicalDetails = string.IsNullOrWhiteSpace(recoveryCandidateFilePath)
+                            ? $"Repository file '{expectedAbsolutePath}' for persisted instance '{instance.Id}' with SOP instance UID '{persistedSopInstanceUid}' is not a valid DICOM file. No unique recovery candidate was found."
+                            : $"Repository file '{expectedAbsolutePath}' for persisted instance '{instance.Id}' with SOP instance UID '{persistedSopInstanceUid}' is not a valid DICOM file. A unique recovery candidate was found at '{recoveryCandidateFilePath}'. No file was changed.";
 
                         result.Issues.Add(new DicomRepositoryIssue
                         {
@@ -409,6 +487,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                             InstanceId = instance.Id,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
+                            RecoveryCandidateFilePath = recoveryCandidateFilePath,
                             ExpectedSopInstanceUid = persistedSopInstanceUid,
                             CanResolveAutomatically = false,
                             AutomaticallyResolved = false,
@@ -471,6 +550,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
 
             string actualFilePath = indexEntry.FilePaths[0];
+
+            /*
+             * A physical file was found unambiguously, but without RelativeFilePath
+             * Persistence does not define where that file belongs canonically.
+             *
+             * This is a relationship conflict rather than a regular misplaced file,
+             * and it must not depend on whether automatic repair was requested.
+             */
+            if (string.IsNullOrWhiteSpace(instance.RelativeFilePath))
+            {
+                RegisterMissingRelativeFilePathConflict(instance, actualFilePath, result);
+                return;
+            }
 
             /*
              * MisplacedFiles counts every detected misplaced file regardless

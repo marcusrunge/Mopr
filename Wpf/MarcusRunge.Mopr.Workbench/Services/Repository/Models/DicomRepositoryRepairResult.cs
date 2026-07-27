@@ -24,6 +24,11 @@
         public int IdentityMismatchFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of temporary files left by incomplete import operations.
+        /// </summary>
+        public int IncompleteImportFiles { get; set; }
+
+        /// <summary>
         /// Gets or sets the number of files at persisted repository locations
         /// that do not contain valid DICOM data.
         /// </summary>
@@ -46,10 +51,16 @@
         public int MissingFiles { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of valid DICOM files that are not associated
-        /// with a persisted instance.
+        /// Gets or sets the number of SOP instance identities for which valid
+        /// physical DICOM data exists without a persisted instance.
         /// </summary>
         public int OrphanedFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of inconsistent persistence relationships
+        /// detected during repository verification.
+        /// </summary>
+        public int RelationshipConflicts { get; set; }
 
         /// <summary>
         /// Gets or sets the repaired files.
@@ -57,7 +68,8 @@
         public int RepairedFiles { get; set; }
 
         /// <summary>
-        /// Gets or sets the scanned files.
+        /// Gets or sets the number of persisted instances verified against the
+        /// physical repository.
         /// </summary>
         public int ScannedFiles { get; set; }
 

@@ -23,5 +23,4 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         /// <returns>The instance if found; otherwise, null.</returns>
         Task<Instance?> GetBySopInstanceUidAsync(string sopInstanceUid, CancellationToken cancellationToken = default);
     }
-
 }
