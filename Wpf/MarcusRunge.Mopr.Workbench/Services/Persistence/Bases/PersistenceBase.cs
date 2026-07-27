@@ -23,6 +23,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         // Backing field for IStudyRepository (assigned by derived modules)
         protected IStudyRepository? _study;
 
+        // Backing field for IUnrealObjectRepository (assigned by derived modules)
+        protected IUnrealObjectRepository? _unrealObject;
+
         // Backing field for IUserRepository (assigned by derived modules)
         protected IUserRepository? _user;
 
@@ -123,6 +126,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IStudyRepository? Study => _study;
+
+        /// <inheritdoc/>
+        public IUnrealObjectRepository? UnrealObject => _unrealObject;
 
         /// <inheritdoc/>
         public IUserRepository? User => _user;
@@ -271,7 +277,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                     switch (configuration.Mode)
                     {
                         case PersistenceMode.InMemory:
-                            options.UseInMemoryDatabase("MoprTestDb");
+                            /*
+                             * The configured connection string acts as the logical database name.
+                             * Each fixture provides a unique value so independent test modules cannot
+                             * accidentally share the same EF Core In-Memory database.
+                             */
+                            options.UseInMemoryDatabase(configuration.ConnectionString);
                             break;
 
                         case PersistenceMode.SqlServer:

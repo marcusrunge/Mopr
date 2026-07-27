@@ -23,6 +23,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Gets all persisted entities of this repository type.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>All persisted entities.</returns>
+        Task<IList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Gets an entity by its ID.
         /// </summary>
         /// <param name="id">The ID of the entity to retrieve.</param>

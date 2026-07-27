@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     /// Defines the contract for a repository that manages Instance entities.
     /// </summary>
     public interface IInstanceRepository : IRepository<Instance>
-    {
+    {        
         /// <summary>
         /// Gets all instances belonging to a specific series.
         /// </summary>

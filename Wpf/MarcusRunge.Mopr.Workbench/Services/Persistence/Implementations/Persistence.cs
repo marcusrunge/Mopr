@@ -35,6 +35,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             _measurement = MeasurementRepository.Create(this);
             _series = SeriesRepository.Create(this);
             _study = StudyRepository.Create(this);
+            _unrealObject = UnrealObjectRepository.Create(this);
             _user = UserRepository.Create(this);
         }
     }

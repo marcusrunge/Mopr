@@ -41,6 +41,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         }
 
         /// <inheritdoc/>
+        public async Task<IList<Measurement>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            return await context.Measurements.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public async Task<Measurement?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             // Check if the id is valid and throw an ArgumentOutOfRangeException if it is not
@@ -61,7 +68,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Create a new instance of the PersistenceDbContext using the Base property
             await using PersistenceDbContext context = Base.CreateDbContext();
             // Use AsNoTracking for better performance when the entities are not being updated
-            return await context.Measurements.Where(x => x.InstanceId == instanceId).AsNoTracking().ToListAsync(cancellationToken);
+            return await context.Measurements.AsNoTracking().Where(x => x.InstanceId == instanceId).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateAsync(Measurement entity, CancellationToken cancellationToken = default)

@@ -40,6 +40,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         }
 
         /// <inheritdoc/>
+        public async Task<IList<Instance>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            return await context.Instances.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public async Task<Instance?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             // Check if the id is valid and throw an ArgumentOutOfRangeException if it is not
@@ -60,7 +67,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Create a new instance of the PersistenceDbContext using the Base property
             await using PersistenceDbContext context = Base.CreateDbContext();
             // Use Entity Framework Core to query the Instances DbSet and return a list of instances that match the specified seriesId, without tracking changes
-            return await context.Instances.AsNoTracking().Where(x => x.SeriesId == seriesId).AsNoTracking().ToListAsync(cancellationToken);
+            return await context.Instances.AsNoTracking().Where(x => x.SeriesId == seriesId).ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

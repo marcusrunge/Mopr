@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     /// Defines the contract for a repository managing Series entities.
     /// </summary>
     public interface ISeriesRepository : IRepository<Series>
-    {
+    {        
         /// <summary>
         /// Gets a Series entity by its Instance UID.
         /// </summary>

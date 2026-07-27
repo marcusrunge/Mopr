@@ -10,8 +10,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
     {
         // Backing field for the IPersistenceBase instance
         private IPersistenceBase? _base;
+
         // Property to access the IPersistenceBase instance, throwing an exception if it has not been initialized
         private IPersistenceBase Base => _base ?? throw new InvalidOperationException("Repository has not been initialized.");
+
         /// <inheritdoc/>
         public async Task AddAsync(Series entity, CancellationToken cancellationToken = default)
         {
@@ -24,6 +26,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Save the changes to the database asynchronously
             await context.SaveChangesAsync(cancellationToken);
         }
+
         /// <inheritdoc/>
         public async Task DeleteAsync(Series entity, CancellationToken cancellationToken = default)
         {
@@ -36,6 +39,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Save the changes to the database asynchronously
             await context.SaveChangesAsync(cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<IList<Series>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            await using PersistenceDbContext context = Base.CreateDbContext();
+            return await context.Series.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
         /// <inheritdoc/>
         public async Task<Series?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
@@ -47,6 +58,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Retrieve the Series entity with the specified id from the database asynchronously, without tracking changes
             return await context.Series.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
+
         /// <inheritdoc/>
         public async Task<Series?> GetBySeriesInstanceUidAsync(string seriesInstanceUid, CancellationToken cancellationToken = default)
         {
@@ -57,6 +69,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Retrieve the Series entity with the specified seriesInstanceUid from the database asynchronously, without tracking changes
             return await context.Series.AsNoTracking().FirstOrDefaultAsync(x => x.SeriesInstanceUid == seriesInstanceUid, cancellationToken);
         }
+
         /// <inheritdoc/>
         public async Task<IList<Series>> GetByStudyIdAsync(int studyId, CancellationToken cancellationToken = default)
         {
@@ -68,6 +81,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             // Retrieve the list of Series entities with the specified studyId from the database asynchronously, without tracking changes
             return await context.Series.AsNoTracking().Where(x => x.StudyId == studyId).ToListAsync(cancellationToken);
         }
+
         /// <inheritdoc/>
         public async Task UpdateAsync(Series entity, CancellationToken cancellationToken = default)
         {
