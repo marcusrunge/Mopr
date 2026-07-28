@@ -1233,6 +1233,544 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             Assert.Equal(instance.SeriesId, persistedInstance.SeriesId);
         }
 
+        [Fact, Priority(40)]
+        public async Task Import_Should_Store_Instance_In_Selected_Secondary_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+
+            Assert.Equal(_fixture.SecondaryRepositoryLocation!.Id, instance.RepositoryLocationId);
+            Assert.Equal(scenario.PathInfo.RelativePath, instance.RelativeFilePath);
+            Assert.Equal(_fixture.SecondaryRepositoryLocation.Id, scenario.PathInfo.RepositoryLocationId);
+            Assert.Equal(_fixture.SecondaryRepositoryLocation.RootPath, scenario.PathInfo.RepositoryRootPath);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+
+            string primaryPath = _fixture.Repository!.RepositoryService!.GetAbsolutePath(_fixture.RepositoryLocation!, scenario.PathInfo.RelativePath);
+
+            /*
+             * Selecting the secondary repository must not create a physical copy in
+             * the primary repository or silently fall back to its default location.
+             */
+            Assert.False(File.Exists(primaryPath));
+
+            byte[] sourceBytes = await ReadAllBytesAsync(scenario.SourceFilePath);
+            byte[] importedBytes = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+
+            Assert.Equal(sourceBytes, importedBytes);
+        }
+
+        [Fact, Priority(41)]
+        public async Task Repair_Should_Check_Only_Selected_RepositoryLocation()
+        {
+            using RepositoryTestScenario primaryScenario = await CreateRepositoryScenarioAsync();
+            using RepositoryTestScenario secondaryScenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await primaryScenario.ImportSuccessfullyAsync();
+            await secondaryScenario.ImportSuccessfullyAsync();
+
+            Instance primaryInstance = await primaryScenario.GetPersistedInstanceAsync();
+            Instance secondaryInstance = await secondaryScenario.GetPersistedInstanceAsync();
+
+            try
+            {
+                File.Delete(primaryScenario.PathInfo.AbsolutePath);
+                File.Delete(secondaryScenario.PathInfo.AbsolutePath);
+
+                DicomRepositoryRepairResult result = await RepairAsync(new DicomRepositoryRepairRequest
+                {
+                    VerifyFiles = true,
+                    RepairMissingFiles = false,
+                    RebuildRepositoryIndex = false,
+                    RepositoryLocationId = _fixture.SecondaryRepositoryLocation!.Id
+                });
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.MissingFile && item.InstanceId == secondaryInstance.Id);
+
+                Assert.Equal(_fixture.SecondaryRepositoryLocation.Id, issue.RepositoryLocationId);
+                Assert.Equal(secondaryScenario.PathInfo.AbsolutePath, issue.ExpectedFilePath);
+
+                Assert.DoesNotContain(result.Issues, item => item.IssueType == DicomRepositoryIssueType.MissingFile && item.InstanceId == primaryInstance.Id);
+            }
+            finally
+            {
+                await CreateDicomFileAsync(primaryScenario.PathInfo.AbsolutePath, primaryScenario.StudyInstanceUid, primaryScenario.SeriesInstanceUid, primaryScenario.SopInstanceUid);
+                await CreateDicomFileAsync(secondaryScenario.PathInfo.AbsolutePath, secondaryScenario.StudyInstanceUid, secondaryScenario.SeriesInstanceUid, secondaryScenario.SopInstanceUid);
+            }
+        }
+
+        [Fact, Priority(42)]
+        public async Task Repair_Should_Check_All_Enabled_RepositoryLocations_Independently()
+        {
+            using RepositoryTestScenario primaryScenario = await CreateRepositoryScenarioAsync();
+            using RepositoryTestScenario secondaryScenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await primaryScenario.ImportSuccessfullyAsync();
+            await secondaryScenario.ImportSuccessfullyAsync();
+
+            Instance primaryInstance = await primaryScenario.GetPersistedInstanceAsync();
+            Instance secondaryInstance = await secondaryScenario.GetPersistedInstanceAsync();
+
+            try
+            {
+                File.Delete(primaryScenario.PathInfo.AbsolutePath);
+                File.Delete(secondaryScenario.PathInfo.AbsolutePath);
+
+                DicomRepositoryRepairResult result = await RepairAsync(CreateAllLocationsRepairRequest(repairMissingFiles: false));
+
+                DicomRepositoryIssue primaryIssue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.MissingFile && item.InstanceId == primaryInstance.Id);
+                DicomRepositoryIssue secondaryIssue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.MissingFile && item.InstanceId == secondaryInstance.Id);
+
+                Assert.Equal(_fixture.RepositoryLocation!.Id, primaryIssue.RepositoryLocationId);
+                Assert.Equal(primaryScenario.PathInfo.AbsolutePath, primaryIssue.ExpectedFilePath);
+
+                Assert.Equal(_fixture.SecondaryRepositoryLocation!.Id, secondaryIssue.RepositoryLocationId);
+                Assert.Equal(secondaryScenario.PathInfo.AbsolutePath, secondaryIssue.ExpectedFilePath);
+                Assert.NotEqual(primaryIssue.RepositoryLocationId, secondaryIssue.RepositoryLocationId);
+            }
+            finally
+            {
+                await CreateDicomFileAsync(primaryScenario.PathInfo.AbsolutePath, primaryScenario.StudyInstanceUid, primaryScenario.SeriesInstanceUid, primaryScenario.SopInstanceUid);
+                await CreateDicomFileAsync(secondaryScenario.PathInfo.AbsolutePath, secondaryScenario.StudyInstanceUid, secondaryScenario.SeriesInstanceUid, secondaryScenario.SopInstanceUid);
+            }
+        }
+
+        [Fact, Priority(43)]
+        public async Task Import_Should_Reject_Disabled_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            try
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: false);
+
+                DicomImportResult result = await ImportAsync(scenario.SourceDirectory, repositoryLocationId: _fixture.SecondaryRepositoryLocation!.Id);
+
+                Assert.Equal(0, result.ImportedFiles);
+                Assert.Equal(1, result.FailedFiles);
+                Assert.Single(result.Errors);
+                Assert.Contains("disabled", result.Errors[0], StringComparison.OrdinalIgnoreCase);
+                Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
+                Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            }
+            finally
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: true);
+            }
+        }
+
+        [Fact, Priority(44)]
+        public async Task Repair_Should_Inspect_Explicitly_Selected_Disabled_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+
+            try
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: false);
+                File.Delete(scenario.PathInfo.AbsolutePath);
+
+                Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
+
+                DicomRepositoryRepairResult result = await RepairAsync(new DicomRepositoryRepairRequest
+                {
+                    VerifyFiles = true,
+                    RepairMissingFiles = false,
+                    RebuildRepositoryIndex = false,
+                    RepositoryLocationId = _fixture.SecondaryRepositoryLocation!.Id
+                });
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item =>
+                    item.IssueType == DicomRepositoryIssueType.MissingFile
+                    && item.InstanceId == instance.Id);
+
+                Assert.Equal(_fixture.SecondaryRepositoryLocation.Id, issue.RepositoryLocationId);
+                Assert.Equal(scenario.PathInfo.AbsolutePath, issue.ExpectedFilePath);
+                Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+            }
+            finally
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: true);
+
+                string? directory = Path.GetDirectoryName(scenario.PathInfo.AbsolutePath);
+
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                await CreateDicomFileAsync(scenario.PathInfo.AbsolutePath, scenario.StudyInstanceUid, scenario.SeriesInstanceUid, scenario.SopInstanceUid);
+            }
+        }
+
+        [Fact, Priority(45)]
+        public async Task Import_Should_Report_Missing_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory, repositoryLocationId: int.MaxValue);
+
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(1, result.FailedFiles);
+            Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
+            Assert.Contains("does not exist", result.Errors[0], StringComparison.OrdinalIgnoreCase);
+            Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
+        }
+
+        [Fact, Priority(46)]
+        public async Task Repair_Should_Report_Missing_RepositoryLocation()
+        {
+            DicomRepositoryRepairResult result = await RepairAsync(new DicomRepositoryRepairRequest
+            {
+                VerifyFiles = true,
+                RepairMissingFiles = false,
+                RebuildRepositoryIndex = false,
+                RepositoryLocationId = int.MaxValue
+            });
+
+            Assert.Equal(0, result.ScannedFiles);
+            Assert.Equal(0, result.MissingFiles);
+            Assert.Equal(0, result.UnavailableRepositoryLocations);
+            Assert.Empty(result.Issues);
+            Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
+            Assert.Contains("does not exist", result.Errors[0], StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact, Priority(47)]
+        public async Task Repair_Should_Create_RepositoryLocationUnavailable_When_Root_Does_Not_Exist()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+            string unavailableRootPath = Path.Combine(Path.GetTempPath(), "MoprUnavailableRepositoryTests", Guid.NewGuid().ToString("N"));
+
+            Assert.False(Directory.Exists(unavailableRootPath));
+
+            try
+            {
+                RepositoryLocation repositoryLocation = await SetSecondaryRepositoryLocationStateAsync(isEnabled: true, rootPath: unavailableRootPath);
+
+                DicomRepositoryRepairResult result = await RepairAsync(new DicomRepositoryRepairRequest
+                {
+                    VerifyFiles = true,
+                    RepairMissingFiles = false,
+                    RebuildRepositoryIndex = false,
+                    RepositoryLocationId = repositoryLocation.Id
+                });
+
+                Assert.Equal(1, result.UnavailableRepositoryLocations);
+                Assert.Equal(0, result.ScannedFiles);
+                Assert.Equal(0, result.MissingFiles);
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable && item.RepositoryLocationId == repositoryLocation.Id);
+
+                Assert.Equal(unavailableRootPath, issue.ActualFilePath);
+                Assert.False(issue.CanResolveAutomatically);
+                Assert.False(issue.AutomaticallyResolved);
+                Assert.Contains("does not exist", issue.TechnicalDetails, StringComparison.OrdinalIgnoreCase);
+
+                /*
+                 * The unavailable repository is reported once at location level.
+                 * Its persisted Instance must not be misclassified as a missing file.
+                 */
+                Assert.DoesNotContain(result.Issues, item => item.IssueType == DicomRepositoryIssueType.MissingFile && item.InstanceId == instance.Id);
+            }
+            finally
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: true);
+            }
+        }
+
+        [Fact, Priority(48)]
+        public async Task Repair_All_Should_Skip_Disabled_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+
+            try
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: false);
+                File.Delete(scenario.PathInfo.AbsolutePath);
+
+                DicomRepositoryRepairResult result = await RepairAsync(CreateAllLocationsRepairRequest(repairMissingFiles: false));
+
+                Assert.DoesNotContain(result.Issues, item => item.RepositoryLocationId == _fixture.SecondaryRepositoryLocation!.Id && item.InstanceId == instance.Id);
+                Assert.DoesNotContain(result.Issues, item => item.RepositoryLocationId == _fixture.SecondaryRepositoryLocation!.Id && item.IssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable);
+            }
+            finally
+            {
+                await SetSecondaryRepositoryLocationStateAsync(isEnabled: true);
+
+                string? directory = Path.GetDirectoryName(scenario.PathInfo.AbsolutePath);
+
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                await CreateDicomFileAsync(scenario.PathInfo.AbsolutePath, scenario.StudyInstanceUid, scenario.SeriesInstanceUid, scenario.SopInstanceUid);
+            }
+        }
+
+        [Fact, Priority(49)]
+        public async Task Repair_Should_Remain_Clean_After_RepositoryLocation_Status_Tests()
+        {
+            RepositoryLocation primaryLocation = await _fixture.Persistence!.RepositoryLocation!.GetByIdAsync(_fixture.RepositoryLocation!.Id, TestContext.Current.CancellationToken) ?? throw new InvalidOperationException("The primary repository test location does not exist.");
+            RepositoryLocation secondaryLocation = await _fixture.Persistence.RepositoryLocation.GetByIdAsync(_fixture.SecondaryRepositoryLocation!.Id, TestContext.Current.CancellationToken) ?? throw new InvalidOperationException("The secondary repository test location does not exist.");
+
+            Assert.True(primaryLocation.IsEnabled);
+            Assert.True(primaryLocation.IsDefault);
+            Assert.Equal(_fixture.RepositoryRootPath, primaryLocation.RootPath);
+
+            Assert.True(secondaryLocation.IsEnabled);
+            Assert.False(secondaryLocation.IsDefault);
+            Assert.Equal(_fixture.SecondaryRepositoryRootPath, secondaryLocation.RootPath);
+
+            DicomRepositoryRepairResult result = await RepairAsync(CreateAllLocationsRepairRequest(repairMissingFiles: false));
+
+            Assert.Equal(0, result.UnavailableRepositoryLocations);
+            Assert.DoesNotContain(result.Issues, item => item.IssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable);
+        }
+
+        [Fact, Priority(50)]
+        public async Task Repair_Should_Reject_Absolute_RelativeFilePath()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance original = await scenario.GetPersistedInstanceAsync();
+
+            Assert.False(string.IsNullOrWhiteSpace(original.RelativeFilePath));
+
+            string originalRelativeFilePath = original.RelativeFilePath;
+            string externalDirectory = CreateTemporaryDirectory();
+            string externalFilePath = Path.Combine(externalDirectory, "ExternalImage.dcm");
+
+            await CreateDicomFileAsync(externalFilePath, scenario.StudyInstanceUid, scenario.SeriesInstanceUid, scenario.SopInstanceUid);
+
+            byte[] repositoryBytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+            byte[] externalBytesBefore = await ReadAllBytesAsync(externalFilePath);
+
+            try
+            {
+                Instance instance = await scenario.SetRelativeFilePathAsync(externalFilePath);
+
+                DicomRepositoryRepairResult result = await RepairAsync();
+
+                Assert.Equal(1, result.RelationshipConflicts);
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item =>
+                    item.IssueType == DicomRepositoryIssueType.RelationshipConflict
+                    && item.InstanceId == instance.Id);
+
+                Assert.Equal(_fixture.RepositoryLocation!.Id, issue.RepositoryLocationId);
+                Assert.Empty(issue.ExpectedFilePath);
+                Assert.Empty(issue.ActualFilePath);
+                Assert.Empty(issue.RecoveryCandidateFilePath);
+                Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+                Assert.False(issue.CanResolveAutomatically);
+                Assert.False(issue.AutomaticallyResolved);
+                Assert.Contains("unsafe relative repository path", issue.TechnicalDetails, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(externalFilePath, issue.TechnicalDetails, StringComparison.Ordinal);
+
+                /*
+                 * Neither the canonical repository file nor the external file may be
+                 * read as a repair candidate, moved, overwritten or deleted.
+                 */
+                Assert.Equal(repositoryBytesBefore, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+                Assert.Equal(externalBytesBefore, await ReadAllBytesAsync(externalFilePath));
+                Assert.Equal(externalFilePath, (await scenario.GetPersistedInstanceAsync()).RelativeFilePath);
+            }
+            finally
+            {
+                await scenario.SetRelativeFilePathAsync(originalRelativeFilePath);
+                DeleteDirectory(externalDirectory);
+            }
+        }
+
+        [Fact, Priority(51)]
+        public async Task Repair_Should_Reject_ParentDirectory_Traversal_In_RelativeFilePath()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance original = await scenario.GetPersistedInstanceAsync();
+
+            Assert.False(string.IsNullOrWhiteSpace(original.RelativeFilePath));
+
+            string originalRelativeFilePath = original.RelativeFilePath;
+            string traversalPath = Path.Combine("..", "OutsideRepository", $"{scenario.SopInstanceUid.UID}.dcm");
+            byte[] repositoryBytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+
+            /*
+             * The shared fixture contains persisted records from preceding scenarios.
+             * Capture the current location-wide baseline so this test measures only
+             * the additional effect of its deliberately manipulated Instance.
+             */
+            DicomRepositoryRepairResult initial = await RepairAsync();
+
+            try
+            {
+                Instance instance = await scenario.SetRelativeFilePathAsync(traversalPath);
+
+                DicomRepositoryRepairResult result = await RepairAsync();
+
+                Assert.Equal(initial.RelationshipConflicts + 1, result.RelationshipConflicts);
+                Assert.Equal(initial.MissingFiles, result.MissingFiles);
+                Assert.Equal(initial.MisplacedFiles, result.MisplacedFiles);
+                Assert.Equal(initial.RepairedFiles, result.RepairedFiles);
+                Assert.Equal(initial.IdentityMismatchFiles, result.IdentityMismatchFiles);
+                Assert.Equal(initial.InvalidDicomFiles, result.InvalidDicomFiles);
+                Assert.Equal(initial.UnreadableFiles, result.UnreadableFiles);
+                Assert.Equal(initial.OrphanedFiles, result.OrphanedFiles);
+                Assert.Equal(initial.DuplicateFiles, result.DuplicateFiles);
+                Assert.Equal(initial.IncompleteImportFiles, result.IncompleteImportFiles);
+                Assert.Equal(initial.UnavailableRepositoryLocations, result.UnavailableRepositoryLocations);
+                Assert.Equal(initial.Issues.Count + 1, result.Issues.Count);
+                Assert.Equal(initial.Errors.Count + 1, result.Errors.Count);
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.RelationshipConflict && item.InstanceId == instance.Id && item.RepositoryLocationId == _fixture.RepositoryLocation!.Id);
+
+                Assert.Equal(_fixture.RepositoryLocation!.Id, issue.RepositoryLocationId);
+                Assert.Empty(issue.ExpectedFilePath);
+                Assert.Empty(issue.ActualFilePath);
+                Assert.Empty(issue.RecoveryCandidateFilePath);
+                Assert.Equal(scenario.SopInstanceUid.UID, issue.ExpectedSopInstanceUid);
+                Assert.False(issue.CanResolveAutomatically);
+                Assert.False(issue.AutomaticallyResolved);
+                Assert.Null(issue.ResolvedAtUtc);
+                Assert.Contains(traversalPath, issue.TechnicalDetails, StringComparison.Ordinal);
+                Assert.Contains("parent-directory", issue.TechnicalDetails, StringComparison.OrdinalIgnoreCase);
+
+                /*
+                 * The canonical DICOM file remains untouched. The unsafe Persistence
+                 * value is reported but is never normalized or used for file access.
+                 */
+                Assert.Equal(repositoryBytesBefore, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+                Assert.Equal(traversalPath, (await scenario.GetPersistedInstanceAsync()).RelativeFilePath);
+            }
+            finally
+            {
+                /*
+                 * Restore the original Persistence relationship even if verification
+                 * or an assertion fails.
+                 */
+                await scenario.SetRelativeFilePathAsync(originalRelativeFilePath);
+            }
+        }
+
+        [Fact, Priority(52)]
+        public async Task Repair_Should_Not_Use_RecoveryCandidate_From_Different_RepositoryLocation()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            await scenario.ImportSuccessfullyAsync();
+
+            Instance instance = await scenario.GetPersistedInstanceAsync();
+            byte[] primaryBytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+
+            DicomRepositoryPathInfo secondaryPathInfo = CreatePathInfo(_fixture.SecondaryRepositoryLocation!, scenario.StudyInstanceUid, scenario.SeriesInstanceUid, scenario.SopInstanceUid);
+            string? secondaryDirectory = Path.GetDirectoryName(secondaryPathInfo.AbsolutePath);
+
+            Assert.False(string.IsNullOrWhiteSpace(secondaryDirectory));
+
+            try
+            {
+                Directory.CreateDirectory(secondaryDirectory!);
+
+                /*
+                 * The secondary repository contains a valid physical file with the
+                 * expected SOP identity, but the persisted Instance belongs to the
+                 * primary repository location.
+                 */
+                await CreateDicomFileAsync(secondaryPathInfo.AbsolutePath, scenario.StudyInstanceUid, scenario.SeriesInstanceUid, scenario.SopInstanceUid);
+
+                await scenario.ReplaceRepositoryFileWithInvalidContentAsync();
+
+                string invalidPrimaryContentBefore = await File.ReadAllTextAsync(scenario.PathInfo.AbsolutePath, TestContext.Current.CancellationToken);
+                byte[] secondaryBytesBefore = await ReadAllBytesAsync(secondaryPathInfo.AbsolutePath);
+
+                DicomRepositoryRepairResult result = await RepairAsync(new DicomRepositoryRepairRequest
+                {
+                    VerifyFiles = true,
+                    RepairMissingFiles = true,
+                    RebuildRepositoryIndex = false,
+                    RepositoryLocationId = _fixture.RepositoryLocation!.Id
+                });
+
+                DicomRepositoryIssue issue = Assert.Single(result.Issues, item => item.IssueType == DicomRepositoryIssueType.InvalidDicomFile && item.InstanceId == instance.Id);
+
+                Assert.Equal(_fixture.RepositoryLocation.Id, issue.RepositoryLocationId);
+                Assert.Empty(issue.RecoveryCandidateFilePath);
+                Assert.False(issue.CanResolveAutomatically);
+                Assert.False(issue.AutomaticallyResolved);
+
+                /*
+                 * The primary and secondary locations are isolated. The valid file in
+                 * the secondary repository must not replace or recover the invalid
+                 * primary file.
+                 */
+                Assert.Equal(invalidPrimaryContentBefore, await File.ReadAllTextAsync(scenario.PathInfo.AbsolutePath, TestContext.Current.CancellationToken));
+                Assert.Equal(secondaryBytesBefore, await ReadAllBytesAsync(secondaryPathInfo.AbsolutePath));
+            }
+            finally
+            {
+                await File.WriteAllBytesAsync(scenario.PathInfo.AbsolutePath, primaryBytesBefore, TestContext.Current.CancellationToken);
+
+                if (File.Exists(secondaryPathInfo.AbsolutePath))
+                {
+                    File.Delete(secondaryPathInfo.AbsolutePath);
+                }
+
+                DeleteDirectory(GetRepositoryStudyDirectory(secondaryPathInfo));
+            }
+        }
+
+        [Fact, Priority(53)]
+        public async Task RepositoryService_Should_Reject_NonCanonical_Traversal_That_Resolves_Inside_Root()
+        {
+            string relativePath = Path.Combine("Study", "Temporary", "..", "Series", "Image.dcm");
+
+            UnauthorizedAccessException exception = Assert.Throws<UnauthorizedAccessException>(() => _fixture.Repository!.RepositoryService!.GetAbsolutePath(_fixture.RepositoryLocation!, relativePath));
+
+            Assert.Contains("parent-directory", exception.Message, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact, Priority(54)]
+        public async Task Repair_Should_Remain_Operational_After_PathSecurity_Tests()
+        {
+            using RepositoryTestScenario primaryScenario = await CreateRepositoryScenarioAsync();
+            using RepositoryTestScenario secondaryScenario = await CreateRepositoryScenarioAsync(repositoryLocation: _fixture.SecondaryRepositoryLocation!);
+
+            await primaryScenario.ImportSuccessfullyAsync();
+            await secondaryScenario.ImportSuccessfullyAsync();
+
+            Instance primaryInstance = await primaryScenario.GetPersistedInstanceAsync();
+            Instance secondaryInstance = await secondaryScenario.GetPersistedInstanceAsync();
+
+            DicomRepositoryRepairResult result = await RepairAsync(CreateAllLocationsRepairRequest(repairMissingFiles: false));
+
+            Assert.DoesNotContain(result.Issues, item => item.InstanceId == primaryInstance.Id || item.InstanceId == secondaryInstance.Id);
+
+            Assert.True(File.Exists(primaryScenario.PathInfo.AbsolutePath));
+            Assert.True(File.Exists(secondaryScenario.PathInfo.AbsolutePath));
+        }
+
         private static async Task AssertFilesEqualAsync(string expectedPath, string actualPath) => Assert.Equal(await ReadAllBytesAsync(expectedPath), await ReadAllBytesAsync(actualPath));
 
         private static async Task<byte[]> ReadAllBytesAsync(string filePath) => await File.ReadAllBytesAsync(filePath, TestContext.Current.CancellationToken);
@@ -1243,7 +1781,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             return file.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
         }
 
-        private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => _fixture.Repository!.RepositoryService!.CreatePathInfo(_fixture.RepositoryLocation!, studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
+        private DicomRepositoryPathInfo CreatePathInfo(DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => CreatePathInfo(_fixture.RepositoryLocation!, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+
+        private DicomRepositoryPathInfo CreatePathInfo(RepositoryLocation repositoryLocation, DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => _fixture.Repository!.RepositoryService!.CreatePathInfo(repositoryLocation, studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
 
         private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false, int? repositoryLocationId = null) => await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
         {

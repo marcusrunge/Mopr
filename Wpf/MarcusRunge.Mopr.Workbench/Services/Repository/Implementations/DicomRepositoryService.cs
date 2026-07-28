@@ -105,9 +105,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(relativePath);
 
+            /*
+             * Persisted repository paths must be strictly relative and must not
+             * contain current- or parent-directory segments. Rejecting these segments
+             * before normalization keeps manipulated Persistence values visible
+             * instead of silently converting them into apparently valid paths.
+             */
             if (Path.IsPathFullyQualified(relativePath))
             {
                 throw new ArgumentException("The repository path must be relative to its configured repository location.", nameof(relativePath));
+            }
+
+            string[] pathSegments = relativePath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+            if (pathSegments.Any(segment => segment is "." or ".."))
+            {
+                throw new UnauthorizedAccessException($"Relative repository path '{relativePath}' contains a current- or parent-directory segment.");
             }
 
             string normalizedRootPath = NormalizeRepositoryRootPath(repositoryRootPath);
@@ -115,10 +128,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             string rootPathWithSeparator = $"{normalizedRootPath}{Path.DirectorySeparatorChar}";
 
             /*
-             * The normalized destination must either be a child of the root
-             * directory or, for a direct root comparison, equal the root.
-             * Directory-boundary comparison prevents sibling paths with a
-             * matching text prefix from being accepted.
+             * The normalized destination must either equal the repository root or be
+             * a child of it. The separator boundary prevents a sibling path with the
+             * same textual prefix from being accepted.
              */
             bool isRootPath = string.Equals(absolutePath, normalizedRootPath, StringComparison.OrdinalIgnoreCase);
             bool isChildPath = absolutePath.StartsWith(rootPathWithSeparator, StringComparison.OrdinalIgnoreCase);
@@ -140,10 +152,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
              * separators, rooted values and parent-directory segments would
              * allow the generated path to escape its intended hierarchy.
              */
-            if (Path.IsPathFullyQualified(value)
-                || value is "." or ".."
-                || value.IndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]) >= 0
-                || value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            if (Path.IsPathFullyQualified(value)                || value is "." or ".."                || value.IndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]) >= 0                || value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
                 throw new ArgumentException($"Value '{value}' is not a valid repository path segment.", parameterName);
             }
@@ -151,8 +160,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
         private string GetConfiguredRepositoryRootPath()
         {
-            string repositoryPath = Base.ApplicationConfiguration?.Repository?.DicomRepositoryPath
-                ?? throw new InvalidOperationException("The DICOM repository path has not been configured.");
+            string repositoryPath = Base.ApplicationConfiguration?.Repository?.DicomRepositoryPath                ?? throw new InvalidOperationException("The DICOM repository path has not been configured.");
 
             return NormalizeRepositoryRootPath(repositoryPath);
         }

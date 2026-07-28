@@ -22,10 +22,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             RepositoryLocationId = null
         };
 
-        private async Task<RepositoryTestScenario> CreateRepositoryScenarioAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null)
+        private async Task<RepositoryTestScenario> CreateRepositoryScenarioAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null, RepositoryLocation? repositoryLocation = null)
         {
             RepositoryTestScenario scenario = new(this);
-            await scenario.InitializeAsync(fileName, createDicomFile, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+            await scenario.InitializeAsync(fileName, createDicomFile, studyInstanceUid, seriesInstanceUid, sopInstanceUid, repositoryLocation ?? _fixture.RepositoryLocation!);
             return scenario;
         }
 
@@ -33,8 +33,33 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
         private async Task<DicomRepositoryRepairResult> RepairAsync(DicomRepositoryRepairRequest request) => await _fixture.Repository!.RepositoryRepairService!.RepairAsync(request, TestContext.Current.CancellationToken);
 
+        private async Task<RepositoryLocation> SetSecondaryRepositoryLocationStateAsync(bool isEnabled, string? rootPath = null)
+        {
+            RepositoryLocation repositoryLocation = await _fixture.Persistence!.RepositoryLocation!.GetByIdAsync(_fixture.SecondaryRepositoryLocation!.Id, TestContext.Current.CancellationToken)                ?? throw new InvalidOperationException("The secondary repository test location does not exist.");
+
+            repositoryLocation.IsEnabled = isEnabled;
+            repositoryLocation.RootPath = rootPath ?? _fixture.SecondaryRepositoryRootPath;
+
+            /*
+             * The secondary location is never the default. This allows activation and
+             * deactivation tests without violating the invariant that a default
+             * repository location must remain enabled.
+             */
+            Assert.False(repositoryLocation.IsDefault);
+
+            await _fixture.Persistence.RepositoryLocation.UpdateAsync(repositoryLocation, TestContext.Current.CancellationToken);
+
+            RepositoryLocation updated = await _fixture.Persistence.RepositoryLocation.GetByIdAsync(repositoryLocation.Id, TestContext.Current.CancellationToken)                ?? throw new InvalidOperationException("The updated secondary repository test location could not be loaded.");
+
+            Assert.Equal(isEnabled, updated.IsEnabled);
+            Assert.Equal(Path.TrimEndingDirectorySeparator(Path.GetFullPath(rootPath ?? _fixture.SecondaryRepositoryRootPath)), updated.RootPath);
+
+            return updated;
+        }
+
         private sealed class RepositoryTestScenario(RepositoryIntegrationTests owner) : IDisposable
         {
+            public RepositoryLocation RepositoryLocation { get; private set; } = default!;
             public DicomRepositoryPathInfo PathInfo { get; private set; } = default!;
             public string? RepositoryStudyDirectory { get; set; }
             public DicomUID SeriesInstanceUid { get; private set; } = DicomUID.Generate();
@@ -81,19 +106,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             public async Task<DicomImportResult> ImportSuccessfullyAsync(bool allowOverwrite = false)
             {
-                DicomImportResult result = await owner.ImportAsync(SourceDirectory, allowOverwrite);
+                DicomImportResult result = await owner.ImportAsync(SourceDirectory, allowOverwrite, RepositoryLocation.Id);
+
                 Assert.Equal(1, result.ImportedFiles);
                 Assert.Equal(0, result.FailedFiles);
                 Assert.Empty(result.Errors);
                 Assert.True(File.Exists(PathInfo.AbsolutePath));
+
                 return result;
             }
 
-            public async Task InitializeAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null)
+            public async Task InitializeAsync(string fileName, bool createDicomFile, DicomUID? studyInstanceUid, DicomUID? seriesInstanceUid, DicomUID? sopInstanceUid, RepositoryLocation repositoryLocation)
             {
+                ArgumentNullException.ThrowIfNull(repositoryLocation);
+
                 StudyInstanceUid = studyInstanceUid ?? DicomUID.Generate();
                 SeriesInstanceUid = seriesInstanceUid ?? DicomUID.Generate();
                 SopInstanceUid = sopInstanceUid ?? DicomUID.Generate();
+                RepositoryLocation = repositoryLocation;
                 SourceFilePath = Path.Combine(SourceDirectory, fileName);
 
                 if (createDicomFile)
@@ -101,7 +131,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                     await CreateDicomFileAsync(SourceFilePath, StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
                 }
 
-                PathInfo = owner.CreatePathInfo(StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
+                PathInfo = owner.CreatePathInfo(RepositoryLocation, StudyInstanceUid, SeriesInstanceUid, SopInstanceUid);
                 RepositoryStudyDirectory = GetRepositoryStudyDirectory(PathInfo);
             }
 

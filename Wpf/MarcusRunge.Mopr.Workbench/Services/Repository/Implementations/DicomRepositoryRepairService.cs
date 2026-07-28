@@ -314,6 +314,35 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             result.Errors.Add(technicalDetails);
         }
 
+        private static void RegisterUnsafeRelativeFilePathConflict(Instance instance, string relativeFilePath, string reason, DicomRepositoryRepairResult result)
+        {
+            /*
+             * A persisted path that is absolute, traverses directories or cannot be
+             * normalized safely must never be passed to physical file operations.
+             *
+             * The repository reports the damaged Persistence relationship but does
+             * not attempt to derive a replacement path or inspect the referenced
+             * external location.
+             */
+            result.RelationshipConflicts++;
+
+            string technicalDetails = $"Persisted instance '{instance.Id}' with SOP instance UID '{instance.SopInstanceUid}' contains unsafe relative repository path '{relativeFilePath}' for repository location '{instance.RepositoryLocationId}'. The path was rejected before any physical file operation: {reason} No file or persistence relationship was changed.";
+
+            result.Issues.Add(new DicomRepositoryIssue
+            {
+                IssueType = DicomRepositoryIssueType.RelationshipConflict,
+                InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
+                ExpectedSopInstanceUid = instance.SopInstanceUid ?? string.Empty,
+                CanResolveAutomatically = false,
+                AutomaticallyResolved = false,
+                DetectedAtUtc = DateTime.UtcNow,
+                TechnicalDetails = technicalDetails
+            });
+
+            result.Errors.Add(technicalDetails);
+        }
+
         private static void RegisterOrphanedFiles(DicomRepositoryLocationRepairContext context, HashSet<string> persistedSopInstanceUids, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             foreach (KeyValuePair<string, DicomRepositoryFileIndexEntry> item in context.RepositoryFiles)
@@ -498,7 +527,23 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             if (!string.IsNullOrWhiteSpace(instance.RelativeFilePath))
             {
-                expectedAbsolutePath = RepositoryService.GetAbsolutePath(context.RepositoryLocation, instance.RelativeFilePath);
+                try
+                {
+                    /*
+                     * Path validation must complete before File.Exists or any other
+                     * physical operation is allowed to observe the persisted value.
+                     */
+                    expectedAbsolutePath = RepositoryService.GetAbsolutePath(context.RepositoryLocation, instance.RelativeFilePath);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception) when (exception is ArgumentException or UnauthorizedAccessException or NotSupportedException or PathTooLongException)
+                {
+                    RegisterUnsafeRelativeFilePathConflict(instance, instance.RelativeFilePath, exception.Message, result);
+                    return;
+                }
 
                 if (File.Exists(expectedAbsolutePath))
                 {
