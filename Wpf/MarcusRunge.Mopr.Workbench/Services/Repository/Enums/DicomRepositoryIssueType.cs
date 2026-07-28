@@ -52,6 +52,11 @@
         IncompleteImport,
 
         /// <summary>
+        /// A configured repository location could not be accessed or inspected.
+        /// </summary>
+        RepositoryLocationUnavailable,
+
+        /// <summary>
         /// Persisted study, series, instance or dependent entity relationships are inconsistent.
         /// </summary>
         RelationshipConflict

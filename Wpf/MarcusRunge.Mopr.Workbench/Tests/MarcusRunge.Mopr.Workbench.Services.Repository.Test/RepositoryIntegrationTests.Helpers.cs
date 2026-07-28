@@ -6,11 +6,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
     public sealed partial class RepositoryIntegrationTests
     {
-        private static DicomRepositoryRepairRequest CreateRepairRequest(bool repairMissingFiles = true) => new()
+        private DicomRepositoryRepairRequest CreateRepairRequest(bool repairMissingFiles = true) => new()
         {
             VerifyFiles = true,
             RepairMissingFiles = repairMissingFiles,
-            RebuildRepositoryIndex = false
+            RebuildRepositoryIndex = false,
+            RepositoryLocationId = _fixture.RepositoryLocation!.Id
+        };
+
+        private static DicomRepositoryRepairRequest CreateAllLocationsRepairRequest(bool repairMissingFiles = true) => new()
+        {
+            VerifyFiles = true,
+            RepairMissingFiles = repairMissingFiles,
+            RebuildRepositoryIndex = false,
+            RepositoryLocationId = null
         };
 
         private async Task<RepositoryTestScenario> CreateRepositoryScenarioAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null)

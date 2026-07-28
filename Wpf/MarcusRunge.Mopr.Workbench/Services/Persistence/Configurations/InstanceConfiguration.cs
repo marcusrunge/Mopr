@@ -1,5 +1,4 @@
-﻿using MarcusRunge.Base.EntityFramework;
-using MarcusRunge.Mopr.Workbench.Services.Persistence.Configurations;
+﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Configurations;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -19,6 +18,11 @@ internal class InstanceConfiguration : AuditableEntityConfigurationBase<Instance
 
         builder.Property(x => x.RelativeFilePath)
                .HasMaxLength(2048);
+
+        builder.HasOne(item => item.RepositoryLocation)
+               .WithMany(item => item.Instances)
+               .HasForeignKey(item => item.RepositoryLocationId)
+               .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(x => x.Measurements)
                .WithOne(x => x.Instance)

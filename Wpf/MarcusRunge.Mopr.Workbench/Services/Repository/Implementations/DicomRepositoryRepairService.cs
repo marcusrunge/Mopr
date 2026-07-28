@@ -15,7 +15,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IInstanceRepository InstanceRepository => Persistence.Instance ?? throw new InvalidOperationException("The instance repository has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
-        private string RepositoryPath => Base.ApplicationConfiguration?.Repository?.DicomRepositoryPath ?? throw new InvalidOperationException("The DICOM repository path has not been configured.");
+        private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
         private IDicomRepositoryService RepositoryService => Repository.RepositoryService ?? throw new InvalidOperationException("The repository service has not been initialized.");
         private ISeriesRepository SeriesRepository => Persistence.Series ?? throw new InvalidOperationException("The series repository has not been initialized.");
         private IStudyRepository StudyRepository => Persistence.Study ?? throw new InvalidOperationException("The study repository has not been initialized.");
@@ -24,7 +24,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         public async Task<DicomRepositoryRepairResult> RepairAsync(DicomRepositoryRepairRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
-
             DicomRepositoryRepairResult result = new();
 
             if (!request.VerifyFiles)
@@ -32,45 +31,54 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 return result;
             }
 
-            HashSet<string> incompleteImportFilePaths = new(StringComparer.OrdinalIgnoreCase);
-            HashSet<string> unreadableRepositoryFilePaths = new(StringComparer.OrdinalIgnoreCase);
-            IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles = await CreateRepositoryFileIndexAsync(result, incompleteImportFilePaths, unreadableRepositoryFilePaths, cancellationToken);
-
-            RegisterIncompleteImportFiles(incompleteImportFilePaths, result, cancellationToken);
-            RegisterDuplicateFiles(repositoryFiles, result, cancellationToken);
-
-            HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
-            HashSet<string> associatedRepositoryFilePaths = new(StringComparer.OrdinalIgnoreCase);
+            IReadOnlyList<RepositoryLocation> repositoryLocations = await GetRepositoryLocationsAsync(request.RepositoryLocationId, result, cancellationToken);
             IList<Study> studies = await StudyRepository.GetAllAsync(cancellationToken);
 
-            foreach (Study study in studies)
+            foreach (RepositoryLocation repositoryLocation in repositoryLocations)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                DicomRepositoryLocationRepairContext? context = await CreateLocationContextAsync(repositoryLocation, result, cancellationToken);
 
-                IList<Series> seriesItems = await SeriesRepository.GetByStudyIdAsync(study.Id, cancellationToken);
+                /*
+                 * An unavailable location is reported once at location level.
+                 * Its instances must not be classified as individually missing.
+                 */
+                if (context is null)
+                {
+                    continue;
+                }
 
-                foreach (Series series in seriesItems)
+                RegisterIncompleteImportFiles(context, result, cancellationToken);
+                RegisterDuplicateFiles(context, result, cancellationToken);
+                HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
+
+                foreach (Study study in studies)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    IList<Series> seriesItems = await SeriesRepository.GetByStudyIdAsync(study.Id, cancellationToken);
 
-                    IList<Instance> instances = await InstanceRepository.GetBySeriesIdAsync(series.Id, cancellationToken);
-
-                    foreach (Instance instance in instances)
+                    foreach (Series series in seriesItems)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        IList<Instance> instances = await InstanceRepository.GetBySeriesIdAsync(series.Id, cancellationToken);
 
-                        if (!string.IsNullOrWhiteSpace(instance.SopInstanceUid))
+                        foreach (Instance instance in instances.Where(item => item.RepositoryLocationId == repositoryLocation.Id))
                         {
-                            persistedSopInstanceUids.Add(instance.SopInstanceUid);
-                        }
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                        await VerifyInstanceAsync(study, series, instance, repositoryFiles, unreadableRepositoryFilePaths, associatedRepositoryFilePaths, request, result, cancellationToken);
+                            if (!string.IsNullOrWhiteSpace(instance.SopInstanceUid))
+                            {
+                                persistedSopInstanceUids.Add(instance.SopInstanceUid);
+                            }
+
+                            await VerifyInstanceAsync(study, series, instance, context, request, result, cancellationToken);
+                        }
                     }
                 }
-            }
 
-            RegisterUnassociatedUnreadableFiles(unreadableRepositoryFilePaths, associatedRepositoryFilePaths, result, cancellationToken);
-            RegisterOrphanedFiles(repositoryFiles, persistedSopInstanceUids, associatedRepositoryFilePaths, result, cancellationToken);
+                RegisterUnassociatedUnreadableFiles(context, result, cancellationToken);
+                RegisterOrphanedFiles(context, persistedSopInstanceUids, result, cancellationToken);
+            }
 
             return result;
         }
@@ -78,6 +86,78 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         protected override void OnCreate(IRepositoryBase @base) => _base = @base;
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        private async Task<IReadOnlyList<RepositoryLocation>> GetRepositoryLocationsAsync(int? repositoryLocationId, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        {
+            if (repositoryLocationId is not int locationId)
+            {
+                return [.. await RepositoryLocationRepository.GetEnabledAsync(cancellationToken)];
+            }
+
+            if (locationId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(repositoryLocationId), "The repository-location ID must be a positive integer.");
+            }
+
+            RepositoryLocation? repositoryLocation = await RepositoryLocationRepository.GetByIdAsync(locationId, cancellationToken);
+
+            if (repositoryLocation is not null)
+            {
+                return [repositoryLocation];
+            }
+
+            result.Errors.Add($"Repository location with ID '{locationId}' does not exist.");
+            return [];
+        }
+
+        private async Task<DicomRepositoryLocationRepairContext?> CreateLocationContextAsync(RepositoryLocation repositoryLocation, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        {
+            try
+            {
+                string repositoryRootPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryLocation.RootPath ?? throw new InvalidOperationException("The repository location has no root path.")));
+
+                if (!Directory.Exists(repositoryRootPath))
+                {
+                    RegisterUnavailableRepositoryLocation(repositoryLocation, repositoryRootPath, "The configured repository root directory does not exist.", result);
+                    return null;
+                }
+
+                DicomRepositoryLocationRepairContext context = new()
+                {
+                    RepositoryLocation = repositoryLocation,
+                    RepositoryRootPath = repositoryRootPath
+                };
+
+                await PopulateRepositoryFileIndexAsync(context, result, cancellationToken);
+                return context;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                RegisterUnavailableRepositoryLocation(repositoryLocation, repositoryLocation.RootPath ?? string.Empty, exception.Message, result, exception);
+                return null;
+            }
+        }
+
+        private void RegisterUnavailableRepositoryLocation(RepositoryLocation repositoryLocation, string repositoryRootPath, string reason, DicomRepositoryRepairResult result, Exception? exception = null)
+        {
+            result.UnavailableRepositoryLocations++;
+            string technicalDetails = $"Repository location '{repositoryLocation.Id}' at '{repositoryRootPath}' could not be inspected: {reason} No persisted instance was classified as missing and no file was changed.";
+            result.Issues.Add(new DicomRepositoryIssue
+            {
+                IssueType = DicomRepositoryIssueType.RepositoryLocationUnavailable,
+                RepositoryLocationId = repositoryLocation.Id,
+                ActualFilePath = repositoryRootPath,
+                CanResolveAutomatically = false,
+                AutomaticallyResolved = false,
+                DetectedAtUtc = DateTime.UtcNow,
+                TechnicalDetails = technicalDetails
+            });
+            AddError(result, technicalDetails, exception);
+        }
 
         private static bool IsFileReadException(Exception exception)
         {
@@ -133,6 +213,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 IssueType = DicomRepositoryIssueType.RelationshipConflict,
                 InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                 ExpectedFilePath = filePath,
                 ActualFilePath = filePath,
                 ExpectedStudyInstanceUid = study.StudyInstanceUid!,
@@ -150,9 +231,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             result.Errors.Add(technicalDetails);
         }
 
-        private static void RegisterDuplicateFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private static void RegisterDuplicateFiles(DicomRepositoryLocationRepairContext context, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
-            foreach (DicomRepositoryFileIndexEntry entry in repositoryFiles.Values)
+            foreach (DicomRepositoryFileIndexEntry entry in context.RepositoryFiles.Values)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -172,6 +253,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.DuplicateFile,
+                    RepositoryLocationId = context.RepositoryLocation.Id,
                     ExpectedSopInstanceUid = entry.SopInstanceUid,
                     ActualSopInstanceUid = entry.SopInstanceUid,
                     CanResolveAutomatically = false,
@@ -182,9 +264,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private static void RegisterIncompleteImportFiles(HashSet<string> incompleteImportFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private static void RegisterIncompleteImportFiles(DicomRepositoryLocationRepairContext context, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
-            foreach (string filePath in incompleteImportFilePaths)
+            foreach (string filePath in context.IncompleteImportFilePaths)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -193,6 +275,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.IncompleteImport,
+                    RepositoryLocationId = context.RepositoryLocation.Id,
                     ActualFilePath = filePath,
                     CanResolveAutomatically = false,
                     AutomaticallyResolved = false,
@@ -217,6 +300,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 IssueType = DicomRepositoryIssueType.RelationshipConflict,
                 InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                 ActualFilePath = actualFilePath,
                 RecoveryCandidateFilePath = actualFilePath,
                 ExpectedSopInstanceUid = instance.SopInstanceUid!,
@@ -230,9 +314,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             result.Errors.Add(technicalDetails);
         }
 
-        private static void RegisterOrphanedFiles(IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> persistedSopInstanceUids, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private static void RegisterOrphanedFiles(DicomRepositoryLocationRepairContext context, HashSet<string> persistedSopInstanceUids, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
-            foreach (KeyValuePair<string, DicomRepositoryFileIndexEntry> item in repositoryFiles)
+            foreach (KeyValuePair<string, DicomRepositoryFileIndexEntry> item in context.RepositoryFiles)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -249,7 +333,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                  * including a valid DICOM file with the wrong identity at
                  * an expected location.
                  */
-                IList<string> orphanedFilePaths = [.. indexEntry.FilePaths.Where(filePath => !associatedRepositoryFilePaths.Contains(filePath))];
+                IList<string> orphanedFilePaths = [.. indexEntry.FilePaths.Where(filePath => !context.AssociatedFilePaths.Contains(filePath))];
 
                 if (orphanedFilePaths.Count == 0)
                 {
@@ -261,6 +345,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.OrphanedFile,
+                    RepositoryLocationId = context.RepositoryLocation.Id,
                     ActualFilePath = orphanedFilePaths.Count == 1 ? orphanedFilePaths[0] : string.Empty,
                     ActualSopInstanceUid = sopInstanceUid,
                     CanResolveAutomatically = false,
@@ -271,13 +356,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private static void RegisterUnassociatedUnreadableFiles(HashSet<string> unreadableRepositoryFilePaths, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private static void RegisterUnassociatedUnreadableFiles(DicomRepositoryLocationRepairContext context, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
-            foreach (string filePath in unreadableRepositoryFilePaths)
+            foreach (string filePath in context.UnreadableFilePaths)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (associatedRepositoryFilePaths.Contains(filePath))
+                if (context.AssociatedFilePaths.Contains(filePath))
                 {
                     continue;
                 }
@@ -287,6 +372,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.UnreadableFile,
+                    RepositoryLocationId = context.RepositoryLocation.Id,
                     ActualFilePath = filePath,
                     CanResolveAutomatically = false,
                     AutomaticallyResolved = false,
@@ -304,6 +390,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 IssueType = DicomRepositoryIssueType.UnreadableFile,
                 InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                 ExpectedFilePath = filePath,
                 ActualFilePath = filePath,
                 ExpectedSopInstanceUid = instance.SopInstanceUid!,
@@ -324,28 +411,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task<Dictionary<string, DicomRepositoryFileIndexEntry>> CreateRepositoryFileIndexAsync(DicomRepositoryRepairResult result, HashSet<string> incompleteImportFilePaths, HashSet<string> unreadableRepositoryFilePaths, CancellationToken cancellationToken)
+        private async Task PopulateRepositoryFileIndexAsync(DicomRepositoryLocationRepairContext context, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Dictionary<string, DicomRepositoryFileIndexEntry> filesBySopInstanceUid = new(StringComparer.Ordinal);
-
-            if (!Directory.Exists(RepositoryPath))
-            {
-                return filesBySopInstanceUid;
-            }
-
-            return await Task.Run(() =>
+            await Task.Run(() =>
             {
                 try
                 {
-                    foreach (string filePath in Directory.EnumerateFiles(RepositoryPath, "*", SearchOption.AllDirectories))
+                    foreach (string filePath in Directory.EnumerateFiles(context.RepositoryRootPath, "*", SearchOption.AllDirectories))
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
                         if (filePath.EndsWith(".importing", StringComparison.OrdinalIgnoreCase))
                         {
-                            incompleteImportFilePaths.Add(filePath);
+                            context.IncompleteImportFilePaths.Add(filePath);
                             continue;
                         }
 
@@ -359,14 +439,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                                 continue;
                             }
 
-                            if (!filesBySopInstanceUid.TryGetValue(sopInstanceUid, out DicomRepositoryFileIndexEntry? entry))
+                            if (!context.RepositoryFiles.TryGetValue(sopInstanceUid, out DicomRepositoryFileIndexEntry? entry))
                             {
-                                entry = new DicomRepositoryFileIndexEntry
-                                {
-                                    SopInstanceUid = sopInstanceUid
-                                };
-
-                                filesBySopInstanceUid.Add(sopInstanceUid, entry);
+                                entry = new DicomRepositoryFileIndexEntry { SopInstanceUid = sopInstanceUid };
+                                context.RepositoryFiles.Add(sopInstanceUid, entry);
                             }
 
                             entry.FilePaths.Add(filePath);
@@ -377,32 +453,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         }
                         catch (DicomFileException exception) when (IsFileReadException(exception))
                         {
-                            unreadableRepositoryFilePaths.Add(filePath);
-                            AddError(result, $"Repository file '{filePath}' could not be inspected: {exception.Message}", exception);
+                            context.UnreadableFilePaths.Add(filePath);
+                            AddError(result, $"Repository file '{filePath}' in repository location '{context.RepositoryLocation.Id}' could not be inspected: {exception.Message}", exception);
                         }
                         catch (DicomFileException)
                         {
-                            /*
-                             * Regular non-DICOM files and structurally invalid
-                             * DICOM files are ignored by the general index.
-                             *
-                             * An invalid file at a persisted expected location
-                             * is classified later by VerifyInstanceAsync.
-                             */
+                            // Invalid DICOM at an expected path is classified during instance verification.
                         }
-                        catch (UnauthorizedAccessException exception)
+                        catch (Exception exception) when (exception is UnauthorizedAccessException or IOException)
                         {
-                            unreadableRepositoryFilePaths.Add(filePath);
-                            AddError(result, $"Repository file '{filePath}' could not be inspected: {exception.Message}", exception);
-                        }
-                        catch (IOException exception)
-                        {
-                            unreadableRepositoryFilePaths.Add(filePath);
-                            AddError(result, $"Repository file '{filePath}' could not be inspected: {exception.Message}", exception);
+                            context.UnreadableFilePaths.Add(filePath);
+                            AddError(result, $"Repository file '{filePath}' in repository location '{context.RepositoryLocation.Id}' could not be inspected: {exception.Message}", exception);
                         }
                         catch (Exception exception)
                         {
-                            AddError(result, $"Repository file '{filePath}' could not be inspected: {exception.Message}", exception);
+                            AddError(result, $"Repository file '{filePath}' in repository location '{context.RepositoryLocation.Id}' could not be inspected: {exception.Message}", exception);
                         }
                     }
                 }
@@ -412,14 +477,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 }
                 catch (Exception exception)
                 {
-                    AddError(result, $"The DICOM repository '{RepositoryPath}' could not be scanned: {exception.Message}", exception);
+                    throw new IOException($"Repository location '{context.RepositoryLocation.Id}' at '{context.RepositoryRootPath}' could not be scanned.", exception);
                 }
-
-                return filesBySopInstanceUid;
             }, cancellationToken);
         }
 
-        private async Task VerifyInstanceAsync(Study study, Series series, Instance instance, IDictionary<string, DicomRepositoryFileIndexEntry> repositoryFiles, HashSet<string> unreadableRepositoryFilePaths, HashSet<string> associatedRepositoryFilePaths, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        private async Task VerifyInstanceAsync(Study study, Series series, Instance instance, DicomRepositoryLocationRepairContext context, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
             result.ScannedFiles++;
 
@@ -435,7 +498,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             if (!string.IsNullOrWhiteSpace(instance.RelativeFilePath))
             {
-                expectedAbsolutePath = RepositoryService.GetAbsolutePath(instance.RelativeFilePath);
+                expectedAbsolutePath = RepositoryService.GetAbsolutePath(context.RepositoryLocation, instance.RelativeFilePath);
 
                 if (File.Exists(expectedAbsolutePath))
                 {
@@ -444,14 +507,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                      * persisted instance and must not later be registered as
                      * an unrelated orphaned file.
                      */
-                    associatedRepositoryFilePaths.Add(expectedAbsolutePath);
+                    context.AssociatedFilePaths.Add(expectedAbsolutePath);
 
                     /*
                      * The index operation already detected and reported the
                      * technical read error. Removing the path prevents a
                      * second, unassociated UnreadableFile issue.
                      */
-                    if (unreadableRepositoryFilePaths.Remove(expectedAbsolutePath))
+                    if (context.UnreadableFilePaths.Remove(expectedAbsolutePath))
                     {
                         RegisterUnreadableFile(instance, expectedAbsolutePath, result);
                         return;
@@ -482,7 +545,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                         string recoveryCandidateFilePath = string.Empty;
 
-                        if (repositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
+                        if (context.RepositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
                         {
                             recoveryCandidateFilePath = recoveryEntry.FilePaths[0];
                         }
@@ -495,6 +558,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         {
                             IssueType = DicomRepositoryIssueType.IdentityMismatch,
                             InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
                             RecoveryCandidateFilePath = recoveryCandidateFilePath,
@@ -533,7 +597,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                          */
                         string recoveryCandidateFilePath = string.Empty;
 
-                        if (repositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
+                        if (context.RepositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? recoveryEntry) && recoveryEntry.FilePaths.Count == 1)
                         {
                             recoveryCandidateFilePath = recoveryEntry.FilePaths[0];
                         }
@@ -546,6 +610,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         {
                             IssueType = DicomRepositoryIssueType.InvalidDicomFile,
                             InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
                             RecoveryCandidateFilePath = recoveryCandidateFilePath,
@@ -579,7 +644,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 }
             }
 
-            if (!repositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? indexEntry) || indexEntry.FilePaths.Count == 0)
+            if (!context.RepositoryFiles.TryGetValue(persistedSopInstanceUid, out DicomRepositoryFileIndexEntry? indexEntry) || indexEntry.FilePaths.Count == 0)
             {
                 result.MissingFiles++;
 
@@ -587,6 +652,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     IssueType = DicomRepositoryIssueType.MissingFile,
                     InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = expectedAbsolutePath ?? string.Empty,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,
                     CanResolveAutomatically = false,
@@ -637,6 +703,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     IssueType = DicomRepositoryIssueType.MisplacedFile,
                     InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = expectedAbsolutePath ?? string.Empty,
                     ActualFilePath = actualFilePath,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,
@@ -698,6 +765,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     IssueType = DicomRepositoryIssueType.MisplacedFile,
                     InstanceId = instance.Id,
+                RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = repairDestinationPath,
                     ActualFilePath = actualFilePath,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,

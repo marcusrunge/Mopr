@@ -23,6 +23,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public bool ExecuteRepositoryRepair { get; set; }
 
         /// <summary>
+        /// Gets or sets the ID of the repository location selected as the import target.
+        /// </summary>
+        public int RepositoryLocationId { get; set; }
+
+        /// <summary>
         /// Gets or sets the source path.
         /// </summary>
         public string SourcePath { get; set; } = string.Empty;

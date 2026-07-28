@@ -20,6 +20,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         public ICollection<Measurement> CreatedMeasurements { get; set; } = new HashSet<Measurement>();
 
         /// <summary>
+        /// Gets or sets the repository locations created by the user.
+        /// </summary>
+        public ICollection<RepositoryLocation> CreatedRepositoryLocations { get; set; } = new HashSet<RepositoryLocation>();
+
+        /// <summary>
         /// Gets or sets the collection of series created by the user.
         /// </summary>
         public ICollection<Series> CreatedSeries { get; set; } = new HashSet<Series>();
@@ -63,6 +68,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the collection of measurements modified by the user.
         /// </summary>
         public ICollection<Measurement> ModifiedMeasurements { get; set; } = new HashSet<Measurement>();
+
+        /// <summary>
+        /// Gets or sets the repository locations modified by the user.
+        /// </summary>
+        public ICollection<RepositoryLocation> ModifiedRepositoryLocations { get; set; } = new HashSet<RepositoryLocation>();
 
         /// <summary>
         /// Gets or sets the collection of series modified by the user.

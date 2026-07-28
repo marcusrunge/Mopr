@@ -8,9 +8,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     public class Instance : AuditableEntityBase
     {
         private int? _instanceNumber;
+        private RepositoryLocation? _repositoryLocation;
+        private int _repositoryLocationId;
         private Series? _series;
         private int _seriesId;
         private string? _sopInstanceUid, _relativeFilePath;
+
 
         /// <summary>
         /// Gets or sets the instance number.
@@ -26,6 +29,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the relative repository path of the DICOM file.
         /// </summary>
         public string? RelativeFilePath { get => _relativeFilePath; set => SetProperty(ref _relativeFilePath, value); }
+
+        /// <summary>
+        /// Gets or sets the repository location containing the physical DICOM file.
+        /// </summary>
+        public RepositoryLocation? RepositoryLocation { get => _repositoryLocation; set => SetProperty(ref _repositoryLocation, value); }
+
+        /// <summary>
+        /// Gets or sets the ID of the repository location containing the physical
+        /// DICOM file.
+        /// </summary>
+        public int RepositoryLocationId { get => _repositoryLocationId; set => SetProperty(ref _repositoryLocationId, value); }
 
         /// <summary>
         /// Gets or sets the series.

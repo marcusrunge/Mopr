@@ -7,6 +7,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts
     {
         internal DbSet<Instance> Instances => Set<Instance>();
         internal DbSet<Measurement> Measurements => Set<Measurement>();
+        internal DbSet<RepositoryLocation> RepositoryLocations => Set<RepositoryLocation>();
         internal DbSet<Series> Series => Set<Series>();
         internal DbSet<Study> Studies => Set<Study>();
         internal DbSet<UnrealObject> UnrealObjects => Set<UnrealObject>();

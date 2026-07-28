@@ -20,6 +20,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         // Backing field for IMeasurementRepository (assigned by derived modules)
         protected IMeasurementRepository? _measurement;
 
+        // Backing field for IRepositoryLocationRepository (assigned by derived modules)
+        protected IRepositoryLocationRepository? _repositoryLocation;
+
         // Backing field for ISeriesRepository (assigned by derived modules)
         protected ISeriesRepository? _series;
 
@@ -126,6 +129,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IMeasurementRepository? Measurement => _measurement;
+
+        /// <inheritdoc/>
+        public IRepositoryLocationRepository? RepositoryLocation => _repositoryLocation;
 
         /// <inheritdoc/>
         public ISeriesRepository? Series => _series;

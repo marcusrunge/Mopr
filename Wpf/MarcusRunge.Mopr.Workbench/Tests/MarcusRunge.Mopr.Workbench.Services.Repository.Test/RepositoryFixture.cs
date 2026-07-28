@@ -12,17 +12,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
     {
         private BehaviorSubject<IApplicationConfiguration>? _applicationConfigurationSubject;
         private BehaviorSubject<PersistenceConfiguration>? _persistenceConfigurationSubject;
-
         public IPersistence? Persistence { get; private set; }
-
         public IRepository? Repository { get; private set; }
+        public RepositoryLocation? RepositoryLocation { get; private set; }
 
+        public string RepositoryRootPath { get; } = Path.Combine(Path.GetTempPath(), "MoprRepositoryTests", Guid.NewGuid().ToString("N"));
         public User? TestUser { get; private set; }
 
         public ValueTask DisposeAsync()
         {
             _applicationConfigurationSubject?.Dispose();
             _persistenceConfigurationSubject?.Dispose();
+
+            if (Directory.Exists(RepositoryRootPath))
+            {
+                Directory.Delete(RepositoryRootPath, true);
+            }
 
             return ValueTask.CompletedTask;
         }
@@ -52,6 +57,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             {
                 throw new InvalidOperationException("The repository test user could not be persisted.");
             }
+
+            IRepositoryLocationRepository repositoryLocationRepository = Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
+
+            RepositoryLocation = new RepositoryLocation
+            {
+                Name = "Repository Integration Test Location",
+                RootPath = RepositoryRootPath,
+                IsEnabled = true,
+                IsDefault = true,
+                CreatedByUserId = TestUser.Id
+            };
+
+            await repositoryLocationRepository.AddAsync(RepositoryLocation, TestContext.Current.CancellationToken);
+
+            if (RepositoryLocation.Id <= 0)
+            {
+                throw new InvalidOperationException("The repository test location could not be persisted.");
+            }
+
+            Directory.CreateDirectory(RepositoryLocation.RootPath!);
 
             TestApplicationConfiguration applicationConfiguration = new();
 

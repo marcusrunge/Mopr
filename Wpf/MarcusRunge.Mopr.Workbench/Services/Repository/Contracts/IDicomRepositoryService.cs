@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
 {
@@ -17,6 +18,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
         DicomRepositoryPathInfo CreatePathInfo(string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
 
         /// <summary>
+        /// Creates path information for a DICOM instance within the specified
+        /// repository location.
+        /// </summary>
+        /// <param name="repositoryLocation">The physical repository location.</param>
+        /// <param name="studyInstanceUid">The Study Instance UID.</param>
+        /// <param name="seriesInstanceUid">The Series Instance UID.</param>
+        /// <param name="sopInstanceUid">The SOP Instance UID.</param>
+        /// <returns>The validated repository path information.</returns>
+        DicomRepositoryPathInfo CreatePathInfo(RepositoryLocation repositoryLocation, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
+
+        /// <summary>
         /// Creates the relative path.
         /// </summary>
         /// <param name="studyInstanceUid">The study instance uid.</param>
@@ -33,10 +45,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
         bool Exists(string relativePath);
 
         /// <summary>
+        /// Determines whether the specified relative path exists within the
+        /// repository location.
+        /// </summary>
+        /// <param name="repositoryLocation">The physical repository location.</param>
+        /// <param name="relativePath">The path relative to the repository root.</param>
+        /// <returns>
+        /// <c>true</c> if the resolved physical file exists; otherwise, <c>false</c>.
+        /// </returns>
+        bool Exists(RepositoryLocation repositoryLocation, string relativePath);
+
+        /// <summary>
         /// Gets the absolute path.
         /// </summary>
         /// <param name="relativePath">The relative path.</param>
         /// <returns>The absolute path.</returns>
         string GetAbsolutePath(string relativePath);
+
+        /// <summary>
+        /// Resolves and validates an absolute path within the specified repository
+        /// location.
+        /// </summary>
+        /// <param name="repositoryLocation">The physical repository location.</param>
+        /// <param name="relativePath">The path relative to the repository root.</param>
+        /// <returns>The normalized absolute path.</returns>
+        string GetAbsolutePath(RepositoryLocation repositoryLocation, string relativePath);
     }
 }

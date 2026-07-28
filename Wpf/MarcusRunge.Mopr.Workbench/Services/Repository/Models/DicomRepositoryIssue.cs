@@ -18,15 +18,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public string ActualSeriesInstanceUid { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the Study Instance UID read from the physical file, if available.
-        /// </summary>
-        public string ActualStudyInstanceUid { get; set; } = string.Empty;
-
-        /// <summary>
         /// Gets or sets the SOP instance UID read from the physical file,
         /// if available.
         /// </summary>
         public string ActualSopInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the Study Instance UID read from the physical file, if available.
+        /// </summary>
+        public string ActualStudyInstanceUid { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether the repository service
@@ -56,14 +56,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public string ExpectedSeriesInstanceUid { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the persisted expected Study Instance UID, if available.
-        /// </summary>
-        public string ExpectedStudyInstanceUid { get; set; } = string.Empty;
-
-        /// <summary>
         /// Gets or sets the expected SOP instance UID, if available.
         /// </summary>
         public string ExpectedSopInstanceUid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the persisted expected Study Instance UID, if available.
+        /// </summary>
+        public string ExpectedStudyInstanceUid { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets the unique identifier of the issue.
@@ -87,6 +87,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// that automatic recovery is safe or permitted.
         /// </summary>
         public string RecoveryCandidateFilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the ID of the repository location associated with the issue,
+        /// if one could be identified.
+        /// </summary>
+        public int? RepositoryLocationId { get; set; }
 
         /// <summary>
         /// Gets or sets the UTC date and time when an automatic repair

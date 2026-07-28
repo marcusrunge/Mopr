@@ -18,6 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IInstanceRepository InstanceRepository => Persistence.Instance ?? throw new InvalidOperationException("The instance repository has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
+        private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
         private ISeriesRepository SeriesRepository => Persistence.Series ?? throw new InvalidOperationException("The series repository has not been initialized.");
         private IStudyRepository StudyRepository => Persistence.Study ?? throw new InvalidOperationException("The study repository has not been initialized.");
         private IUserRepository UserRepository => Persistence.User ?? throw new InvalidOperationException("The user repository has not been initialized.");
@@ -33,29 +34,73 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 throw new ArgumentOutOfRangeException(nameof(request), "The ID of the user executing the import must be a positive integer.");
             }
 
+            if (request.RepositoryLocationId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(request), "The repository-location ID must be a positive integer.");
+            }
+
             DicomImportResult result = new();
 
             if (!Directory.Exists(request.SourcePath))
             {
                 result.FailedFiles++;
-
                 result.Errors.Add($"Source path '{request.SourcePath}' does not exist.");
-
                 return result;
             }
 
-            IList<DicomImportFileInfo> fileInfos =
-                request.SourceType switch
-                {
-                    ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
-                    ImportSourceType.CdRom => throw new NotSupportedException(),
-                    ImportSourceType.Dvd => throw new NotSupportedException(),
-                    ImportSourceType.UsbDrive => throw new NotSupportedException(),
-                    ImportSourceType.IsoImage => throw new NotSupportedException(),
-                    ImportSourceType.NetworkShare => throw new NotSupportedException(),
-                    ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
-                    _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
-                };
+            RepositoryLocation? repositoryLocation = await RepositoryLocationRepository.GetByIdAsync(request.RepositoryLocationId, cancellationToken);
+
+            if (repositoryLocation is null)
+            {
+                result.FailedFiles++;
+                result.Errors.Add($"Repository location with ID '{request.RepositoryLocationId}' does not exist.");
+                return result;
+            }
+
+            if (!repositoryLocation.IsEnabled)
+            {
+                result.FailedFiles++;
+                result.Errors.Add($"Repository location '{repositoryLocation.Id}' is disabled and cannot be used as an import target.");
+                return result;
+            }
+
+            if (string.IsNullOrWhiteSpace(repositoryLocation.RootPath))
+            {
+                result.FailedFiles++;
+                result.Errors.Add($"Repository location '{repositoryLocation.Id}' has no configured root path.");
+                return result;
+            }
+
+            /*
+             * Path resolution performs the authoritative absolute-path and repository
+             * boundary validation. Creating the root here is safe only after the selected
+             * persisted location has passed the structural checks above.
+             */
+            string repositoryRootPath;
+
+            try
+            {
+                repositoryRootPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryLocation.RootPath));
+                Directory.CreateDirectory(repositoryRootPath);
+            }
+            catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException or UnauthorizedAccessException or IOException)
+            {
+                result.FailedFiles++;
+                result.Errors.Add($"Repository location '{repositoryLocation.Id}' could not be prepared: {exception.Message}");
+                return result;
+            }
+
+            IList<DicomImportFileInfo> fileInfos = request.SourceType switch
+            {
+                ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
+                ImportSourceType.CdRom => throw new NotSupportedException(),
+                ImportSourceType.Dvd => throw new NotSupportedException(),
+                ImportSourceType.UsbDrive => throw new NotSupportedException(),
+                ImportSourceType.IsoImage => throw new NotSupportedException(),
+                ImportSourceType.NetworkShare => throw new NotSupportedException(),
+                ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
+                _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
+            };
 
             foreach (DicomImportFileInfo fileInfo in fileInfos)
             {
@@ -72,14 +117,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     continue;
                 }
 
-                await ImportFileAsync(fileInfo, result, request.AllowOverwrite, request.CreatedByUserId, cancellationToken);
+                await ImportFileAsync(fileInfo, result, repositoryLocation, request.AllowOverwrite, request.CreatedByUserId, cancellationToken);
             }
 
             return result;
         }
 
-        protected override void OnCreate(
-            IRepositoryBase @base) =>
+        protected override void OnCreate(IRepositoryBase @base) =>
             // Store the repository base required by subsequent
             // import operations.
             _base = @base;
@@ -180,9 +224,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task PersistFileAsync(DicomImportFileInfo fileInfo, int createdByUserId, CancellationToken cancellationToken)
+        private async Task PersistFileAsync(DicomImportFileInfo fileInfo, RepositoryLocation repositoryLocation, int createdByUserId, CancellationToken cancellationToken)
         {
-            User? user = await UserRepository.GetByIdAsync(createdByUserId, cancellationToken) ?? throw new InvalidOperationException($"The user with ID '{createdByUserId}' does not exist.");
+            _ = await UserRepository.GetByIdAsync(createdByUserId, cancellationToken) ?? throw new InvalidOperationException($"The user with ID '{createdByUserId}' does not exist.");
             Study? study = await StudyRepository.GetByStudyInstanceUidAsync(fileInfo.StudyInstanceUid, cancellationToken);
 
             if (study is null)
@@ -222,6 +266,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     SopInstanceUid = fileInfo.SopInstanceUid,
                     RelativeFilePath = fileInfo.RelativeRepositoryPath,
+                    RepositoryLocationId = repositoryLocation.Id,
                     SeriesId = series.Id,
                     CreatedByUserId = createdByUserId
                 };
@@ -233,8 +278,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             if (instance.SeriesId != series.Id)
             {
-                throw new InvalidOperationException(
-                    $"Instance '{fileInfo.SopInstanceUid}' belongs to a different series.");
+                throw new InvalidOperationException($"Instance '{fileInfo.SopInstanceUid}' belongs to a different series.");
+            }
+
+            /*
+             * An existing SOP instance is already assigned to one physical repository
+             * location. Import must not silently move or duplicate that assignment into a
+             * different location because Persistence would no longer identify one
+             * authoritative physical file.
+             */
+            if (instance.RepositoryLocationId != repositoryLocation.Id)
+            {
+                throw new InvalidOperationException($"Instance '{fileInfo.SopInstanceUid}' belongs to repository location '{instance.RepositoryLocationId}' and cannot be imported into repository location '{repositoryLocation.Id}'.");
             }
 
             if (instance.RelativeFilePath != fileInfo.RelativeRepositoryPath)
@@ -247,11 +302,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task ImportFileAsync(DicomImportFileInfo fileInfo, DicomImportResult result, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
+        private async Task ImportFileAsync(DicomImportFileInfo fileInfo, DicomImportResult result, RepositoryLocation repositoryLocation, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
         {
             try
             {
-                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(fileInfo.StudyInstanceUid, fileInfo.SeriesInstanceUid, fileInfo.SopInstanceUid);
+                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(repositoryLocation, fileInfo.StudyInstanceUid, fileInfo.SeriesInstanceUid, fileInfo.SopInstanceUid);
 
                 string? destinationDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
 
@@ -273,7 +328,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                     fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
 
-                    await PersistFileAsync(fileInfo, createdByUserId, cancellationToken);
+                    await PersistFileAsync(fileInfo, repositoryLocation, createdByUserId, cancellationToken);
 
                     result.SkippedFiles++;
                     return;
@@ -283,7 +338,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
 
-                await PersistFileAsync(fileInfo, createdByUserId, cancellationToken);
+                await PersistFileAsync(fileInfo, repositoryLocation, createdByUserId, cancellationToken);
 
                 result.ImportedFiles++;
             }

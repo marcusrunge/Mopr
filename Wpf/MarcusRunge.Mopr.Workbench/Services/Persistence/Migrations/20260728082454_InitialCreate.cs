@@ -32,6 +32,39 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RepositoryLocations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    RootPath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    ModifiedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedByUserId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RepositoryLocations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RepositoryLocations_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RepositoryLocations_Users_ModifiedByUserId",
+                        column: x => x.ModifiedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Studies",
                 columns: table => new
                 {
@@ -110,6 +143,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InstanceNumber = table.Column<int>(type: "int", nullable: true),
                     RelativeFilePath = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
+                    RepositoryLocationId = table.Column<int>(type: "int", nullable: false),
                     SeriesId = table.Column<int>(type: "int", nullable: false),
                     SopInstanceUid = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
@@ -121,6 +155,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Instances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Instances_RepositoryLocations_RepositoryLocationId",
+                        column: x => x.RepositoryLocationId,
+                        principalTable: "RepositoryLocations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Instances_Series_SeriesId",
                         column: x => x.SeriesId,
@@ -232,6 +272,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                 column: "ModifiedByUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Instances_RepositoryLocationId",
+                table: "Instances",
+                column: "RepositoryLocationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Instances_SeriesId",
                 table: "Instances",
                 column: "SeriesId");
@@ -256,6 +301,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                 name: "IX_Measurements_ModifiedByUserId",
                 table: "Measurements",
                 column: "ModifiedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepositoryLocations_CreatedByUserId",
+                table: "RepositoryLocations",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepositoryLocations_ModifiedByUserId",
+                table: "RepositoryLocations",
+                column: "ModifiedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepositoryLocations_RootPath",
+                table: "RepositoryLocations",
+                column: "RootPath",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Series_CreatedByUserId",
@@ -328,6 +389,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Instances");
+
+            migrationBuilder.DropTable(
+                name: "RepositoryLocations");
 
             migrationBuilder.DropTable(
                 name: "Series");

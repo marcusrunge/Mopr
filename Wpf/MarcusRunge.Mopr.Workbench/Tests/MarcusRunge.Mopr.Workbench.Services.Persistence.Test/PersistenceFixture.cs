@@ -7,7 +7,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
     {
         public int InstanceId { get; set; }
         public int MeasurementId { get; set; }
+        public int RepositoryLocationId { get; set; }
         public IPersistence? Persistence { get; private set; }
+        public string RepositoryLocationRootPath { get; } = Path.Combine(Path.GetTempPath(), "MoprPersistenceTests", Guid.NewGuid().ToString("N"));
         public int SeriesId { get; set; }
         public string SeriesInstanceUid { get; } = Guid.NewGuid().ToString();
         public string SopInstanceUid { get; } = Guid.NewGuid().ToString();

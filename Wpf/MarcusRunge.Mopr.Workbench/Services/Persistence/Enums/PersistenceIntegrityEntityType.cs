@@ -36,6 +36,11 @@
         Measurement,
 
         /// <summary>
+        /// A configured DICOM repository location is affected.
+        /// </summary>
+        RepositoryLocation,
+
+        /// <summary>
         /// A persisted Unreal object descriptor is affected.
         /// </summary>
         UnrealObject

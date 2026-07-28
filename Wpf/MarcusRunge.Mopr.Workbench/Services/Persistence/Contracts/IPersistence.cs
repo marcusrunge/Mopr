@@ -26,6 +26,11 @@
         IMeasurementRepository? Measurement { get; }
 
         /// <summary>
+        /// Gets the repository-location repository.
+        /// </summary>
+        IRepositoryLocationRepository? RepositoryLocation { get; }
+
+        /// <summary>
         /// Gets the series repository.
         /// </summary>
         ISeriesRepository? Series { get; }

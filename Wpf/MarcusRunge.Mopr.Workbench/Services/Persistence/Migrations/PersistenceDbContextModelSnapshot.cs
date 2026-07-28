@@ -49,6 +49,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
 
+                    b.Property<int>("RepositoryLocationId")
+                        .HasColumnType("int");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -67,6 +70,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("ModifiedByUserId");
+
+                    b.HasIndex("RepositoryLocationId");
 
                     b.HasIndex("SeriesId");
 
@@ -127,6 +132,59 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.HasIndex("ModifiedByUserId");
 
                     b.ToTable("Measurements");
+                });
+
+            modelBuilder.Entity("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.RepositoryLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("RootPath")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ModifiedByUserId");
+
+                    b.HasIndex("RootPath")
+                        .IsUnique();
+
+                    b.ToTable("RepositoryLocations");
                 });
 
             modelBuilder.Entity("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.Series", b =>
@@ -351,6 +409,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                         .HasForeignKey("ModifiedByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.RepositoryLocation", "RepositoryLocation")
+                        .WithMany("Instances")
+                        .HasForeignKey("RepositoryLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.Series", "Series")
                         .WithMany("Instances")
                         .HasForeignKey("SeriesId")
@@ -360,6 +424,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("ModifiedByUser");
+
+                    b.Navigation("RepositoryLocation");
 
                     b.Navigation("Series");
                 });
@@ -386,6 +452,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Instance");
+
+                    b.Navigation("ModifiedByUser");
+                });
+
+            modelBuilder.Entity("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.RepositoryLocation", b =>
+                {
+                    b.HasOne("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.User", "CreatedByUser")
+                        .WithMany("CreatedRepositoryLocations")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.User", "ModifiedByUser")
+                        .WithMany("ModifiedRepositoryLocations")
+                        .HasForeignKey("ModifiedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("ModifiedByUser");
                 });
@@ -467,6 +551,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Navigation("UnrealObjects");
                 });
 
+            modelBuilder.Entity("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.RepositoryLocation", b =>
+                {
+                    b.Navigation("Instances");
+                });
+
             modelBuilder.Entity("MarcusRunge.Mopr.Workbench.Services.Persistence.Entities.Series", b =>
                 {
                     b.Navigation("Instances");
@@ -483,6 +572,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
 
                     b.Navigation("CreatedMeasurements");
 
+                    b.Navigation("CreatedRepositoryLocations");
+
                     b.Navigation("CreatedSeries");
 
                     b.Navigation("CreatedStudies");
@@ -492,6 +583,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Navigation("ModifiedInstances");
 
                     b.Navigation("ModifiedMeasurements");
+
+                    b.Navigation("ModifiedRepositoryLocations");
 
                     b.Navigation("ModifiedSeries");
 

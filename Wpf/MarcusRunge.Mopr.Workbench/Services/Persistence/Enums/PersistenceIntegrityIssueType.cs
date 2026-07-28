@@ -16,6 +16,11 @@
         MissingRequiredValue,
 
         /// <summary>
+        /// A persisted value violates a required domain invariant.
+        /// </summary>
+        InvalidValue,
+
+        /// <summary>
         /// A value that must be unique occurs more than once.
         /// </summary>
         DuplicateUniqueValue,

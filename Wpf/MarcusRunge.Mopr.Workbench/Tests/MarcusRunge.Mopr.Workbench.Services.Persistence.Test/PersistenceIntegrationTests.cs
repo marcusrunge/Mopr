@@ -19,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.NotNull(_fixture.Persistence.Series);
             Assert.NotNull(_fixture.Persistence.Instance);
             Assert.NotNull(_fixture.Persistence.Measurement);
+            Assert.NotNull(_fixture.Persistence.RepositoryLocation);
             Assert.NotNull(_fixture.Persistence.UnrealObject);
             Assert.NotNull(_fixture.Persistence.User);
         }
@@ -87,11 +88,37 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
         }
 
         [Fact, Priority(6)]
+        public async Task RepositoryLocation_Should_Be_Saved_And_Loaded()
+        {
+            RepositoryLocation repositoryLocation = new()
+            {
+                Name = "Persistence Test Repository",
+                RootPath = _fixture.RepositoryLocationRootPath,
+                IsEnabled = true,
+                IsDefault = true,
+                CreatedByUserId = _fixture.UserId
+            };
+
+            await _fixture.Persistence!.RepositoryLocation!.AddAsync(repositoryLocation, TestContext.Current.CancellationToken);
+
+            RepositoryLocation? loaded = await _fixture.Persistence.RepositoryLocation.GetByIdAsync(repositoryLocation.Id, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(loaded);
+            Assert.Equal("Persistence Test Repository", loaded.Name);
+            Assert.Equal(Path.TrimEndingDirectorySeparator(Path.GetFullPath(_fixture.RepositoryLocationRootPath)), loaded.RootPath);
+            Assert.True(loaded.IsEnabled);
+            Assert.True(loaded.IsDefault);
+
+            _fixture.RepositoryLocationId = loaded.Id;
+        }
+
+        [Fact, Priority(7)]
         public async Task Instance_Should_Be_Saved_And_Loaded()
         {
             Instance instance = new()
             {
                 SeriesId = _fixture.SeriesId,
+                RepositoryLocationId = _fixture.RepositoryLocationId,
                 SopInstanceUid = _fixture.SopInstanceUid,
                 CreatedByUserId = _fixture.UserId
             };
@@ -101,11 +128,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Instance? loaded = await _fixture.Persistence.Instance.GetBySopInstanceUidAsync(_fixture.SopInstanceUid, TestContext.Current.CancellationToken);
 
             Assert.NotNull(loaded);
+            Assert.Equal(_fixture.RepositoryLocationId, loaded.RepositoryLocationId);
 
             _fixture.InstanceId = loaded.Id;
         }
 
-        [Fact, Priority(7)]
+        [Fact, Priority(8)]
         public async Task Instance_Should_Be_Found_By_SopInstanceUid()
         {
             Instance? loaded = await _fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(_fixture.SopInstanceUid, TestContext.Current.CancellationToken);
@@ -114,7 +142,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Equal(_fixture.SopInstanceUid, loaded.SopInstanceUid);
         }
 
-        [Fact, Priority(8)]
+        [Fact, Priority(9)]
         public async Task Measurement_Should_Be_Saved_And_Loaded()
         {
             Measurement measurement = new()
@@ -135,7 +163,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             _fixture.MeasurementId = loaded.Id;
         }
 
-        [Fact, Priority(9)]
+        [Fact, Priority(10)]
         public async Task Measurement_Should_Be_Found_By_InstanceId()
         {
             IList<Measurement> measurements = await _fixture.Persistence!.Measurement!.GetByInstanceIdAsync(_fixture.InstanceId, TestContext.Current.CancellationToken);
@@ -144,7 +172,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Equal(_fixture.MeasurementId, measurements[0].Id);
         }
 
-        [Fact, Priority(10)]
+        [Fact, Priority(11)]
         public async Task Study_Should_Be_Updated()
         {
             Study study = await GetStudyAsync();
@@ -158,7 +186,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Equal("Updated", loaded.Description);
         }
 
-        [Fact, Priority(11)]
+        [Fact, Priority(12)]
         public async Task Study_Should_Set_ModifiedAtUtc()
         {
             Study study = await GetStudyAsync();
@@ -166,7 +194,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.NotNull(study.ModifiedAtUtc);
         }
 
-        [Fact, Priority(12)]
+        [Fact, Priority(13)]
         public async Task Study_Should_Load_Assigned_Series()
         {
             Study study = await GetStudyAsync();
@@ -175,21 +203,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Equal(_fixture.SeriesId, study.Series.First().Id);
         }
 
-        [Fact, Priority(13)]
+        [Fact, Priority(14)]
         public async Task Integrity_Should_Report_Clean_Persistence()
         {
             PersistenceIntegrityResult result = await VerifyIntegrityAsync();
 
             /*
-             * The baseline contains one user, one study, one series, one
-             * instance and one measurement. No Unreal object has been created.
+             * The baseline contains one user, one study, one series, one instance,
+             * one measurement and one repository location. No Unreal object has
+             * been created.
              */
-            Assert.Equal(5, result.ScannedEntities);
+            Assert.Equal(6, result.ScannedEntities);
             Assert.Empty(result.Issues);
             Assert.Empty(result.Errors);
         }
 
-        [Fact, Priority(14)]
+        [Fact, Priority(15)]
         public async Task Integrity_Should_Detect_Missing_Series_Parent()
         {
             Series series = new()
@@ -224,12 +253,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(15)]
+        [Fact, Priority(16)]
         public async Task Integrity_Should_Detect_Missing_Instance_Parent()
         {
             Instance instance = new()
             {
                 SeriesId = int.MaxValue,
+                RepositoryLocationId = _fixture.RepositoryLocationId,
                 SopInstanceUid = $"MissingSeries_{Guid.NewGuid():N}",
                 CreatedByUserId = _fixture.UserId
             };
@@ -255,7 +285,41 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(16)]
+        [Fact, Priority(17)]
+        public async Task Integrity_Should_Detect_Missing_Instance_RepositoryLocation()
+        {
+            Instance instance = new()
+            {
+                SeriesId = _fixture.SeriesId,
+                RepositoryLocationId = int.MaxValue,
+                SopInstanceUid = $"MissingRepositoryLocation_{Guid.NewGuid():N}",
+                CreatedByUserId = _fixture.UserId
+            };
+
+            try
+            {
+                /*
+                 * The medical Series relationship remains valid. Only the physical
+                 * repository-location relationship is deliberately invalid.
+                 */
+                await _fixture.Persistence!.Instance!.AddAsync(instance, TestContext.Current.CancellationToken);
+
+                PersistenceIntegrityResult result = await VerifyIntegrityAsync();
+                PersistenceIntegrityIssue issue = Assert.Single(result.Issues, item => item.IssueType == PersistenceIntegrityIssueType.MissingParent && item.EntityType == PersistenceIntegrityEntityType.Instance && item.EntityId == instance.Id && item.PropertyName == nameof(Instance.RepositoryLocationId));
+
+                Assert.Equal(PersistenceIntegrityEntityType.RepositoryLocation, issue.ReferencedEntityType);
+                Assert.Equal(int.MaxValue, issue.ReferencedEntityId);
+            }
+            finally
+            {
+                if (instance.Id > 0)
+                {
+                    await _fixture.Persistence!.Instance!.DeleteAsync(instance, TestContext.Current.CancellationToken);
+                }
+            }
+        }
+
+        [Fact, Priority(18)]
         public async Task Integrity_Should_Detect_Missing_Measurement_Parent()
         {
             Measurement measurement = new()
@@ -288,7 +352,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(17)]
+        [Fact, Priority(19)]
         public async Task Integrity_Should_Detect_Missing_UnrealObject_Parent()
         {
             UnrealObject unrealObject = new()
@@ -324,7 +388,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(18)]
+        [Fact, Priority(20)]
         public async Task Integrity_Should_Detect_Invalid_Audit_Reference()
         {
             Study study = await GetStudyAsync();
@@ -356,7 +420,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(19)]
+        [Fact, Priority(21)]
         public async Task Integrity_Should_Detect_Missing_Required_Value()
         {
             User user = await GetUserAsync();
@@ -385,7 +449,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(20)]
+        [Fact, Priority(22)]
         public async Task Integrity_Should_Detect_Duplicate_Unique_Value()
         {
             Study duplicateStudy = new()
@@ -421,7 +485,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        [Fact, Priority(21)]
+        [Fact, Priority(23)]
         public async Task Integrity_Should_Remain_Clean_After_Conflict_Tests()
         {
             PersistenceIntegrityResult result = await VerifyIntegrityAsync();
@@ -430,7 +494,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
              * Every deliberately damaged state from the preceding tests must
              * have been removed or restored before the fixture is reused.
              */
-            Assert.Equal(5, result.ScannedEntities);
+            Assert.Equal(6, result.ScannedEntities);
             Assert.Empty(result.Issues);
             Assert.Empty(result.Errors);
         }
