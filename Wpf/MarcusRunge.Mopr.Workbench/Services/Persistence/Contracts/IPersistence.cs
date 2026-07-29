@@ -11,6 +11,11 @@
         event Action<Exception> ExceptionThrown;
 
         /// <summary>
+        /// Gets the atomic DICOM import Persistence service.
+        /// </summary>
+        IDicomImportPersistenceService? DicomImport { get; }
+
+        /// <summary>
         /// Gets the instance repository.
         /// </summary>
         IInstanceRepository? Instance { get; }

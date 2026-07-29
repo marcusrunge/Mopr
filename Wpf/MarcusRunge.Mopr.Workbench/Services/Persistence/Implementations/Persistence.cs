@@ -14,12 +14,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         internal Persistence(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : base(logger, applicationLifetime, persistenceConfigurationObservable)
         {
             /*
-             * Repositories are created before the integrity service because
-             * integrity verification consumes their public read contracts.
-             *
-             * No repository performs integrity verification during creation,
-             * so the composition remains deterministic and free of cyclic
-             * initialization dependencies.
+             * Granular repositories remain available for normal entity operations.
+             * The DICOM import service deliberately receives the Persistence base
+             * directly so one import can use exactly one DbContext instead of
+             * composing multiple independently saving repositories.
              */
             _instance = InstanceRepository.Create(this);
             _measurement = MeasurementRepository.Create(this);
@@ -28,6 +26,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             _study = StudyRepository.Create(this);
             _unrealObject = UnrealObjectRepository.Create(this);
             _user = UserRepository.Create(this);
+            _dicomImport = DicomImportPersistenceService.Create(this);
+
+            /*
+             * Integrity verification consumes the fully composed public read
+             * contracts and is therefore created after all repositories.
+             */
             _integrity = PersistenceIntegrityService.Create(this);
         }
     }

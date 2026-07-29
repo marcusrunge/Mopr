@@ -18,11 +18,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         public int CreatedByUserId { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether repository repair should be executed after import.
-        /// </summary>
-        public bool ExecuteRepositoryRepair { get; set; }
-
-        /// <summary>
         /// Gets or sets the ID of the repository location selected as the import target.
         /// </summary>
         public int RepositoryLocationId { get; set; }

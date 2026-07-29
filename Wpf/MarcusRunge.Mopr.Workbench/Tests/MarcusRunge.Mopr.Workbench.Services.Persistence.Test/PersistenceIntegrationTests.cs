@@ -14,7 +14,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
         public void Services_And_Repositories_Should_Be_Available()
         {
             Assert.NotNull(_fixture.Persistence);
-            Assert.NotNull(_fixture.Persistence!.Integrity);
+            Assert.NotNull(_fixture.Persistence!.DicomImport);
+            Assert.NotNull(_fixture.Persistence.Integrity);
             Assert.NotNull(_fixture.Persistence.Study);
             Assert.NotNull(_fixture.Persistence.Series);
             Assert.NotNull(_fixture.Persistence.Instance);

@@ -11,6 +11,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
     // Internal base for modules; holds optional service references for derived types.
     internal abstract class PersistenceBase : IPersistenceBase, IPersistence
     {
+        // Backing field for IDicomImportPersistenceService (assigned by derived modules)
+        protected IDicomImportPersistenceService? _dicomImport;
+
         // Backing field for IInstanceRepository (assigned by derived modules)
         protected IInstanceRepository? _instance;
 
@@ -117,6 +120,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         PersistenceConfiguration? IPersistenceBase.Configuration => _persistenceConfiguration;
+
+        /// <inheritdoc/>
+        public IDicomImportPersistenceService? DicomImport => _dicomImport;
 
         /// <inheritdoc/>
         public IInstanceRepository? Instance => _instance;

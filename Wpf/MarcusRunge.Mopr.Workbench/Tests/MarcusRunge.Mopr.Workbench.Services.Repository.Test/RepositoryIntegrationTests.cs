@@ -1791,7 +1791,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             SourceType = ImportSourceType.Directory,
             RepositoryLocationId = repositoryLocationId ?? _fixture.RepositoryLocation!.Id,
             AllowOverwrite = allowOverwrite,
-            ExecuteRepositoryRepair = false,
             CreatedByUserId = _fixture.TestUser!.Id
         }, TestContext.Current.CancellationToken);
 
