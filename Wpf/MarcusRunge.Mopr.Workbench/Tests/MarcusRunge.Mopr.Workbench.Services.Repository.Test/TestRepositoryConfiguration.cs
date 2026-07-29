@@ -4,10 +4,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
     internal sealed class TestRepositoryConfiguration : IRepositoryConfiguration
     {
+        /// <inheritdoc/>
         public bool AutomaticallyRepairPaths { get; } = true;
 
-        public string DicomRepositoryPath { get; } = Path.Combine(Path.GetTempPath(), "MoprRepositoryTests");
-
+        /// <inheritdoc/>
         public bool VerifyRepositoryOnStartup { get; } = true;
     }
 }
