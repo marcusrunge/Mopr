@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;

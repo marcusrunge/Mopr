@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime
 {
     public interface IApplicationLifetime
     {

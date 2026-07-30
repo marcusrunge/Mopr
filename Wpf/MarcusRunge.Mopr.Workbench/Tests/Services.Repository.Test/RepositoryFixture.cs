@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;

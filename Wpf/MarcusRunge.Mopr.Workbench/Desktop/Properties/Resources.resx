@@ -120,4 +120,46 @@
   <data name="MainWindowTitle" xml:space="preserve">
     <value>MOPR Workbench</value>
   </data>
+  <data name="SingleInstanceForwardingFailedMessage" xml:space="preserve">
+    <value>MOPR is already running, but the existing application window could not be activated. Please select MOPR from the Windows taskbar.</value>
+  </data>
+  <data name="SingleInstanceForwardingFailedTitle" xml:space="preserve">
+    <value>MOPR is already running</value>
+  </data>
+  <data name="SingleInstancePrimaryInstanceEstablished" xml:space="preserve">
+    <value>Process {0} was established as the primary MOPR instance.</value>
+  </data>
+  <data name="SingleInstancePrimaryInstanceRequiredForServer" xml:space="preserve">
+    <value>Only the primary instance may start the single-instance server.</value>
+  </data>
+  <data name="SingleInstanceProtocolConnectionEndedPrematurely" xml:space="preserve">
+    <value>The single-instance connection was closed prematurely.</value>
+  </data>
+  <data name="SingleInstanceProtocolDeserializationFailed" xml:space="preserve">
+    <value>The single-instance message of type {0} could not be read.</value>
+  </data>
+  <data name="SingleInstanceProtocolInvalidMessageLength" xml:space="preserve">
+    <value>The single-instance message has an invalid length of {0} bytes.</value>
+  </data>
+  <data name="SingleInstanceRequestForwarded" xml:space="preserve">
+    <value>The startup request was forwarded to process {0}.</value>
+  </data>
+  <data name="SingleInstanceRequestHandlerMissing" xml:space="preserve">
+    <value>No handler is registered for startup requests.</value>
+  </data>
+  <data name="SingleInstanceRequestProcessed" xml:space="preserve">
+    <value>A startup request containing {0} arguments was processed.</value>
+  </data>
+  <data name="SingleInstanceRequestProcessingFailed" xml:space="preserve">
+    <value>A single-instance request could not be processed.</value>
+  </data>
+  <data name="SingleInstanceRequestRejected" xml:space="preserve">
+    <value>The primary MOPR instance did not accept the startup request.</value>
+  </data>
+  <data name="SingleInstanceSecondaryInstanceDetected" xml:space="preserve">
+    <value>Process {0} was detected as a secondary MOPR instance.</value>
+  </data>
+  <data name="SingleInstanceServerAlreadyStarted" xml:space="preserve">
+    <value>The single-instance server has already been started.</value>
+  </data>
 </root>

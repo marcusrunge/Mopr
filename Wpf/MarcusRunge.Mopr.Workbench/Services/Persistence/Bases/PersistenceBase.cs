@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.EntityFrameworkCore;

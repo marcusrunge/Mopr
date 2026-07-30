@@ -1,10 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
-using System;
-using System.Threading;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 
-namespace MarcusRunge.Mopr.Workbench.Application
+namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
-    internal sealed class ApplicationLifetime : IApplicationLifetime, IDisposable
+    internal sealed class TestApplicationLifetime : IApplicationLifetime, IDisposable
     {
         private readonly CancellationTokenSource _applicationStopping = new();
 

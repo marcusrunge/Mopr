@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {

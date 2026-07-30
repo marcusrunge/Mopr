@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;

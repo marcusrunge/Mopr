@@ -1,6 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
+namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
     internal sealed class TestApplicationLifetime : IApplicationLifetime, IDisposable
     {

@@ -1,6 +1,5 @@
 ﻿using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Media;
 using System.IO;
 using System.Windows.Media;

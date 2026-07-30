@@ -120,4 +120,46 @@
   <data name="MainWindowTitle" xml:space="preserve">
     <value>MOPR Workbench</value>
   </data>
+  <data name="SingleInstanceForwardingFailedMessage" xml:space="preserve">
+    <value>MOPR wird bereits ausgeführt, das vorhandene Anwendungsfenster konnte jedoch nicht aktiviert werden. Bitte wählen Sie MOPR über die Windows-Taskleiste aus.</value>
+  </data>
+  <data name="SingleInstanceForwardingFailedTitle" xml:space="preserve">
+    <value>MOPR wird bereits ausgeführt</value>
+  </data>
+  <data name="SingleInstancePrimaryInstanceEstablished" xml:space="preserve">
+    <value>Prozess {0} wurde als primäre MOPR-Instanz festgelegt.</value>
+  </data>
+  <data name="SingleInstancePrimaryInstanceRequiredForServer" xml:space="preserve">
+    <value>Nur die primäre Instanz darf den Single-Instance-Server starten.</value>
+  </data>
+  <data name="SingleInstanceProtocolConnectionEndedPrematurely" xml:space="preserve">
+    <value>Die Single-Instance-Verbindung wurde vorzeitig beendet.</value>
+  </data>
+  <data name="SingleInstanceProtocolDeserializationFailed" xml:space="preserve">
+    <value>Die Single-Instance-Nachricht vom Typ {0} konnte nicht gelesen werden.</value>
+  </data>
+  <data name="SingleInstanceProtocolInvalidMessageLength" xml:space="preserve">
+    <value>Die Single-Instance-Nachricht hat eine unzulässige Länge von {0} Bytes.</value>
+  </data>
+  <data name="SingleInstanceRequestForwarded" xml:space="preserve">
+    <value>Die Startanforderung wurde an Prozess {0} übertragen.</value>
+  </data>
+  <data name="SingleInstanceRequestHandlerMissing" xml:space="preserve">
+    <value>Für Startanforderungen ist kein Handler registriert.</value>
+  </data>
+  <data name="SingleInstanceRequestProcessed" xml:space="preserve">
+    <value>Eine Startanforderung mit {0} Argumenten wurde verarbeitet.</value>
+  </data>
+  <data name="SingleInstanceRequestProcessingFailed" xml:space="preserve">
+    <value>Eine Single-Instance-Anforderung konnte nicht verarbeitet werden.</value>
+  </data>
+  <data name="SingleInstanceRequestRejected" xml:space="preserve">
+    <value>Die primäre MOPR-Instanz hat die Startanforderung nicht angenommen.</value>
+  </data>
+  <data name="SingleInstanceSecondaryInstanceDetected" xml:space="preserve">
+    <value>Prozess {0} wurde als zweite MOPR-Instanz erkannt.</value>
+  </data>
+  <data name="SingleInstanceServerAlreadyStarted" xml:space="preserve">
+    <value>Der Single-Instance-Server wurde bereits gestartet.</value>
+  </data>
 </root>

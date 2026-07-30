@@ -1,6 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 
-namespace MarcusRunge.Mopr.Workbench.Application
+namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 {
     public sealed class SecurityConfiguration : ISecurityConfiguration
     {

@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application
+﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
 {
     public interface IApplicationConfiguration
     {      

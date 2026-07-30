@@ -68,5 +68,131 @@ namespace MarcusRunge.Mopr.Workbench.Properties {
                 return ResourceManager.GetString("MainWindowTitle", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is already running, but the existing application window could not be activated. Please select MOPR from the Windows taskbar. ähnelt.
+        /// </summary>
+        public static string SingleInstanceForwardingFailedMessage {
+            get {
+                return ResourceManager.GetString("SingleInstanceForwardingFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is already running ähnelt.
+        /// </summary>
+        public static string SingleInstanceForwardingFailedTitle {
+            get {
+                return ResourceManager.GetString("SingleInstanceForwardingFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Process {0} was established as the primary MOPR instance. ähnelt.
+        /// </summary>
+        public static string SingleInstancePrimaryInstanceEstablished {
+            get {
+                return ResourceManager.GetString("SingleInstancePrimaryInstanceEstablished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Only the primary instance may start the single-instance server. ähnelt.
+        /// </summary>
+        public static string SingleInstancePrimaryInstanceRequiredForServer {
+            get {
+                return ResourceManager.GetString("SingleInstancePrimaryInstanceRequiredForServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The single-instance connection was closed prematurely. ähnelt.
+        /// </summary>
+        public static string SingleInstanceProtocolConnectionEndedPrematurely {
+            get {
+                return ResourceManager.GetString("SingleInstanceProtocolConnectionEndedPrematurely", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The single-instance message of type {0} could not be read. ähnelt.
+        /// </summary>
+        public static string SingleInstanceProtocolDeserializationFailed {
+            get {
+                return ResourceManager.GetString("SingleInstanceProtocolDeserializationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The single-instance message has an invalid length of {0} bytes. ähnelt.
+        /// </summary>
+        public static string SingleInstanceProtocolInvalidMessageLength {
+            get {
+                return ResourceManager.GetString("SingleInstanceProtocolInvalidMessageLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The startup request was forwarded to process {0}. ähnelt.
+        /// </summary>
+        public static string SingleInstanceRequestForwarded {
+            get {
+                return ResourceManager.GetString("SingleInstanceRequestForwarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No handler is registered for startup requests. ähnelt.
+        /// </summary>
+        public static string SingleInstanceRequestHandlerMissing {
+            get {
+                return ResourceManager.GetString("SingleInstanceRequestHandlerMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A startup request containing {0} arguments was processed. ähnelt.
+        /// </summary>
+        public static string SingleInstanceRequestProcessed {
+            get {
+                return ResourceManager.GetString("SingleInstanceRequestProcessed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A single-instance request could not be processed. ähnelt.
+        /// </summary>
+        public static string SingleInstanceRequestProcessingFailed {
+            get {
+                return ResourceManager.GetString("SingleInstanceRequestProcessingFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The primary MOPR instance did not accept the startup request. ähnelt.
+        /// </summary>
+        public static string SingleInstanceRequestRejected {
+            get {
+                return ResourceManager.GetString("SingleInstanceRequestRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Process {0} was detected as a secondary MOPR instance. ähnelt.
+        /// </summary>
+        public static string SingleInstanceSecondaryInstanceDetected {
+            get {
+                return ResourceManager.GetString("SingleInstanceSecondaryInstanceDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The single-instance server has already been started. ähnelt.
+        /// </summary>
+        public static string SingleInstanceServerAlreadyStarted {
+            get {
+                return ResourceManager.GetString("SingleInstanceServerAlreadyStarted", resourceCulture);
+            }
+        }
     }
 }
