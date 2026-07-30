@@ -6,13 +6,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
     public sealed partial class RepositoryIntegrationTests
     {
-        private DicomRepositoryRepairRequest CreateRepairRequest(bool repairMissingFiles = true) => new()
+        private static void AssertNoImportArtifacts(DicomRepositoryPathInfo pathInfo)
         {
-            VerifyFiles = true,
-            RepairMissingFiles = repairMissingFiles,
-            RebuildRepositoryIndex = false,
-            RepositoryLocationId = _fixture.RepositoryLocation!.Id
-        };
+            string? directory = Path.GetDirectoryName(pathInfo.AbsolutePath);
+
+            Assert.False(string.IsNullOrWhiteSpace(directory));
+
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+
+            string destinationFileName = Path.GetFileName(pathInfo.AbsolutePath);
+
+            /*
+             * Import artifacts are unique neighbours of the canonical destination.
+             * No completed or compensated import may leave either kind behind.
+             */
+            Assert.Empty(Directory.EnumerateFiles(directory!, $"{destinationFileName}.*.importing", SearchOption.TopDirectoryOnly));
+            Assert.Empty(Directory.EnumerateFiles(directory!, $"{destinationFileName}.*.backup", SearchOption.TopDirectoryOnly));
+        }
 
         private static DicomRepositoryRepairRequest CreateAllLocationsRepairRequest(bool repairMissingFiles = true) => new()
         {
@@ -20,6 +33,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             RepairMissingFiles = repairMissingFiles,
             RebuildRepositoryIndex = false,
             RepositoryLocationId = null
+        };
+
+        private DicomRepositoryRepairRequest CreateRepairRequest(bool repairMissingFiles = true) => new()
+        {
+            VerifyFiles = true,
+            RepairMissingFiles = repairMissingFiles,
+            RebuildRepositoryIndex = false,
+            RepositoryLocationId = _fixture.RepositoryLocation!.Id
         };
 
         private async Task<RepositoryTestScenario> CreateRepositoryScenarioAsync(string fileName = "Image.dcm", bool createDicomFile = true, DicomUID? studyInstanceUid = null, DicomUID? seriesInstanceUid = null, DicomUID? sopInstanceUid = null, RepositoryLocation? repositoryLocation = null)
@@ -35,7 +56,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
         private async Task<RepositoryLocation> SetSecondaryRepositoryLocationStateAsync(bool isEnabled, string? rootPath = null)
         {
-            RepositoryLocation repositoryLocation = await _fixture.Persistence!.RepositoryLocation!.GetByIdAsync(_fixture.SecondaryRepositoryLocation!.Id, TestContext.Current.CancellationToken)                ?? throw new InvalidOperationException("The secondary repository test location does not exist.");
+            RepositoryLocation repositoryLocation = await _fixture.Persistence!.RepositoryLocation!.GetByIdAsync(_fixture.SecondaryRepositoryLocation!.Id, TestContext.Current.CancellationToken) ?? throw new InvalidOperationException("The secondary repository test location does not exist.");
 
             repositoryLocation.IsEnabled = isEnabled;
             repositoryLocation.RootPath = rootPath ?? _fixture.SecondaryRepositoryRootPath;
@@ -49,7 +70,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             await _fixture.Persistence.RepositoryLocation.UpdateAsync(repositoryLocation, TestContext.Current.CancellationToken);
 
-            RepositoryLocation updated = await _fixture.Persistence.RepositoryLocation.GetByIdAsync(repositoryLocation.Id, TestContext.Current.CancellationToken)                ?? throw new InvalidOperationException("The updated secondary repository test location could not be loaded.");
+            RepositoryLocation updated = await _fixture.Persistence.RepositoryLocation.GetByIdAsync(repositoryLocation.Id, TestContext.Current.CancellationToken) ?? throw new InvalidOperationException("The updated secondary repository test location could not be loaded.");
 
             Assert.Equal(isEnabled, updated.IsEnabled);
             Assert.Equal(Path.TrimEndingDirectorySeparator(Path.GetFullPath(rootPath ?? _fixture.SecondaryRepositoryRootPath)), updated.RootPath);
@@ -59,8 +80,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
         private sealed class RepositoryTestScenario(RepositoryIntegrationTests owner) : IDisposable
         {
-            public RepositoryLocation RepositoryLocation { get; private set; } = default!;
             public DicomRepositoryPathInfo PathInfo { get; private set; } = default!;
+            public RepositoryLocation RepositoryLocation { get; private set; } = default!;
             public string? RepositoryStudyDirectory { get; set; }
             public DicomUID SeriesInstanceUid { get; private set; } = DicomUID.Generate();
             public DicomUID SopInstanceUid { get; private set; } = DicomUID.Generate();

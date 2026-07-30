@@ -1770,6 +1770,217 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             Assert.True(File.Exists(primaryScenario.PathInfo.AbsolutePath));
             Assert.True(File.Exists(secondaryScenario.PathInfo.AbsolutePath));
         }
+        
+        [Fact, Priority(55)]
+        public async Task Import_Should_Remove_Created_File_When_Persistence_Fails()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory, createdByUserId: int.MaxValue);
+
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(1, result.FailedFiles);
+            Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
+            Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(56)]
+        public async Task Import_Should_Not_Delete_Existing_Identical_File_When_Persistence_Fails()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            string? destinationDirectory = Path.GetDirectoryName(scenario.PathInfo.AbsolutePath);
+
+            Assert.False(string.IsNullOrWhiteSpace(destinationDirectory));
+
+            Directory.CreateDirectory(destinationDirectory!);
+            File.Copy(scenario.SourceFilePath, scenario.PathInfo.AbsolutePath);
+
+            byte[] originalBytes = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory, createdByUserId: int.MaxValue);
+
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(1, result.FailedFiles);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.Equal(originalBytes, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+            Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(57)]
+        public async Task Import_Should_Restore_Overwritten_File_When_Persistence_Fails()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            string? destinationDirectory = Path.GetDirectoryName(scenario.PathInfo.AbsolutePath);
+
+            Assert.False(string.IsNullOrWhiteSpace(destinationDirectory));
+
+            Directory.CreateDirectory(destinationDirectory!);
+
+            DicomUID originalPhysicalSopInstanceUid = DicomUID.Generate();
+
+            await CreateDicomFileAsync(
+                scenario.PathInfo.AbsolutePath,
+                scenario.StudyInstanceUid,
+                scenario.SeriesInstanceUid,
+                originalPhysicalSopInstanceUid);
+
+            byte[] originalRepositoryBytes = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+            byte[] incomingBytes = await ReadAllBytesAsync(scenario.SourceFilePath);
+
+            Assert.NotEqual(originalRepositoryBytes, incomingBytes);
+
+            DicomImportResult result = await ImportAsync(
+                scenario.SourceDirectory,
+                allowOverwrite: true,
+                createdByUserId: int.MaxValue);
+
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(1, result.FailedFiles);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.Equal(originalRepositoryBytes, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+            Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(58)]
+        public async Task Import_Should_Skip_Identical_File_Even_When_Overwrite_Is_Allowed()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult firstResult = await ImportAsync(scenario.SourceDirectory);
+            byte[] repositoryBytesBefore = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+            DateTime lastWriteTimeUtcBefore = File.GetLastWriteTimeUtc(scenario.PathInfo.AbsolutePath);
+
+            DicomImportResult secondResult = await ImportAsync(scenario.SourceDirectory, allowOverwrite: true);
+
+            Assert.Equal(1, firstResult.ImportedFiles);
+            Assert.Equal(0, firstResult.FailedFiles);
+            Assert.Equal(0, secondResult.ImportedFiles);
+            Assert.Equal(1, secondResult.SkippedFiles);
+            Assert.Equal(0, secondResult.FailedFiles);
+            Assert.Empty(secondResult.Errors);
+            Assert.Equal(repositoryBytesBefore, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+            Assert.Equal(lastWriteTimeUtcBefore, File.GetLastWriteTimeUtc(scenario.PathInfo.AbsolutePath));
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(59)]
+        public async Task Import_Should_Remove_Temporary_And_Backup_Artifacts_After_Successful_Overwrite()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult firstResult = await ImportAsync(scenario.SourceDirectory);
+
+            Assert.Equal(1, firstResult.ImportedFiles);
+            Assert.Equal(0, firstResult.FailedFiles);
+
+            DicomFile changedDicomFile = DicomFile.Open(scenario.SourceFilePath);
+            changedDicomFile.Dataset.AddOrUpdate(DicomTag.StudyDescription, $"Changed_{Guid.NewGuid():N}");
+            await changedDicomFile.SaveAsync(scenario.SourceFilePath);
+
+            byte[] changedSourceBytes = await ReadAllBytesAsync(scenario.SourceFilePath);
+
+            DicomImportResult secondResult = await ImportAsync(scenario.SourceDirectory, allowOverwrite: true);
+
+            Assert.Equal(1, secondResult.ImportedFiles);
+            Assert.Equal(0, secondResult.SkippedFiles);
+            Assert.Equal(0, secondResult.FailedFiles);
+            Assert.Empty(secondResult.Errors);
+            Assert.Equal(changedSourceBytes, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(60)]
+        public async Task Import_Should_Remain_Operational_After_Compensation_Tests()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory);
+
+            Assert.Equal(1, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(0, result.FailedFiles);
+            Assert.Empty(result.Errors);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.NotNull(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(61)]
+        public async Task Import_Should_Allow_Concurrent_Identical_Imports_Without_Artifacts()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            Task<DicomImportResult> firstImport = ImportAsync(scenario.SourceDirectory);
+            Task<DicomImportResult> secondImport = ImportAsync(scenario.SourceDirectory);
+
+            DicomImportResult[] results = await Task.WhenAll(firstImport, secondImport);
+
+            Assert.Equal(1, results.Sum(item => item.ImportedFiles));
+            Assert.Equal(1, results.Sum(item => item.SkippedFiles));
+            Assert.Equal(0, results.Sum(item => item.FailedFiles));
+            Assert.All(results, item => Assert.Empty(item.Errors));
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.NotNull(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(62)]
+        public async Task Import_Should_Not_Replace_Different_Concurrent_Destination_When_Overwrite_Is_Disallowed()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            string? destinationDirectory = Path.GetDirectoryName(scenario.PathInfo.AbsolutePath);
+
+            Assert.False(string.IsNullOrWhiteSpace(destinationDirectory));
+
+            Directory.CreateDirectory(destinationDirectory!);
+
+            DicomUID existingSopInstanceUid = DicomUID.Generate();
+
+            await CreateDicomFileAsync(
+                scenario.PathInfo.AbsolutePath,
+                scenario.StudyInstanceUid,
+                scenario.SeriesInstanceUid,
+                existingSopInstanceUid);
+
+            byte[] existingBytes = await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath);
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory, allowOverwrite: false);
+
+            Assert.Equal(0, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(1, result.FailedFiles);
+            Assert.Single(result.Errors);
+            Assert.Equal(existingBytes, await ReadAllBytesAsync(scenario.PathInfo.AbsolutePath));
+            Assert.Null(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
+
+        [Fact, Priority(63)]
+        public async Task Import_Should_Remain_Operational_After_Concurrent_Import_Tests()
+        {
+            using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync();
+
+            DicomImportResult result = await ImportAsync(scenario.SourceDirectory);
+
+            Assert.Equal(1, result.ImportedFiles);
+            Assert.Equal(0, result.SkippedFiles);
+            Assert.Equal(0, result.FailedFiles);
+            Assert.Empty(result.Errors);
+            Assert.True(File.Exists(scenario.PathInfo.AbsolutePath));
+            Assert.NotNull(await scenario.TryGetPersistedInstanceAsync());
+            AssertNoImportArtifacts(scenario.PathInfo);
+        }
 
         private static async Task AssertFilesEqualAsync(string expectedPath, string actualPath) => Assert.Equal(await ReadAllBytesAsync(expectedPath), await ReadAllBytesAsync(actualPath));
 
@@ -1785,13 +1996,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
         private DicomRepositoryPathInfo CreatePathInfo(RepositoryLocation repositoryLocation, DicomUID studyInstanceUid, DicomUID seriesInstanceUid, DicomUID sopInstanceUid) => _fixture.Repository!.RepositoryService!.CreatePathInfo(repositoryLocation, studyInstanceUid.UID, seriesInstanceUid.UID, sopInstanceUid.UID);
 
-        private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false, int? repositoryLocationId = null) => await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
+        private async Task<DicomImportResult> ImportAsync(string sourcePath, bool allowOverwrite = false, int? repositoryLocationId = null, int? createdByUserId = null) => await _fixture.Repository!.ImportService!.ImportAsync(new DicomImportRequest
         {
             SourcePath = sourcePath,
             SourceType = ImportSourceType.Directory,
             RepositoryLocationId = repositoryLocationId ?? _fixture.RepositoryLocation!.Id,
             AllowOverwrite = allowOverwrite,
-            CreatedByUserId = _fixture.TestUser!.Id
+            CreatedByUserId = createdByUserId ?? _fixture.TestUser!.Id
         }, TestContext.Current.CancellationToken);
 
         private static async Task CreateDicomFileAsync(string filePath, DicomUID? studyInstanceUid, DicomUID? seriesInstanceUid, DicomUID sopInstanceUid)

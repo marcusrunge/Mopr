@@ -2,9 +2,11 @@
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+using System.Collections.Concurrent;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 {
@@ -12,16 +14,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     // CreatableBase lifecycle.
     internal class DicomImportService : CreateableBindableBase<IDicomImportService, DicomImportService, IRepositoryBase>, IDicomImportService
     {
+        /*
+         * Imports targeting the same canonical physical file are serialized within
+         * the MOPR process. Different SOP destinations remain independent and may
+         * still be processed concurrently.
+         */
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _destinationLocks = new(StringComparer.OrdinalIgnoreCase);
         private IRepositoryBase? _base;
-
         private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
-        private IInstanceRepository InstanceRepository => Persistence.Instance ?? throw new InvalidOperationException("The instance repository has not been initialized.");
+        private IDicomImportPersistenceService DicomImportPersistenceService => Persistence.DicomImport ?? throw new InvalidOperationException("The atomic DICOM import Persistence service has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
         private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
-        private ISeriesRepository SeriesRepository => Persistence.Series ?? throw new InvalidOperationException("The series repository has not been initialized.");
-        private IStudyRepository StudyRepository => Persistence.Study ?? throw new InvalidOperationException("The study repository has not been initialized.");
-        private IUserRepository UserRepository => Persistence.User ?? throw new InvalidOperationException("The user repository has not been initialized.");
 
         /// <inheritdoc/>
         public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
@@ -76,11 +80,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
              * boundary validation. Creating the root here is safe only after the selected
              * persisted location has passed the structural checks above.
              */
-            string repositoryRootPath;
-
             try
             {
-                repositoryRootPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryLocation.RootPath));
+                string repositoryRootPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryLocation.RootPath));
                 Directory.CreateDirectory(repositoryRootPath);
             }
             catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException or UnauthorizedAccessException or IOException)
@@ -99,7 +101,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 ImportSourceType.IsoImage => throw new NotSupportedException(),
                 ImportSourceType.NetworkShare => throw new NotSupportedException(),
                 ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
-                _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported."),
+                _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported.")
             };
 
             foreach (DicomImportFileInfo fileInfo in fileInfos)
@@ -130,29 +132,55 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        private static async Task CopyFileAsync(string sourcePath, string destinationPath, bool allowOverwrite, CancellationToken cancellationToken)
+        private static void CompensateFileSystem(DicomImportFileSystemContext fileSystemContext)
+        {
+            /*
+             * Compensation deliberately ignores caller cancellation. Once a physical
+             * medical file has been changed, restoring the pre-import state has
+             * priority over promptly ending the cancelled operation.
+             */
+            switch (fileSystemContext.State)
+            {
+                case DicomImportFileSystemState.None:
+                case DicomImportFileSystemState.ExistingIdentical:
+                    return;
+
+                case DicomImportFileSystemState.Created:
+                    if (File.Exists(fileSystemContext.DestinationPath))
+                    {
+                        File.Delete(fileSystemContext.DestinationPath);
+                    }
+
+                    return;
+
+                case DicomImportFileSystemState.OverwrittenWithBackup:
+                    if (string.IsNullOrWhiteSpace(fileSystemContext.BackupPath) || !File.Exists(fileSystemContext.BackupPath))
+                    {
+                        throw new IOException($"The original repository file backup '{fileSystemContext.BackupPath}' is unavailable and the overwritten file '{fileSystemContext.DestinationPath}' cannot be restored.");
+                    }
+
+                    /*
+                     * File.Move with overwrite restores the original as one replacement
+                     * operation. The currently imported file is removed only as part of
+                     * that restoration and is never treated as the authoritative backup.
+                     */
+                    File.Move(fileSystemContext.BackupPath, fileSystemContext.DestinationPath, true);
+                    return;
+
+                default:
+                    throw new InvalidOperationException($"Unsupported DICOM import file-system state '{fileSystemContext.State}'.");
+            }
+        }
+
+        private static async Task CopyToTemporaryFileAsync(string sourcePath, string temporaryPath, CancellationToken cancellationToken)
         {
             const int bufferSize = 81920;
-            string temporaryPath = $"{destinationPath}.{Guid.NewGuid():N}.importing";
 
-            try
-            {
-                await using (FileStream sourceStream = new(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                {
-                    await using FileStream destinationStream = new(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
-                    await sourceStream.CopyToAsync(destinationStream, bufferSize, cancellationToken);
-                    await destinationStream.FlushAsync(cancellationToken);
-                }
+            await using FileStream sourceStream = new(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            await using FileStream destinationStream = new(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
 
-                File.Move(temporaryPath, destinationPath, allowOverwrite);
-            }
-            finally
-            {
-                if (File.Exists(temporaryPath))
-                {
-                    File.Delete(temporaryPath);
-                }
-            }
+            await sourceStream.CopyToAsync(destinationStream, bufferSize, cancellationToken);
+            await destinationStream.FlushAsync(cancellationToken);
         }
 
         private static DicomImportFileInfo CreateFileInfo(string filePath)
@@ -183,6 +211,69 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         }
 
         private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(CreateFileInfo)];
+
+        private static async Task<DicomImportFileSystemContext> CreateFileSystemStateAsync(string sourcePath, string destinationPath, bool allowOverwrite, CancellationToken cancellationToken)
+        {
+            string temporaryPath = $"{destinationPath}.{Guid.NewGuid():N}.importing";
+
+            try
+            {
+                DicomImportFileSystemContext fileSystemContext = await PrepareFileSystemStateAsync(
+                    sourcePath,
+                    destinationPath,
+                    temporaryPath,
+                    allowOverwrite,
+                    cancellationToken);
+
+                /*
+                 * A successful preparation must not leave its temporary copy behind.
+                 * At this point the copy was either moved to the destination or the
+                 * existing destination was found to be identical.
+                 */
+                DeleteTemporaryFile(temporaryPath);
+                return fileSystemContext;
+            }
+            catch (Exception exception)
+            {
+                /*
+                 * Cleanup is performed outside a finally block so it cannot implicitly
+                 * replace the active preparation exception. If cleanup also fails, the
+                 * helper preserves both failures in one AggregateException.
+                 */
+                DeleteTemporaryFile(temporaryPath, exception);
+                throw;
+            }
+        }
+
+        private static void DeleteTemporaryFile(string temporaryPath, Exception? originalException = null)
+        {
+            if (!File.Exists(temporaryPath))
+            {
+                return;
+            }
+
+            try
+            {
+                File.Delete(temporaryPath);
+            }
+            catch (Exception cleanupException)
+            {
+                if (originalException is null)
+                {
+                    throw;
+                }
+
+                /*
+                 * The original preparation failure remains the primary diagnostic
+                 * information. The cleanup failure is retained separately instead of
+                 * replacing or hiding it.
+                 */
+                throw new AggregateException(
+                    "The DICOM repository file could not be prepared and its temporary import file could not be removed.",
+                    originalException,
+                    cleanupException);
+            }
+        }
 
         private static async Task<bool> FilesAreEqualAsync(string firstPath, string secondPath, CancellationToken cancellationToken)
         {
@@ -224,123 +315,130 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private async Task PersistFileAsync(DicomImportFileInfo fileInfo, RepositoryLocation repositoryLocation, int createdByUserId, CancellationToken cancellationToken)
+        private static void FinalizeFileSystem(DicomImportFileSystemContext fileSystemContext)
         {
-            _ = await UserRepository.GetByIdAsync(createdByUserId, cancellationToken) ?? throw new InvalidOperationException($"The user with ID '{createdByUserId}' does not exist.");
-            Study? study = await StudyRepository.GetByStudyInstanceUidAsync(fileInfo.StudyInstanceUid, cancellationToken);
-
-            if (study is null)
+            if (fileSystemContext.State != DicomImportFileSystemState.OverwrittenWithBackup)
             {
-                study = new Study
-                {
-                    StudyInstanceUid = fileInfo.StudyInstanceUid,
-                    CreatedByUserId = createdByUserId
-                };
-
-                await StudyRepository.AddAsync(study, cancellationToken);
-            }
-
-            Series? series = await SeriesRepository.GetBySeriesInstanceUidAsync(fileInfo.SeriesInstanceUid, cancellationToken);
-
-            if (series is null)
-            {
-                series = new Series
-                {
-                    SeriesInstanceUid = fileInfo.SeriesInstanceUid,
-                    StudyId = study.Id,
-                    CreatedByUserId = createdByUserId
-                };
-
-                await SeriesRepository.AddAsync(series, cancellationToken);
-            }
-            else if (series.StudyId != study.Id)
-            {
-                throw new InvalidOperationException($"Series '{fileInfo.SeriesInstanceUid}' belongs to a different study.");
-            }
-
-            Instance? instance = await InstanceRepository.GetBySopInstanceUidAsync(fileInfo.SopInstanceUid, cancellationToken);
-
-            if (instance is null)
-            {
-                instance = new Instance
-                {
-                    SopInstanceUid = fileInfo.SopInstanceUid,
-                    RelativeFilePath = fileInfo.RelativeRepositoryPath,
-                    RepositoryLocationId = repositoryLocation.Id,
-                    SeriesId = series.Id,
-                    CreatedByUserId = createdByUserId
-                };
-
-                await InstanceRepository.AddAsync(instance, cancellationToken);
-
                 return;
             }
 
-            if (instance.SeriesId != series.Id)
+            /*
+             * The original medical file is retained until Persistence has committed.
+             * Only a completely successful database operation permits its backup to be
+             * deleted.
+             */
+            if (!string.IsNullOrWhiteSpace(fileSystemContext.BackupPath) && File.Exists(fileSystemContext.BackupPath))
             {
-                throw new InvalidOperationException($"Instance '{fileInfo.SopInstanceUid}' belongs to a different series.");
+                File.Delete(fileSystemContext.BackupPath);
+            }
+        }
+
+        private static async Task<DicomImportFileSystemContext> PrepareFileSystemStateAsync(string sourcePath, string destinationPath, string temporaryPath, bool allowOverwrite, CancellationToken cancellationToken)
+        {
+            DicomImportFileSystemContext fileSystemContext = new()
+            {
+                DestinationPath = destinationPath,
+                State = DicomImportFileSystemState.None
+            };
+
+            string? destinationDirectory = Path.GetDirectoryName(destinationPath);
+
+            if (string.IsNullOrWhiteSpace(destinationDirectory))
+            {
+                throw new InvalidOperationException("The repository destination directory could not be determined.");
+            }
+
+            Directory.CreateDirectory(destinationDirectory);
+
+            if (File.Exists(destinationPath))
+            {
+                bool filesAreEqual = await FilesAreEqualAsync(sourcePath, destinationPath, cancellationToken);
+
+                if (filesAreEqual)
+                {
+                    fileSystemContext.State = DicomImportFileSystemState.ExistingIdentical;
+                    return fileSystemContext;
+                }
+
+                if (!allowOverwrite)
+                {
+                    throw new IOException($"A different file already exists at repository path '{destinationPath}'.");
+                }
             }
 
             /*
-             * An existing SOP instance is already assigned to one physical repository
-             * location. Import must not silently move or duplicate that assignment into a
-             * different location because Persistence would no longer identify one
-             * authoritative physical file.
+             * The new content is copied completely before the destination is created
+             * or the original is moved. Cancellation during copying therefore leaves
+             * the authoritative destination unchanged.
              */
-            if (instance.RepositoryLocationId != repositoryLocation.Id)
+            await CopyToTemporaryFileAsync(sourcePath, temporaryPath, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!File.Exists(destinationPath))
             {
-                throw new InvalidOperationException($"Instance '{fileInfo.SopInstanceUid}' belongs to repository location '{instance.RepositoryLocationId}' and cannot be imported into repository location '{repositoryLocation.Id}'.");
+                File.Move(temporaryPath, destinationPath);
+                fileSystemContext.State = DicomImportFileSystemState.Created;
+                return fileSystemContext;
             }
 
-            if (instance.RelativeFilePath != fileInfo.RelativeRepositoryPath)
-            {
-                instance.RelativeFilePath = fileInfo.RelativeRepositoryPath;
-                instance.ModifiedAtUtc = DateTime.UtcNow;
-                instance.ModifiedByUserId = createdByUserId;
+            /*
+             * The destination is checked again after copying because another operation
+             * may have created or changed it while the source was transferred to the
+             * temporary file. The current physical state, not the earlier observation,
+             * determines whether replacement is permitted.
+             */
+            bool currentDestinationIsIdentical = await FilesAreEqualAsync(temporaryPath, destinationPath, cancellationToken);
 
-                await InstanceRepository.UpdateAsync(instance, cancellationToken);
+            if (currentDestinationIsIdentical)
+            {
+                fileSystemContext.State = DicomImportFileSystemState.ExistingIdentical;
+                return fileSystemContext;
+            }
+
+            if (!allowOverwrite)
+            {
+                throw new IOException($"A different file already exists at repository path '{destinationPath}'.");
+            }
+
+            fileSystemContext.BackupPath = $"{destinationPath}.{Guid.NewGuid():N}.backup";
+            File.Move(destinationPath, fileSystemContext.BackupPath);
+
+            try
+            {
+                File.Move(temporaryPath, destinationPath);
+                fileSystemContext.State = DicomImportFileSystemState.OverwrittenWithBackup;
+                return fileSystemContext;
+            }
+            catch (Exception replacementException)
+            {
+                /*
+                 * Failure after moving the original to backup must restore the
+                 * authoritative medical file before control returns to the caller.
+                 */
+                try
+                {
+                    File.Move(fileSystemContext.BackupPath, destinationPath);
+                }
+                catch (Exception restorationException)
+                {
+                    throw new AggregateException("The repository destination could not be replaced and its original file could not be restored.", replacementException, restorationException);
+                }
+
+                throw;
             }
         }
 
         private async Task ImportFileAsync(DicomImportFileInfo fileInfo, DicomImportResult result, RepositoryLocation repositoryLocation, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
         {
+            DicomRepositoryPathInfo pathInfo;
+
             try
             {
-                DicomRepositoryPathInfo pathInfo = Repository.RepositoryService!.CreatePathInfo(repositoryLocation, fileInfo.StudyInstanceUid, fileInfo.SeriesInstanceUid, fileInfo.SopInstanceUid);
-
-                string? destinationDirectory = Path.GetDirectoryName(pathInfo.AbsolutePath);
-
-                if (string.IsNullOrWhiteSpace(destinationDirectory))
-                {
-                    throw new InvalidOperationException("The repository destination directory could not be determined.");
-                }
-
-                Directory.CreateDirectory(destinationDirectory);
-
-                if (File.Exists(pathInfo.AbsolutePath) && !allowOverwrite)
-                {
-                    bool filesAreEqual = await FilesAreEqualAsync(fileInfo.FilePath, pathInfo.AbsolutePath, cancellationToken);
-
-                    if (!filesAreEqual)
-                    {
-                        throw new IOException($"A different file already exists at repository path '{pathInfo.RelativePath}'.");
-                    }
-
-                    fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
-
-                    await PersistFileAsync(fileInfo, repositoryLocation, createdByUserId, cancellationToken);
-
-                    result.SkippedFiles++;
-                    return;
-                }
-
-                await CopyFileAsync(fileInfo.FilePath, pathInfo.AbsolutePath, allowOverwrite, cancellationToken);
-
-                fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
-
-                await PersistFileAsync(fileInfo, repositoryLocation, createdByUserId, cancellationToken);
-
-                result.ImportedFiles++;
+                pathInfo = Repository.RepositoryService!.CreatePathInfo(
+                    repositoryLocation,
+                    fileInfo.StudyInstanceUid,
+                    fileInfo.SeriesInstanceUid,
+                    fileInfo.SopInstanceUid);
             }
             catch (OperationCanceledException)
             {
@@ -349,7 +447,97 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             catch (Exception exception)
             {
                 result.FailedFiles++;
-                result.Errors.Add($"File '{fileInfo.FilePath}' could not be imported: {exception.Message}");
+                result.Errors.Add($"File '{fileInfo.FilePath}' could not be imported: {exception}");
+                return;
+            }
+
+            /*
+             * The semaphore covers physical preparation, Persistence, finalization and
+             * compensation. A second import of the same destination cannot observe or
+             * modify an intermediate state created by this operation.
+             */
+            SemaphoreSlim destinationLock = _destinationLocks.GetOrAdd(pathInfo.AbsolutePath, static _ => new SemaphoreSlim(1, 1));
+            await destinationLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                await ImportFileUnderLockAsync(fileInfo, result, repositoryLocation, pathInfo, allowOverwrite, createdByUserId, cancellationToken);
+            }
+            finally
+            {
+                destinationLock.Release();
+            }
+        }
+
+        private async Task ImportFileUnderLockAsync(DicomImportFileInfo fileInfo, DicomImportResult result, RepositoryLocation repositoryLocation, DicomRepositoryPathInfo pathInfo, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
+        {
+            DicomImportFileSystemContext fileSystemContext = new();
+            bool persistenceCommitted = false;
+
+            try
+            {
+                /*
+                 * CreatePathInfo already performed the authoritative repository-boundary
+                 * validation. Every temporary and backup file is derived from this
+                 * validated destination and remains in the same repository location.
+                 */
+                fileSystemContext = await CreateFileSystemStateAsync(fileInfo.FilePath, pathInfo.AbsolutePath, allowOverwrite, cancellationToken);
+                fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
+
+                await DicomImportPersistenceService.PersistAsync(new DicomImportPersistenceRequest
+                {
+                    CreatedByUserId = createdByUserId,
+                    RepositoryLocationId = repositoryLocation.Id,
+                    StudyInstanceUid = fileInfo.StudyInstanceUid,
+                    SeriesInstanceUid = fileInfo.SeriesInstanceUid,
+                    SopInstanceUid = fileInfo.SopInstanceUid,
+                    RelativeFilePath = pathInfo.RelativePath
+                }, cancellationToken);
+
+                persistenceCommitted = true;
+
+                /*
+                 * Finalization occurs only after Persistence has committed. A backup
+                 * deletion failure is reported while retaining the backup as the
+                 * recoverable original medical file.
+                 */
+                FinalizeFileSystem(fileSystemContext);
+
+                if (fileSystemContext.State == DicomImportFileSystemState.ExistingIdentical)
+                {
+                    result.SkippedFiles++;
+                }
+                else
+                {
+                    result.ImportedFiles++;
+                }
+            }
+            catch (Exception exception)
+            {
+                if (!persistenceCommitted)
+                {
+                    try
+                    {
+                        CompensateFileSystem(fileSystemContext);
+                    }
+                    catch (Exception compensationException)
+                    {
+                        /*
+                         * A failed compensation is not a normal per-file import error.
+                         * The repository may no longer match Persistence, so callers
+                         * must receive both failures and escalate the condition.
+                         */
+                        throw new AggregateException($"File '{fileInfo.FilePath}' could not be imported and its repository file-system state could not be restored.", exception, compensationException);
+                    }
+                }
+
+                if (exception is OperationCanceledException)
+                {
+                    throw;
+                }
+
+                result.FailedFiles++;
+                result.Errors.Add($"File '{fileInfo.FilePath}' could not be imported: {exception}");
             }
         }
     }
