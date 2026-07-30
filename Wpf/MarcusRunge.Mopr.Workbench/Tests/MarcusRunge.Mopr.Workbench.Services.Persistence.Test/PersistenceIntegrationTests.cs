@@ -499,5 +499,210 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Empty(result.Issues);
             Assert.Empty(result.Errors);
         }
+
+        [Fact, Priority(24)]
+        public async Task DicomImportPersistence_Should_Create_Study_Series_And_Instance_Atomically()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest();
+
+            await _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken);
+
+            Study? study = await _fixture.Persistence.Study!.GetByStudyInstanceUidAsync(request.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Series? series = await _fixture.Persistence.Series!.GetBySeriesInstanceUidAsync(request.SeriesInstanceUid, TestContext.Current.CancellationToken);
+            Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(study);
+            Assert.NotNull(series);
+            Assert.NotNull(instance);
+            Assert.Equal(study.Id, series.StudyId);
+            Assert.Equal(series.Id, instance.SeriesId);
+            Assert.Equal(_fixture.RepositoryLocationId, instance.RepositoryLocationId);
+            Assert.Equal(request.RelativeFilePath, instance.RelativeFilePath);
+            Assert.Equal(_fixture.UserId, study.CreatedByUserId);
+            Assert.Equal(_fixture.UserId, series.CreatedByUserId);
+            Assert.Equal(_fixture.UserId, instance.CreatedByUserId);
+        }
+
+        [Fact, Priority(25)]
+        public async Task DicomImportPersistence_Should_Use_Existing_Study_And_Series()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest(_fixture.StudyInstanceUid, _fixture.SeriesInstanceUid);
+
+            await _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken);
+
+            Study? study = await _fixture.Persistence.Study!.GetByStudyInstanceUidAsync(_fixture.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Series? series = await _fixture.Persistence.Series!.GetBySeriesInstanceUidAsync(_fixture.SeriesInstanceUid, TestContext.Current.CancellationToken);
+            Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(study);
+            Assert.NotNull(series);
+            Assert.NotNull(instance);
+            Assert.Equal(_fixture.StudyId, study.Id);
+            Assert.Equal(_fixture.SeriesId, series.Id);
+            Assert.Equal(series.Id, instance.SeriesId);
+            Assert.Equal(_fixture.RepositoryLocationId, instance.RepositoryLocationId);
+            Assert.Equal(request.RelativeFilePath, instance.RelativeFilePath);
+        }
+
+        [Fact, Priority(26)]
+        public async Task DicomImportPersistence_Should_Remain_Idempotent_For_Existing_Instance()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest();
+
+            await _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken);
+
+            Instance? initialInstance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(initialInstance);
+
+            await _fixture.Persistence.DicomImport.PersistAsync(request, TestContext.Current.CancellationToken);
+
+            Instance? persistedInstance = await _fixture.Persistence.Instance.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(persistedInstance);
+            Assert.Equal(initialInstance.Id, persistedInstance.Id);
+            Assert.Equal(initialInstance.SeriesId, persistedInstance.SeriesId);
+            Assert.Equal(initialInstance.RepositoryLocationId, persistedInstance.RepositoryLocationId);
+            Assert.Equal(request.RelativeFilePath, persistedInstance.RelativeFilePath);
+        }
+
+        [Fact, Priority(27)]
+        public async Task DicomImportPersistence_Should_Not_Create_Entities_When_User_Is_Missing()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest(createdByUserId: int.MaxValue);
+
+            InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken));
+
+            Assert.Contains(int.MaxValue.ToString(), exception.Message, StringComparison.Ordinal);
+            await AssertDicomImportEntitiesDoNotExistAsync(request);
+        }
+
+        [Fact, Priority(28)]
+        public async Task DicomImportPersistence_Should_Not_Create_Entities_When_RepositoryLocation_Is_Missing()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest(repositoryLocationId: int.MaxValue);
+
+            InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken));
+
+            Assert.Contains(int.MaxValue.ToString(), exception.Message, StringComparison.Ordinal);
+            await AssertDicomImportEntitiesDoNotExistAsync(request);
+        }
+
+        [Fact, Priority(29)]
+        public async Task DicomImportPersistence_Should_Not_Create_Study_When_Series_Belongs_To_Different_Study()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest(seriesInstanceUid: _fixture.SeriesInstanceUid);
+
+            InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken));
+
+            Assert.Contains(request.SeriesInstanceUid, exception.Message, StringComparison.Ordinal);
+
+            Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(request.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Series? series = await _fixture.Persistence.Series!.GetBySeriesInstanceUidAsync(_fixture.SeriesInstanceUid, TestContext.Current.CancellationToken);
+            Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.Null(study);
+            Assert.NotNull(series);
+            Assert.Equal(_fixture.StudyId, series.StudyId);
+            Assert.Null(instance);
+        }
+
+        [Fact, Priority(30)]
+        public async Task DicomImportPersistence_Should_Reject_Existing_Instance_In_Different_RepositoryLocation()
+        {
+            RepositoryLocation secondaryRepositoryLocation = new()
+            {
+                Name = $"Atomic Import Secondary Location {Guid.NewGuid():N}",
+                RootPath = Path.Combine(Path.GetTempPath(), "MoprPersistenceTests", Guid.NewGuid().ToString("N")),
+                IsEnabled = true,
+                IsDefault = false,
+                CreatedByUserId = _fixture.UserId
+            };
+
+            await _fixture.Persistence!.RepositoryLocation!.AddAsync(secondaryRepositoryLocation, TestContext.Current.CancellationToken);
+
+            DicomImportPersistenceRequest initialRequest = CreateDicomImportPersistenceRequest();
+
+            await _fixture.Persistence.DicomImport!.PersistAsync(initialRequest, TestContext.Current.CancellationToken);
+
+            DicomImportPersistenceRequest conflictingRequest = CreateDicomImportPersistenceRequest(
+                initialRequest.StudyInstanceUid,
+                initialRequest.SeriesInstanceUid,
+                initialRequest.SopInstanceUid,
+                repositoryLocationId: secondaryRepositoryLocation.Id);
+
+            InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.Persistence.DicomImport.PersistAsync(conflictingRequest, TestContext.Current.CancellationToken));
+
+            Assert.Contains(_fixture.RepositoryLocationId.ToString(), exception.Message, StringComparison.Ordinal);
+            Assert.Contains(secondaryRepositoryLocation.Id.ToString(), exception.Message, StringComparison.Ordinal);
+
+            Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(initialRequest.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.NotNull(instance);
+            Assert.Equal(_fixture.RepositoryLocationId, instance.RepositoryLocationId);
+            Assert.Equal(initialRequest.RelativeFilePath, instance.RelativeFilePath);
+        }
+
+        [Fact, Priority(31)]
+        public async Task DicomImportPersistence_Should_Propagate_Cancellation_Without_Creating_Entities()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest();
+            using CancellationTokenSource cancellationTokenSource = new();
+
+            await cancellationTokenSource.CancelAsync();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, cancellationTokenSource.Token));
+
+            await AssertDicomImportEntitiesDoNotExistAsync(request);
+        }
+
+        [Fact, Priority(32)]
+        public async Task DicomImportPersistence_Should_Reject_NonCanonical_RelativeFilePath()
+        {
+            DicomImportPersistenceRequest request = CreateDicomImportPersistenceRequest();
+            request.RelativeFilePath = Path.Combine(request.StudyInstanceUid, "DifferentSeries", $"{request.SopInstanceUid}.dcm");
+
+            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken));
+
+            Assert.Contains("canonical", exception.Message, StringComparison.OrdinalIgnoreCase);
+            await AssertDicomImportEntitiesDoNotExistAsync(request);
+        }
+
+        [Fact, Priority(33)]
+        public async Task DicomImportPersistence_Should_Reject_Traversal_In_Dicom_Uid()
+        {
+            string seriesInstanceUid = $"Series_{Guid.NewGuid():N}";
+            string sopInstanceUid = $"Sop_{Guid.NewGuid():N}";
+
+            DicomImportPersistenceRequest request = new()
+            {
+                CreatedByUserId = _fixture.UserId,
+                RepositoryLocationId = _fixture.RepositoryLocationId,
+                StudyInstanceUid = "..",
+                SeriesInstanceUid = seriesInstanceUid,
+                SopInstanceUid = sopInstanceUid,
+                RelativeFilePath = Path.Combine("..", seriesInstanceUid, $"{sopInstanceUid}.dcm")
+            };
+
+            ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(() => _fixture.Persistence!.DicomImport!.PersistAsync(request, TestContext.Current.CancellationToken));
+
+            Assert.Contains("path segment", exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(await _fixture.Persistence!.Series!.GetBySeriesInstanceUidAsync(seriesInstanceUid, TestContext.Current.CancellationToken));
+            Assert.Null(await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(sopInstanceUid, TestContext.Current.CancellationToken));
+        }
+
+        [Fact, Priority(34)]
+        public async Task DicomImportPersistence_Should_Remain_Consistent_After_Atomicity_Tests()
+        {
+            PersistenceIntegrityResult result = await VerifyIntegrityAsync();
+
+            /*
+             * Successful atomic import scenarios add valid entities to the shared
+             * fixture. Failed and cancelled scenarios must not introduce incomplete
+             * relationships or invalid audit references.
+             */
+            Assert.Empty(result.Issues);
+            Assert.Empty(result.Errors);
+        }
     }
 }

@@ -5,6 +5,34 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
     public sealed partial class PersistenceIntegrationTests
     {
+        private async Task AssertDicomImportEntitiesDoNotExistAsync(DicomImportPersistenceRequest request)
+        {
+            Study? study = await _fixture.Persistence!.Study!.GetByStudyInstanceUidAsync(request.StudyInstanceUid, TestContext.Current.CancellationToken);
+            Series? series = await _fixture.Persistence.Series!.GetBySeriesInstanceUidAsync(request.SeriesInstanceUid, TestContext.Current.CancellationToken);
+            Instance? instance = await _fixture.Persistence.Instance!.GetBySopInstanceUidAsync(request.SopInstanceUid, TestContext.Current.CancellationToken);
+
+            Assert.Null(study);
+            Assert.Null(series);
+            Assert.Null(instance);
+        }
+
+        private DicomImportPersistenceRequest CreateDicomImportPersistenceRequest(string? studyInstanceUid = null, string? seriesInstanceUid = null, string? sopInstanceUid = null, int? createdByUserId = null, int? repositoryLocationId = null)
+        {
+            string resolvedStudyInstanceUid = studyInstanceUid ?? $"Study_{Guid.NewGuid():N}";
+            string resolvedSeriesInstanceUid = seriesInstanceUid ?? $"Series_{Guid.NewGuid():N}";
+            string resolvedSopInstanceUid = sopInstanceUid ?? $"Sop_{Guid.NewGuid():N}";
+
+            return new DicomImportPersistenceRequest
+            {
+                CreatedByUserId = createdByUserId ?? _fixture.UserId,
+                RepositoryLocationId = repositoryLocationId ?? _fixture.RepositoryLocationId,
+                StudyInstanceUid = resolvedStudyInstanceUid,
+                SeriesInstanceUid = resolvedSeriesInstanceUid,
+                SopInstanceUid = resolvedSopInstanceUid,
+                RelativeFilePath = Path.Combine(resolvedStudyInstanceUid, resolvedSeriesInstanceUid, $"{resolvedSopInstanceUid}.dcm")
+            };
+        }
+
         private async Task<Instance> GetInstanceAsync()
         {
             Instance? instance = await _fixture.Persistence!.Instance!.GetBySopInstanceUidAsync(_fixture.SopInstanceUid, TestContext.Current.CancellationToken);

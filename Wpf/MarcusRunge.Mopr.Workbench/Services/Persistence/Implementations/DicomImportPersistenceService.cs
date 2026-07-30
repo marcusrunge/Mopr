@@ -189,7 +189,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 throw new InvalidOperationException($"Instance '{request.SopInstanceUid}' belongs to repository location '{instance.RepositoryLocationId}' and cannot be imported into repository location '{repositoryLocation.Id}'.");
             }
         }
+        private static void ValidatePathSegment(string value, string parameterName)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
 
+            /*
+             * Medical UIDs are persisted as individual repository path segments.
+             * Rooted values, separators and traversal segments must be rejected even
+             * when a caller provides a matching RelativeFilePath.
+             */
+            if (Path.IsPathFullyQualified(value) || value is "." or ".." || value.IndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]) >= 0 || value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new ArgumentException($"Value '{value}' is not a valid DICOM repository path segment.", parameterName);
+            }
+        }
         private static void ValidateRequest(DicomImportPersistenceRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -204,9 +217,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 throw new ArgumentOutOfRangeException(nameof(request), "The repository-location ID must be a positive integer.");
             }
 
-            ArgumentException.ThrowIfNullOrWhiteSpace(request.StudyInstanceUid);
-            ArgumentException.ThrowIfNullOrWhiteSpace(request.SeriesInstanceUid);
-            ArgumentException.ThrowIfNullOrWhiteSpace(request.SopInstanceUid);
+            ValidatePathSegment(request.StudyInstanceUid, nameof(request.StudyInstanceUid));
+            ValidatePathSegment(request.SeriesInstanceUid, nameof(request.SeriesInstanceUid));
+            ValidatePathSegment(request.SopInstanceUid, nameof(request.SopInstanceUid));
             ArgumentException.ThrowIfNullOrWhiteSpace(request.RelativeFilePath);
 
             string expectedRelativeFilePath = Path.Combine(request.StudyInstanceUid, request.SeriesInstanceUid, $"{request.SopInstanceUid}.dcm");
