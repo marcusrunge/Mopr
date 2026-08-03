@@ -11,30 +11,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     {
         internal Repository(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence) : base(logger, applicationLifetime, applicationConfigurationObservable, persistence)
         {
-            // What happens here:
-            // - The assembly constructor performs "composition" for this module instance by creating and assigning
-            //   the concrete service implementations to the protected backing fields defined in the base class.
-
-            // Service creation pattern:
-            // - Each service is created via its static Create(...) factory.
-            // - The current assembly instance ('this') is passed as the base/context argument so the service can:
-            //   - access assembly-provided dependencies,
-            //   - register itself with module state,
-            //   - or use the assembly as an initialization context.
-
-            // Ordering / intention:
-            // - Services are created in a defined order.
-            // - This can be important if later services assume earlier services exist or if initialization
-            //   side-effects are expected in that sequence.
-
-            // Resulting state:
-            // - After the constructor finishes, the assembly's ServiceA/ServiceB/ServiceI accessors
-            //   (exposed by the base class / interfaces) return these created instances.
-            // - The assembly is therefore "ready for use" regarding these service references.
-
+            /*
+             * The coordinator is created first so import and repair resolve the same
+             * module-owned instance through IRepositoryBase.
+             *
+             * Repository path validation is initialized before the operations that
+             * depend on canonical repository paths.
+             */
+            _operationsCoordinator = RepositoryOperationsCoordinator.Create(this);
+            _repositoryService = DicomRepositoryService.Create(this);
             _importService = DicomImportService.Create(this);
             _repositoryRepairService = DicomRepositoryRepairService.Create(this);
-            _repositoryService = DicomRepositoryService.Create(this);
         }
     }
 }

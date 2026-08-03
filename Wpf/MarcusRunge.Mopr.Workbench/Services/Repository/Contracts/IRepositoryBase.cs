@@ -15,19 +15,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
         internal IApplicationConfiguration? ApplicationConfiguration { get; }
 
         /// <summary>
-        /// Gets the ILogger instance used for logging within the module.
+        /// Gets the logger used within the module.
         /// </summary>
         internal ILogger? Logger { get; }
 
         /// <summary>
-        /// Gets the persistence for using within the module.
+        /// Gets the central operations coordinator shared by import and repair.
+        /// </summary>
+        internal IRepositoryOperationsCoordinator? OperationsCoordinator { get; }
+
+        /// <summary>
+        /// Gets the Persistence module used within the repository module.
         /// </summary>
         internal IPersistence? Persistence { get; }
 
         /// <summary>
-        /// Called when [exception thrown].
+        /// Reports an exception through the repository module.
         /// </summary>
-        /// <param name="exception">The exception.</param>
+        /// <param name="exception">
+        /// The exception.
+        /// </param>
         internal void OnExceptionThrown(Exception exception);
     }
 }
