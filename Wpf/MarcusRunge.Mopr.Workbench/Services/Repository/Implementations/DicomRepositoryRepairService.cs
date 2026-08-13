@@ -13,6 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IRepositoryBase? _base;
         private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
         private IInstanceRepository InstanceRepository => Persistence.Instance ?? throw new InvalidOperationException("The instance repository has not been initialized.");
+        private IRepositoryOperationsCoordinator OperationsCoordinator => Base.OperationsCoordinator ?? throw new InvalidOperationException("The repository operations coordinator has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
         private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
@@ -32,52 +33,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
 
             IReadOnlyList<RepositoryLocation> repositoryLocations = await GetRepositoryLocationsAsync(request.RepositoryLocationId, result, cancellationToken);
-            IList<Study> studies = await StudyRepository.GetAllAsync(cancellationToken);
 
+            /*
+             * A repair covering all enabled locations deliberately coordinates one
+             * location at a time. The operation does not promise global atomicity
+             * across independent repository roots.
+             *
+             * Releasing each lease before acquiring the next preserves parallel work
+             * in other locations and prevents circular multi-location waits.
+             */
             foreach (RepositoryLocation repositoryLocation in repositoryLocations)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                DicomRepositoryLocationRepairContext? context = await CreateLocationContextAsync(repositoryLocation, result, cancellationToken);
 
-                /*
-                 * An unavailable location is reported once at location level.
-                 * Its instances must not be classified as individually missing.
-                 */
-                if (context is null)
-                {
-                    continue;
-                }
+                await using IAsyncDisposable operationLease = await OperationsCoordinator.AcquireRepairAsync(
+                    repositoryLocation.Id,
+                    cancellationToken);
 
-                RegisterIncompleteImportFiles(context, result, cancellationToken);
-                RegisterDuplicateFiles(context, result, cancellationToken);
-                HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
-
-                foreach (Study study in studies)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    IList<Series> seriesItems = await SeriesRepository.GetByStudyIdAsync(study.Id, cancellationToken);
-
-                    foreach (Series series in seriesItems)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        IList<Instance> instances = await InstanceRepository.GetBySeriesIdAsync(series.Id, cancellationToken);
-
-                        foreach (Instance instance in instances.Where(item => item.RepositoryLocationId == repositoryLocation.Id))
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            if (!string.IsNullOrWhiteSpace(instance.SopInstanceUid))
-                            {
-                                persistedSopInstanceUids.Add(instance.SopInstanceUid);
-                            }
-
-                            await VerifyInstanceAsync(study, series, instance, context, request, result, cancellationToken);
-                        }
-                    }
-                }
-
-                RegisterUnassociatedUnreadableFiles(context, result, cancellationToken);
-                RegisterOrphanedFiles(context, persistedSopInstanceUids, result, cancellationToken);
+                await RepairLocationAsync(repositoryLocation, request, result, cancellationToken);
             }
 
             return result;
@@ -86,6 +59,65 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         protected override void OnCreate(IRepositoryBase @base) => _base = @base;
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        private async Task RepairLocationAsync(RepositoryLocation repositoryLocation, DicomRepositoryRepairRequest request, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
+        {
+            /*
+             * The caller holds exclusive access to this repository location for the
+             * complete method. No import can create temporary files, change a target
+             * file, commit Persistence or compensate in this location while Repair
+             * builds and evaluates its location-specific view.
+             */
+            DicomRepositoryLocationRepairContext? context = await CreateLocationContextAsync(repositoryLocation, result, cancellationToken);
+
+            /*
+             * An unavailable location is reported once at location level.
+             * Its instances must not be classified as individually missing.
+             */
+            if (context is null)
+            {
+                return;
+            }
+
+            RegisterIncompleteImportFiles(context, result, cancellationToken);
+            RegisterDuplicateFiles(context, result, cancellationToken);
+
+            HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
+
+            /*
+             * Persistence is read only after the exclusive location lease has been
+             * acquired. This prevents a completed import from appearing in the file
+             * index while its newly committed hierarchy is absent from Repair's view.
+             */
+            IList<Study> studies = await StudyRepository.GetAllAsync(cancellationToken);
+
+            foreach (Study study in studies)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                IList<Series> seriesItems = await SeriesRepository.GetByStudyIdAsync(study.Id, cancellationToken);
+
+                foreach (Series series in seriesItems)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    IList<Instance> instances = await InstanceRepository.GetBySeriesIdAsync(series.Id, cancellationToken);
+
+                    foreach (Instance instance in instances.Where(item => item.RepositoryLocationId == repositoryLocation.Id))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        if (!string.IsNullOrWhiteSpace(instance.SopInstanceUid))
+                        {
+                            persistedSopInstanceUids.Add(instance.SopInstanceUid);
+                        }
+
+                        await VerifyInstanceAsync(study, series, instance, context, request, result, cancellationToken);
+                    }
+                }
+            }
+
+            RegisterUnassociatedUnreadableFiles(context, result, cancellationToken);
+            RegisterOrphanedFiles(context, persistedSopInstanceUids, result, cancellationToken);
+        }
 
         private async Task<IReadOnlyList<RepositoryLocation>> GetRepositoryLocationsAsync(int? repositoryLocationId, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
