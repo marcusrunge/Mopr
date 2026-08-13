@@ -8,9 +8,9 @@
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Miras</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Miras</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.4" />
-    <PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.5" />
+    <PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>

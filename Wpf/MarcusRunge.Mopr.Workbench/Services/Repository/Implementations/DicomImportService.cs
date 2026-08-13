@@ -6,7 +6,6 @@ using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
-using System.Collections.Concurrent;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 {
@@ -14,15 +13,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     // CreatableBase lifecycle.
     internal class DicomImportService : CreateableBindableBase<IDicomImportService, DicomImportService, IRepositoryBase>, IDicomImportService
     {
-        /*
-         * Imports targeting the same canonical physical file are serialized within
-         * the MOPR process. Different SOP destinations remain independent and may
-         * still be processed concurrently.
-         */
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> _destinationLocks = new(StringComparer.OrdinalIgnoreCase);
         private IRepositoryBase? _base;
         private IRepositoryBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
         private IDicomImportPersistenceService DicomImportPersistenceService => Persistence.DicomImport ?? throw new InvalidOperationException("The atomic DICOM import Persistence service has not been initialized.");
+        private IRepositoryOperationsCoordinator OperationsCoordinator => Base.OperationsCoordinator ?? throw new InvalidOperationException("The repository operations coordinator has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
         private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
@@ -119,15 +113,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     continue;
                 }
 
-                await ImportFileAsync(fileInfo, result, repositoryLocation, request.AllowOverwrite, request.CreatedByUserId, cancellationToken);
+                await ImportFileAsync(
+                    fileInfo,
+                    result,
+                    repositoryLocation,
+                    request.AllowOverwrite,
+                    request.CreatedByUserId,
+                    cancellationToken);
             }
 
             return result;
         }
 
         protected override void OnCreate(IRepositoryBase @base) =>
-            // Store the repository base required by subsequent
-            // import operations.
+            // Store the repository base required by subsequent import operations.
             _base = @base;
 
         protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
@@ -452,21 +451,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
 
             /*
-             * The semaphore covers physical preparation, Persistence, finalization and
-             * compensation. A second import of the same destination cannot observe or
-             * modify an intermediate state created by this operation.
+             * The coordinator first acquires shared access to the repository location
+             * and then exclusive access to the canonical target path.
+             *
+             * This lease covers file preparation, the atomic Persistence operation,
+             * finalization and compensation. Repair cannot inspect this location while
+             * any intermediate import state exists.
              */
-            SemaphoreSlim destinationLock = _destinationLocks.GetOrAdd(pathInfo.AbsolutePath, static _ => new SemaphoreSlim(1, 1));
-            await destinationLock.WaitAsync(cancellationToken);
-
-            try
-            {
-                await ImportFileUnderLockAsync(fileInfo, result, repositoryLocation, pathInfo, allowOverwrite, createdByUserId, cancellationToken);
-            }
-            finally
-            {
-                destinationLock.Release();
-            }
+            await using IAsyncDisposable operationLease = await OperationsCoordinator.AcquireImportAsync(repositoryLocation.Id, pathInfo.AbsolutePath, cancellationToken);
+            await ImportFileUnderLockAsync(fileInfo, result, repositoryLocation, pathInfo, allowOverwrite, createdByUserId, cancellationToken);
         }
 
         private async Task ImportFileUnderLockAsync(DicomImportFileInfo fileInfo, DicomImportResult result, RepositoryLocation repositoryLocation, DicomRepositoryPathInfo pathInfo, bool allowOverwrite, int createdByUserId, CancellationToken cancellationToken)
@@ -482,6 +475,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                  * validated destination and remains in the same repository location.
                  */
                 fileSystemContext = await CreateFileSystemStateAsync(fileInfo.FilePath, pathInfo.AbsolutePath, allowOverwrite, cancellationToken);
+
                 fileInfo.RelativeRepositoryPath = pathInfo.RelativePath;
 
                 await DicomImportPersistenceService.PersistAsync(new DicomImportPersistenceRequest
@@ -526,6 +520,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                          * A failed compensation is not a normal per-file import error.
                          * The repository may no longer match Persistence, so callers
                          * must receive both failures and escalate the condition.
+                         *
+                         * The outer coordinator lease is still released when this
+                         * exception leaves ImportFileAsync.
                          */
                         throw new AggregateException($"File '{fileInfo.FilePath}' could not be imported and its repository file-system state could not be restored.", exception, compensationException);
                     }
