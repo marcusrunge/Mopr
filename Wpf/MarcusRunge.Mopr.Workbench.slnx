@@ -6,6 +6,7 @@
     <File Path="../.gitignore" />
     <File Path="../LICENSE" />
     <File Path="../README.md" />
+    <File Path="Export-MoprSourceCode.ps1" />
   </Folder>
   <Folder Name="/Services/">
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Core/MarcusRunge.Mopr.Workbench.Services.Core.csproj" Id="aac45427-2e64-4b6a-a8ec-432cca6f8e82" />
