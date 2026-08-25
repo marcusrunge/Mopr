@@ -4,13 +4,7 @@
     /// Represents a repository repair request.
     /// </summary>
     public sealed class DicomRepositoryRepairRequest
-    {
-        /// <summary>
-        /// Gets or sets a value indicating whether the repository index
-        /// should be rebuilt.
-        /// </summary>
-        public bool RebuildRepositoryIndex { get; set; }
-
+    {      
         /// <summary>
         /// Gets or sets a value indicating whether missing or misplaced files
         /// should be repaired.

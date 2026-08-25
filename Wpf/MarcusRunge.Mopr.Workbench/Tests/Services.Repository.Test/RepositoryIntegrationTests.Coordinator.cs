@@ -277,8 +277,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 DicomRepositoryRepairResult repairResult = await RepairAsync(new DicomRepositoryRepairRequest
                 {
                     VerifyFiles = true,
-                    RepairMissingFiles = false,
-                    RebuildRepositoryIndex = false,
                     RepositoryLocationId = scenario.RepositoryLocation.Id
                 });
 

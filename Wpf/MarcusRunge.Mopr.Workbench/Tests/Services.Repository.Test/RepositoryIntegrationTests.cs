@@ -563,7 +563,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(createDicomFile: false);
             DicomRepositoryRepairRequest repairRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -605,7 +604,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(createDicomFile: false);
             DicomRepositoryRepairRequest repairRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -650,7 +648,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(createDicomFile: false);
             DicomRepositoryRepairRequest detectionRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -684,7 +681,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             {
                 VerifyFiles = true,
                 RepairMissingFiles = true,
-                RebuildRepositoryIndex = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id
             }, TestContext.Current.CancellationToken);
             Assert.Equal(initialRepairResult.ScannedFiles + 1, repairResult.ScannedFiles);
@@ -708,7 +704,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             using RepositoryTestScenario scenario = await CreateRepositoryScenarioAsync(createDicomFile: false);
             DicomRepositoryRepairRequest repairRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -766,7 +761,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             DicomRepositoryRepairRequest repairRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -828,7 +822,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             DicomRepositoryRepairRequest repairRequest = new()
             {
-                RebuildRepositoryIndex = false,
                 RepairMissingFiles = false,
                 RepositoryLocationId = _fixture.RepositoryLocation!.Id,
                 VerifyFiles = true
@@ -1283,7 +1276,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 {
                     VerifyFiles = true,
                     RepairMissingFiles = false,
-                    RebuildRepositoryIndex = false,
                     RepositoryLocationId = _fixture.SecondaryRepositoryLocation!.Id
                 });
 
@@ -1350,8 +1342,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
                 Assert.Equal(0, result.ImportedFiles);
                 Assert.Equal(1, result.FailedFiles);
-                Assert.Single(result.Errors);
-                Assert.Contains("disabled", result.Errors[0], StringComparison.OrdinalIgnoreCase);
+                var item = Assert.Single(result.Errors);
+                Assert.Contains("disabled", item, StringComparison.OrdinalIgnoreCase);
                 Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
                 Assert.Null(await scenario.TryGetPersistedInstanceAsync());
             }
@@ -1381,7 +1373,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 {
                     VerifyFiles = true,
                     RepairMissingFiles = false,
-                    RebuildRepositoryIndex = false,
                     RepositoryLocationId = _fixture.SecondaryRepositoryLocation!.Id
                 });
 
@@ -1417,8 +1408,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
             Assert.Equal(0, result.ImportedFiles);
             Assert.Equal(1, result.FailedFiles);
-            Assert.Single(result.Errors);
-            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
+            var item = Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), item, StringComparison.Ordinal);
             Assert.Contains("does not exist", result.Errors[0], StringComparison.OrdinalIgnoreCase);
             Assert.Null(await scenario.TryGetPersistedInstanceAsync());
             Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
@@ -1431,7 +1422,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             {
                 VerifyFiles = true,
                 RepairMissingFiles = false,
-                RebuildRepositoryIndex = false,
                 RepositoryLocationId = int.MaxValue
             });
 
@@ -1439,9 +1429,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             Assert.Equal(0, result.MissingFiles);
             Assert.Equal(0, result.UnavailableRepositoryLocations);
             Assert.Empty(result.Issues);
-            Assert.Single(result.Errors);
-            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
-            Assert.Contains("does not exist", result.Errors[0], StringComparison.OrdinalIgnoreCase);
+            var item = Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), item, StringComparison.Ordinal);
+            Assert.Contains("does not exist", item, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact, Priority(47)]
@@ -1464,7 +1454,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 {
                     VerifyFiles = true,
                     RepairMissingFiles = false,
-                    RebuildRepositoryIndex = false,
                     RepositoryLocationId = repositoryLocation.Id
                 });
 
@@ -1709,7 +1698,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 {
                     VerifyFiles = true,
                     RepairMissingFiles = true,
-                    RebuildRepositoryIndex = false,
                     RepositoryLocationId = _fixture.RepositoryLocation!.Id
                 });
 
@@ -1781,8 +1769,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             Assert.Equal(0, result.ImportedFiles);
             Assert.Equal(0, result.SkippedFiles);
             Assert.Equal(1, result.FailedFiles);
-            Assert.Single(result.Errors);
-            Assert.Contains(int.MaxValue.ToString(), result.Errors[0], StringComparison.Ordinal);
+            var error = Assert.Single(result.Errors);
+            Assert.Contains(int.MaxValue.ToString(), error, StringComparison.Ordinal);
             Assert.False(File.Exists(scenario.PathInfo.AbsolutePath));
             Assert.Null(await scenario.TryGetPersistedInstanceAsync());
             AssertNoImportArtifacts(scenario.PathInfo);

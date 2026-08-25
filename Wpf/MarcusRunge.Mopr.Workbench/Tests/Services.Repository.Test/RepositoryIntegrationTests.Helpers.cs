@@ -31,7 +31,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         {
             VerifyFiles = true,
             RepairMissingFiles = repairMissingFiles,
-            RebuildRepositoryIndex = false,
             RepositoryLocationId = null
         };
 
@@ -39,7 +38,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         {
             VerifyFiles = true,
             RepairMissingFiles = repairMissingFiles,
-            RebuildRepositoryIndex = false,
             RepositoryLocationId = _fixture.RepositoryLocation!.Id
         };
 
