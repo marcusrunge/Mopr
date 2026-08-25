@@ -4,64 +4,49 @@ using Xunit.v3;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
-    public class PriorityOrderer : ITestCaseOrderer
+    /// <summary>
+    /// Orders the stateful persistence integration scenario by the explicit priority
+    /// assigned to each test method.
+    /// </summary>
+    /// <remarks>
+    /// xUnit 4 orders collections, classes, methods and test cases on separate levels.
+    /// The persistence integration scenario builds verified shared state across methods,
+    /// so its priorities must be applied through ITestMethodOrderer rather than through
+    /// the test-case orderer used by earlier xUnit versions.
+    /// </remarks>
+    public sealed class PriorityOrderer : ITestMethodOrderer
     {
-        public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases) where TTestCase : notnull, ITestCase
+        public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods) where TTestMethod : notnull, ITestMethod
         {
-            ArgumentNullException.ThrowIfNull(testCases);
-
-            var buckets = new SortedDictionary<int, List<TTestCase>>();
-
-            foreach (var testCase in testCases)
-            {
-                var priority = GetPriorityOrDefault(testCase);
-
-                if (!buckets.TryGetValue(priority, out var list))
-                {
-                    list = [];
-                    buckets.Add(priority, list);
-                }
-
-                list.Add(testCase);
-            }
-
-            var ordered = new List<TTestCase>(testCases.Count);
-
-            foreach (var (_, list) in buckets)
-            {
-                ordered.AddRange(list.OrderBy(tc => tc.TestMethodName ?? string.Empty, StringComparer.OrdinalIgnoreCase).ThenBy(tc => tc.TestCaseDisplayName ?? string.Empty, StringComparer.OrdinalIgnoreCase).ThenBy(tc => tc.UniqueID ?? string.Empty, StringComparer.OrdinalIgnoreCase));
-            }
-
-            return ordered;
+            ArgumentNullException.ThrowIfNull(testMethods);
+            return [.. testMethods.OrderBy(testMethod => GetPriorityOrDefault(GetXunitTestMethod(testMethod))).ThenBy(testMethod => testMethod?.MethodName ?? string.Empty, StringComparer.Ordinal).ThenBy(testMethod => testMethod?.UniqueID ?? string.Empty, StringComparer.Ordinal)];
         }
-        private static int GetPriorityOrDefault(ITestCase testCase)
+
+        private static IXunitTestMethod GetXunitTestMethod(ITestMethod? testMethod)
         {
-            var methodInfo = TryGetMethodInfo(testCase);
+            if (testMethod is null)
+                throw new InvalidOperationException("The test method cannot be null.");
 
-            if (methodInfo is null)
-                return int.MaxValue;
+            return testMethod as IXunitTestMethod ?? throw new InvalidOperationException($"The test method '{testMethod?.MethodName}' is not represented by {nameof(IXunitTestMethod)}.");
+        }
 
-            var methodPriority = methodInfo.GetCustomAttribute<PriorityAttribute>(inherit: true)?.Value;
-            if (methodPriority is not null)
-                return methodPriority.Value;
+        private static int GetPriorityOrDefault(IXunitTestMethod testMethod)
+        {
+            var attribute = testMethod.Method.GetCustomAttribute<PriorityAttribute>(inherit: true);
 
-            var typePriority = methodInfo.DeclaringType?.GetCustomAttribute<DefaultPriorityAttribute>(inherit: true)?.Value;
-            if (typePriority is not null)
+            if (attribute != null)
+            {
+                return attribute.Value;
+            }
+
+            var typePriority = testMethod.Method.DeclaringType?.GetCustomAttribute<DefaultPriorityAttribute>(inherit: true)?.Value;
+
+            if (typePriority.HasValue)
+            {
                 return typePriority.Value;
+            }
 
             return int.MaxValue;
-        }
-
-        private static MethodInfo? TryGetMethodInfo(ITestCase testCase)
-        {
-            try
-            {
-                return (testCase.TestMethod as IXunitTestMethod)?.Method;
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

@@ -5,7 +5,7 @@ using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
-    [TestCaseOrderer(typeof(PriorityOrderer))]
+    [TestMethodOrderer(typeof(PriorityOrderer))]
     public sealed partial class RepositoryIntegrationTests(RepositoryFixture fixture) : IClassFixture<RepositoryFixture>
     {
         private readonly RepositoryFixture _fixture = fixture;

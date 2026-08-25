@@ -4,64 +4,43 @@ using Xunit.v3;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 {
-    public class PriorityOrderer : ITestCaseOrderer
+    /// <summary>
+    /// Orders the stateful repository integration scenario by the explicit priority
+    /// assigned to each test method.
+    /// </summary>
+    /// <remarks>
+    /// xUnit 4 orders collections, classes, methods and test cases on separate levels.
+    /// The repository integration scenario builds and verifies shared state across
+    /// methods, so its priorities must be applied through ITestMethodOrderer.
+    /// </remarks>
+    public sealed class PriorityOrderer : ITestMethodOrderer
     {
-        public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases) where TTestCase : notnull, ITestCase
+        public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods) where TTestMethod : notnull, ITestMethod
         {
-            ArgumentNullException.ThrowIfNull(testCases);
-
-            var buckets = new SortedDictionary<int, List<TTestCase>>();
-
-            foreach (var testCase in testCases)
-            {
-                var priority = GetPriorityOrDefault(testCase);
-
-                if (!buckets.TryGetValue(priority, out var list))
-                {
-                    list = [];
-                    buckets.Add(priority, list);
-                }
-
-                list.Add(testCase);
-            }
-
-            var ordered = new List<TTestCase>(testCases.Count);
-
-            foreach (var (_, list) in buckets)
-            {
-                ordered.AddRange(list.OrderBy(tc => tc.TestMethodName ?? string.Empty, StringComparer.OrdinalIgnoreCase).ThenBy(tc => tc.TestCaseDisplayName ?? string.Empty, StringComparer.OrdinalIgnoreCase).ThenBy(tc => tc.UniqueID ?? string.Empty, StringComparer.OrdinalIgnoreCase));
-            }
-
-            return ordered;
+            ArgumentNullException.ThrowIfNull(testMethods);
+            return [.. testMethods.OrderBy(testMethod => GetPriorityOrDefault(GetXunitTestMethod(testMethod))).ThenBy(testMethod => testMethod?.MethodName ?? string.Empty, StringComparer.Ordinal).ThenBy(testMethod => testMethod?.UniqueID ?? string.Empty, StringComparer.Ordinal)];
         }
-        private static int GetPriorityOrDefault(ITestCase testCase)
+
+        private static IXunitTestMethod GetXunitTestMethod(ITestMethod? testMethod)
         {
-            var methodInfo = TryGetMethodInfo(testCase);
+            // Ein stiller Rückfall auf eine alphabetische Ausführung könnte abhängige
+            // Repository-Szenarien vor ihren Voraussetzungen starten. Eine inkompatible
+            // Repräsentation soll den Testlauf deshalb sichtbar abbrechen.
+            return testMethod as IXunitTestMethod ?? throw new InvalidOperationException($"The test method '{testMethod?.MethodName}' is not represented by {nameof(IXunitTestMethod)}.");
+        }
 
-            if (methodInfo is null)
-                return int.MaxValue;
+        private static int GetPriorityOrDefault(IXunitTestMethod testMethod)
+        {
+            var methodPriority = testMethod.Method.GetCustomAttribute<PriorityAttribute>(inherit: true)?.Value;
 
-            var methodPriority = methodInfo.GetCustomAttribute<PriorityAttribute>(inherit: true)?.Value;
-            if (methodPriority is not null)
+            if (methodPriority.HasValue)
+            {
                 return methodPriority.Value;
-
-            var typePriority = methodInfo.DeclaringType?.GetCustomAttribute<DefaultPriorityAttribute>(inherit: true)?.Value;
-            if (typePriority is not null)
-                return typePriority.Value;
-
-            return int.MaxValue;
-        }
-
-        private static MethodInfo? TryGetMethodInfo(ITestCase testCase)
-        {
-            try
-            {
-                return (testCase.TestMethod as IXunitTestMethod)?.Method;
             }
-            catch
-            {
-                return null;
-            }
+
+            var typePriority = testMethod.Method.DeclaringType?.GetCustomAttribute<DefaultPriorityAttribute>(inherit: true)?.Value;
+
+            return typePriority ?? int.MaxValue;
         }
     }
 }

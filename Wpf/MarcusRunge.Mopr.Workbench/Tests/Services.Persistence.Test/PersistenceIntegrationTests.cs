@@ -5,7 +5,7 @@ using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
-    [TestCaseOrderer(typeof(PriorityOrderer))]
+    [TestMethodOrderer(typeof(PriorityOrderer))]
     public sealed partial class PersistenceIntegrationTests(PersistenceFixture fixture) : IClassFixture<PersistenceFixture>
     {
         private readonly PersistenceFixture _fixture = fixture;
