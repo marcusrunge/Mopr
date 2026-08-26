@@ -7,38 +7,32 @@ using Microsoft.Extensions.Logging;
 namespace MarcusRunge.Mopr.Workbench.Services.Repository
 {
     /// <summary>
-    /// Defines a factory contract for creating a clean architecture module instance.
+    /// Defines a factory contract for creating a repository module instance.
     /// </summary>
     public interface IRepositoryFactory
     {
         /// <summary>
-        /// Creates (or returns) a module instance.
+        /// Creates or returns the module instance owned by this factory.
         /// </summary>
         IRepository Create();
     }
 
     /// <summary>
-    /// Default factory implementation that provides a singleton-like factory and module instance.
+    /// Creates and retains one repository module instance per factory.
     /// </summary>
-    public class RepositoryFactory : IRepositoryFactory
+    public sealed class RepositoryFactory : IRepositoryFactory
     {
-        // Stores the singleton-like module instance created by this factory (lazy-created).
-        private static IRepository? _moduleInstance;
-
         private readonly IObservable<IApplicationConfiguration>? _applicationConfigurationObservable;
-
-        // Reference to the application lifetime, used for managing application shutdown and cancellation.
         private readonly IApplicationLifetime? _applicationLifetime;
-
-        // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
         private readonly IPersistence _persistence;
+        private IRepository? _moduleInstance;
 
         public RepositoryFactory(IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence persistence)
         {
             _applicationLifetime = applicationLifetime;
             _applicationConfigurationObservable = applicationConfigurationObservable;
-            _persistence = persistence;
+            _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
         }
 
         public RepositoryFactory(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence persistence)
@@ -46,19 +40,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository
             _logger = logger;
             _applicationLifetime = applicationLifetime;
             _applicationConfigurationObservable = applicationConfigurationObservable;
-            _persistence = persistence;
+            _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
         }
 
         /// <inheritdoc/>
-        public IRepository Create() =>
-            /* What happens here:
-               - Lazy initialization of the instance.
-               - If _moduleInstance is null, a new Implementations.MarcusRunge.Mopr.Workbench.Services.Repository is created and cached.
-               - If it is already set, the cached module instance is returned.
-
-               Purpose/intent:
-               - Ensures consumers get a single shared module instance per process/app-domain-like context,
-                 created on first demand. */
-            _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable, _persistence);
+        public IRepository Create()
+        {
+            // The factory retains one repository instance. The composition root controls
+            // the lifetime of the factory and therefore the lifetime of the module.
+            return _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable, _persistence);
+        }
     }
 }

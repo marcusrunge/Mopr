@@ -6,8 +6,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
     {
         /// <inheritdoc/>
         public bool AutomaticallyRepairPaths { get; } = true;
-
-        /// <inheritdoc/>
-        public bool VerifyRepositoryOnStartup { get; } = true;
     }
 }

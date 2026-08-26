@@ -5,29 +5,24 @@ using Microsoft.Extensions.Logging;
 namespace MarcusRunge.Mopr.Workbench.Services.Core
 {
     /// <summary>
-    /// Defines a factory contract for creating a clean architecture module instance.
+    /// Defines a factory contract for creating a Core module instance.
     /// </summary>
     public interface ICoreFactory
     {
         /// <summary>
-        /// Creates (or returns) a module instance.
+        /// Creates or returns the module instance owned by this factory.
         /// </summary>
         ICore Create();
     }
 
     /// <summary>
-    /// Default factory implementation that provides a factory and module instance.
+    /// Creates and retains one Core module instance per factory.
     /// </summary>
-    public class CoreFactory : ICoreFactory
+    public sealed class CoreFactory : ICoreFactory
     {
-        // Stores the module instance created by this factory (lazy-created).
-        private ICore? _moduleInstance;
-
-        // DICOM service reference for potential DICOM operations; can be null if not provided.
         private readonly IDicom? _dicom;
-
-        // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
+        private ICore? _moduleInstance;
 
         public CoreFactory(IDicom? dicom) => _dicom = dicom;
 
@@ -38,15 +33,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core
         }
 
         /// <inheritdoc/>
-        public ICore Create() =>
-            /* What happens here:
-               - Lazy initialization of the instance.
-               - If _moduleInstance is null, a new Implementations.MarcusRunge.Mopr.Workbench.Services.Core is created and cached.
-               - If it is already set, the cached module instance is returned.
-
-               Purpose/intent:
-               - Ensures consumers get a single shared module instance per process/app-domain-like context,
-                 created on first demand. */
-            _moduleInstance ??= new Implementations.Core(_logger, _dicom);
+        public ICore Create()
+        {
+            // The factory retains one stable Core instance with the dependencies supplied
+            // to this specific factory. The composition root controls its overall lifetime.
+            return _moduleInstance ??= new Implementations.Core(_logger, _dicom);
+        }
     }
 }

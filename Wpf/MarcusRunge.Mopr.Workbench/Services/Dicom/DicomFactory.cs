@@ -1,20 +1,26 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Dicom
 {
-
+    /// <summary>
+    /// Defines a factory contract for creating a DICOM module instance.
+    /// </summary>
     public interface IDicomFactory
     {
+        /// <summary>
+        /// Creates or returns the module instance owned by this factory.
+        /// </summary>
         IDicom Create();
     }
 
-    public class DicomFactory : IDicomFactory
+    /// <summary>
+    /// Creates and retains one DICOM module instance per factory.
+    /// </summary>
+    public sealed class DicomFactory : IDicomFactory
     {
-        private IDicom? _moduleInstance;
-
         private readonly ILogger? _logger;
+        private IDicom? _moduleInstance;
 
         public DicomFactory()
         {
@@ -25,10 +31,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom
             _logger = logger;
         }
 
-
         /// <inheritdoc/>
-        public IDicom Create() =>
-            
-            _moduleInstance ??= new Dicom.Implementations.Dicom(_logger);
+        public IDicom Create()
+        {
+            // The factory retains one stable DICOM instance. The composition root controls
+            // the overall lifetime through the factory registration.
+            return _moduleInstance ??= new Implementations.Dicom(_logger);
+        }
     }
 }

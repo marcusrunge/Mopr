@@ -774,13 +774,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
              */
             result.MisplacedFiles++;
 
-            if (!request.RepairMissingFiles)
+            if (!request.RepairMissingFiles || _base!.ApplicationConfiguration!.Repository.AutomaticallyRepairPaths == false)
             {
                 result.Issues.Add(new DicomRepositoryIssue
                 {
                     IssueType = DicomRepositoryIssueType.MisplacedFile,
                     InstanceId = instance.Id,
-                RepositoryLocationId = instance.RepositoryLocationId,
+                    RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = expectedAbsolutePath ?? string.Empty,
                     ActualFilePath = actualFilePath,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,

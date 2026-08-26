@@ -9,8 +9,5 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
     {
         /// <inheritdoc/>
         public bool AutomaticallyRepairPaths { get; set; } = true;
-
-        /// <inheritdoc/>
-        public bool VerifyRepositoryOnStartup { get; set; } = true;
     }
 }

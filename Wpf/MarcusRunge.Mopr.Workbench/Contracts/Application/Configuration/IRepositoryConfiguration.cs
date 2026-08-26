@@ -10,11 +10,5 @@
         /// issues may be repaired automatically.
         /// </summary>
         bool AutomaticallyRepairPaths { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether repository integrity should be
-        /// verified during application startup.
-        /// </summary>
-        bool VerifyRepositoryOnStartup { get; }
     }
 }
