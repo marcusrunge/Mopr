@@ -36,6 +36,43 @@ namespace MarcusRunge.Mopr.Workbench.Test
         }
 
         [Fact]
+        public async Task TryBecomePrimaryInstance_DifferentNames_DoNotBlockEachOther()
+        {
+            await using var firstCoordinator = CreateCoordinator(CreateOptions());
+            await using var secondCoordinator = CreateCoordinator(CreateOptions());
+
+            var firstResult = firstCoordinator.TryBecomePrimaryInstance();
+            var secondResult = secondCoordinator.TryBecomePrimaryInstance();
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, firstResult);
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, secondResult);
+        }
+
+        [Fact]
+        public async Task TryBecomePrimaryInstance_AbandonedMutex_IsRecovered()
+        {
+            var options = CreateOptions();
+            CreateAbandonedMutex(options.MutexName);
+
+            await using var coordinator = CreateCoordinator(options);
+
+            var result = coordinator.TryBecomePrimaryInstance();
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, result);
+        }
+
+        [Fact]
+        public async Task TryBecomePrimaryInstance_RepeatedAttempt_ThrowsInvalidOperationException()
+        {
+            var options = CreateOptions();
+            await using var coordinator = CreateCoordinator(options);
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, coordinator.TryBecomePrimaryInstance());
+
+            Assert.Throws<InvalidOperationException>(() => coordinator.TryBecomePrimaryInstance());
+        }
+
+        [Fact]
         public async Task ForwardToPrimaryInstanceAsync_ArgumentsAreTransferred()
         {
             var options = CreateOptions();
@@ -80,6 +117,39 @@ namespace MarcusRunge.Mopr.Workbench.Test
         }
 
         [Fact]
+        public async Task DisposeAsync_RepeatedCall_IsSafe()
+        {
+            var options = CreateOptions();
+            var coordinator = CreateCoordinator(options);
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, coordinator.TryBecomePrimaryInstance());
+
+            await coordinator.DisposeAsync();
+            await coordinator.DisposeAsync();
+
+            await using var replacementCoordinator = CreateCoordinator(options);
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, replacementCoordinator.TryBecomePrimaryInstance());
+        }
+
+        [Fact]
+        public async Task DisposeAsync_SecondaryCoordinator_DoesNotReleasePrimaryInstanceMarker()
+        {
+            var options = CreateOptions();
+            await using var primaryCoordinator = CreateCoordinator(options);
+            var secondaryCoordinator = CreateCoordinator(options);
+
+            Assert.Equal(SingleInstanceStartResult.PrimaryInstance, primaryCoordinator.TryBecomePrimaryInstance());
+            Assert.Equal(SingleInstanceStartResult.SecondaryInstance, secondaryCoordinator.TryBecomePrimaryInstance());
+
+            await secondaryCoordinator.DisposeAsync();
+
+            await using var thirdCoordinator = CreateCoordinator(options);
+
+            Assert.Equal(SingleInstanceStartResult.SecondaryInstance, thirdCoordinator.TryBecomePrimaryInstance());
+        }
+
+        [Fact]
         public async Task DisposeAsync_StopsWaitingServerWithoutReportingCancellationAsError()
         {
             var options = CreateOptions();
@@ -110,6 +180,42 @@ namespace MarcusRunge.Mopr.Workbench.Test
             };
         }
 
+        private static void CreateAbandonedMutex(string mutexName)
+        {
+            using var acquisitionCompleted = new ManualResetEventSlim(false);
+            Exception? ownerException = null;
+
+            var ownerThread = new Thread(() =>
+            {
+                try
+                {
+                    using var mutex = new Mutex(false, mutexName);
+                    mutex.WaitOne();
+                    acquisitionCompleted.Set();
+
+                    // Returning without ReleaseMutex simulates a terminated process or thread that abandoned ownership.
+                }
+                catch (Exception exception)
+                {
+                    ownerException = exception;
+                    acquisitionCompleted.Set();
+                }
+            })
+            {
+                IsBackground = true,
+                Name = "MOPR abandoned mutex test owner"
+            };
+
+            ownerThread.Start();
+            acquisitionCompleted.Wait();
+            ownerThread.Join();
+
+            if (ownerException is not null)
+            {
+                throw new InvalidOperationException("The abandoned mutex test could not establish ownership.", ownerException);
+            }
+        }
+
         private sealed class TestStartupDiagnostics : IStartupDiagnostics
         {
             private readonly Lock _synchronization = new();
@@ -128,7 +234,7 @@ namespace MarcusRunge.Mopr.Workbench.Test
 
             public void WriteInformation(string message)
             {
-                // Informationsmeldungen sind für diese Koordinationstests nicht relevant.
+                // Information entries are not relevant to these coordination tests.
             }
 
             public void WriteError(string message, Exception exception)

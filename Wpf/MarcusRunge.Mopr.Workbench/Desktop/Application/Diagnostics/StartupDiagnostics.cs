@@ -14,7 +14,6 @@ namespace MarcusRunge.Mopr.Workbench.Application.Diagnostics
         public StartupDiagnostics()
         {
             var diagnosticsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MOPR", "Diagnostics");
-
             Directory.CreateDirectory(diagnosticsDirectory);
             _logFilePath = Path.Combine(diagnosticsDirectory, "startup.log");
         }
@@ -30,7 +29,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Diagnostics
             var exceptionText = exception is null ? string.Empty : $"{Environment.NewLine}{exception}";
             var entry = $"{timestamp} [{level}] [Process {processId}] {message}{exceptionText}{Environment.NewLine}";
 
-            // Ein gemeinsamer Lock verhindert ineinanderlaufende Einträge aus UI- und Pipe-Threads.
+            // A shared lock prevents entries from UI and pipe threads from being interleaved.
             lock (_synchronization)
             {
                 File.AppendAllText(_logFilePath, entry, Encoding.UTF8);

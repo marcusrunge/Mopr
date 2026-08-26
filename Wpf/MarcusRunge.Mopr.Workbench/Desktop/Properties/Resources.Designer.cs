@@ -194,5 +194,23 @@ namespace MarcusRunge.Mopr.Workbench.Properties {
                 return ResourceManager.GetString("SingleInstanceServerAlreadyStarted", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not verify that only one application instance is running. The application has been closed to protect the database and DICOM repository. Please try again. If the problem persists, contact your administrator. ähnelt.
+        /// </summary>
+        public static string SingleInstanceStartupFailedMessage {
+            get {
+                return ResourceManager.GetString("SingleInstanceStartupFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not be started ähnelt.
+        /// </summary>
+        public static string SingleInstanceStartupFailedTitle {
+            get {
+                return ResourceManager.GetString("SingleInstanceStartupFailedTitle", resourceCulture);
+            }
+        }
     }
 }

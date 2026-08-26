@@ -162,4 +162,10 @@
   <data name="SingleInstanceServerAlreadyStarted" xml:space="preserve">
     <value>The single-instance server has already been started.</value>
   </data>
+  <data name="SingleInstanceStartupFailedMessage" xml:space="preserve">
+    <value>MOPR could not verify that only one application instance is running. The application has been closed to protect the database and DICOM repository. Please try again. If the problem persists, contact your administrator.</value>
+  </data>
+  <data name="SingleInstanceStartupFailedTitle" xml:space="preserve">
+    <value>MOPR could not be started</value>
+  </data>
 </root>

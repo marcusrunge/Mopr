@@ -162,4 +162,10 @@
   <data name="SingleInstanceServerAlreadyStarted" xml:space="preserve">
     <value>Der Single-Instance-Server wurde bereits gestartet.</value>
   </data>
+  <data name="SingleInstanceStartupFailedMessage" xml:space="preserve">
+    <value>MOPR konnte nicht sicherstellen, dass nur eine Anwendungsinstanz ausgeführt wird. Zum Schutz der Datenbank und des DICOM-Repository wurde die Anwendung beendet. Bitte versuchen Sie es erneut. Sollte das Problem weiterhin auftreten, wenden Sie sich an Ihren Administrator.</value>
+  </data>
+  <data name="SingleInstanceStartupFailedTitle" xml:space="preserve">
+    <value>MOPR konnte nicht gestartet werden</value>
+  </data>
 </root>

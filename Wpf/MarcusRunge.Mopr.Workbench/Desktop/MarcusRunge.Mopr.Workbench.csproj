@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
     <PackageReference Include="System.Reactive" Version="7.0.0" />
+	<PackageReference Include="System.Threading.AccessControl" Version="10.0.11" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Services\Miras\MarcusRunge.Mopr.Workbench.Services.Miras.csproj" />

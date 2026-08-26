@@ -2,6 +2,9 @@
 using System;
 using System.Globalization;
 using System.IO.Pipes;
+using System.Runtime.ExceptionServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
@@ -14,24 +17,52 @@ namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
         private readonly IStartupDiagnostics _diagnostics = diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
         private readonly IForegroundPermission _foregroundPermission = foregroundPermission ?? throw new ArgumentNullException(nameof(foregroundPermission));
         private readonly CancellationTokenSource _stopping = new();
-        private Mutex? _instanceMarker;
+        private readonly ManualResetEventSlim _markerAcquisitionCompleted = new(false);
+        private readonly ManualResetEventSlim _markerReleaseRequested = new(false);
+        private Thread? _markerOwnerThread;
+        private Exception? _markerAcquisitionException;
         private Task? _serverTask;
         private Func<SingleInstanceRequest, CancellationToken, Task>? _requestHandler;
+        private bool _ownsInstanceMarker;
+        private bool _acquiredAbandonedMarker;
+        private int _acquisitionAttempted;
         private int _disposed;
 
         public SingleInstanceStartResult TryBecomePrimaryInstance()
         {
             ThrowIfDisposed();
 
-            _instanceMarker = new Mutex(false, _options.MutexName, out var createdNew);
-            if (createdNew)
+            if (Interlocked.Exchange(ref _acquisitionAttempted, 1) != 0)
+            {
+                throw new InvalidOperationException("The single-instance marker acquisition has already been attempted.");
+            }
+
+            _markerOwnerThread = new Thread(OwnInstanceMarker)
+            {
+                IsBackground = true,
+                Name = "MOPR single-instance marker owner"
+            };
+
+            _markerOwnerThread.Start();
+            _markerAcquisitionCompleted.Wait();
+
+            if (_markerAcquisitionException is not null)
+            {
+                ExceptionDispatchInfo.Capture(_markerAcquisitionException).Throw();
+            }
+
+            if (_ownsInstanceMarker)
             {
                 _diagnostics.WriteInformation(Format(WorkbenchResources.SingleInstancePrimaryInstanceEstablished, Environment.ProcessId));
+
+                if (_acquiredAbandonedMarker)
+                {
+                    _diagnostics.WriteInformation("The global MOPR single-instance marker was abandoned by the previous owning process and has been recovered.");
+                }
+
                 return SingleInstanceStartResult.PrimaryInstance;
             }
 
-            _instanceMarker.Dispose();
-            _instanceMarker = null;
             _diagnostics.WriteInformation(Format(WorkbenchResources.SingleInstanceSecondaryInstanceDetected, Environment.ProcessId));
             return SingleInstanceStartResult.SecondaryInstance;
         }
@@ -41,7 +72,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
             ThrowIfDisposed();
             ArgumentNullException.ThrowIfNull(requestHandler);
 
-            if (_instanceMarker is null)
+            if (!_ownsInstanceMarker)
             {
                 throw new InvalidOperationException(WorkbenchResources.SingleInstancePrimaryInstanceRequiredForServer);
             }
@@ -64,13 +95,11 @@ namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
             var effectiveToken = linkedSource.Token;
 
             await using var client = new NamedPipeClientStream(".", _options.PipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
-
             await client.ConnectAsync(effectiveToken).ConfigureAwait(false);
 
             var handshake = await SingleInstanceProtocol.ReadAsync<SingleInstanceHandshake>(client, effectiveToken).ConfigureAwait(false);
 
-            // Die gestartete Zweitinstanz besitzt typischerweise das Vordergrundrecht und darf es
-            // gezielt an die bekannte primäre Prozess-ID übertragen.
+            // The secondary instance normally owns the foreground permission and explicitly transfers it to the known primary process.
             _foregroundPermission.AllowPrimaryInstance(handshake.PrimaryProcessId);
 
             await SingleInstanceProtocol.WriteAsync(client, SingleInstanceRequest.Create(arguments), effectiveToken).ConfigureAwait(false);
@@ -102,12 +131,118 @@ namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
                 }
                 catch (OperationCanceledException) when (_stopping.IsCancellationRequested)
                 {
-                    // Das Beenden des wartenden Pipe-Servers ist regulärer Teil des Shutdowns.
+                    // Canceling the waiting pipe server is an expected part of application shutdown.
                 }
             }
 
-            _instanceMarker?.Dispose();
+            ReleaseInstanceMarker();
             _stopping.Dispose();
+            _markerAcquisitionCompleted.Dispose();
+            _markerReleaseRequested.Dispose();
+        }
+
+        private void OwnInstanceMarker()
+        {
+            Mutex? instanceMarker = null;
+            var ownsMarker = false;
+
+            try
+            {
+                instanceMarker = OpenOrCreateInstanceMarker();
+
+                try
+                {
+                    ownsMarker = instanceMarker.WaitOne(0);
+                }
+                catch (AbandonedMutexException)
+                {
+                    // Windows transfers ownership to this thread when the previous owner terminated without releasing the mutex.
+                    ownsMarker = true;
+                    _acquiredAbandonedMarker = true;
+                }
+
+                _ownsInstanceMarker = ownsMarker;
+                _markerAcquisitionCompleted.Set();
+
+                if (!ownsMarker)
+                {
+                    return;
+                }
+
+                // Mutex ownership is thread-affine, so this thread remains alive until application shutdown requests the release.
+                _markerReleaseRequested.Wait();
+            }
+            catch (Exception exception)
+            {
+                _markerAcquisitionException = exception;
+                _markerAcquisitionCompleted.Set();
+            }
+            finally
+            {
+                if (ownsMarker)
+                {
+                    try
+                    {
+                        instanceMarker!.ReleaseMutex();
+                    }
+                    finally
+                    {
+                        _ownsInstanceMarker = false;
+                    }
+                }
+
+                instanceMarker?.Dispose();
+            }
+        }
+
+        private Mutex OpenOrCreateInstanceMarker()
+        {
+            const MutexRights requiredRights = MutexRights.Synchronize | MutexRights.Modify;
+
+            try
+            {
+                return MutexAcl.OpenExisting(_options.MutexName, requiredRights);
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                // The marker does not exist yet. Creation is attempted below.
+            }
+
+            var security = CreateInstanceMarkerSecurity();
+
+            try
+            {
+                return MutexAcl.Create(false, _options.MutexName, out _, security);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Another user or a concurrent process may have created the marker between the open and create attempts.
+                return MutexAcl.OpenExisting(_options.MutexName, requiredRights);
+            }
+        }
+
+        private static MutexSecurity CreateInstanceMarkerSecurity()
+        {
+            var authenticatedUsers = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+            var security = new MutexSecurity();
+
+            security.AddAccessRule(new MutexAccessRule(authenticatedUsers, MutexRights.Synchronize | MutexRights.Modify, AccessControlType.Allow));
+
+            return security;
+        }
+
+        private void ReleaseInstanceMarker()
+        {
+            var ownerThread = _markerOwnerThread;
+
+            if (ownerThread is null)
+            {
+                return;
+            }
+
+            _markerReleaseRequested.Set();
+            ownerThread.Join();
+            _markerOwnerThread = null;
         }
 
         private async Task RunServerAsync(CancellationToken cancellationToken)
@@ -132,14 +267,15 @@ namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
         private async Task AcceptSingleRequestAsync(CancellationToken cancellationToken)
         {
             await using var server = new NamedPipeServerStream(_options.PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
-
             await server.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
+
             await SingleInstanceProtocol.WriteAsync(server, new SingleInstanceHandshake(Environment.ProcessId), cancellationToken).ConfigureAwait(false);
 
             var request = await SingleInstanceProtocol.ReadAsync<SingleInstanceRequest>(server, cancellationToken).ConfigureAwait(false);
             var requestHandler = _requestHandler ?? throw new InvalidOperationException(WorkbenchResources.SingleInstanceRequestHandlerMissing);
 
-            await requestHandler(request, cancellationToken).ConfigureAwait(false); await SingleInstanceProtocol.WriteAsync(server, new SingleInstanceAcknowledgement(true), cancellationToken).ConfigureAwait(false);
+            await requestHandler(request, cancellationToken).ConfigureAwait(false);
+            await SingleInstanceProtocol.WriteAsync(server, new SingleInstanceAcknowledgement(true), cancellationToken).ConfigureAwait(false);
 
             _diagnostics.WriteInformation(Format(WorkbenchResources.SingleInstanceRequestProcessed, request.Arguments.Length));
         }

@@ -43,33 +43,36 @@ namespace MarcusRunge.Mopr.Workbench
         protected override void OnStartup(StartupEventArgs e)
         {
             _startupDiagnostics = new StartupDiagnostics();
-            _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics, new ForegroundPermission());
+
+            if (!TryAcquireSingleInstance())
+            {
+                Shutdown();
+                return;
+            }
 
             try
             {
-                var startResult = _singleInstanceCoordinator.TryBecomePrimaryInstance();
-                if (startResult == SingleInstanceStartResult.SecondaryInstance)
+                if (_singleInstanceCoordinator!.TryBecomePrimaryInstance() == SingleInstanceStartResult.SecondaryInstance)
                 {
                     ForwardToPrimaryInstanceAndExitAsync(e.Args).GetAwaiter().GetResult();
                     return;
                 }
 
-                // Der Pipe-Server muss vor Prism laufen, damit nahezu gleichzeitige Starts nicht
-                // bis zur Container-, Modul-, Shell- oder Persistence-Initialisierung vordringen.
+                // The pipe server starts before Prism so that concurrent launches cannot reach container, module, shell, or persistence initialization.
                 _singleInstanceCoordinator.StartListening(HandleForwardedRequestAsync);
+
                 base.OnStartup(e);
                 _shellReady.TrySetResult();
             }
             catch (OperationCanceledException)
             {
+                _shellReady.TrySetCanceled();
+                DisposeSingleInstanceCoordinator();
                 Shutdown();
             }
             catch (Exception exception)
             {
-                _startupDiagnostics.WriteError("Der MOPR-Start ist vor Abschluss der Initialisierung fehlgeschlagen.", exception);
-                _shellReady.TrySetException(exception);
-                DisposeSingleInstanceCoordinator();
-                throw;
+                HandleProtectedStartupFailure(exception);
             }
         }
 
@@ -94,9 +97,11 @@ namespace MarcusRunge.Mopr.Workbench
         protected override void OnInitialized()
         {
             base.OnInitialized();
+
             _ = Container.Resolve<IPersistence>();
 
             var subject = Container.Resolve<BehaviorSubject<PersistenceConfiguration>>();
+
             subject.OnNext(new PersistenceConfiguration
             {
                 ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;",
@@ -138,21 +143,36 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }
 
+        private bool TryAcquireSingleInstance()
+        {
+            try
+            {
+                _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics!, new ForegroundPermission());
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _startupDiagnostics!.WriteError("The MOPR single-instance coordinator could not be created.", exception);
+                ShowSingleInstanceStartupFailedMessage();
+                return false;
+            }
+        }
+
         private async Task ForwardToPrimaryInstanceAndExitAsync(string[] arguments)
         {
             try
             {
-                using var stopping = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+                using var stopping = new CancellationTokenSource(TimeSpan.FromSeconds(6));
                 await _singleInstanceCoordinator!.ForwardToPrimaryInstanceAsync(arguments, stopping.Token);
             }
             catch (OperationCanceledException)
             {
-                _startupDiagnostics!.WriteInformation("Die Weiterleitung an die primäre MOPR-Instanz wurde beendet.");
+                _startupDiagnostics!.WriteInformation("Forwarding the startup request to the primary MOPR instance was canceled or timed out.");
                 ShowForwardingFailedMessage();
             }
             catch (Exception exception)
             {
-                _startupDiagnostics!.WriteError("Die Startanforderung konnte nicht an die primäre MOPR-Instanz übertragen werden.", exception);
+                _startupDiagnostics!.WriteError("The startup request could not be forwarded to the primary MOPR instance.", exception);
                 ShowForwardingFailedMessage();
             }
             finally
@@ -175,13 +195,23 @@ namespace MarcusRunge.Mopr.Workbench
                     mainWindow.ActivateFromSecondInstance();
                 }
 
-                var arguments = request.Arguments.Length == 0 ? "keine" : string.Join(", ", request.Arguments);
-
-                _startupDiagnostics!.WriteInformation($"Übertragene Startargumente: {arguments}");
+                var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
+                _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
             });
         }
 
-        private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+        private void HandleProtectedStartupFailure(Exception exception)
+        {
+            _startupDiagnostics!.WriteError("MOPR startup failed before protected application initialization completed.", exception);
+            _shellReady.TrySetException(exception);
+            DisposeSingleInstanceCoordinator();
+            ShowSingleInstanceStartupFailedMessage();
+            Shutdown();
+        }
+
+        private static void ShowForwardingFailedMessage() => MessageBox.Show(            WorkbenchResources.SingleInstanceForwardingFailedMessage,            WorkbenchResources.SingleInstanceForwardingFailedTitle,            MessageBoxButton.OK,            MessageBoxImage.Information);
+
+        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(            WorkbenchResources.SingleInstanceStartupFailedMessage,            WorkbenchResources.SingleInstanceStartupFailedTitle,            MessageBoxButton.OK,            MessageBoxImage.Error);
 
         private void DisposeSingleInstanceCoordinator()
         {
