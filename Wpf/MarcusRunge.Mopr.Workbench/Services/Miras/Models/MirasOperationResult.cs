@@ -28,10 +28,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public TimeSpan Duration => CompletedAtUtc - StartedAtUtc;
 
         /// <summary>
-        /// Gets a value indicating whether at least one issue requires an action.
+        /// Gets a value indicating whether at least one issue requires an explicit action.
         /// </summary>
-        public bool HasActionRequired =>
-            ActionRequiredCount > 0;
+        public bool HasActionRequired => ActionRequiredCount > 0;
 
         /// <summary>
         /// Gets a value indicating whether any issues were detected.
@@ -45,8 +44,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 
         /// <summary>
         /// Gets the highest MIRAS alert level contained in the result.
+        /// Technical errors always require a warning because they prevent
+        /// MIRAS from confirming a complete integrity assessment.
         /// </summary>
-        public MirasAlertLevel HighestAlertLevel => Issues.Count == 0 ? MirasAlertLevel.Normal : Issues.Max(issue => issue.AlertLevel);
+        public MirasAlertLevel HighestAlertLevel
+        {
+            get
+            {
+                var issueAlertLevel = Issues.Count == 0 ? MirasAlertLevel.Normal : Issues.Max(issue => issue.AlertLevel);
+                return HasTechnicalErrors && issueAlertLevel < MirasAlertLevel.Warning ? MirasAlertLevel.Warning : issueAlertLevel;
+            }
+        }
 
         /// <summary>
         /// Gets the structured MIRAS issues detected during the operation.
@@ -59,8 +67,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public IList<MirasUserMessage> Messages { get; } = [];
 
         /// <summary>
-        /// Gets or sets the number of repository files or persisted instances
-        /// inspected during the operation.
+        /// Gets or sets the number of repository files or persisted entities inspected during the operation.
         /// </summary>
         public int ScannedItems { get; set; }
 
@@ -70,7 +77,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public DateTime StartedAtUtc { get; set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// Gets technical errors that occurred during the operation.
+        /// Gets or sets the execution status of the MIRAS operation.
+        /// </summary>
+        public MirasOperationStatus Status { get; set; } = MirasOperationStatus.Failed;
+
+        /// <summary>
+        /// Gets technical diagnostic errors that occurred during the operation.
+        /// These values must not be displayed as unfiltered user messages.
         /// </summary>
         public IList<string> TechnicalErrors { get; } = [];
     }

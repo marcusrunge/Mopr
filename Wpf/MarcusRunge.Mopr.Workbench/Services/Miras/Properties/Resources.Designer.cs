@@ -160,11 +160,56 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A database audit assignment could not be confirmed. The image repository was not checked. ähnelt.
+        /// </summary>
+        public static string MirasIssue_PersistenceAuditReferenceInvalid_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_PersistenceAuditReferenceInvalid_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A database relationship could not be confirmed. The image repository was not checked. ähnelt.
+        /// </summary>
+        public static string MirasIssue_PersistenceRelationshipConflict_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_PersistenceRelationshipConflict_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Required database information is missing. The image repository was not checked. ähnelt.
+        /// </summary>
+        public static string MirasIssue_PersistenceRequiredValueMissing_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_PersistenceRequiredValueMissing_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The image database is currently unavailable. ähnelt.
         /// </summary>
         public static string MirasIssue_PersistenceUnavailable_Description {
             get {
                 return ResourceManager.GetString("MirasIssue_PersistenceUnavailable_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database information that must be unique occurs more than once. The image repository was not checked. ähnelt.
+        /// </summary>
+        public static string MirasIssue_PersistenceUniqueValueConflict_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_PersistenceUniqueValueConflict_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Stored database information is invalid. The image repository was not checked. ähnelt.
+        /// </summary>
+        public static string MirasIssue_PersistenceValueInvalid_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_PersistenceValueInvalid_Description", resourceCulture);
             }
         }
         
@@ -178,11 +223,29 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Der Bildspeicher ist momentan nicht erreichbar. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The image repository is currently unavailable. ähnelt.
         /// </summary>
         public static string MirasIssue_RepositoryUnavailable_Description {
             get {
                 return ResourceManager.GetString("MirasIssue_RepositoryUnavailable_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image repository unavailable ähnelt.
+        /// </summary>
+        public static string MirasIssue_RepositoryUnavailable_Title {
+            get {
+                return ResourceManager.GetString("MirasIssue_RepositoryUnavailable_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die An integrity condition could not be classified safely. No data was changed. ähnelt.
+        /// </summary>
+        public static string MirasIssue_Unknown_Description {
+            get {
+                return ResourceManager.GetString("MirasIssue_Unknown_Description", resourceCulture);
             }
         }
         
@@ -322,11 +385,56 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid audit reference ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceAuditReferenceInvalid {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceAuditReferenceInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistence relationship conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceRelationshipConflict {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceRelationshipConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Required persistence value missing ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceRequiredValueMissing {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceRequiredValueMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Database unavailable ähnelt.
         /// </summary>
         public static string MirasIssueType_PersistenceUnavailable {
             get {
                 return ResourceManager.GetString("MirasIssueType_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistence uniqueness conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceUniqueValueConflict {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceUniqueValueConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid persistence value ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceValueInvalid {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceValueInvalid", resourceCulture);
             }
         }
         
@@ -363,6 +471,114 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
         public static string MirasIssueType_UnreadableFile {
             get {
                 return ResourceManager.GetString("MirasIssueType_UnreadableFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The image database and repository were checked successfully. No integrity issues were detected. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckCompleted_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckCompleted_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS check completed ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckCompleted_Title {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckCompleted_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The integrity check could not be completed. The available image data has not been changed. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckFailed_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckFailed_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The integrity check could not examine all required data. The result is incomplete and the available image data has not been changed. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckIncomplete_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckIncomplete_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No action required ähnelt.
+        /// </summary>
+        public static string MirasOperation_NoActionRequired {
+            get {
+                return ResourceManager.GetString("MirasOperation_NoActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database state could not be confirmed. The image repository was not checked to prevent an unsafe assessment. ähnelt.
+        /// </summary>
+        public static string MirasOperation_PersistenceBlocked_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_PersistenceBlocked_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasOperation_TechnicalFailure_Title {
+            get {
+                return ResourceManager.GetString("MirasOperation_TechnicalFailure_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Blocked ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Blocked {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Blocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Completed {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed with issues ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_CompletedWithIssues {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_CompletedWithIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Failed {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Incomplete ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Incomplete {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Incomplete", resourceCulture);
             }
         }
         
@@ -453,6 +669,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
         public static string MirasRecommendedAction_ReviewInvalidFile {
             get {
                 return ResourceManager.GetString("MirasRecommendedAction_ReviewInvalidFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A safe corrective action is available ähnelt.
+        /// </summary>
+        public static string MirasStatus_ActionAvailable {
+            get {
+                return ResourceManager.GetString("MirasStatus_ActionAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasStatus_ActionRequired {
+            get {
+                return ResourceManager.GetString("MirasStatus_ActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The condition has been resolved ähnelt.
+        /// </summary>
+        public static string MirasStatus_AutomaticallyResolved {
+            get {
+                return ResourceManager.GetString("MirasStatus_AutomaticallyResolved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Condition detected ähnelt.
+        /// </summary>
+        public static string MirasStatus_Detected {
+            get {
+                return ResourceManager.GetString("MirasStatus_Detected", resourceCulture);
             }
         }
     }

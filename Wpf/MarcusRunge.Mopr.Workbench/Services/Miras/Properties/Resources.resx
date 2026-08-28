@@ -171,8 +171,23 @@
   <data name="MirasIssueType_OrphanedFile" xml:space="preserve">
     <value>Unregistered image file</value>
   </data>
+  <data name="MirasIssueType_PersistenceAuditReferenceInvalid" xml:space="preserve">
+    <value>Invalid audit reference</value>
+  </data>
+  <data name="MirasIssueType_PersistenceRelationshipConflict" xml:space="preserve">
+    <value>Persistence relationship conflict</value>
+  </data>
+  <data name="MirasIssueType_PersistenceRequiredValueMissing" xml:space="preserve">
+    <value>Required persistence value missing</value>
+  </data>
   <data name="MirasIssueType_PersistenceUnavailable" xml:space="preserve">
     <value>Database unavailable</value>
+  </data>
+  <data name="MirasIssueType_PersistenceUniqueValueConflict" xml:space="preserve">
+    <value>Persistence uniqueness conflict</value>
+  </data>
+  <data name="MirasIssueType_PersistenceValueInvalid" xml:space="preserve">
+    <value>Invalid persistence value</value>
   </data>
   <data name="MirasIssueType_RelationshipConflict" xml:space="preserve">
     <value>Image assignment conflict</value>
@@ -207,17 +222,74 @@
   <data name="MirasIssue_OrphanedFile_Description" xml:space="preserve">
     <value>An image file is available but is not currently shown in MOPR.</value>
   </data>
+  <data name="MirasIssue_PersistenceAuditReferenceInvalid_Description" xml:space="preserve">
+    <value>A database audit assignment could not be confirmed. The image repository was not checked.</value>
+  </data>
+  <data name="MirasIssue_PersistenceRelationshipConflict_Description" xml:space="preserve">
+    <value>A database relationship could not be confirmed. The image repository was not checked.</value>
+  </data>
+  <data name="MirasIssue_PersistenceRequiredValueMissing_Description" xml:space="preserve">
+    <value>Required database information is missing. The image repository was not checked.</value>
+  </data>
   <data name="MirasIssue_PersistenceUnavailable_Description" xml:space="preserve">
     <value>The image database is currently unavailable.</value>
+  </data>
+  <data name="MirasIssue_PersistenceUniqueValueConflict_Description" xml:space="preserve">
+    <value>Database information that must be unique occurs more than once. The image repository was not checked.</value>
+  </data>
+  <data name="MirasIssue_PersistenceValueInvalid_Description" xml:space="preserve">
+    <value>Stored database information is invalid. The image repository was not checked.</value>
   </data>
   <data name="MirasIssue_RelationshipConflict_Description" xml:space="preserve">
     <value>An image could not be safely assigned to its examination.</value>
   </data>
   <data name="MirasIssue_RepositoryUnavailable_Description" xml:space="preserve">
-    <value>Der Bildspeicher ist momentan nicht erreichbar.</value>
+    <value>The image repository is currently unavailable.</value>
+  </data>
+  <data name="MirasIssue_RepositoryUnavailable_Title" xml:space="preserve">
+    <value>Image repository unavailable</value>
+  </data>
+  <data name="MirasIssue_Unknown_Description" xml:space="preserve">
+    <value>An integrity condition could not be classified safely. No data was changed.</value>
   </data>
   <data name="MirasIssue_UnreadableFile_Description" xml:space="preserve">
     <value>An image file could not be read.</value>
+  </data>
+  <data name="MirasOperationStatus_Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="MirasOperationStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="MirasOperationStatus_CompletedWithIssues" xml:space="preserve">
+    <value>Completed with issues</value>
+  </data>
+  <data name="MirasOperationStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="MirasOperationStatus_Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="MirasOperation_CheckCompleted_Description" xml:space="preserve">
+    <value>The image database and repository were checked successfully. No integrity issues were detected.</value>
+  </data>
+  <data name="MirasOperation_CheckCompleted_Title" xml:space="preserve">
+    <value>MIRAS check completed</value>
+  </data>
+  <data name="MirasOperation_CheckFailed_Description" xml:space="preserve">
+    <value>The integrity check could not be completed. The available image data has not been changed.</value>
+  </data>
+  <data name="MirasOperation_CheckIncomplete_Description" xml:space="preserve">
+    <value>The integrity check could not examine all required data. The result is incomplete and the available image data has not been changed.</value>
+  </data>
+  <data name="MirasOperation_NoActionRequired" xml:space="preserve">
+    <value>No action required</value>
+  </data>
+  <data name="MirasOperation_PersistenceBlocked_Description" xml:space="preserve">
+    <value>The database state could not be confirmed. The image repository was not checked to prevent an unsafe assessment.</value>
+  </data>
+  <data name="MirasOperation_TechnicalFailure_Title" xml:space="preserve">
+    <value>MIRAS action required</value>
   </data>
   <data name="MirasRecommendedAction_ContactAdministrator" xml:space="preserve">
     <value>Request technical assistance</value>
@@ -248,5 +320,17 @@
   </data>
   <data name="MirasRecommendedAction_ReviewInvalidFile" xml:space="preserve">
     <value>Review image file</value>
+  </data>
+  <data name="MirasStatus_ActionAvailable" xml:space="preserve">
+    <value>A safe corrective action is available</value>
+  </data>
+  <data name="MirasStatus_ActionRequired" xml:space="preserve">
+    <value>MIRAS action required</value>
+  </data>
+  <data name="MirasStatus_AutomaticallyResolved" xml:space="preserve">
+    <value>The condition has been resolved</value>
+  </data>
+  <data name="MirasStatus_Detected" xml:space="preserve">
+    <value>Condition detected</value>
   </data>
 </root>

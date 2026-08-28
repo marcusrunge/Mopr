@@ -3,7 +3,7 @@
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
     /// <summary>
-    /// Represents a structured repository integrity issue detected by MIRAS.
+    /// Represents a structured integrity issue detected by MIRAS.
     /// </summary>
     public sealed class MirasIssue
     {
@@ -63,9 +63,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public DateTime OccurredAtUtc { get; set; } = DateTime.UtcNow;
 
         /// <summary>
-        /// Gets or sets the recommended MIRAS action.
+        /// Gets the recommended MIRAS action.
         /// </summary>
         public MirasRecommendedAction RecommendedAction { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the affected repository location, if available.
+        /// </summary>
+        public int? RepositoryLocationId { get; set; }
 
         /// <summary>
         /// Gets or sets the UTC date and time when the issue was resolved.
@@ -78,7 +83,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public int? ResolvedByUserId { get; set; }
 
         /// <summary>
-        /// Gets or sets technical diagnostic details.
+        /// Gets or sets technical diagnostic details that must not be exposed as an unfiltered user message.
         /// </summary>
         public string TechnicalDetails { get; set; } = string.Empty;
     }
