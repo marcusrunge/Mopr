@@ -7,16 +7,18 @@ using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
 {
-    // Internal base for modules; holds optional service references for derived types.
-    internal abstract class MirasBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
+    /// <summary>
+    /// Provides the dependencies and exception propagation shared by one MIRAS module instance.
+    /// </summary>
+    internal abstract class MirasBase(
+        ILogger? logger,
+        IApplicationLifetime? applicationLifetime,
+        IPersistence persistence,
+        IRepository repository) : IMirasBase, IMiras
     {
-        // Backing field for IServiceA (assigned by derived modules).
         protected IMirasService? _mirasService;
 
-        // Lock object to synchronize access to the ExceptionThrown event handlers.
         private readonly Lock _exceptionThrownLock = new();
-
-        // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
 
         /// <inheritdoc/>
@@ -50,31 +52,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         /// <inheritdoc/>
         void IMirasBase.OnExceptionThrown(Exception exception)
         {
-            // Log the exception with the module's logger, if available.
-            logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
-            // Capture the current handlers to invoke outside the lock.
+            logger?.LogError(
+                exception,
+                "Exception thrown in {AssemblyName}",
+                Assembly.GetCallingAssembly().GetName().Name);
+
+            // Capture the immutable invocation snapshot under the lock so handlers can be invoked without blocking event subscription changes.
             Action<Exception>? handlers;
-            // Lock to safely read the current handlers.
-            lock (_exceptionThrownLock)
-            {
-                // Capture the current handlers to invoke outside the lock.
-                handlers = _exceptionThrown;
-            }
-            // If there are no handlers, there's nothing to invoke.
+            lock (_exceptionThrownLock) handlers = _exceptionThrown;
+
             if (handlers is null)
+            {
                 return;
-            // Invoke each handler in a try-catch to ensure one failing handler doesn't prevent others from being notified.
-            foreach (Action<Exception> handler in handlers.GetInvocationList().Cast<Action<Exception>>())
+            }
+
+            // Isolate event subscribers so one failing diagnostic callback cannot suppress notification of the remaining subscribers.
+            foreach (var handler in handlers.GetInvocationList().Cast<Action<Exception>>())
             {
                 try
                 {
-                    // Invoke the handler with the exception.
                     handler(exception);
                 }
                 catch (Exception callbackException)
                 {
-                    // Log any exceptions thrown by the handlers, but continue invoking the remaining handlers.
-                    logger?.LogError(callbackException, "Exception thrown by ExceptionThrown event handler.");
+                    logger?.LogError(callbackException, "Exception thrown by an ExceptionThrown event handler.");
                 }
             }
         }
