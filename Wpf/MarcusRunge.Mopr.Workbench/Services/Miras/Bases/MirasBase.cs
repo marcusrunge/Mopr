@@ -10,11 +10,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
     /// <summary>
     /// Provides the dependencies and exception propagation shared by one MIRAS module instance.
     /// </summary>
-    internal abstract class MirasBase(
-        ILogger? logger,
-        IApplicationLifetime? applicationLifetime,
-        IPersistence persistence,
-        IRepository repository) : IMirasBase, IMiras
+    internal abstract class MirasBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
     {
         protected IMirasService? _mirasService;
 
@@ -52,10 +48,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         /// <inheritdoc/>
         void IMirasBase.OnExceptionThrown(Exception exception)
         {
-            logger?.LogError(
-                exception,
-                "Exception thrown in {AssemblyName}",
-                Assembly.GetCallingAssembly().GetName().Name);
+            logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
             // Capture the immutable invocation snapshot under the lock so handlers can be invoked without blocking event subscription changes.
             Action<Exception>? handlers;

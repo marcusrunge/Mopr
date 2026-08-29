@@ -1,14 +1,24 @@
 ﻿namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
 {
     /// <summary>
-    /// Defines the public contract of the assembly.
+    /// Defines the public contract of the Persistence module.
     /// </summary>
     public interface IPersistence
     {
         /// <summary>
-        /// Occurs when an exception is thrown.
+        /// Occurs when an exception is thrown by the Persistence module.
         /// </summary>
         event Action<Exception> ExceptionThrown;
+
+        /// <summary>
+        /// Gets the task representing the initialization of the most recently
+        /// received Persistence configuration.
+        /// </summary>
+        /// <remarks>
+        /// Consumers that publish a configuration must await this task before
+        /// using Persistence-dependent application services.
+        /// </remarks>
+        Task Initialization { get; }
 
         /// <summary>
         /// Gets the atomic DICOM import Persistence service.
