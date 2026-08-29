@@ -187,6 +187,51 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Canceled ähnelt.
+        /// </summary>
+        public static string MirasApplicationFlowState_Canceled {
+            get {
+                return ResourceManager.GetString("MirasApplicationFlowState_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string MirasApplicationFlowState_Completed {
+            get {
+                return ResourceManager.GetString("MirasApplicationFlowState_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string MirasApplicationFlowState_Failed {
+            get {
+                return ResourceManager.GetString("MirasApplicationFlowState_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Idle ähnelt.
+        /// </summary>
+        public static string MirasApplicationFlowState_Idle {
+            get {
+                return ResourceManager.GetString("MirasApplicationFlowState_Idle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Running ähnelt.
+        /// </summary>
+        public static string MirasApplicationFlowState_Running {
+            get {
+                return ResourceManager.GetString("MirasApplicationFlowState_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Point cloud ähnelt.
         /// </summary>
         public static string UnrealObjectType_PointCloud {

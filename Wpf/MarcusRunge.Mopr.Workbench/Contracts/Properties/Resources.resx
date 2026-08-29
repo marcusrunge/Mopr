@@ -159,6 +159,21 @@
   <data name="MeasurementType_Volume" xml:space="preserve">
     <value>Volume</value>
   </data>
+  <data name="MirasApplicationFlowState_Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="MirasApplicationFlowState_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="MirasApplicationFlowState_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="MirasApplicationFlowState_Idle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="MirasApplicationFlowState_Running" xml:space="preserve">
+    <value>Running</value>
+  </data>
   <data name="UnrealObjectType_PointCloud" xml:space="preserve">
     <value>Point cloud</value>
   </data>
