@@ -1,4 +1,7 @@
 # MOPR
+<p align="left">
+  <img src="Wpf/MarcusRunge.Mopr.Workbench/Desktop/Assets/mopr.png" alt="MOPR Logo" width="300">
+</p>
 
 **Medical Observation & Projection Renderer**
 
