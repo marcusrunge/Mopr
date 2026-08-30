@@ -3,16 +3,10 @@ using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingToolChangedEventArgs : EventArgs
+    public sealed class ImagingToolChangedEventArgs(ImagingTool oldTool, ImagingTool newTool) : EventArgs
     {
-        public ImagingToolChangedEventArgs(ImagingTool oldTool, ImagingTool newTool)
-        {
-            OldTool = oldTool;
-            NewTool = newTool;
-        }
+        public ImagingTool OldTool { get; } = oldTool;
 
-        public ImagingTool OldTool { get; }
-
-        public ImagingTool NewTool { get; }
+        public ImagingTool NewTool { get; } = newTool;
     }
 }

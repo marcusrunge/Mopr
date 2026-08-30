@@ -2,18 +2,11 @@
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingWindowLevelChangedEventArgs : EventArgs
+    public sealed class ImagingWindowLevelChangedEventArgs(double? windowCenter, double? windowWidth, bool isReset) : EventArgs
     {
-        public ImagingWindowLevelChangedEventArgs(double? windowCenter, double? windowWidth, bool isReset)
-        {
-            WindowCenter = windowCenter;
-            WindowWidth = windowWidth;
-            IsReset = isReset;
-        }
+        public bool IsReset { get; } = isReset;
+        public double? WindowCenter { get; } = windowCenter;
 
-        public bool IsReset { get; }
-        public double? WindowCenter { get; }
-
-        public double? WindowWidth { get; }
+        public double? WindowWidth { get; } = windowWidth;
     }
 }

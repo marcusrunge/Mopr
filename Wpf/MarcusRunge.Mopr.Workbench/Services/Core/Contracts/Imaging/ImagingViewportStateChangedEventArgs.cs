@@ -3,10 +3,8 @@ using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingViewportStateChangedEventArgs : EventArgs
+    public sealed class ImagingViewportStateChangedEventArgs(ImagingViewportState state) : EventArgs
     {
-        public ImagingViewportStateChangedEventArgs(ImagingViewportState state) => State = state;
-
-        public ImagingViewportState State { get; }
+        public ImagingViewportState State { get; } = state;
     }
 }

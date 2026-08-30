@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -71,10 +71,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var context = new MirasServiceTestContext();
             var persistenceResult = new PersistenceIntegrityResult();
 
-            persistenceResult.Issues.Add(CreatePersistenceIssue(
-                PersistenceIntegrityIssueType.MissingParent,
-                PersistenceIntegrityEntityType.Instance,
-                entityId: 41));
+            persistenceResult.Issues.Add(CreatePersistenceIssue(PersistenceIntegrityIssueType.MissingParent, PersistenceIntegrityEntityType.Instance, entityId: 41));
 
             context.ConfigurePersistenceResult(persistenceResult);
 
@@ -93,10 +90,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var context = new MirasServiceTestContext();
             var persistenceResult = new PersistenceIntegrityResult();
 
-            persistenceResult.Issues.Add(CreatePersistenceIssue(
-                PersistenceIntegrityIssueType.InvalidValue,
-                PersistenceIntegrityEntityType.RepositoryLocation,
-                entityId: 17));
+            persistenceResult.Issues.Add(CreatePersistenceIssue(PersistenceIntegrityIssueType.InvalidValue, PersistenceIntegrityEntityType.RepositoryLocation, entityId: 17));
 
             context.ConfigurePersistenceResult(persistenceResult);
 
@@ -110,66 +104,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         }
 
         [Theory]
-        [InlineData(
-            DicomRepositoryIssueType.Unknown,
-            MirasIssueType.Unknown,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ContactAdministrator)]
-        [InlineData(
-            DicomRepositoryIssueType.MissingFile,
-            MirasIssueType.MissingFile,
-            MirasAlertLevel.Caution,
-            MirasRecommendedAction.LocateFile)]
-        [InlineData(
-            DicomRepositoryIssueType.MisplacedFile,
-            MirasIssueType.MisplacedFile,
-            MirasAlertLevel.Caution,
-            MirasRecommendedAction.RestoreExpectedLocation)]
-        [InlineData(
-            DicomRepositoryIssueType.DuplicateFile,
-            MirasIssueType.DuplicateFile,
-            MirasAlertLevel.Caution,
-            MirasRecommendedAction.ReviewDuplicate)]
-        [InlineData(
-            DicomRepositoryIssueType.IdentityMismatch,
-            MirasIssueType.IdentityMismatch,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ReviewConflict)]
-        [InlineData(
-            DicomRepositoryIssueType.OrphanedFile,
-            MirasIssueType.OrphanedFile,
-            MirasAlertLevel.Caution,
-            MirasRecommendedAction.RebuildPersistenceEntry)]
-        [InlineData(
-            DicomRepositoryIssueType.InvalidDicomFile,
-            MirasIssueType.InvalidDicomFile,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ReviewInvalidFile)]
-        [InlineData(
-            DicomRepositoryIssueType.UnreadableFile,
-            MirasIssueType.UnreadableFile,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ContactAdministrator)]
-        [InlineData(
-            DicomRepositoryIssueType.IncompleteImport,
-            MirasIssueType.IncompleteImport,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ReviewConflict)]
-        [InlineData(
-            DicomRepositoryIssueType.RepositoryLocationUnavailable,
-            MirasIssueType.RepositoryUnavailable,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ReconnectRepository)]
-        [InlineData(
-            DicomRepositoryIssueType.RelationshipConflict,
-            MirasIssueType.RelationshipConflict,
-            MirasAlertLevel.Warning,
-            MirasRecommendedAction.ReviewConflict)]
-        public async Task CheckRepositoryAsync_MapsRepositoryIssue(
-            DicomRepositoryIssueType sourceIssueType,
-            MirasIssueType expectedIssueType,
-            MirasAlertLevel expectedAlertLevel,
-            MirasRecommendedAction expectedRecommendedAction)
+        [InlineData(DicomRepositoryIssueType.Unknown, MirasIssueType.Unknown, MirasAlertLevel.Warning, MirasRecommendedAction.ContactAdministrator)]
+        [InlineData(DicomRepositoryIssueType.MissingFile, MirasIssueType.MissingFile, MirasAlertLevel.Caution, MirasRecommendedAction.LocateFile)]
+        [InlineData(DicomRepositoryIssueType.MisplacedFile, MirasIssueType.MisplacedFile, MirasAlertLevel.Caution, MirasRecommendedAction.RestoreExpectedLocation)]
+        [InlineData(DicomRepositoryIssueType.DuplicateFile, MirasIssueType.DuplicateFile, MirasAlertLevel.Caution, MirasRecommendedAction.ReviewDuplicate)]
+        [InlineData(DicomRepositoryIssueType.IdentityMismatch, MirasIssueType.IdentityMismatch, MirasAlertLevel.Warning, MirasRecommendedAction.ReviewConflict)]
+        [InlineData(DicomRepositoryIssueType.OrphanedFile, MirasIssueType.OrphanedFile, MirasAlertLevel.Caution, MirasRecommendedAction.RebuildPersistenceEntry)]
+        [InlineData(DicomRepositoryIssueType.InvalidDicomFile, MirasIssueType.InvalidDicomFile, MirasAlertLevel.Warning, MirasRecommendedAction.ReviewInvalidFile)]
+        [InlineData(DicomRepositoryIssueType.UnreadableFile, MirasIssueType.UnreadableFile, MirasAlertLevel.Warning, MirasRecommendedAction.ContactAdministrator)]
+        [InlineData(DicomRepositoryIssueType.IncompleteImport, MirasIssueType.IncompleteImport, MirasAlertLevel.Warning, MirasRecommendedAction.ReviewConflict)]
+        [InlineData(DicomRepositoryIssueType.RepositoryLocationUnavailable, MirasIssueType.RepositoryUnavailable, MirasAlertLevel.Warning, MirasRecommendedAction.ReconnectRepository)]
+        [InlineData(DicomRepositoryIssueType.RelationshipConflict, MirasIssueType.RelationshipConflict, MirasAlertLevel.Warning, MirasRecommendedAction.ReviewConflict)]
+        public async Task CheckRepositoryAsync_MapsRepositoryIssue(DicomRepositoryIssueType sourceIssueType, MirasIssueType expectedIssueType, MirasAlertLevel expectedAlertLevel, MirasRecommendedAction expectedRecommendedAction)
         {
             using var context = new MirasServiceTestContext();
             var repositoryIssue = CreateRepositoryIssue(sourceIssueType);

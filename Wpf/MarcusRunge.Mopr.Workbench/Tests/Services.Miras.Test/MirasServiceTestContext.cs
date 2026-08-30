@@ -1,4 +1,4 @@
-using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;

@@ -3,15 +3,9 @@ using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingLayoutChangedEventArgs : EventArgs
+    public sealed class ImagingLayoutChangedEventArgs(ImagingLayout oldLayout, ImagingLayout newLayout) : EventArgs
     {
-        public ImagingLayoutChangedEventArgs(ImagingLayout oldLayout, ImagingLayout newLayout)
-        {
-            OldLayout = oldLayout;
-            NewLayout = newLayout;
-        }
-
-        public ImagingLayout NewLayout { get; }
-        public ImagingLayout OldLayout { get; }
+        public ImagingLayout NewLayout { get; } = newLayout;
+        public ImagingLayout OldLayout { get; } = oldLayout;
     }
 }

@@ -1,8 +1,10 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Miras.Properties;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
+using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using ContractsResources = MarcusRunge.Mopr.Workbench.Contracts.Properties.Resources;
+using MirasResources = MarcusRunge.Mopr.Workbench.Services.Miras.Properties.Resources;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {
@@ -14,13 +16,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         private static readonly Type[] LocalizedEnumTypes =
         [
             typeof(MirasAlertLevel),
+            typeof(MirasFlowState),
             typeof(MirasIssueState),
             typeof(MirasIssueType),
             typeof(MirasOperationStatus),
             typeof(MirasRecommendedAction)
         ];
 
-        private static readonly string[] UserMessageResourceKeys =
+        private static readonly string[] ContractUserMessageResourceKeys =
         [
             "MirasOperation_CheckCompleted_Description",
             "MirasOperation_CheckCompleted_Title",
@@ -29,7 +32,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             "MirasOperation_NoActionRequired",
             "MirasOperation_PersistenceBlocked_Description",
             "MirasOperation_TechnicalFailure_Title",
+            "MirasStatus_ActionAvailable",
+            "MirasStatus_ActionRequired",
+            "MirasStatus_AutomaticallyResolved",
+            "MirasStatus_Detected"
+        ];
 
+        private static readonly string[] MirasUserMessageResourceKeys =
+        [
             "MirasIssue_DuplicateFile_Description",
             "MirasIssue_IdentityMismatch_Description",
             "MirasIssue_IncompleteImport_Description",
@@ -45,42 +55,61 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             "MirasIssue_PersistenceValueInvalid_Description",
             "MirasIssue_RelationshipConflict_Description",
             "MirasIssue_RepositoryUnavailable_Description",
-            "MirasIssue_RepositoryUnavailable_Title",
             "MirasIssue_Unknown_Description",
-            "MirasIssue_UnreadableFile_Description",
-
-            "MirasStatus_ActionAvailable",
-            "MirasStatus_ActionRequired",
-            "MirasStatus_AutomaticallyResolved",
-            "MirasStatus_Detected"
+            "MirasIssue_UnreadableFile_Description"
         ];
 
         [Fact]
-        public void Resources_ContainAllEnglishUserMessages()
-        {
-            AssertAllResourcesExist(UserMessageResourceKeys, EnglishCulture);
-        }
+        public void ContractResources_ContainAllEnglishUserMessages() =>
+            AssertAllResourcesExist(
+                ContractsResources.ResourceManager,
+                ContractUserMessageResourceKeys,
+                EnglishCulture);
 
         [Fact]
-        public void Resources_ContainAllGermanUserMessages()
-        {
-            AssertAllResourcesExist(UserMessageResourceKeys, GermanCulture);
-        }
+        public void ContractResources_ContainAllGermanUserMessages() =>
+            AssertAllResourcesExist(
+                ContractsResources.ResourceManager,
+                ContractUserMessageResourceKeys,
+                GermanCulture);
+
+        [Fact]
+        public void MirasResources_ContainAllEnglishUserMessages() =>
+            AssertAllResourcesExist(
+                MirasResources.ResourceManager,
+                MirasUserMessageResourceKeys,
+                EnglishCulture);
+
+        [Fact]
+        public void MirasResources_ContainAllGermanUserMessages() =>
+            AssertAllResourcesExist(
+                MirasResources.ResourceManager,
+                MirasUserMessageResourceKeys,
+                GermanCulture);
 
         [Fact]
         public void Resources_ContainRequiredGermanActionPhrase()
         {
             Assert.Equal(
                 "MIRAS Aktion erforderlich",
-                GetRequiredResource("MirasOperation_TechnicalFailure_Title", GermanCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasOperation_TechnicalFailure_Title",
+                    GermanCulture));
 
             Assert.Equal(
                 "MIRAS Aktion erforderlich",
-                GetRequiredResource("MirasStatus_ActionRequired", GermanCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasStatus_ActionRequired",
+                    GermanCulture));
 
             Assert.Equal(
                 "MIRAS Aktion erforderlich",
-                GetRequiredResource("MirasIssueState_ActionRequired", GermanCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasIssueState_ActionRequired",
+                    GermanCulture));
         }
 
         [Fact]
@@ -88,15 +117,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         {
             Assert.Equal(
                 "MIRAS action required",
-                GetRequiredResource("MirasOperation_TechnicalFailure_Title", EnglishCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasOperation_TechnicalFailure_Title",
+                    EnglishCulture));
 
             Assert.Equal(
                 "MIRAS action required",
-                GetRequiredResource("MirasStatus_ActionRequired", EnglishCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasStatus_ActionRequired",
+                    EnglishCulture));
 
             Assert.Equal(
                 "MIRAS action required",
-                GetRequiredResource("MirasIssueState_ActionRequired", EnglishCulture));
+                GetRequiredResource(
+                    ContractsResources.ResourceManager,
+                    "MirasIssueState_ActionRequired",
+                    EnglishCulture));
         }
 
         [Theory]
@@ -106,17 +144,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             var attribute = enumType.GetCustomAttribute<TypeConverterAttribute>();
 
             Assert.NotNull(attribute);
-            Assert.Equal(typeof(Toolbox.Localization.Core.EnumDescriptionTypeConverter).AssemblyQualifiedName, attribute.ConverterTypeName);
+            Assert.Equal(
+                typeof(EnumDescriptionTypeConverter).AssemblyQualifiedName,
+                attribute.ConverterTypeName);
         }
 
         [Theory]
         [MemberData(nameof(GetLocalizedEnumValues))]
-        public void EnumValue_HasEnglishAndGermanResources(Type enumType, string enumValue)
+        public void EnumValue_HasEnglishAndGermanResources(
+            Type enumType,
+            string enumValue)
         {
             var resourceKey = $"{enumType.Name}_{enumValue}";
-
-            var englishValue = GetRequiredResource(resourceKey, EnglishCulture);
-            var germanValue = GetRequiredResource(resourceKey, GermanCulture);
+            var englishValue = GetRequiredResource(
+                ContractsResources.ResourceManager,
+                resourceKey,
+                EnglishCulture);
+            var germanValue = GetRequiredResource(
+                ContractsResources.ResourceManager,
+                resourceKey,
+                GermanCulture);
 
             Assert.False(string.IsNullOrWhiteSpace(englishValue));
             Assert.False(string.IsNullOrWhiteSpace(germanValue));
@@ -124,21 +171,48 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         [Theory]
         [MemberData(nameof(GetLocalizedEnumValues))]
-        public void EnumValue_UsesLocalizedDescriptionAttribute(Type enumType, string enumValue)
+        public void EnumValue_UsesLocalizedDescriptionAttribute(
+            Type enumType,
+            string enumValue)
         {
             var member = Assert.Single(enumType.GetMember(enumValue));
+            var attribute = Assert.Single(
+                member.GetCustomAttributes(),
+                candidate =>
+                    candidate.GetType().FullName ==
+                    typeof(LocalizedDescriptionAttribute).FullName);
 
-            var localizedDescriptionAttribute = Assert.Single(member.GetCustomAttributes(), attribute => attribute.GetType().FullName == "MarcusRunge.Toolbox.Localization.Core.LocalizedDescriptionAttribute");
-
-            Assert.NotNull(localizedDescriptionAttribute);
+            Assert.NotNull(attribute);
         }
 
         [Theory]
-        [MemberData(nameof(GetUserMessageResources))]
-        public void UserMessageResource_DoesNotContainTechnicalRawDetails(string resourceKey)
+        [MemberData(nameof(GetContractUserMessageResources))]
+        public void ContractUserMessageResource_DoesNotContainTechnicalRawDetails(
+            string resourceKey)
         {
-            AssertResourceContainsNoTechnicalRawDetails(resourceKey, EnglishCulture);
-            AssertResourceContainsNoTechnicalRawDetails(resourceKey, GermanCulture);
+            AssertResourceContainsNoTechnicalRawDetails(
+                ContractsResources.ResourceManager,
+                resourceKey,
+                EnglishCulture);
+            AssertResourceContainsNoTechnicalRawDetails(
+                ContractsResources.ResourceManager,
+                resourceKey,
+                GermanCulture);
+        }
+
+        [Theory]
+        [MemberData(nameof(GetMirasUserMessageResources))]
+        public void MirasUserMessageResource_DoesNotContainTechnicalRawDetails(
+            string resourceKey)
+        {
+            AssertResourceContainsNoTechnicalRawDetails(
+                MirasResources.ResourceManager,
+                resourceKey,
+                EnglishCulture);
+            AssertResourceContainsNoTechnicalRawDetails(
+                MirasResources.ResourceManager,
+                resourceKey,
+                GermanCulture);
         }
 
         public static TheoryData<Type> GetLocalizedEnumTypes()
@@ -168,11 +242,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             return data;
         }
 
-        public static TheoryData<string> GetUserMessageResources()
+        public static TheoryData<string> GetContractUserMessageResources() =>
+            CreateResourceTheoryData(ContractUserMessageResourceKeys);
+
+        public static TheoryData<string> GetMirasUserMessageResources() =>
+            CreateResourceTheoryData(MirasUserMessageResourceKeys);
+
+        private static TheoryData<string> CreateResourceTheoryData(
+            IEnumerable<string> resourceKeys)
         {
             var data = new TheoryData<string>();
 
-            foreach (var resourceKey in UserMessageResourceKeys)
+            foreach (var resourceKey in resourceKeys)
             {
                 data.Add(resourceKey);
             }
@@ -180,36 +261,82 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             return data;
         }
 
-        private static void AssertAllResourcesExist(IEnumerable<string> resourceKeys, CultureInfo culture)
+        private static void AssertAllResourcesExist(
+            System.Resources.ResourceManager resourceManager,
+            IEnumerable<string> resourceKeys,
+            CultureInfo culture)
         {
             foreach (var resourceKey in resourceKeys)
             {
-                var value = GetRequiredResource(resourceKey, culture);
-                Assert.False(string.IsNullOrWhiteSpace(value));
+                _ = GetRequiredResource(
+                    resourceManager,
+                    resourceKey,
+                    culture);
             }
         }
 
-        private static void AssertResourceContainsNoTechnicalRawDetails(string resourceKey, CultureInfo culture)
+        private static void AssertResourceContainsNoTechnicalRawDetails(
+            System.Resources.ResourceManager resourceManager,
+            string resourceKey,
+            CultureInfo culture)
         {
-            var value = GetRequiredResource(resourceKey, culture);
+            var value = GetRequiredResource(
+                resourceManager,
+                resourceKey,
+                culture);
 
-            Assert.DoesNotContain(@"C:\", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(@"\\", value, StringComparison.Ordinal);
-            Assert.DoesNotContain(".dcm", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("InstanceId", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("RepositoryLocationId", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("SopInstanceUid", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("SeriesInstanceUid", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("StudyInstanceUid", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("StackTrace", value, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("Exception:", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                @"C:\",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                @"\\",
+                value,
+                StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                ".dcm",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "InstanceId",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "RepositoryLocationId",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "SopInstanceUid",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "SeriesInstanceUid",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "StudyInstanceUid",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "StackTrace",
+                value,
+                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(
+                "Exception:",
+                value,
+                StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetRequiredResource(string resourceKey, CultureInfo culture)
+        private static string GetRequiredResource(
+            System.Resources.ResourceManager resourceManager,
+            string resourceKey,
+            CultureInfo culture)
         {
-            var value = Resources.ResourceManager.GetString(resourceKey, culture);
+            var value = resourceManager.GetString(resourceKey, culture);
 
-            Assert.False(string.IsNullOrWhiteSpace(value), $"The resource '{resourceKey}' is missing for culture '{culture.Name}'.");
+            Assert.False(
+                string.IsNullOrWhiteSpace(value),
+                $"The resource '{resourceKey}' is missing for culture '{culture.Name}'.");
 
             return value;
         }

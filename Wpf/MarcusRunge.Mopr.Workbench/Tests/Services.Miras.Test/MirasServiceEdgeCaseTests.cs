@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -15,17 +15,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var context = new MirasServiceTestContext();
             context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
 
-            context.RepositoryRepairService
-                .Setup(service => service.RepairAsync(
-                    It.IsAny<DicomRepositoryRepairRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .Returns<DicomRepositoryRepairRequest, CancellationToken>(
-                    (_, cancellationToken) =>
-                        Task.FromCanceled<DicomRepositoryRepairResult>(
-                            CreateCanceledToken(cancellationToken)));
+            context.RepositoryRepairService.Setup(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).Returns<DicomRepositoryRepairRequest, CancellationToken>((_, cancellationToken) => Task.FromCanceled<DicomRepositoryRepairResult>(CreateCanceledToken(cancellationToken)));
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(
-                () => context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken));
 
             context.VerifyPersistenceCalledOnce();
             context.VerifyRepositoryCalledOnce();
@@ -64,10 +56,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             Assert.All(result.Messages, message =>
             {
-                Assert.DoesNotContain(
-                    "Technical repository verification error",
-                    message.Description,
-                    StringComparison.Ordinal);
+                Assert.DoesNotContain("Technical repository verification error", message.Description, StringComparison.Ordinal);
 
                 Assert.Empty(message.TechnicalDetails);
             });
@@ -107,10 +96,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             Assert.All(result.Messages, message =>
             {
-                Assert.DoesNotContain(
-                    "Technical persistence verification error",
-                    message.Description,
-                    StringComparison.Ordinal);
+                Assert.DoesNotContain("Technical persistence verification error", message.Description, StringComparison.Ordinal);
 
                 Assert.Empty(message.TechnicalDetails);
             });
@@ -135,8 +121,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 ScannedFiles = 3
             });
 
-            var result = await secondContext.Service.CheckRepositoryAsync(
-                TestContext.Current.CancellationToken);
+            var result = await secondContext.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Completed, result.Status);
             Assert.Equal(MirasAlertLevel.Normal, result.HighestAlertLevel);
@@ -161,11 +146,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 ScannedFiles = 11
             });
 
-            var firstResult = await context.Service.CheckRepositoryAsync(
-                TestContext.Current.CancellationToken);
+            var firstResult = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
-            var secondResult = await context.Service.CheckRepositoryAsync(
-                TestContext.Current.CancellationToken);
+            var secondResult = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.NotSame(firstResult, secondResult);
             Assert.Equal(MirasOperationStatus.Completed, firstResult.Status);
@@ -175,24 +158,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.Single(firstResult.Messages);
             Assert.Single(secondResult.Messages);
 
-            context.PersistenceIntegrityService.Verify(
-                service => service.VerifyAsync(
-                    It.Is<PersistenceIntegrityRequest>(request =>
-                        request.VerifyAuditReferences &&
-                        request.VerifyRelationships &&
-                        request.VerifyRequiredValues &&
-                        request.VerifyUniqueValues),
-                    It.IsAny<CancellationToken>()),
-                Times.Exactly(2));
+            context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => request.VerifyAuditReferences && request.VerifyRelationships && request.VerifyRequiredValues && request.VerifyUniqueValues), It.IsAny<CancellationToken>()), Times.Exactly(2));
 
-            context.RepositoryRepairService.Verify(
-                service => service.RepairAsync(
-                    It.Is<DicomRepositoryRepairRequest>(request =>
-                        request.VerifyFiles &&
-                        !request.RepairMissingFiles &&
-                        request.RepositoryLocationId == null),
-                    It.IsAny<CancellationToken>()),
-                Times.Exactly(2));
+            context.RepositoryRepairService.Verify(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => request.VerifyFiles && !request.RepairMissingFiles && request.RepositoryLocationId == null), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -202,24 +170,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             CancellationToken persistenceToken = default;
             CancellationToken repositoryToken = default;
 
-            context.PersistenceIntegrityService
-                .Setup(service => service.VerifyAsync(
-                    It.IsAny<PersistenceIntegrityRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .Callback<PersistenceIntegrityRequest, CancellationToken>(
-                    (_, cancellationToken) => persistenceToken = cancellationToken)
-                .ReturnsAsync(new PersistenceIntegrityResult());
+            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Callback<PersistenceIntegrityRequest, CancellationToken>((_, cancellationToken) => persistenceToken = cancellationToken).ReturnsAsync(new PersistenceIntegrityResult());
 
-            context.RepositoryRepairService
-                .Setup(service => service.RepairAsync(
-                    It.IsAny<DicomRepositoryRepairRequest>(),
-                    It.IsAny<CancellationToken>()))
-                .Callback<DicomRepositoryRepairRequest, CancellationToken>(
-                    (_, cancellationToken) => repositoryToken = cancellationToken)
-                .ReturnsAsync(new DicomRepositoryRepairResult());
+            context.RepositoryRepairService.Setup(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).Callback<DicomRepositoryRepairRequest, CancellationToken>((_, cancellationToken) => repositoryToken = cancellationToken).ReturnsAsync(new DicomRepositoryRepairResult());
 
-            var result = await context.Service.CheckRepositoryAsync(
-                TestContext.Current.CancellationToken);
+            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Completed, result.Status);
             Assert.True(persistenceToken.CanBeCanceled);
@@ -238,9 +193,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 return cancellationToken;
             }
 
-            var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
-                cancellationToken,
-                TestContext.Current.CancellationToken);
+            var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, TestContext.Current.CancellationToken);
 
             cancellationSource.Cancel();
             return cancellationSource.Token;

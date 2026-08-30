@@ -18,6 +18,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Desktop.Test/MarcusRunge.Mopr.Workbench.Test.csproj" Id="1da94cd5-83e8-4c6c-9ea3-df1e25c7847c" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Core.Test/MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj" Id="8136d28c-da09-4956-9db5-83fabb43cb89" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Imaging.Test/MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Miras.Test/MarcusRunge.Mopr.Workbench.Services.Miras.Test.csproj" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Persistence.Test/MarcusRunge.Mopr.Workbench.Services.Persistence.Test.csproj" Id="9058754d-9a17-45e0-813d-edd7669598fe" />

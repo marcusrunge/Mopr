@@ -1,8 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Properties;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Properties;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Miras.Enums
+namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums
 {
     /// <summary>
     /// Defines the action recommended by MIRAS.

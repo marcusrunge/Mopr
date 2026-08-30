@@ -2,19 +2,11 @@
 
 namespace MarcusRunge.Mopr.Workbench.Contracts.Models
 {
-    public sealed class ViewportDescriptor
+    public sealed class ViewportDescriptor(string id, string title, ViewportOrientation orientation, bool isInteractive = true)
     {
-        public ViewportDescriptor(string id, string title, ViewportOrientation orientation, bool isInteractive = true)
-        {
-            Id = id;
-            Title = title;
-            Orientation = orientation;
-            IsInteractive = isInteractive;
-        }
-
-        public string Id { get; }
-        public bool IsInteractive { get; }
-        public ViewportOrientation Orientation { get; }
-        public string Title { get; }
+        public string Id { get; } = id;
+        public bool IsInteractive { get; } = isInteractive;
+        public ViewportOrientation Orientation { get; } = orientation;
+        public string Title { get; } = title;
     }
 }

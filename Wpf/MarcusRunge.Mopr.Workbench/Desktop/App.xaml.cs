@@ -5,9 +5,11 @@ using MarcusRunge.Mopr.Workbench.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Core;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Dicom;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras;
@@ -33,7 +35,8 @@ namespace MarcusRunge.Mopr.Workbench
     public partial class App
     {
         private readonly TaskCompletionSource _shellReady = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private IStartupDiagnostics? _startupDiagnostics;
+        private Task? _applicationInitialization;
+        private StartupDiagnostics? _startupDiagnostics;
         private SingleInstanceCoordinator? _singleInstanceCoordinator;
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();
@@ -58,7 +61,8 @@ namespace MarcusRunge.Mopr.Workbench
                     return;
                 }
 
-                // The pipe server starts before Prism so that concurrent launches cannot reach container, module, shell, or persistence initialization.
+                // The pipe server starts before Prism so that concurrent launches cannot
+                // reach container, module, shell, Persistence or MIRAS initialization.
                 _singleInstanceCoordinator.StartListening(HandleForwardedRequestAsync);
 
                 base.OnStartup(e);
@@ -78,17 +82,24 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void OnExit(ExitEventArgs e)
         {
+            ApplicationLifetime? applicationLifetime = null;
+
             try
             {
                 _shellReady.TrySetCanceled();
 
-                if (Container?.Resolve<IApplicationLifetime>() is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                applicationLifetime = Container?.Resolve<IApplicationLifetime>() as ApplicationLifetime;
+
+                // Cancellation is signaled before waiting for initialization.
+                // The token source remains alive until every startup operation has
+                // observed the signal and completed its cleanup.
+                applicationLifetime?.Stop();
+
+                ObserveApplicationInitialization();
             }
             finally
             {
+                applicationLifetime?.Dispose();
                 DisposeSingleInstanceCoordinator();
                 base.OnExit(e);
             }
@@ -98,15 +109,26 @@ namespace MarcusRunge.Mopr.Workbench
         {
             base.OnInitialized();
 
-            _ = Container.Resolve<IPersistence>();
+            var persistence = Container.Resolve<IPersistence>();
+            var configurationSubject = Container.Resolve<BehaviorSubject<PersistenceConfiguration>>();
 
-            var subject = Container.Resolve<BehaviorSubject<PersistenceConfiguration>>();
-
-            subject.OnNext(new PersistenceConfiguration
+            configurationSubject.OnNext(new PersistenceConfiguration
             {
                 ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;",
                 Mode = PersistenceMode.SqlServer
             });
+
+            // BehaviorSubject invokes Persistence synchronously. Reading Initialization
+            // after OnNext therefore captures the task belonging to this exact SQL Server
+            // configuration instead of an earlier initial configuration.
+            var mirasFlowService = Container.Resolve<ICore>().MirasApplicationService?.MirasFlowService ?? throw new InvalidOperationException("The MIRAS flow service has not been initialized.");
+
+            var applicationStopping = Container.Resolve<IApplicationLifetime>().ApplicationStopping;
+
+            // The task is retained and handles all of its own terminal states. This
+            // avoids an unobserved fire-and-forget operation while keeping the shell
+            // responsive during database initialization and the repository check.
+            _applicationInitialization = InitializeApplicationAsync(persistence, mirasFlowService, applicationStopping);
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -114,21 +136,22 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
+
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);
             containerRegistry.RegisterInstance<IObservable<PersistenceConfiguration>>(persistenceConfigurationSubject);
 
             var applicationConfiguration = new ApplicationConfiguration();
+
             containerRegistry.RegisterInstance<IApplicationConfiguration>(applicationConfiguration);
 
             var applicationConfigurationSubject = new BehaviorSubject<IApplicationConfiguration>(applicationConfiguration);
+
             containerRegistry.RegisterInstance(applicationConfigurationSubject);
             containerRegistry.RegisterInstance<IObservable<IApplicationConfiguration>>(applicationConfigurationSubject);
 
             containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
-            containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
-
-            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>()));
-            containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
+            containerRegistry.RegisterSingleton<IDicom>(
+                provider => provider.Resolve<IDicomFactory>().Create());
 
             containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
@@ -138,9 +161,71 @@ namespace MarcusRunge.Mopr.Workbench
 
             containerRegistry.RegisterSingleton<IMirasFactory, MirasFactory>();
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
+            containerRegistry.RegisterSingleton<IMirasService>(provider => provider.Resolve<IMiras>().MirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
+
+            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<IApplicationLifetime>(), provider.Resolve<IMirasService>()));
+            containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
+        }
+
+        private async Task InitializeApplicationAsync(IPersistence persistence, IMirasFlowService mirasFlowService, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // MIRAS must never inspect repository relationships before the
+                // configured Persistence provider is fully initialized.
+                await persistence.Initialization.ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var result = await mirasFlowService.StartAsync(cancellationToken).ConfigureAwait(false);
+
+                _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                _startupDiagnostics!.WriteInformation("The initial MIRAS check was canceled because the application is stopping.");
+            }
+            catch (Exception exception)
+            {
+                // An initial integrity-check failure must remain observable and
+                // diagnosable, but it must not hide or terminate the already
+                // initialized shell. The flow exposes its failed state to future UI.
+                _startupDiagnostics!.WriteError("The initial MIRAS check could not be completed.", exception);
+            }
+        }
+
+        private void ObserveApplicationInitialization()
+        {
+            var applicationInitialization = _applicationInitialization;
+
+            if (applicationInitialization is null)
+            {
+                return;
+            }
+
+            try
+            {
+                applicationInitialization.GetAwaiter().GetResult();
+            }
+            catch (OperationCanceledException)
+            {
+                // InitializeApplicationAsync normally handles shutdown cancellation.
+                // This guard keeps application exit resilient if cancellation occurs
+                // before the helper reaches its protected execution block.
+            }
+            catch (Exception exception)
+            {
+                // InitializeApplicationAsync handles regular failures internally.
+                // This final boundary prevents an unexpected observation failure from
+                // interrupting shutdown and retains the diagnostic evidence.
+                _startupDiagnostics?.WriteError("The MOPR application initialization task ended unexpectedly.", exception);
+            }
+            finally
+            {
+                _applicationInitialization = null;
+            }
         }
 
         private bool TryAcquireSingleInstance()
@@ -148,12 +233,14 @@ namespace MarcusRunge.Mopr.Workbench
             try
             {
                 _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics!, new ForegroundPermission());
+
                 return true;
             }
             catch (Exception exception)
             {
                 _startupDiagnostics!.WriteError("The MOPR single-instance coordinator could not be created.", exception);
                 ShowSingleInstanceStartupFailedMessage();
+
                 return false;
             }
         }
@@ -163,6 +250,7 @@ namespace MarcusRunge.Mopr.Workbench
             try
             {
                 using var stopping = new CancellationTokenSource(TimeSpan.FromSeconds(6));
+
                 await _singleInstanceCoordinator!.ForwardToPrimaryInstanceAsync(arguments, stopping.Token);
             }
             catch (OperationCanceledException)
@@ -196,6 +284,7 @@ namespace MarcusRunge.Mopr.Workbench
                 }
 
                 var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
+
                 _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
             });
         }
@@ -209,9 +298,10 @@ namespace MarcusRunge.Mopr.Workbench
             Shutdown();
         }
 
-        private static void ShowForwardingFailedMessage() => MessageBox.Show(            WorkbenchResources.SingleInstanceForwardingFailedMessage,            WorkbenchResources.SingleInstanceForwardingFailedTitle,            MessageBoxButton.OK,            MessageBoxImage.Information);
+        private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
 
-        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(            WorkbenchResources.SingleInstanceStartupFailedMessage,            WorkbenchResources.SingleInstanceStartupFailedTitle,            MessageBoxButton.OK,            MessageBoxImage.Error);
+        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceStartupFailedMessage, WorkbenchResources.SingleInstanceStartupFailedTitle,
+                MessageBoxButton.OK, MessageBoxImage.Error);
 
         private void DisposeSingleInstanceCoordinator()
         {
@@ -219,8 +309,8 @@ namespace MarcusRunge.Mopr.Workbench
             {
                 return;
             }
-
             _singleInstanceCoordinator.DisposeAsync().AsTask().GetAwaiter().GetResult();
+
             _singleInstanceCoordinator = null;
         }
     }

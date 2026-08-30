@@ -2,15 +2,9 @@
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingViewportSelectionChangedEventArgs : EventArgs
+    public sealed class ImagingViewportSelectionChangedEventArgs(string oldViewportId, string newViewportId) : EventArgs
     {
-        public ImagingViewportSelectionChangedEventArgs(string oldViewportId, string newViewportId)
-        {
-            OldViewportId = oldViewportId;
-            NewViewportId = newViewportId;
-        }
-
-        public string NewViewportId { get; }
-        public string OldViewportId { get; }
+        public string NewViewportId { get; } = newViewportId;
+        public string OldViewportId { get; } = oldViewportId;
     }
 }

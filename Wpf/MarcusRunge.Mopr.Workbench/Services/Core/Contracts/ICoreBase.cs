@@ -1,4 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -10,19 +12,29 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
     internal interface ICoreBase
     {
         /// <summary>
-        /// Gets the IDicom instance used for DICOM-related operations within the module.
+        /// Gets the application lifetime used by long-running Core operations.
         /// </summary>
-        internal IDicom? Dicom { get; }
+        IApplicationLifetime ApplicationLifetime { get; }
 
         /// <summary>
-        /// Gets the ILogger instance used for logging within the module.
+        /// Gets the DICOM module used for DICOM-related operations within Core.
         /// </summary>
-        internal ILogger? Logger { get; }
+        IDicom? Dicom { get; }
 
         /// <summary>
-        /// Called when [exception thrown].
+        /// Gets the logger used within the Core module.
         /// </summary>
-        /// <param name="exception">The exception.</param>
-        internal void OnExceptionThrown(Exception exception);
+        ILogger? Logger { get; }
+
+        /// <summary>
+        /// Gets the MIRAS integrity-check service used by the application flow.
+        /// </summary>
+        IMirasService MirasService { get; }
+
+        /// <summary>
+        /// Reports an exception raised by an internal Core service.
+        /// </summary>
+        /// <param name="exception">The exception to report.</param>
+        void OnExceptionThrown(Exception exception);
     }
 }

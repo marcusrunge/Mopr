@@ -3,7 +3,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
 {
-    internal class ImagingServiceBase : IImagingServiceBase, IImagingService
+    internal class ImagingServiceBase(ICoreBase? coreBase) : IImagingServiceBase, IImagingService
     {
         protected IImagingLayoutService? _imagingLayoutService;
         protected IImagingSelectionService? _imagingSelectionService;
@@ -12,9 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         protected IImagingViewportSelectionService? _imagingViewportSelectionService;
         protected IImagingViewportService? _imagingViewportService;
         protected IImagingWindowLevelService? _imagingWindowLevelService;
-        private readonly ICoreBase? _coreBase;
-
-        public ImagingServiceBase(ICoreBase? coreBase) => _coreBase = coreBase;
+        private readonly ICoreBase? _coreBase = coreBase;
 
         ICoreBase? IImagingServiceBase.CoreBase => _coreBase;
         public IImagingLayoutService? ImagingLayoutService => _imagingLayoutService;

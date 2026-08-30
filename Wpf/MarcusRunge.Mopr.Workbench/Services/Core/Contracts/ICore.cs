@@ -16,5 +16,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
         /// Gets the IImaging instance exposed by the assembly, if available.
         /// </summary>
         IImagingService? ImagingService { get; }
+
+        /// <summary>
+        /// Gets the IMirasApplicationService instance exposed by the assembly, if available.
+        /// </summary>
+        IMirasApplicationService? MirasApplicationService { get; }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {
     /// <summary>
     /// Defines the public contract of the assembly.

@@ -187,47 +187,533 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Advisory ähnelt.
+        /// </summary>
+        public static string MirasAlertLevel_Advisory {
+            get {
+                return ResourceManager.GetString("MirasAlertLevel_Advisory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Caution ähnelt.
+        /// </summary>
+        public static string MirasAlertLevel_Caution {
+            get {
+                return ResourceManager.GetString("MirasAlertLevel_Caution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Normal ähnelt.
+        /// </summary>
+        public static string MirasAlertLevel_Normal {
+            get {
+                return ResourceManager.GetString("MirasAlertLevel_Normal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Warning ähnelt.
+        /// </summary>
+        public static string MirasAlertLevel_Warning {
+            get {
+                return ResourceManager.GetString("MirasAlertLevel_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Canceled ähnelt.
         /// </summary>
-        public static string MirasApplicationFlowState_Canceled {
+        public static string MirasFlowState_Canceled {
             get {
-                return ResourceManager.GetString("MirasApplicationFlowState_Canceled", resourceCulture);
+                return ResourceManager.GetString("MirasFlowState_Canceled", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
         /// </summary>
-        public static string MirasApplicationFlowState_Completed {
+        public static string MirasFlowState_Completed {
             get {
-                return ResourceManager.GetString("MirasApplicationFlowState_Completed", resourceCulture);
+                return ResourceManager.GetString("MirasFlowState_Completed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
         /// </summary>
-        public static string MirasApplicationFlowState_Failed {
+        public static string MirasFlowState_Failed {
             get {
-                return ResourceManager.GetString("MirasApplicationFlowState_Failed", resourceCulture);
+                return ResourceManager.GetString("MirasFlowState_Failed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Idle ähnelt.
         /// </summary>
-        public static string MirasApplicationFlowState_Idle {
+        public static string MirasFlowState_Idle {
             get {
-                return ResourceManager.GetString("MirasApplicationFlowState_Idle", resourceCulture);
+                return ResourceManager.GetString("MirasFlowState_Idle", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Running ähnelt.
         /// </summary>
-        public static string MirasApplicationFlowState_Running {
+        public static string MirasFlowState_Running {
             get {
-                return ResourceManager.GetString("MirasApplicationFlowState_Running", resourceCulture);
+                return ResourceManager.GetString("MirasFlowState_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Action available ähnelt.
+        /// </summary>
+        public static string MirasIssueState_ActionAvailable {
+            get {
+                return ResourceManager.GetString("MirasIssueState_ActionAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasIssueState_ActionRequired {
+            get {
+                return ResourceManager.GetString("MirasIssueState_ActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Automatically resolved ähnelt.
+        /// </summary>
+        public static string MirasIssueState_AutomaticallyResolved {
+            get {
+                return ResourceManager.GetString("MirasIssueState_AutomaticallyResolved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Deferred ähnelt.
+        /// </summary>
+        public static string MirasIssueState_Deferred {
+            get {
+                return ResourceManager.GetString("MirasIssueState_Deferred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Detected ähnelt.
+        /// </summary>
+        public static string MirasIssueState_Detected {
+            get {
+                return ResourceManager.GetString("MirasIssueState_Detected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Resolved ähnelt.
+        /// </summary>
+        public static string MirasIssueState_ManuallyResolved {
+            get {
+                return ResourceManager.GetString("MirasIssueState_ManuallyResolved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Resolution failed ähnelt.
+        /// </summary>
+        public static string MirasIssueState_ResolutionFailed {
+            get {
+                return ResourceManager.GetString("MirasIssueState_ResolutionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Duplicate image file ähnelt.
+        /// </summary>
+        public static string MirasIssueType_DuplicateFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_DuplicateFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image identity conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_IdentityMismatch {
+            get {
+                return ResourceManager.GetString("MirasIssueType_IdentityMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Incomplete import ähnelt.
+        /// </summary>
+        public static string MirasIssueType_IncompleteImport {
+            get {
+                return ResourceManager.GetString("MirasIssueType_IncompleteImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid DICOM file ähnelt.
+        /// </summary>
+        public static string MirasIssueType_InvalidDicomFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_InvalidDicomFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image file moved ähnelt.
+        /// </summary>
+        public static string MirasIssueType_MisplacedFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_MisplacedFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image file missing ähnelt.
+        /// </summary>
+        public static string MirasIssueType_MissingFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_MissingFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unregistered image file ähnelt.
+        /// </summary>
+        public static string MirasIssueType_OrphanedFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_OrphanedFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid audit reference ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceAuditReferenceInvalid {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceAuditReferenceInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistence relationship conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceRelationshipConflict {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceRelationshipConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Required persistence value missing ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceRequiredValueMissing {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceRequiredValueMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database unavailable ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceUnavailable {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistence uniqueness conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceUniqueValueConflict {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceUniqueValueConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid persistence value ähnelt.
+        /// </summary>
+        public static string MirasIssueType_PersistenceValueInvalid {
+            get {
+                return ResourceManager.GetString("MirasIssueType_PersistenceValueInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image assignment conflict ähnelt.
+        /// </summary>
+        public static string MirasIssueType_RelationshipConflict {
+            get {
+                return ResourceManager.GetString("MirasIssueType_RelationshipConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image repository unavailable ähnelt.
+        /// </summary>
+        public static string MirasIssueType_RepositoryUnavailable {
+            get {
+                return ResourceManager.GetString("MirasIssueType_RepositoryUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown issue ähnelt.
+        /// </summary>
+        public static string MirasIssueType_Unknown {
+            get {
+                return ResourceManager.GetString("MirasIssueType_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image file unreadable ähnelt.
+        /// </summary>
+        public static string MirasIssueType_UnreadableFile {
+            get {
+                return ResourceManager.GetString("MirasIssueType_UnreadableFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The image database and repository were checked successfully. No integrity issues were detected. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckCompleted_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckCompleted_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS check completed ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckCompleted_Title {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckCompleted_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The integrity check could not be completed. The available image data has not been changed. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckFailed_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckFailed_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The integrity check could not examine all required data. The result is incomplete and the available image data has not been changed. ähnelt.
+        /// </summary>
+        public static string MirasOperation_CheckIncomplete_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_CheckIncomplete_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No action required ähnelt.
+        /// </summary>
+        public static string MirasOperation_NoActionRequired {
+            get {
+                return ResourceManager.GetString("MirasOperation_NoActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database state could not be confirmed. The image repository was not checked to prevent an unsafe assessment. ähnelt.
+        /// </summary>
+        public static string MirasOperation_PersistenceBlocked_Description {
+            get {
+                return ResourceManager.GetString("MirasOperation_PersistenceBlocked_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasOperation_TechnicalFailure_Title {
+            get {
+                return ResourceManager.GetString("MirasOperation_TechnicalFailure_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Blocked ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Blocked {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Blocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Completed {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed with issues ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_CompletedWithIssues {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_CompletedWithIssues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Failed {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Incomplete ähnelt.
+        /// </summary>
+        public static string MirasOperationStatus_Incomplete {
+            get {
+                return ResourceManager.GetString("MirasOperationStatus_Incomplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Request technical assistance ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_ContactAdministrator {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_ContactAdministrator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Locate image file ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_LocateFile {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_LocateFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No action required ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_None {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Restore image registration ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_RebuildPersistenceEntry {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_RebuildPersistenceEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Check storage connection ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_ReconnectRepository {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_ReconnectRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Restore image file ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_RestoreExpectedLocation {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_RestoreExpectedLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Retry ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_RetryOperation {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_RetryOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Review conflict ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_ReviewConflict {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_ReviewConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Review duplicate ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_ReviewDuplicate {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_ReviewDuplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Review image file ähnelt.
+        /// </summary>
+        public static string MirasRecommendedAction_ReviewInvalidFile {
+            get {
+                return ResourceManager.GetString("MirasRecommendedAction_ReviewInvalidFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A safe corrective action is available ähnelt.
+        /// </summary>
+        public static string MirasStatus_ActionAvailable {
+            get {
+                return ResourceManager.GetString("MirasStatus_ActionAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasStatus_ActionRequired {
+            get {
+                return ResourceManager.GetString("MirasStatus_ActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The condition has been resolved ähnelt.
+        /// </summary>
+        public static string MirasStatus_AutomaticallyResolved {
+            get {
+                return ResourceManager.GetString("MirasStatus_AutomaticallyResolved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Condition detected ähnelt.
+        /// </summary>
+        public static string MirasStatus_Detected {
+            get {
+                return ResourceManager.GetString("MirasStatus_Detected", resourceCulture);
             }
         }
         

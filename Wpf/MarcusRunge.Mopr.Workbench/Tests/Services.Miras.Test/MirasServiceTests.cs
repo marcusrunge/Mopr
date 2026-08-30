@@ -1,4 +1,4 @@
-using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;

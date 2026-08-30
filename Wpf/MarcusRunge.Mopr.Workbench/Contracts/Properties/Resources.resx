@@ -159,20 +159,182 @@
   <data name="MeasurementType_Volume" xml:space="preserve">
     <value>Volume</value>
   </data>
-  <data name="MirasApplicationFlowState_Canceled" xml:space="preserve">
+  <data name="MirasAlertLevel_Advisory" xml:space="preserve">
+    <value>Advisory</value>
+  </data>
+  <data name="MirasAlertLevel_Caution" xml:space="preserve">
+    <value>Caution</value>
+  </data>
+  <data name="MirasAlertLevel_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="MirasAlertLevel_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="MirasFlowState_Canceled" xml:space="preserve">
     <value>Canceled</value>
   </data>
-  <data name="MirasApplicationFlowState_Completed" xml:space="preserve">
+  <data name="MirasFlowState_Completed" xml:space="preserve">
     <value>Completed</value>
   </data>
-  <data name="MirasApplicationFlowState_Failed" xml:space="preserve">
+  <data name="MirasFlowState_Failed" xml:space="preserve">
     <value>Failed</value>
   </data>
-  <data name="MirasApplicationFlowState_Idle" xml:space="preserve">
+  <data name="MirasFlowState_Idle" xml:space="preserve">
     <value>Idle</value>
   </data>
-  <data name="MirasApplicationFlowState_Running" xml:space="preserve">
+  <data name="MirasFlowState_Running" xml:space="preserve">
     <value>Running</value>
+  </data>
+  <data name="MirasIssueState_ActionAvailable" xml:space="preserve">
+    <value>Action available</value>
+  </data>
+  <data name="MirasIssueState_ActionRequired" xml:space="preserve">
+    <value>MIRAS action required</value>
+  </data>
+  <data name="MirasIssueState_AutomaticallyResolved" xml:space="preserve">
+    <value>Automatically resolved</value>
+  </data>
+  <data name="MirasIssueState_Deferred" xml:space="preserve">
+    <value>Deferred</value>
+  </data>
+  <data name="MirasIssueState_Detected" xml:space="preserve">
+    <value>Detected</value>
+  </data>
+  <data name="MirasIssueState_ManuallyResolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="MirasIssueState_ResolutionFailed" xml:space="preserve">
+    <value>Resolution failed</value>
+  </data>
+  <data name="MirasIssueType_DuplicateFile" xml:space="preserve">
+    <value>Duplicate image file</value>
+  </data>
+  <data name="MirasIssueType_IdentityMismatch" xml:space="preserve">
+    <value>Image identity conflict</value>
+  </data>
+  <data name="MirasIssueType_IncompleteImport" xml:space="preserve">
+    <value>Incomplete import</value>
+  </data>
+  <data name="MirasIssueType_InvalidDicomFile" xml:space="preserve">
+    <value>Invalid DICOM file</value>
+  </data>
+  <data name="MirasIssueType_MisplacedFile" xml:space="preserve">
+    <value>Image file moved</value>
+  </data>
+  <data name="MirasIssueType_MissingFile" xml:space="preserve">
+    <value>Image file missing</value>
+  </data>
+  <data name="MirasIssueType_OrphanedFile" xml:space="preserve">
+    <value>Unregistered image file</value>
+  </data>
+  <data name="MirasIssueType_PersistenceAuditReferenceInvalid" xml:space="preserve">
+    <value>Invalid audit reference</value>
+  </data>
+  <data name="MirasIssueType_PersistenceRelationshipConflict" xml:space="preserve">
+    <value>Persistence relationship conflict</value>
+  </data>
+  <data name="MirasIssueType_PersistenceRequiredValueMissing" xml:space="preserve">
+    <value>Required persistence value missing</value>
+  </data>
+  <data name="MirasIssueType_PersistenceUnavailable" xml:space="preserve">
+    <value>Database unavailable</value>
+  </data>
+  <data name="MirasIssueType_PersistenceUniqueValueConflict" xml:space="preserve">
+    <value>Persistence uniqueness conflict</value>
+  </data>
+  <data name="MirasIssueType_PersistenceValueInvalid" xml:space="preserve">
+    <value>Invalid persistence value</value>
+  </data>
+  <data name="MirasIssueType_RelationshipConflict" xml:space="preserve">
+    <value>Image assignment conflict</value>
+  </data>
+  <data name="MirasIssueType_RepositoryUnavailable" xml:space="preserve">
+    <value>Image repository unavailable</value>
+  </data>
+  <data name="MirasIssueType_Unknown" xml:space="preserve">
+    <value>Unknown issue</value>
+  </data>
+  <data name="MirasIssueType_UnreadableFile" xml:space="preserve">
+    <value>Image file unreadable</value>
+  </data>
+  <data name="MirasOperationStatus_Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="MirasOperationStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="MirasOperationStatus_CompletedWithIssues" xml:space="preserve">
+    <value>Completed with issues</value>
+  </data>
+  <data name="MirasOperationStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="MirasOperationStatus_Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="MirasOperation_CheckCompleted_Description" xml:space="preserve">
+    <value>The image database and repository were checked successfully. No integrity issues were detected.</value>
+  </data>
+  <data name="MirasOperation_CheckCompleted_Title" xml:space="preserve">
+    <value>MIRAS check completed</value>
+  </data>
+  <data name="MirasOperation_CheckFailed_Description" xml:space="preserve">
+    <value>The integrity check could not be completed. The available image data has not been changed.</value>
+  </data>
+  <data name="MirasOperation_CheckIncomplete_Description" xml:space="preserve">
+    <value>The integrity check could not examine all required data. The result is incomplete and the available image data has not been changed.</value>
+  </data>
+  <data name="MirasOperation_NoActionRequired" xml:space="preserve">
+    <value>No action required</value>
+  </data>
+  <data name="MirasOperation_PersistenceBlocked_Description" xml:space="preserve">
+    <value>The database state could not be confirmed. The image repository was not checked to prevent an unsafe assessment.</value>
+  </data>
+  <data name="MirasOperation_TechnicalFailure_Title" xml:space="preserve">
+    <value>MIRAS action required</value>
+  </data>
+  <data name="MirasRecommendedAction_ContactAdministrator" xml:space="preserve">
+    <value>Request technical assistance</value>
+  </data>
+  <data name="MirasRecommendedAction_LocateFile" xml:space="preserve">
+    <value>Locate image file</value>
+  </data>
+  <data name="MirasRecommendedAction_None" xml:space="preserve">
+    <value>No action required</value>
+  </data>
+  <data name="MirasRecommendedAction_RebuildPersistenceEntry" xml:space="preserve">
+    <value>Restore image registration</value>
+  </data>
+  <data name="MirasRecommendedAction_ReconnectRepository" xml:space="preserve">
+    <value>Check storage connection</value>
+  </data>
+  <data name="MirasRecommendedAction_RestoreExpectedLocation" xml:space="preserve">
+    <value>Restore image file</value>
+  </data>
+  <data name="MirasRecommendedAction_RetryOperation" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewConflict" xml:space="preserve">
+    <value>Review conflict</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewDuplicate" xml:space="preserve">
+    <value>Review duplicate</value>
+  </data>
+  <data name="MirasRecommendedAction_ReviewInvalidFile" xml:space="preserve">
+    <value>Review image file</value>
+  </data>
+  <data name="MirasStatus_ActionAvailable" xml:space="preserve">
+    <value>A safe corrective action is available</value>
+  </data>
+  <data name="MirasStatus_ActionRequired" xml:space="preserve">
+    <value>MIRAS action required</value>
+  </data>
+  <data name="MirasStatus_AutomaticallyResolved" xml:space="preserve">
+    <value>The condition has been resolved</value>
+  </data>
+  <data name="MirasStatus_Detected" xml:space="preserve">
+    <value>Condition detected</value>
   </data>
   <data name="UnrealObjectType_PointCloud" xml:space="preserve">
     <value>Point cloud</value>

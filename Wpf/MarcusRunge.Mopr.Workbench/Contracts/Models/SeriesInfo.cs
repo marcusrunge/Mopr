@@ -1,26 +1,15 @@
 ﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Models
 {
-    public sealed class SeriesInfo
+    public sealed class SeriesInfo(string id, string modality, string name, string description, int imageCount, string? studyId = null, int? seriesNumber = null)
     {
-        public SeriesInfo(string id, string modality, string name, string description, int imageCount, string? studyId = null, int? seriesNumber = null)
-        {
-            Id = id;
-            StudyId = studyId;
-            Modality = modality;
-            Name = name;
-            Description = description;
-            ImageCount = imageCount;
-            SeriesNumber = seriesNumber;
-        }
-
-        public string Description { get; }
+        public string Description { get; } = description;
         public string DisplayText => string.IsNullOrWhiteSpace(Description) ? Name : $"{Name} · {Description}";
-        public string Id { get; }
-        public int ImageCount { get; }
+        public string Id { get; } = id;
+        public int ImageCount { get; } = imageCount;
         public string ImageCountDisplayText => $"{ImageCount} Bilder";
-        public string Modality { get; }
-        public string Name { get; }
-        public int? SeriesNumber { get; }
-        public string? StudyId { get; }
+        public string Modality { get; } = modality;
+        public string Name { get; } = name;
+        public int? SeriesNumber { get; } = seriesNumber;
+        public string? StudyId { get; } = studyId;
     }
 }

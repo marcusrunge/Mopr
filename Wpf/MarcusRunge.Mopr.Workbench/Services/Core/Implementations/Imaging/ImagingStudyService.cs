@@ -272,30 +272,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             return new FolderScanResult(studyId, studyName, folderPath, series, seriesFiles, seriesDicomMetadata, summary);
         }
 
-        private sealed class FolderScanResult
+        private sealed class FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, IReadOnlyDictionary<string, IReadOnlyList<string>> seriesFiles, IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> seriesDicomMetadata, ImagingFolderScanSummary summary)
         {
-            public FolderScanResult(string studyId, string folderName, string folderPath, IReadOnlyList<SeriesInfo> series, IReadOnlyDictionary<string, IReadOnlyList<string>> seriesFiles, IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> seriesDicomMetadata, ImagingFolderScanSummary summary)
-            {
-                StudyId = studyId;
-                FolderName = folderName;
-                FolderPath = folderPath;
-                Series = series;
-                SeriesFiles = seriesFiles;
-                SeriesDicomMetadata = seriesDicomMetadata;
-                Summary = summary;
-            }
+            public string FolderName { get; } = folderName;
 
-            public string FolderName { get; }
+            public string FolderPath { get; } = folderPath;
 
-            public string FolderPath { get; }
+            public IReadOnlyList<SeriesInfo> Series { get; } = series;
 
-            public IReadOnlyList<SeriesInfo> Series { get; }
+            public IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> SeriesDicomMetadata { get; } = seriesDicomMetadata;
+            public IReadOnlyDictionary<string, IReadOnlyList<string>> SeriesFiles { get; } = seriesFiles;
+            public string StudyId { get; } = studyId;
 
-            public IReadOnlyDictionary<string, IReadOnlyList<DicomFileMetadata>> SeriesDicomMetadata { get; }
-            public IReadOnlyDictionary<string, IReadOnlyList<string>> SeriesFiles { get; }
-            public string StudyId { get; }
-
-            public ImagingFolderScanSummary Summary { get; }
+            public ImagingFolderScanSummary Summary { get; } = summary;
         }
     }
 }

@@ -5,17 +5,10 @@ using System.Collections.Generic;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class ImagingStudyLoadedEventArgs : EventArgs
+    public sealed class ImagingStudyLoadedEventArgs(StudyInfo? study, IReadOnlyList<SeriesInfo> series, ImagingFolderScanSummary? scanSummary = null) : EventArgs
     {
-        public ImagingStudyLoadedEventArgs(StudyInfo? study, IReadOnlyList<SeriesInfo> series, ImagingFolderScanSummary? scanSummary = null)
-        {
-            Study = study;
-            Series = series;
-            ScanSummary = scanSummary;
-        }
-
-        public ImagingFolderScanSummary? ScanSummary { get; }
-        public IReadOnlyList<SeriesInfo> Series { get; }
-        public StudyInfo? Study { get; }
+        public ImagingFolderScanSummary? ScanSummary { get; } = scanSummary;
+        public IReadOnlyList<SeriesInfo> Series { get; } = series;
+        public StudyInfo? Study { get; } = study;
     }
 }

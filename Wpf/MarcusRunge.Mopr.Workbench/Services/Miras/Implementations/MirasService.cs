@@ -1,8 +1,9 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
-using MarcusRunge.Mopr.Workbench.Services.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
@@ -316,23 +317,23 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
 
         private static string GetIssueDescription(MirasIssueType issueType) => issueType switch
         {
-            MirasIssueType.MissingFile => Resources.MirasIssue_MissingFile_Description,
-            MirasIssueType.MisplacedFile => Resources.MirasIssue_MisplacedFile_Description,
-            MirasIssueType.DuplicateFile => Resources.MirasIssue_DuplicateFile_Description,
-            MirasIssueType.IdentityMismatch => Resources.MirasIssue_IdentityMismatch_Description,
-            MirasIssueType.OrphanedFile => Resources.MirasIssue_OrphanedFile_Description,
-            MirasIssueType.InvalidDicomFile => Resources.MirasIssue_InvalidDicomFile_Description,
-            MirasIssueType.UnreadableFile => Resources.MirasIssue_UnreadableFile_Description,
-            MirasIssueType.IncompleteImport => Resources.MirasIssue_IncompleteImport_Description,
-            MirasIssueType.RelationshipConflict => Resources.MirasIssue_RelationshipConflict_Description,
-            MirasIssueType.RepositoryUnavailable => Resources.MirasIssue_RepositoryUnavailable_Description,
-            MirasIssueType.PersistenceUnavailable => Resources.MirasIssue_PersistenceUnavailable_Description,
-            MirasIssueType.PersistenceRequiredValueMissing => Resources.MirasIssue_PersistenceRequiredValueMissing_Description,
-            MirasIssueType.PersistenceValueInvalid => Resources.MirasIssue_PersistenceValueInvalid_Description,
-            MirasIssueType.PersistenceUniqueValueConflict => Resources.MirasIssue_PersistenceUniqueValueConflict_Description,
-            MirasIssueType.PersistenceRelationshipConflict => Resources.MirasIssue_PersistenceRelationshipConflict_Description,
-            MirasIssueType.PersistenceAuditReferenceInvalid => Resources.MirasIssue_PersistenceAuditReferenceInvalid_Description,
-            _ => Resources.MirasIssue_Unknown_Description
+            MirasIssueType.MissingFile => Properties.Resources.MirasIssue_MissingFile_Description,
+            MirasIssueType.MisplacedFile => Properties.Resources.MirasIssue_MisplacedFile_Description,
+            MirasIssueType.DuplicateFile => Properties.Resources.MirasIssue_DuplicateFile_Description,
+            MirasIssueType.IdentityMismatch => Properties.Resources.MirasIssue_IdentityMismatch_Description,
+            MirasIssueType.OrphanedFile => Properties.Resources.MirasIssue_OrphanedFile_Description,
+            MirasIssueType.InvalidDicomFile => Properties.Resources.MirasIssue_InvalidDicomFile_Description,
+            MirasIssueType.UnreadableFile => Properties.Resources.MirasIssue_UnreadableFile_Description,
+            MirasIssueType.IncompleteImport => Properties.Resources.MirasIssue_IncompleteImport_Description,
+            MirasIssueType.RelationshipConflict => Properties.Resources.MirasIssue_RelationshipConflict_Description,
+            MirasIssueType.RepositoryUnavailable => Properties.Resources.MirasIssue_RepositoryUnavailable_Description,
+            MirasIssueType.PersistenceUnavailable => Properties.Resources.MirasIssue_PersistenceUnavailable_Description,
+            MirasIssueType.PersistenceRequiredValueMissing => Properties.Resources.MirasIssue_PersistenceRequiredValueMissing_Description,
+            MirasIssueType.PersistenceValueInvalid => Properties.Resources.MirasIssue_PersistenceValueInvalid_Description,
+            MirasIssueType.PersistenceUniqueValueConflict => Properties.Resources.MirasIssue_PersistenceUniqueValueConflict_Description,
+            MirasIssueType.PersistenceRelationshipConflict => Properties.Resources.MirasIssue_PersistenceRelationshipConflict_Description,
+            MirasIssueType.PersistenceAuditReferenceInvalid => Properties.Resources.MirasIssue_PersistenceAuditReferenceInvalid_Description,
+            _ => Properties.Resources.MirasIssue_Unknown_Description
         };
 
         private static string GetIssueStatusText(MirasIssueState issueState) => issueState switch

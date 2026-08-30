@@ -3,15 +3,9 @@ using System;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
-    public sealed class SeriesSelectionChangedEventArgs : EventArgs
+    public sealed class SeriesSelectionChangedEventArgs(StudyInfo? selectedStudy, SeriesInfo? selectedSeries) : EventArgs
     {
-        public SeriesSelectionChangedEventArgs(StudyInfo? selectedStudy, SeriesInfo? selectedSeries)
-        {
-            SelectedStudy = selectedStudy;
-            SelectedSeries = selectedSeries;
-        }
-
-        public SeriesInfo? SelectedSeries { get; }
-        public StudyInfo? SelectedStudy { get; }
+        public SeriesInfo? SelectedSeries { get; } = selectedSeries;
+        public StudyInfo? SelectedStudy { get; } = selectedStudy;
     }
 }
