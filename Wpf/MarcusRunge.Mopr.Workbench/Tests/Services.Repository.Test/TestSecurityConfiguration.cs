@@ -9,7 +9,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
         public bool AllowSelfModification => true;
 
         public bool HideOtherUsersFromRegularUsers => true;
-
-        public bool RestrictAdministrationToDomainAdministrators => true;
     }
 }

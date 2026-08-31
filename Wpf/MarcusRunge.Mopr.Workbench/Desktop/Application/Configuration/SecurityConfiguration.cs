@@ -2,11 +2,18 @@
 
 namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 {
+    /// <summary>
+    /// Represents machine-wide MOPR security behavior.
+    /// </summary>
     public sealed class SecurityConfiguration : ISecurityConfiguration
     {
-        public bool AllowSelfDeletion { get; set; } = false;
+        /// <inheritdoc/>
+        public bool AllowSelfDeletion { get; set; }
+
+        /// <inheritdoc/>
         public bool AllowSelfModification { get; set; } = true;
+
+        /// <inheritdoc/>
         public bool HideOtherUsersFromRegularUsers { get; set; } = true;
-        public bool RestrictAdministrationToDomainAdministrators { get; set; } = true;
     }
 }
