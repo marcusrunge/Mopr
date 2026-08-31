@@ -5,7 +5,7 @@
 
 **Medical Observation & Projection Renderer**
 
-MOPR is an experimental Windows workbench for importing, organizing, validating, viewing, and preparing DICOM CT and MRI data. The current repository focuses on the WPF workbench and its local service architecture. Medical image processing and integrity checks remain local to the workstation.
+MOPR is an experimental Windows workbench for importing, organizing, validating, viewing, and preparing DICOM CT and MRI data. The repository focuses on a modular WPF workbench, local service architecture, persistent metadata management, repository integrity, and medical-image visualization.
 
 > **Important**
 >
@@ -16,46 +16,109 @@ MOPR is an experimental Windows workbench for importing, organizing, validating,
 The current implementation includes:
 
 - DICOM grayscale image display
-- grouping by `SeriesInstanceUID`
+- grouping of image instances by `SeriesInstanceUID`
 - assignment of image series to multiple viewports
-- clearing individual viewports
-- window and level presets
-- DICOM import and repository services
+- configurable viewport layouts and orientations
+- selection and clearing of individual viewports
+- window and level handling
+- imaging tools and measurement models
+- DICOM metadata, image-frame, image, and import services
+- DICOM import and repository coordination
 - Entity Framework Core persistence with SQL Server and in-memory test support
 - persistence and repository integrity verification
-- MIRAS issue mapping, localized user messages, result classification, and flow-state management
+- controlled repository repair operations
+- MIRAS issue mapping, result classification, localized messages, and flow-state management
+- machine, database, repository, and security configuration contracts
+- protected machine-configuration storage
+- Windows administrative authorization
+- startup diagnostics
 - application-wide single-instance protection
 - English and German localization
-- isolated test projects for imaging, persistence, repository, MIRAS, Core services, and desktop startup infrastructure
+- isolated test projects for desktop, imaging, Core, MIRAS, persistence, and repository functionality
 
-Interactive mouse windowing, the DICOM import user interface, application and database configuration interfaces, and later volumetric or Unreal-related workflows remain separate work packages.
+The DICOM import user interface, extended configuration interfaces, advanced measurements, volumetric reconstruction, segmentation, and Unreal-related workflows remain separate work packages or areas for future development.
 
 ## Architecture
 
-MOPR separates shared contracts, reusable services, application composition, WPF modules, and tests.
+MOPR separates shared contracts, reusable services, application composition, WPF modules, persistence, repository operations, and tests.
 
 ### Shared Contracts
 
-`MarcusRunge.Mopr.Workbench.Contracts` targets `.NET Standard 2.1`. It contains technology-independent contracts and data models that must be shared by service projects targeting different .NET versions.
+`MarcusRunge.Mopr.Workbench.Contracts` targets `.NET Standard 2.1`. It contains technology-independent contracts, enumerations, configuration abstractions, and data models shared by projects targeting different .NET versions.
 
-The shared MIRAS contract area contains:
+The contract project includes:
 
-- `IMirasService`
-- MIRAS enums
-- `MirasIssue`
-- `MirasOperationResult`
-- `MirasUserMessage`
+- application administration, configuration, and lifetime abstractions
+- imaging layouts, tools, viewport state, and study-loading models
+- geometry types
+- measurement data models
+- MIRAS contracts, states, issues, operation results, and user messages
+- machine-configuration validation models
+- Unreal object and mesh transfer models
+- localized English and German resources
 
-The project uses a small `IsExternalInit` compatibility type so records and init-only properties can remain available while targeting `.NET Standard 2.1`.
+A small `IsExternalInit` compatibility type allows records and init-only properties to remain available while targeting `.NET Standard 2.1`.
+
+### Core and MVVM Infrastructure
+
+`MarcusRunge.Mopr.Workbench.Core` contains shared Prism and MVVM infrastructure, including:
+
+- navigation-aware view-model base classes
+- region-aware view-model base classes
+- navigation confirmation support
+- shared navigation names
+- shared region names
+
+### Desktop Application
+
+The desktop project is the WPF and Prism composition root. It owns:
+
+- application startup and shutdown
+- dependency registration and application composition
+- the main window and its view model
+- application, database, repository, and security configuration
+- machine-specific configuration loading, validation, path handling, and protection
+- Windows administrator-role evaluation and administrative authorization
+- startup diagnostics
+- application lifetime coordination
+- single-instance coordination and foreground activation
+- application assets and localized resources
+
+### Imaging Module
+
+`MarcusRunge.Mopr.Workbench.Modules.Imaging` owns the image-viewing workspace and its WPF-specific behavior. It includes:
+
+- the imaging workbench
+- image viewer and command bar
+- series and properties panels
+- viewport layout host and viewport tiles
+- measurement overlays and interaction state
+- focus, mouse-selection, and viewport-interaction behaviors
+- viewport image-geometry calculation
+- module-specific services and localized resources
+
+### Setup Module
+
+`MarcusRunge.Mopr.Workbench.Modules.Setup` provides a separate setup area with:
+
+- `SetupModule`
+- `SetupViewModel`
+- `SetupView`
+- localized English and German resources
 
 ### Core Services
 
-`MarcusRunge.Mopr.Workbench.Services.Core` also targets `.NET Standard 2.1`. It provides application-wide service composition for:
+`MarcusRunge.Mopr.Workbench.Services.Core` provides application-wide service composition for:
 
 - imaging coordination
+- series and viewport selection
+- imaging layouts and tools
+- viewport state
+- window and level changes
+- study loading
 - MIRAS application-flow coordination
 
-The MIRAS Core service is divided into:
+The MIRAS Core flow is divided into:
 
 - `IMirasApplicationService`
 - `IMirasFlowService`
@@ -64,218 +127,192 @@ The MIRAS Core service is divided into:
 
 `MirasFlowService` controls one application-level MIRAS check at a time. It tracks `Idle`, `Running`, `Completed`, `Canceled`, and `Failed`, supports cancellation and repeated runs, retains the most recent regular result, and prevents concurrent duplicate checks.
 
+### DICOM Services
+
+`MarcusRunge.Mopr.Workbench.Services.Dicom` provides:
+
+- DICOM file metadata extraction
+- grayscale image handling
+- image-frame access
+- DICOM import services
+- series import results
+- metadata and image service contracts
+- service composition through `DicomFactory`
+
 ### MIRAS
 
-MIRAS is the Medical Image Recovery and Assurance System. The `MarcusRunge.Mopr.Workbench.Services.Miras` project targets `.NET 10` because its implementation depends on the `.NET 10` persistence and repository services.
+MIRAS is the **Medical Image Recovery and Assurance System**.
 
-Responsibilities include:
+`MarcusRunge.Mopr.Workbench.Services.Miras` is responsible for:
 
 - orchestrating persistence and repository integrity checks
-- mapping technical persistence and repository findings to MIRAS issues
+- mapping technical findings to MIRAS issues
 - classifying operation results
 - producing localized, user-oriented messages
 - preserving technical diagnostics separately from user-facing text
 
-MIRAS does not automatically create Unreal objects. Unreal artifacts may only be created later from fully validated DICOM and persistence data.
+MIRAS does not silently repair repository data and does not automatically create Unreal objects. Repair operations remain explicit, and Unreal artifacts may only be created by later workflows from validated DICOM and persistence data.
 
 ### Persistence
 
-`MarcusRunge.Mopr.Workbench.Services.Persistence` targets `.NET 10` and contains:
+`MarcusRunge.Mopr.Workbench.Services.Persistence` contains:
 
-- Entity Framework Core database context and factory
+- Entity Framework Core database context and context factories
 - SQL Server and in-memory provider configuration
 - database migrations
 - DICOM import persistence
 - entity repositories
 - persistence-integrity verification
+- serialization of measurement data
 - repository-location records
 - studies, series, instances, measurements, users, and Unreal-object persistence
 
-Persistence exposes an observable initialization task so application services can wait for the currently published configuration before accessing dependent data.
+The persistence layer includes auditable entities and dedicated Entity Framework configurations for the stored domain types.
 
 ### Repository
 
-`MarcusRunge.Mopr.Workbench.Services.Repository` targets `.NET 10` and contains:
+`MarcusRunge.Mopr.Workbench.Services.Repository` contains:
 
 - DICOM import coordination
 - repository scanning
 - file identity and path verification
 - repository issue detection
 - controlled repair operations
-- serialization of repository operations
+- serialization of repository operations through a coordinator
 
-Repository verification and repair remain separate operations. A MIRAS check does not silently perform a repair.
+Repository verification and repair remain separate operations. A MIRAS check reports findings and recommended actions but does not silently alter data.
 
-### Desktop and Modules
+### WPF Services
 
-The desktop project is the Prism and WPF composition root. It owns:
+`MarcusRunge.Mopr.Workbench.Services.Wpf` contains reusable desktop services for:
 
-- application startup and shutdown
-- dependency registration
-- application configuration
-- diagnostics
-- application lifetime
-- single-instance coordination
-- the main window
-
-The imaging module owns its WPF views, view models, interaction behaviors, viewport infrastructure, and module-specific services.
+- dialogs
+- file dialogs
+- image-source creation
+- media handling
+- WPF service composition through `WpfFactory`
 
 ## Project Structure
 
 ```text
-MOPR/
-├── .gitignore
-├── LICENSE
-├── README.md
-└── Wpf/
-    ├── Export-MoprSourceCode.ps1
-    ├── MarcusRunge.Mopr.Workbench.slnx
-    └── MarcusRunge.Mopr.Workbench/
-        ├── Contracts/
-        │   ├── Application/
-        │   │   ├── Configuration/
-        │   │   └── Lifetime/
-        │   ├── Compatibility/
-        │   │   └── IsExternalInit.cs
-        │   ├── Enums/
-        │   ├── Imaging/
-        │   ├── Miras/
-        │   │   ├── IMirasService.cs
-        │   │   ├── Enums/
-        │   │   │   ├── MirasAlertLevel.cs
-        │   │   │   ├── MirasFlowState.cs
-        │   │   │   ├── MirasIssueState.cs
-        │   │   │   ├── MirasIssueType.cs
-        │   │   │   ├── MirasOperationStatus.cs
-        │   │   │   └── MirasRecommendedAction.cs
-        │   │   └── Models/
-        │   │       ├── MirasIssue.cs
-        │   │       ├── MirasOperationResult.cs
-        │   │       └── MirasUserMessage.cs
-        │   ├── Models/
-        │   │   ├── Geometry/
-        │   │   ├── Measurements/
-        │   │   └── Unreal/
-        │   └── Properties/
-        │
-        ├── Core/
-        │   ├── Mvvm/
-        │   └── RegionNames.cs
-        │
-        ├── Desktop/
-        │   ├── Application/
-        │   │   ├── Configuration/
-        │   │   ├── Diagnostics/
-        │   │   ├── Lifetime/
-        │   │   └── SingleInstance/
-        │   ├── Assets/
-        │   ├── Properties/
-        │   ├── ViewModels/
-        │   ├── Views/
-        │   ├── App.xaml
-        │   └── App.xaml.cs
-        │
-        ├── Modules/
-        │   └── Imaging/
-        │       ├── Behaviors/
-        │       ├── Infrastructure/
-        │       │   └── Viewports/
-        │       ├── Properties/
-        │       ├── Services/
-        │       ├── ViewModels/
-        │       ├── Views/
-        │       │   └── Viewports/
-        │       └── ImagingModule.cs
-        │
-        ├── Services/
-        │   ├── Core/
-        │   │   ├── Bases/
-        │   │   │   ├── CoreBase.cs
-        │   │   │   ├── ImagingServiceBase.cs
-        │   │   │   └── MirasApplicationServiceBase.cs
-        │   │   ├── Contracts/
-        │   │   │   ├── Imaging/
-        │   │   │   ├── Miras/
-        │   │   │   │   └── IMirasFlowService.cs
-        │   │   │   ├── ICore.cs
-        │   │   │   ├── ICoreBase.cs
-        │   │   │   ├── IImagingService.cs
-        │   │   │   ├── IImagingServiceBase.cs
-        │   │   │   ├── IMirasApplicationService.cs
-        │   │   │   └── IMirasApplicationServiceBase.cs
-        │   │   ├── Implementations/
-        │   │   │   ├── Imaging/
-        │   │   │   ├── Miras/
-        │   │   │   │   └── MirasFlowService.cs
-        │   │   │   ├── Core.cs
-        │   │   │   ├── ImagingService.cs
-        │   │   │   └── MirasApplicationService.cs
-        │   │   ├── Properties/
-        │   │   └── CoreFactory.cs
-        │   │
-        │   ├── Dicom/
-        │   │   ├── Bases/
-        │   │   ├── Contracts/
-        │   │   ├── Implementations/
-        │   │   ├── Properties/
-        │   │   └── DicomFactory.cs
-        │   │
-        │   ├── Miras/
-        │   │   ├── Bases/
-        │   │   ├── Contracts/
-        │   │   │   ├── IMiras.cs
-        │   │   │   └── IMirasBase.cs
-        │   │   ├── Implementations/
-        │   │   │   ├── Miras.cs
-        │   │   │   └── MirasService.cs
-        │   │   ├── Properties/
-        │   │   └── MirasFactory.cs
-        │   │
-        │   ├── Persistence/
-        │   │   ├── Bases/
-        │   │   ├── Configurations/
-        │   │   ├── Contexts/
-        │   │   ├── Contracts/
-        │   │   ├── Entities/
-        │   │   ├── Enums/
-        │   │   ├── Implementations/
-        │   │   ├── Migrations/
-        │   │   ├── Models/
-        │   │   ├── Properties/
-        │   │   ├── Serialization/
-        │   │   ├── PersistenceDbContextFactory.cs
-        │   │   └── PersistenceFactory.cs
-        │   │
-        │   ├── Repository/
-        │   │   ├── Bases/
-        │   │   ├── Contracts/
-        │   │   ├── Enums/
-        │   │   ├── Implementations/
-        │   │   ├── Models/
-        │   │   ├── Properties/
-        │   │   └── RepositoryFactory.cs
-        │   │
-        │   └── Wpf/
-        │       ├── Bases/
-        │       ├── Contracts/
-        │       │   ├── Dialog/
-        │       │   └── Media/
-        │       ├── Implementations/
-        │       │   ├── Dialog/
-        │       │   └── Media/
-        │       ├── Properties/
-        │       └── WpfFactory.cs
-        │
-        └── Tests/
-            ├── Desktop.Test/
-            ├── Modules.Imaging.Test/
-            ├── Services.Core.Test/
-            ├── Services.Miras.Test/
-            ├── Services.Persistence.Test/
-            └── Services.Repository.Test/
+C:\
+│   Export-MoprSourceCode.ps1
+│   MarcusRunge.Mopr.Workbench.slnx
+│
+└── MarcusRunge.Mopr.Workbench
+    ├── Contracts
+    │   ├── Application
+    │   │   ├── Administration
+    │   │   ├── Configuration
+    │   │   └── Lifetime
+    │   ├── Compatibility
+    │   ├── Enums
+    │   ├── Imaging
+    │   ├── Miras
+    │   │   ├── Enums
+    │   │   └── Models
+    │   ├── Models
+    │   │   ├── Configuration
+    │   │   ├── Geometry
+    │   │   ├── Measurements
+    │   │   └── Unreal
+    │   └── Properties
+    │
+    ├── Core
+    │   └── Mvvm
+    │
+    ├── Desktop
+    │   ├── Application
+    │   │   ├── Administration
+    │   │   ├── Configuration
+    │   │   ├── Diagnostics
+    │   │   ├── Lifetime
+    │   │   └── SingleInstance
+    │   ├── Assets
+    │   ├── Properties
+    │   ├── Services
+    │   │   └── Dialog
+    │   ├── ViewModels
+    │   └── Views
+    │
+    ├── Modules
+    │   ├── Imaging
+    │   │   ├── Behaviors
+    │   │   ├── Infrastructure
+    │   │   │   └── Viewports
+    │   │   ├── Properties
+    │   │   ├── Services
+    │   │   ├── ViewModels
+    │   │   └── Views
+    │   │       └── Viewports
+    │   └── Setup
+    │       ├── Properties
+    │       ├── ViewModels
+    │       └── Views
+    │
+    ├── Services
+    │   ├── Core
+    │   │   ├── Bases
+    │   │   ├── Contracts
+    │   │   │   ├── Imaging
+    │   │   │   └── Miras
+    │   │   ├── Implementations
+    │   │   │   ├── Imaging
+    │   │   │   └── Miras
+    │   │   └── Properties
+    │   ├── Dicom
+    │   │   ├── Bases
+    │   │   ├── Contracts
+    │   │   ├── Implementations
+    │   │   └── Properties
+    │   ├── Miras
+    │   │   ├── Bases
+    │   │   ├── Contracts
+    │   │   ├── Implementations
+    │   │   └── Properties
+    │   ├── Persistence
+    │   │   ├── Bases
+    │   │   ├── Configurations
+    │   │   ├── Contexts
+    │   │   ├── Contracts
+    │   │   ├── Entities
+    │   │   ├── Enums
+    │   │   ├── Implementations
+    │   │   ├── Migrations
+    │   │   ├── Models
+    │   │   ├── Properties
+    │   │   └── Serialization
+    │   ├── Repository
+    │   │   ├── Bases
+    │   │   ├── Contracts
+    │   │   ├── Enums
+    │   │   ├── Implementations
+    │   │   ├── Models
+    │   │   └── Properties
+    │   └── Wpf
+    │       ├── Bases
+    │       ├── Contracts
+    │       │   ├── Dialog
+    │       │   └── Media
+    │       ├── Implementations
+    │       │   ├── Dialog
+    │       │   └── Media
+    │       └── Properties
+    │
+    └── Tests
+        ├── Desktop.Test
+        │   └── Application
+        │       ├── Administration
+        │       └── Configuration
+        ├── Modules.Imaging.Test
+        │   └── ViewModels
+        ├── Services.Core.Test
+        ├── Services.Miras.Test
+        ├── Services.Persistence.Test
+        └── Services.Repository.Test
 ```
 
-Generated `bin` and `obj` directories are intentionally omitted.
+Generated `bin` and `obj` directories, build output, IDE metadata, and other generated files are intentionally omitted.
 
 ## Dependency Direction
 
@@ -283,9 +320,12 @@ The principal dependency direction is:
 
 ```text
 Desktop
+├── Contracts
 ├── Core MVVM infrastructure
-├── Imaging module
+├── Modules.Imaging
+├── Modules.Setup
 ├── Services.Core
+├── Services.Dicom
 ├── Services.Miras
 ├── Services.Persistence
 ├── Services.Repository
@@ -308,33 +348,40 @@ Services.Persistence (.NET 10)
 └── Contracts (.NET Standard 2.1)
 ```
 
-The shared `Contracts.Miras.IMirasService` contract allows the `.NET Standard 2.1` Core flow to invoke MIRAS without referencing the `.NET 10` MIRAS implementation project.
+The shared `Contracts.Miras.IMirasService` contract allows the `.NET Standard 2.1` Core flow to invoke MIRAS without referencing the `.NET 10` MIRAS implementation project directly.
 
 ## Module and Factory Pattern
 
-Service assemblies expose one module instance through a factory:
+Service assemblies expose a module instance through a factory:
 
 ```text
-CoreFactory        -> ICore
-DicomFactory       -> IDicom
-MirasFactory       -> IMiras
-PersistenceFactory -> IPersistence
-RepositoryFactory  -> IRepository
-WpfFactory         -> IWpf
+CoreFactory        → ICore
+DicomFactory       → IDicom
+MirasFactory       → IMiras
+PersistenceFactory → IPersistence
+RepositoryFactory  → IRepository
+WpfFactory         → IWpf
 ```
 
 Each factory retains one module instance per factory. The desktop application controls the overall lifetime through dependency injection.
 
-Core composes two service groups:
+Core composes the application-facing service groups:
 
 ```text
 ICore
 ├── IImagingService
+│   ├── IImagingLayoutService
+│   ├── IImagingSelectionService
+│   ├── IImagingStudyService
+│   ├── IImagingToolService
+│   ├── IImagingViewportSelectionService
+│   ├── IImagingViewportService
+│   └── IImagingWindowLevelService
 └── IMirasApplicationService
     └── IMirasFlowService
 ```
 
-The MIRAS implementation module remains separate:
+The MIRAS implementation remains separate:
 
 ```text
 IMiras
@@ -371,7 +418,7 @@ MirasFlowState.Completed
 MirasOperationStatus.Blocked
 ```
 
-means that the flow completed normally and MIRAS returned a blocking integrity result.
+This means the application flow completed normally and MIRAS returned a blocking integrity result.
 
 The flow guarantees:
 
@@ -382,25 +429,30 @@ The flow guarantees:
 - clearing `LastResult` when a new run starts
 - restart after completion, cancellation, or an unexpected failure
 - no restart after final application shutdown
-- `INotifyPropertyChanged` notifications for later UI binding
+- `INotifyPropertyChanged` notifications for UI binding
+
+## Configuration and Administration
+
+The application separates configuration contracts from Windows-specific implementations.
+
+Configuration areas include:
+
+- application configuration
+- database configuration
+- repository configuration
+- security configuration
+- machine-configuration storage
+- machine-configuration path resolution
+- machine-configuration protection
+- machine-configuration validation
+
+Administrative operations are protected through `IAdministrativeAuthorizationService`. The desktop implementation evaluates the current Windows administrator role through `IWindowsAdministratorRoleEvaluator`.
 
 ## Localization
 
 MOPR uses English default resources and German satellite resources.
 
-Each localized enum uses:
-
-```csharp
-[TypeConverter(typeof(EnumDescriptionTypeConverter))]
-```
-
-Each enum value uses:
-
-```csharp
-[LocalizedDescription("ResourceKey", typeof(Resources))]
-```
-
-Shared MIRAS enum descriptions, operation texts, and status texts are stored in:
+Localized enum values use the established localization infrastructure and resource files. Shared MIRAS enum descriptions, operation texts, and status texts are stored in:
 
 ```text
 Contracts/Properties/Resources.resx
@@ -414,7 +466,9 @@ Services/Miras/Properties/Resources.resx
 Services/Miras/Properties/Resources.de.resx
 ```
 
-Technical identifiers, paths, stack traces, and raw exception details must not be copied into ordinary user-facing messages.
+Other projects provide their own English and German resource files where project-specific text is required.
+
+Technical identifiers, filesystem paths, stack traces, and raw exception details must not be copied into ordinary user-facing messages.
 
 ## Build
 
@@ -422,16 +476,18 @@ Technical identifiers, paths, stack traces, and raw exception details must not b
 
 - Windows 10 or Windows 11
 - .NET 10 SDK
-- Visual Studio with .NET desktop development support
+- Visual Studio with the **.NET desktop development** workload
 - SQL Server LocalDB for the default desktop persistence configuration
 
-### Build the solution
+### Build the Solution
+
+Run from the directory containing `MarcusRunge.Mopr.Workbench.slnx`:
 
 ```powershell
 dotnet build .\MarcusRunge.Mopr.Workbench.slnx --configuration Debug
 ```
 
-### Run the desktop application
+### Run the Desktop Application
 
 ```powershell
 dotnet run --project .\MarcusRunge.Mopr.Workbench\Desktop\MarcusRunge.Mopr.Workbench.csproj --configuration Debug
@@ -464,15 +520,21 @@ dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Repository.Test\MarcusRu
 The test suites cover:
 
 - single-instance application behavior
-- imaging view-model behavior
+- Windows administrative authorization
+- application and machine configuration
+- imaging workbench view-model behavior
 - Core MIRAS flow state, concurrency, cancellation, restart, and shutdown behavior
-- MIRAS result mapping and localization
-- Persistence integration and integrity verification
-- Repository integration, coordination, and repair behavior
+- MIRAS result mapping, localization, and edge cases
+- persistence integration and integrity verification
+- repository integration, repair, and operation coordination
+
+Some integration tests may require local infrastructure or configuration that is not needed by unit tests.
 
 ## Safety and Privacy
 
-MOPR is designed for local processing. Cloud-based AI or machine-learning services are not part of the intended architecture. DICOM data and derived medical imaging information should remain under the control of the local deployment.
+MOPR is designed for local processing. Cloud-based AI or machine-learning services are not part of the intended architecture.
+
+DICOM data and derived medical-imaging information should remain under the control of the local deployment. Deployments must apply appropriate access controls, storage protection, backup policies, and applicable data-protection requirements.
 
 Repository repair is explicit and separate from integrity inspection. MIRAS reports findings and recommended actions but does not silently alter data during a check.
 
