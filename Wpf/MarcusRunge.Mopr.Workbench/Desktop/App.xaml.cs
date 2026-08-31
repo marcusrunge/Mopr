@@ -141,6 +141,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
+            containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
 

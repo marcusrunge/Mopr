@@ -56,6 +56,15 @@
         IStudyRepository? Study { get; }
 
         /// <summary>
+        /// Tests whether the supplied Persistence configuration can establish a
+        /// database connection without replacing the active configuration.
+        /// </summary>
+        /// <param name="configuration">The Persistence configuration to test.</param>
+        /// <param name="cancellationToken">Cancels the connection test.</param>
+        /// <returns>The connection test result.</returns>
+        Task<PersistenceConnectionTestResult> TestConnectionAsync(PersistenceConfiguration configuration, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Gets the Unreal object repository.
         /// </summary>
         IUnrealObjectRepository? UnrealObject { get; }
