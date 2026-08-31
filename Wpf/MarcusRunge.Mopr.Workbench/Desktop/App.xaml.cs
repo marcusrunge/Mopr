@@ -1,8 +1,9 @@
-﻿using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
+﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras;
@@ -29,6 +30,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
 
 namespace MarcusRunge.Mopr.Workbench
 {
@@ -135,6 +137,11 @@ namespace MarcusRunge.Mopr.Workbench
         {
             containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
 
+            containerRegistry.RegisterSingleton<IAdministrativeAuthorizationService, WindowsAdministrativeAuthorizationService>();
+            containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
+            containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
+            containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
+
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
 
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);
@@ -150,8 +157,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterInstance<IObservable<IApplicationConfiguration>>(applicationConfigurationSubject);
 
             containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
-            containerRegistry.RegisterSingleton<IDicom>(
-                provider => provider.Resolve<IDicomFactory>().Create());
+            containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
 
             containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
