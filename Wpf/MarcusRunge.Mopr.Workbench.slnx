@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Modules/">
     <Project Path="MarcusRunge.Mopr.Workbench/Modules/Imaging/MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Modules/Setup/MarcusRunge.Mopr.Workbench.Modules.Setup.csproj" Id="7308fff7-7534-4e64-8ed6-13acaed97523" />
   </Folder>
   <Folder Name="/Projektmappenelemente/">
     <File Path="../.gitignore" />

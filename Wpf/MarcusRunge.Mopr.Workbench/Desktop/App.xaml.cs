@@ -8,6 +8,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
+using MarcusRunge.Mopr.Workbench.Modules.Setup;
 using MarcusRunge.Mopr.Workbench.Services.Core;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Miras;
@@ -41,7 +42,11 @@ namespace MarcusRunge.Mopr.Workbench
         private StartupDiagnostics? _startupDiagnostics;
         private SingleInstanceCoordinator? _singleInstanceCoordinator;
 
-        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog) => moduleCatalog.AddModule<ImagingModule>();
+        protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
+        {
+            moduleCatalog.AddModule<ImagingModule>();
+            moduleCatalog.AddModule<SetupModule>();
+        }
 
         protected override Window CreateShell() => Container.Resolve<MainWindow>();
 
@@ -307,8 +312,7 @@ namespace MarcusRunge.Mopr.Workbench
 
         private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
 
-        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceStartupFailedMessage, WorkbenchResources.SingleInstanceStartupFailedTitle,
-                MessageBoxButton.OK, MessageBoxImage.Error);
+        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceStartupFailedMessage, WorkbenchResources.SingleInstanceStartupFailedTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 
         private void DisposeSingleInstanceCoordinator()
         {
