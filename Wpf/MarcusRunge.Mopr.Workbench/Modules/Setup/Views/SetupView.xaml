@@ -4,70 +4,59 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
              xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewModels:SetupViewModel}"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid Background="{DynamicResource ApplicationPageBackgroundThemeBrush}">
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-            <Grid Margin="48"
-                  HorizontalAlignment="Center"
-                  MaxWidth="760">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="48" HorizontalAlignment="Center" MaxWidth="760">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="24" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="24" />
+                    <RowDefinition Height="16" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <StackPanel>
-                    <TextBlock FontSize="32"
-                               FontWeight="SemiBold"
-                               Text="MOPR einrichten" />
-
-                    <TextBlock Margin="0,12,0,0"
-                               FontSize="16"
-                               Text="Richten Sie die gemeinsame MOPR-Konfiguration für dieses Gerät ein."
-                               TextWrapping="Wrap" />
+                    <TextBlock FontSize="32" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_Title}" />
+                    <TextBlock Margin="0,12,0,0" FontSize="16" Text="{x:Static properties:Resources.Setup_Description}" TextWrapping="Wrap" />
                 </StackPanel>
 
-                <Border Grid.Row="2"
-                        Padding="24"
-                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="8">
+                <Border Grid.Row="2" Padding="24" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
                     <StackPanel>
-                        <TextBlock FontSize="20"
-                                   FontWeight="SemiBold"
-                                   Text="Datenbank" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
+                        <TextBlock Margin="0,8,0,16" Text="{x:Static properties:Resources.Setup_DatabaseDescription}" TextWrapping="Wrap" />
+                        <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_DatabaseConnectionLabel}" />
+                        <TextBox IsEnabled="{Binding CanModify}" Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock Margin="0,8,0,16"
-                                   Text="Die Datenbankeinstellung gilt für alle Benutzer dieses Geräts."
-                                   TextWrapping="Wrap" />
+                        <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
+                            <Button Command="{Binding TestDatabaseConnectionCommand}" Content="{x:Static properties:Resources.Setup_TestDatabaseConnection}" />
+                            <ProgressBar Margin="12,0,0,0" Width="120" Height="4" IsIndeterminate="True" VerticalAlignment="Center">
+                                <ProgressBar.Style>
+                                    <Style TargetType="ProgressBar">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTestingDatabase}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ProgressBar.Style>
+                            </ProgressBar>
+                        </StackPanel>
 
-                        <TextBlock Margin="0,0,0,6"
-                                   FontWeight="SemiBold"
-                                   Text="SQL-Server-Verbindung" />
+                        <TextBlock Margin="0,12,0,0" Text="{Binding DatabaseStatusText}" TextWrapping="Wrap" />
 
-                        <TextBox IsEnabled="{Binding CanModify}"
-                                 Text="{Binding ConnectionString,
-                                                UpdateSourceTrigger=PropertyChanged}" />
-
-                        <TextBlock Margin="0,12,0,0"
-                                   Foreground="{DynamicResource SystemFillColorCautionBrush}"
-                                   Text="Zum Ändern der Gerätekonfiguration sind erhöhte Administratorrechte erforderlich."
-                                   TextWrapping="Wrap">
+                        <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource SystemFillColorCautionBrush}" Text="{x:Static properties:Resources.Setup_AdministratorRequired}" TextWrapping="Wrap">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility"
-                                            Value="Collapsed" />
-
+                                    <Setter Property="Visibility" Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanModify}"
-                                                     Value="False">
-                                            <Setter Property="Visibility"
-                                                    Value="Visible" />
+                                        <DataTrigger Binding="{Binding CanModify}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -76,19 +65,13 @@
                     </StackPanel>
                 </Border>
 
-                <ProgressBar Grid.Row="4"
-                             Height="4"
-                             IsIndeterminate="True">
+                <ProgressBar Grid.Row="4" Height="4" IsIndeterminate="True">
                     <ProgressBar.Style>
                         <Style TargetType="ProgressBar">
-                            <Setter Property="Visibility"
-                                    Value="Collapsed" />
-
+                            <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsLoading}"
-                                             Value="True">
-                                    <Setter Property="Visibility"
-                                            Value="Visible" />
+                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

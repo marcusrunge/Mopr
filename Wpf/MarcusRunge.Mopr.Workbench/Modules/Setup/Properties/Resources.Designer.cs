@@ -59,5 +59,122 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Changing the workstation configuration requires elevated administrator rights. ähnelt.
+        /// </summary>
+        public static string Setup_AdministratorRequired {
+            get {
+                return ResourceManager.GetString("Setup_AdministratorRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading the MOPR workstation configuration was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoadCanceled {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoadCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MOPR workstation configuration could not be loaded. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoadFailed {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection test was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionCanceled {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be established. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionFailed {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SQL Server connection ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionLabel {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection was established successfully. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Testing the database connection... ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionTesting {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionTesting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration applies to all users of this workstation. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseDescription {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseTitle {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure the shared MOPR settings for this workstation. ähnelt.
+        /// </summary>
+        public static string Setup_Description {
+            get {
+                return ResourceManager.GetString("Setup_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Test connection ähnelt.
+        /// </summary>
+        public static string Setup_TestDatabaseConnection {
+            get {
+                return ResourceManager.GetString("Setup_TestDatabaseConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Set up MOPR ähnelt.
+        /// </summary>
+        public static string Setup_Title {
+            get {
+                return ResourceManager.GetString("Setup_Title", resourceCulture);
+            }
+        }
     }
 }

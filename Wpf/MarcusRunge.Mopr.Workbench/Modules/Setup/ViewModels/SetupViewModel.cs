@@ -1,4 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 using System;
@@ -6,23 +8,26 @@ using System;
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
 {
     /// <summary>
-    /// Provides the initial state of the machine-wide MOPR setup.
+    /// Provides the initial state and database validation of the machine-wide MOPR setup.
     /// </summary>
     public sealed class SetupViewModel : BindableBase, INavigationAware
     {
         private readonly IMachineConfigurationService _configurationService;
         private string _connectionString = string.Empty;
-        private bool _isSetupComplete;
+        private string _databaseStatusText = string.Empty;
+        private bool? _isDatabaseConnectionSuccessful;
         private bool _isLoading;
+        private bool _isSetupComplete;
+        private bool _isTestingDatabase;
 
-        public SetupViewModel(IMachineConfigurationService configurationService) =>
-            _configurationService = configurationService
-                ?? throw new ArgumentNullException(
-                    nameof(configurationService));
+        public SetupViewModel(IMachineConfigurationService configurationService)
+        {
+            _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
+            TestDatabaseConnectionCommand = new DelegateCommand(ExecuteTestDatabaseConnection, CanTestDatabaseConnection);
+        }
 
         /// <summary>
-        /// Gets a value indicating whether the current process may change the
-        /// machine-wide configuration.
+        /// Gets a value indicating whether the current process may change the machine-wide configuration.
         /// </summary>
         public bool CanModify => _configurationService.CanModify;
 
@@ -32,7 +37,50 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         public string ConnectionString
         {
             get => _connectionString;
-            set => SetProperty(ref _connectionString, value);
+            set
+            {
+                if (!SetProperty(ref _connectionString, value))
+                {
+                    return;
+                }
+
+                IsDatabaseConnectionSuccessful = null;
+                DatabaseStatusText = string.Empty;
+                TestDatabaseConnectionCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets the current user-oriented database status text.
+        /// </summary>
+        public string DatabaseStatusText
+        {
+            get => _databaseStatusText;
+            private set => SetProperty(ref _databaseStatusText, value);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the most recent database connection test succeeded.
+        /// </summary>
+        public bool? IsDatabaseConnectionSuccessful
+        {
+            get => _isDatabaseConnectionSuccessful;
+            private set => SetProperty(ref _isDatabaseConnectionSuccessful, value);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the machine configuration is loading.
+        /// </summary>
+        public bool IsLoading
+        {
+            get => _isLoading;
+            private set
+            {
+                if (SetProperty(ref _isLoading, value))
+                {
+                    TestDatabaseConnectionCommand.RaiseCanExecuteChanged();
+                }
+            }
         }
 
         /// <summary>
@@ -45,36 +93,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether the machine configuration is loading.
+        /// Gets a value indicating whether the database connection is currently being tested.
         /// </summary>
-        public bool IsLoading
+        public bool IsTestingDatabase
         {
-            get => _isLoading;
-            private set => SetProperty(ref _isLoading, value);
+            get => _isTestingDatabase;
+            private set
+            {
+                if (SetProperty(ref _isTestingDatabase, value))
+                {
+                    TestDatabaseConnectionCommand.RaiseCanExecuteChanged();
+                }
+            }
         }
 
-        /// <inheritdoc/>
-        public bool IsNavigationTarget(
-            NavigationContext navigationContext) => true;
+        /// <summary>
+        /// Gets the command that tests the entered database connection.
+        /// </summary>
+        public DelegateCommand TestDatabaseConnectionCommand { get; }
 
         /// <inheritdoc/>
-        public async void OnNavigatedTo(
-            NavigationContext navigationContext)
+        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
+
+        /// <inheritdoc/>
+        public async void OnNavigatedTo(NavigationContext navigationContext)
         {
             try
             {
                 IsLoading = true;
+                DatabaseStatusText = string.Empty;
+                IsDatabaseConnectionSuccessful = null;
 
-                var configuration = await _configurationService
-                    .LoadAsync()
-                    .ConfigureAwait(true);
+                var configuration = await _configurationService.LoadAsync().ConfigureAwait(true);
 
-                ConnectionString =
-                    configuration.Database.ConnectionString;
-                IsSetupComplete =
-                    configuration.IsSetupComplete;
-
+                ConnectionString = configuration.Database.ConnectionString;
+                IsSetupComplete = configuration.IsSetupComplete;
                 RaisePropertyChanged(nameof(CanModify));
+            }
+            catch (OperationCanceledException)
+            {
+                DatabaseStatusText = Resources.Setup_ConfigurationLoadCanceled;
+            }
+            catch
+            {
+                // Technical details remain outside the user-facing setup state.
+                DatabaseStatusText = Resources.Setup_ConfigurationLoadFailed;
             }
             finally
             {
@@ -83,9 +146,46 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         }
 
         /// <inheritdoc/>
-        public void OnNavigatedFrom(
-            NavigationContext navigationContext)
+        public void OnNavigatedFrom(NavigationContext navigationContext)
         {
+        }
+
+        private bool CanTestDatabaseConnection() => CanModify && !IsLoading && !IsTestingDatabase && !string.IsNullOrWhiteSpace(ConnectionString);
+
+        private async void ExecuteTestDatabaseConnection()
+        {
+            try
+            {
+                IsTestingDatabase = true;
+                IsDatabaseConnectionSuccessful = null;
+                DatabaseStatusText = Resources.Setup_DatabaseConnectionTesting;
+
+                var isSuccessful = await _configurationService.TestDatabaseConnectionAsync(new SetupDatabaseConfiguration(ConnectionString)).ConfigureAwait(true);
+
+                IsDatabaseConnectionSuccessful = isSuccessful;
+                DatabaseStatusText = isSuccessful ? Resources.Setup_DatabaseConnectionSuccessful : Resources.Setup_DatabaseConnectionFailed;
+            }
+            catch (OperationCanceledException)
+            {
+                IsDatabaseConnectionSuccessful = null;
+                DatabaseStatusText = Resources.Setup_DatabaseConnectionCanceled;
+            }
+            catch
+            {
+                // The UI receives a localized status while technical diagnostics remain in the service boundary.
+                IsDatabaseConnectionSuccessful = false;
+                DatabaseStatusText = Resources.Setup_DatabaseConnectionFailed;
+            }
+            finally
+            {
+                IsTestingDatabase = false;
+            }
+        }
+
+        private sealed class SetupDatabaseConfiguration(string connectionString) : IDatabaseConfiguration
+        {
+            /// <inheritdoc/>
+            public string ConnectionString { get; } = connectionString;
         }
     }
 }
