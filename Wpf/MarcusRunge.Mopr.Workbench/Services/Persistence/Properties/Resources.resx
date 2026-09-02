@@ -117,4 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="SetupCompletionStatus_Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="SetupCompletionStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="SetupCompletionStatus_DatabaseValidationFaile" xml:space="preserve">
+    <value>Database validation failed</value>
+  </data>
+  <data name="SetupCompletionStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="SetupCompletionStatus_FailedAndRollbackFailed" xml:space="preserve">
+    <value>Failed and rollback failed</value>
+  </data>
+  <data name="SetupCompletionStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="SetupCompletionStatus_RepositoryValidationFailed" xml:space="preserve">
+    <value>Repository validation failed</value>
+  </data>
 </root>

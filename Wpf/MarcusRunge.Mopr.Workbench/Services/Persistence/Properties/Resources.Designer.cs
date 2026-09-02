@@ -59,5 +59,68 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Canceled ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_Canceled {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_Completed {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database validation failed ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_DatabaseValidationFaile {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_DatabaseValidationFaile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_Failed {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed and rollback failed ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_FailedAndRollbackFailed {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_FailedAndRollbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository validation failed ähnelt.
+        /// </summary>
+        public static string SetupCompletionStatus_RepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("SetupCompletionStatus_RepositoryValidationFailed", resourceCulture);
+            }
+        }
     }
 }
