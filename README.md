@@ -100,11 +100,12 @@ The desktop project is the WPF and Prism composition root. It owns:
 
 ### Setup Module
 
-`MarcusRunge.Mopr.Workbench.Modules.Setup` provides a separate setup area with:
+`MarcusRunge.Mopr.Workbench.Modules.Setup` provides a guided, multi-step setup area with:
 
-- `SetupModule`
-- `SetupViewModel`
-- `SetupView`
+- repository, database, verification, and completion setup steps
+- `SetupModule` and `SetupViewModel`
+- dedicated views and code-behind files for each setup step
+- shared setup control styles in `Themes/SetupControls.xaml`
 - localized English and German resources
 
 ### Core Services
@@ -196,126 +197,119 @@ Repository verification and repair remain separate operations. A MIRAS check rep
 ## Project Structure
 
 ```text
-C:\
-│   Export-MoprSourceCode.ps1
-│   MarcusRunge.Mopr.Workbench.slnx
-│
-└── MarcusRunge.Mopr.Workbench
-    ├── Contracts
-    │   ├── Application
-    │   │   ├── Administration
-    │   │   ├── Configuration
-    │   │   └── Lifetime
-    │   ├── Compatibility
-    │   ├── Enums
-    │   ├── Imaging
-    │   ├── Miras
-    │   │   ├── Enums
-    │   │   └── Models
-    │   ├── Models
-    │   │   ├── Configuration
-    │   │   ├── Geometry
-    │   │   ├── Measurements
-    │   │   └── Unreal
-    │   └── Properties
-    │
-    ├── Core
-    │   └── Mvvm
-    │
-    ├── Desktop
-    │   ├── Application
-    │   │   ├── Administration
-    │   │   ├── Configuration
-    │   │   ├── Diagnostics
-    │   │   ├── Lifetime
-    │   │   ├── SingleInstance
-    │   │   └── Startup
-    │   ├── Assets
-    │   ├── Properties
-    │   ├── Services
-    │   │   └── Dialog
-    │   ├── ViewModels
-    │   └── Views
-    │
-    ├── Modules
-    │   ├── Imaging
-    │   │   ├── Behaviors
-    │   │   ├── Infrastructure
-    │   │   │   └── Viewports
-    │   │   ├── Properties
-    │   │   ├── Services
-    │   │   ├── ViewModels
-    │   │   └── Views
-    │   │       └── Viewports
-    │   └── Setup
-    │       ├── Properties
-    │       ├── ViewModels
-    │       └── Views
-    │
-    ├── Services
-    │   ├── Core
-    │   │   ├── Bases
-    │   │   ├── Contracts
-    │   │   │   ├── Imaging
-    │   │   │   └── Miras
-    │   │   ├── Implementations
-    │   │   │   ├── Imaging
-    │   │   │   └── Miras
-    │   │   └── Properties
-    │   ├── Dicom
-    │   │   ├── Bases
-    │   │   ├── Contracts
-    │   │   ├── Implementations
-    │   │   └── Properties
-    │   ├── Miras
-    │   │   ├── Bases
-    │   │   ├── Contracts
-    │   │   ├── Implementations
-    │   │   └── Properties
-    │   ├── Persistence
-    │   │   ├── Bases
-    │   │   ├── Configurations
-    │   │   ├── Contexts
-    │   │   ├── Contracts
-    │   │   ├── Entities
-    │   │   ├── Enums
-    │   │   ├── Implementations
-    │   │   ├── Migrations
-    │   │   ├── Models
-    │   │   ├── Properties
-    │   │   └── Serialization
-    │   ├── Repository
-    │   │   ├── Bases
-    │   │   ├── Contracts
-    │   │   ├── Enums
-    │   │   ├── Implementations
-    │   │   ├── Models
-    │   │   └── Properties
-    │   └── Wpf
-    │       ├── Bases
-    │       ├── Contracts
-    │       │   ├── Dialog
-    │       │   └── Media
-    │       ├── Implementations
-    │       │   ├── Dialog
-    │       │   └── Media
-    │       └── Properties
-    │
-    └── Tests
-        ├── Desktop.Test
-        │   └── Application
-        │       ├── Administration
-        │       ├── Configuration
-        │       └── Startup
-        ├── Modules.Imaging.Test
-        │   └── ViewModels
-        ├── Services.Core.Test
-        ├── Services.Miras.Test
-        ├── Services.Persistence.Test
-        └── Services.Repository.Test
+Wpf/
+├── Export-MoprSourceCode.ps1
+├── MarcusRunge.Mopr.Workbench.slnx
+└── MarcusRunge.Mopr.Workbench/
+    ├── Contracts/
+    │   ├── Application/
+    │   │   ├── Administration/
+    │   │   ├── Configuration/
+    │   │   └── Lifetime/
+    │   ├── Compatibility/
+    │   ├── Enums/
+    │   ├── Imaging/
+    │   ├── Miras/
+    │   │   ├── Enums/
+    │   │   └── Models/
+    │   ├── Models/
+    │   │   ├── Configuration/
+    │   │   ├── Geometry/
+    │   │   ├── Measurements/
+    │   │   └── Unreal/
+    │   └── Properties/
+    ├── Core/
+    │   └── Mvvm/
+    ├── Desktop/
+    │   ├── Application/
+    │   │   ├── Administration/
+    │   │   ├── Configuration/
+    │   │   ├── Diagnostics/
+    │   │   ├── Lifetime/
+    │   │   ├── SingleInstance/
+    │   │   └── Startup/
+    │   ├── Assets/
+    │   ├── Properties/
+    │   ├── ViewModels/
+    │   └── Views/
+    ├── Modules/
+    │   ├── Imaging/
+    │   │   ├── Behaviors/
+    │   │   ├── Infrastructure/
+    │   │   │   └── Viewports/
+    │   │   ├── Properties/
+    │   │   ├── Services/
+    │   │   ├── ViewModels/
+    │   │   └── Views/
+    │   │       └── Viewports/
+    │   └── Setup/
+    │       ├── Properties/
+    │       ├── Themes/
+    │       ├── ViewModels/
+    │       └── Views/
+    ├── Services/
+    │   ├── Core/
+    │   │   ├── Bases/
+    │   │   ├── Contracts/
+    │   │   │   ├── Imaging/
+    │   │   │   └── Miras/
+    │   │   ├── Implementations/
+    │   │   │   ├── Imaging/
+    │   │   │   └── Miras/
+    │   │   └── Properties/
+    │   ├── Dicom/
+    │   │   ├── Bases/
+    │   │   ├── Contracts/
+    │   │   ├── Implementations/
+    │   │   └── Properties/
+    │   ├── Miras/
+    │   │   ├── Bases/
+    │   │   ├── Contracts/
+    │   │   ├── Implementations/
+    │   │   └── Properties/
+    │   ├── Persistence/
+    │   │   ├── Bases/
+    │   │   ├── Configurations/
+    │   │   ├── Contexts/
+    │   │   ├── Contracts/
+    │   │   ├── Entities/
+    │   │   ├── Enums/
+    │   │   ├── Implementations/
+    │   │   ├── Migrations/
+    │   │   ├── Models/
+    │   │   ├── Properties/
+    │   │   └── Serialization/
+    │   ├── Repository/
+    │   │   ├── Bases/
+    │   │   ├── Contracts/
+    │   │   ├── Enums/
+    │   │   ├── Implementations/
+    │   │   ├── Models/
+    │   │   └── Properties/
+    │   └── Wpf/
+    │       ├── Bases/
+    │       ├── Contracts/
+    │       │   ├── Dialog/
+    │       │   └── Media/
+    │       ├── Implementations/
+    │       │   ├── Dialog/
+    │       │   └── Media/
+    │       └── Properties/
+    └── Tests/
+        ├── Desktop.Test/
+        │   └── Application/
+        │       ├── Administration/
+        │       ├── Configuration/
+        │       └── Startup/
+        ├── Modules.Imaging.Test/
+        │   └── ViewModels/
+        ├── Services.Core.Test/
+        ├── Services.Miras.Test/
+        ├── Services.Persistence.Test/
+        └── Services.Repository.Test/
 ```
 
-The structure above represents source-controlled project content. Generated and machine-specific content such as `bin`, `obj`, `.vs`, compiler-generated files, and `*.csproj.user` files is intentionally omitted.
+The structure intentionally shows source-controlled project areas only. Build output, IDE state, generated compiler files, local exports, and user-specific project settings are omitted, including `bin`, `obj`, `.vs`, `ref`, `refint`, `*.g.cs`, `*.g.i.cs`, `*.cache`, and `*.csproj.user`.
 
 ## Dependency Direction
 
@@ -448,6 +442,7 @@ Configuration areas include:
 - machine-configuration path resolution
 - machine-configuration protection
 - machine-configuration validation
+- repository-location validation before configuration is accepted
 
 Administrative operations are protected through `IAdministrativeAuthorizationService`. The desktop implementation evaluates the current Windows administrator role through `IWindowsAdministratorRoleEvaluator`.
 
@@ -524,7 +519,7 @@ The test suites cover:
 
 - single-instance application behavior
 - Windows administrative authorization
-- application and machine configuration
+- application, machine, and repository-location configuration validation
 - startup-route selection
 - imaging workbench view-model behavior
 - Core MIRAS flow state, concurrency, cancellation, restart, and shutdown behavior

@@ -37,27 +37,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         private PersistenceConfiguration? _persistenceConfiguration;
         private ServiceProvider? _serviceProvider;
 
-        internal PersistenceBase(
-            ILogger? logger,
-            IApplicationLifetime? applicationLifetime,
-            IObservable<PersistenceConfiguration>? persistenceConfigurationObservable)
+        internal PersistenceBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration>? persistenceConfigurationObservable)
         {
             _logger = logger;
-            _applicationLifetime = applicationLifetime
-                ?? throw new ArgumentNullException(
-                    nameof(applicationLifetime),
-                    "Application lifetime cannot be null.");
+            _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime), "Application lifetime cannot be null.");
 
             // Shutdown prevents further configuration notifications and releases
             // the provider after in-flight operations receive the stopping token.
-            _shutdownRegistration = _applicationLifetime.ApplicationStopping
-                .Register(DisposePersistenceInfrastructure);
+            _shutdownRegistration = _applicationLifetime.ApplicationStopping.Register(DisposePersistenceInfrastructure);
 
             // BehaviorSubject delivers its current value synchronously. Storing the
             // resulting task allows consumers to await the matching initialization.
-            _persistenceConfigurationSubscription =
-                persistenceConfigurationObservable?
-                    .Subscribe(QueueConfigurationInitialization);
+            _persistenceConfigurationSubscription = persistenceConfigurationObservable?.Subscribe(QueueConfigurationInitialization);
         }
 
         /// <inheritdoc/>
@@ -80,12 +71,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         }
 
         /// <inheritdoc/>
-        IApplicationLifetime? IPersistenceBase.ApplicationLifetime =>
-            _applicationLifetime;
+        IApplicationLifetime? IPersistenceBase.ApplicationLifetime => _applicationLifetime;
 
         /// <inheritdoc/>
-        PersistenceConfiguration? IPersistenceBase.Configuration =>
-            _persistenceConfiguration;
+        PersistenceConfiguration? IPersistenceBase.Configuration => _persistenceConfiguration;
 
         /// <inheritdoc/>
         public IDicomImportPersistenceService? DicomImport => _dicomImport;
@@ -133,50 +122,36 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         /// <inheritdoc/>
         PersistenceDbContext IPersistenceBase.CreateDbContext()
         {
-            var dbContextFactory = _dbContextFactory
-                ?? throw new InvalidOperationException(
-                    "Persistence has not been configured.");
+            var dbContextFactory = _dbContextFactory ?? throw new InvalidOperationException("Persistence has not been configured.");
 
             return dbContextFactory.CreateDbContext();
         }
 
         /// <inheritdoc/>
-        async Task IPersistenceBase.InitializeDatabaseAsync(
-            CancellationToken cancellationToken)
+        async Task IPersistenceBase.InitializeDatabaseAsync(CancellationToken cancellationToken)
         {
-            await _initializationSemaphore
-                .WaitAsync(cancellationToken)
-                .ConfigureAwait(false);
+            await _initializationSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
-                var dbContextFactory = _dbContextFactory
-                    ?? throw new InvalidOperationException(
-                        "Persistence has not been configured.");
+                var dbContextFactory = _dbContextFactory ?? throw new InvalidOperationException("Persistence has not been configured.");
 
-                await using var context =
-                    dbContextFactory.CreateDbContext();
+                await using var context = dbContextFactory.CreateDbContext();
 
                 if (!context.Database.IsRelational())
                 {
                     // Relational migration APIs are unavailable for the EF Core
                     // in-memory provider used by integration tests.
-                    await context.Database
-                        .EnsureCreatedAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
 
-                var pendingMigrations = await context.Database
-                    .GetPendingMigrationsAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                var pendingMigrations = await context.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false);
 
                 if (pendingMigrations.Any())
                 {
-                    await context.Database
-                        .MigrateAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    await context.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
             finally
@@ -188,10 +163,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         /// <inheritdoc/>
         void IPersistenceBase.OnExceptionThrown(Exception exception)
         {
-            _logger?.LogError(
-                exception,
-                "Exception thrown in {AssemblyName}",
-                Assembly.GetCallingAssembly().GetName().Name);
+            _logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
             Action<Exception>? handlers;
 
@@ -207,9 +179,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
             // Subscriber exceptions are isolated so every registered diagnostics
             // consumer receives the original Persistence exception.
-            foreach (var handler in handlers
-                .GetInvocationList()
-                .Cast<Action<Exception>>())
+            foreach (var handler in handlers.GetInvocationList().Cast<Action<Exception>>())
             {
                 try
                 {
@@ -217,35 +187,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 }
                 catch (Exception callbackException)
                 {
-                    _logger?.LogError(
-                        callbackException,
-                        "Exception thrown by ExceptionThrown event handler.");
+                    _logger?.LogError(callbackException, "Exception thrown by ExceptionThrown event handler.");
                 }
             }
         }
 
         /// <inheritdoc/>
-        async Task<PersistenceConnectionTestResult>
-            IPersistenceBase.TestConnectionAsync(
-                CancellationToken cancellationToken)
+        async Task<PersistenceConnectionTestResult> IPersistenceBase.TestConnectionAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var dbContextFactory = _dbContextFactory
-                    ?? throw new InvalidOperationException(
-                        "Persistence has not been configured.");
+                var dbContextFactory = _dbContextFactory ?? throw new InvalidOperationException("Persistence has not been configured.");
 
-                await using var context =
-                    dbContextFactory.CreateDbContext();
+                await using var context = dbContextFactory.CreateDbContext();
 
-                var isSuccessful = await context.Database
-                    .CanConnectAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                var isSuccessful = await context.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
 
                 return CreateConnectionTestResult(isSuccessful);
             }
-            catch (OperationCanceledException)
-                when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
@@ -257,17 +217,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         }
 
         /// <inheritdoc/>
-        public async Task<PersistenceConnectionTestResult>
-            TestConnectionAsync(
-                PersistenceConfiguration configuration,
-                CancellationToken cancellationToken = default)
+        public async Task<PersistenceConnectionTestResult> TestConnectionAsync(PersistenceConfiguration configuration, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(configuration);
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (string.IsNullOrWhiteSpace(
-                configuration.ConnectionString))
+            if (string.IsNullOrWhiteSpace(configuration.ConnectionString))
             {
                 return new PersistenceConnectionTestResult
                 {
@@ -280,36 +236,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             {
                 var services = new ServiceCollection();
 
-                services.AddDbContextFactory<PersistenceDbContext>(
-                    options => ConfigureDatabase(
-                        options,
-                        configuration));
+                services.AddDbContextFactory<PersistenceDbContext>(options => ConfigureDatabase(options, configuration));
 
-                using var serviceProvider =
-                    services.BuildServiceProvider();
+                using var serviceProvider = services.BuildServiceProvider();
 
-                var dbContextFactory = serviceProvider
-                    .GetRequiredService<
-                        IDbContextFactory<PersistenceDbContext>>();
+                var dbContextFactory = serviceProvider.GetRequiredService<IDbContextFactory<PersistenceDbContext>>();
 
-                await using var context =
-                    dbContextFactory.CreateDbContext();
+                await using var context = dbContextFactory.CreateDbContext();
 
                 if (!context.Database.IsRelational())
                 {
-                    await context.Database
-                        .EnsureCreatedAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    await context.Database.EnsureCreatedAsync(cancellationToken).ConfigureAwait(false);
                 }
 
-                var isSuccessful = await context.Database
-                    .CanConnectAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                var isSuccessful = await context.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
 
                 return CreateConnectionTestResult(isSuccessful);
             }
-            catch (OperationCanceledException)
-                when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
@@ -320,10 +264,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             }
         }
 
-        private async Task ApplyConfigurationAfterAsync(
-            Task previousInitialization,
-            PersistenceConfiguration configuration,
-            CancellationToken cancellationToken)
+        private async Task ApplyConfigurationAfterAsync(Task previousInitialization, PersistenceConfiguration configuration, CancellationToken cancellationToken)
         {
             try
             {
@@ -333,8 +274,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 {
                     await previousInitialization.ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
-                    when (cancellationToken.IsCancellationRequested)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                 }
@@ -346,9 +286,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (string.IsNullOrWhiteSpace(
-                        configuration.ConnectionString)
-                    || IsCurrentConfiguration(configuration))
+                if (string.IsNullOrWhiteSpace(configuration.ConnectionString) || IsCurrentConfiguration(configuration))
                 {
                     return;
                 }
@@ -356,12 +294,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 RebuildDbContextFactory(configuration);
                 _persistenceConfiguration = configuration;
 
-                await ((IPersistenceBase)this)
-                    .InitializeDatabaseAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                await ((IPersistenceBase)this).InitializeDatabaseAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
-                when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
@@ -372,30 +307,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             }
         }
 
-        private static void ConfigureDatabase(
-            DbContextOptionsBuilder options,
-            PersistenceConfiguration configuration)
+        private static void ConfigureDatabase(DbContextOptionsBuilder options, PersistenceConfiguration configuration)
         {
             switch (configuration.Mode)
             {
                 case PersistenceMode.InMemory:
                     // The connection string is the logical database name for
                     // isolated test databases using the in-memory provider.
-                    options.UseInMemoryDatabase(
-                        configuration.ConnectionString);
+                    options.UseInMemoryDatabase(configuration.ConnectionString);
                     break;
 
                 case PersistenceMode.SqlServer:
                 default:
-                    options.UseSqlServer(
-                        configuration.ConnectionString);
+                    options.UseSqlServer(configuration.ConnectionString);
                     break;
             }
         }
 
         private static PersistenceConnectionTestResult
-            CreateConnectionTestFailure(Exception exception) =>
-            new()
+            CreateConnectionTestFailure(Exception exception) => new()
             {
                 IsSuccessful = false,
                 Message = exception.Message,
@@ -403,13 +333,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             };
 
         private static PersistenceConnectionTestResult
-            CreateConnectionTestResult(bool isSuccessful) =>
-            new()
+            CreateConnectionTestResult(bool isSuccessful) => new()
             {
                 IsSuccessful = isSuccessful,
-                Message = isSuccessful
-                    ? "Connection successful."
-                    : "Connection failed."
+                Message = isSuccessful ? "Connection successful." : "Connection failed."
             };
 
         private void DisposePersistenceInfrastructure()
@@ -433,49 +360,33 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             }
         }
 
-        private bool IsCurrentConfiguration(
-            PersistenceConfiguration configuration)
+        private bool IsCurrentConfiguration(PersistenceConfiguration configuration)
         {
             var currentConfiguration = _persistenceConfiguration;
 
-            return currentConfiguration is not null
-                && currentConfiguration.Mode == configuration.Mode
-                && string.Equals(
-                    currentConfiguration.ConnectionString,
-                    configuration.ConnectionString,
-                    StringComparison.Ordinal);
+            return currentConfiguration is not null && currentConfiguration.Mode == configuration.Mode && string.Equals(currentConfiguration.ConnectionString, configuration.ConnectionString, StringComparison.Ordinal);
         }
 
-        private void QueueConfigurationInitialization(
-            PersistenceConfiguration configuration)
+        private void QueueConfigurationInitialization(PersistenceConfiguration configuration)
         {
             lock (_configurationSynchronization)
             {
-                _initialization = ApplyConfigurationAfterAsync(
-                    _initialization,
-                    configuration,
-                    _applicationLifetime.ApplicationStopping);
+                _initialization = ApplyConfigurationAfterAsync(_initialization, configuration, _applicationLifetime.ApplicationStopping);
             }
         }
 
-        private void RebuildDbContextFactory(
-            PersistenceConfiguration configuration)
+        private void RebuildDbContextFactory(PersistenceConfiguration configuration)
         {
             var services = new ServiceCollection();
 
-            services.AddDbContextFactory<PersistenceDbContext>(
-                options => ConfigureDatabase(
-                    options,
-                    configuration));
+            services.AddDbContextFactory<PersistenceDbContext>(options => ConfigureDatabase(options, configuration));
 
             var previousServiceProvider = _serviceProvider;
             var newServiceProvider = services.BuildServiceProvider();
 
             try
             {
-                var newDbContextFactory = newServiceProvider
-                    .GetRequiredService<
-                        IDbContextFactory<PersistenceDbContext>>();
+                var newDbContextFactory = newServiceProvider.GetRequiredService<IDbContextFactory<PersistenceDbContext>>();
 
                 _serviceProvider = newServiceProvider;
                 _dbContextFactory = newDbContextFactory;

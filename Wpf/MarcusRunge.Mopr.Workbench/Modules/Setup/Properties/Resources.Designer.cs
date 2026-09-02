@@ -79,11 +79,65 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Back ähnelt.
+        /// </summary>
+        public static string Setup_Back {
+            get {
+                return ResourceManager.GetString("Setup_Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is ready to apply the validated workstation configuration. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionDescription {
+            get {
+                return ResourceManager.GetString("Setup_CompletionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The configuration has not been applied yet. You can return to the previous steps without changing the workstation. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionNoChangesNotice {
+            get {
+                return ResourceManager.GetString("Setup_CompletionNoChangesNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection and DICOM storage have been validated. Review the information before completing setup. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionReadyDescription {
+            get {
+                return ResourceManager.GetString("Setup_CompletionReadyDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configuration ready ähnelt.
+        /// </summary>
+        public static string Setup_CompletionReadyTitle {
+            get {
+                return ResourceManager.GetString("Setup_CompletionReadyTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Completion ähnelt.
         /// </summary>
         public static string Setup_CompletionStep {
             get {
                 return ResourceManager.GetString("Setup_CompletionStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete setup ähnelt.
+        /// </summary>
+        public static string Setup_CompletionTitle {
+            get {
+                return ResourceManager.GetString("Setup_CompletionTitle", resourceCulture);
             }
         }
         
@@ -129,6 +183,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string Setup_ConfigurationScopeDescription {
             get {
                 return ResourceManager.GetString("Setup_ConfigurationScopeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Continue ähnelt.
+        /// </summary>
+        public static string Setup_Continue {
+            get {
+                return ResourceManager.GetString("Setup_Continue", resourceCulture);
             }
         }
         
@@ -241,11 +304,137 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the folder in which MOPR will manage imported DICOM data. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDescription {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected folder does not exist. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryMissing {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR cannot read the selected folder. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryNotReadable {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryNotReadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR cannot write to the selected folder. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryNotWritable {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryNotWritable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the MOPR DICOM storage folder ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryFolderDialogTitle {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryFolderDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select a folder before validating the DICOM storage. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryNotSelected {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryNotSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Storage folder ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryPathLabel {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryPathLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die DICOM storage ähnelt.
         /// </summary>
         public static string Setup_RepositoryStep {
             get {
                 return ResourceManager.GetString("Setup_RepositoryStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The folder is only being validated. No repository entry or DICOM data will be created during this step. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryTemporaryNotice {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryTemporaryNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM storage ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryTitle {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The DICOM storage validation was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationCanceled {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected folder cannot be used as the MOPR DICOM storage. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validating the DICOM storage... ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationRunning {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The DICOM storage is available and can be used by MOPR. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select folder ähnelt.
+        /// </summary>
+        public static string Setup_SelectRepositoryLocation {
+            get {
+                return ResourceManager.GetString("Setup_SelectRepositoryLocation", resourceCulture);
             }
         }
         
@@ -268,11 +457,56 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validate storage ähnelt.
+        /// </summary>
+        public static string Setup_ValidateRepositoryLocation {
+            get {
+                return ResourceManager.GetString("Setup_ValidateRepositoryLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Review the validated workstation configuration before MOPR applies it. ähnelt.
+        /// </summary>
+        public static string Setup_VerificationDescription {
+            get {
+                return ResourceManager.GetString("Setup_VerificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No changes are applied during verification. ähnelt.
+        /// </summary>
+        public static string Setup_VerificationNoChangesNotice {
+            get {
+                return ResourceManager.GetString("Setup_VerificationNoChangesNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Verification ähnelt.
         /// </summary>
         public static string Setup_VerificationStep {
             get {
                 return ResourceManager.GetString("Setup_VerificationStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verify configuration ähnelt.
+        /// </summary>
+        public static string Setup_VerificationTitle {
+            get {
+                return ResourceManager.GetString("Setup_VerificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verified ähnelt.
+        /// </summary>
+        public static string Setup_Verified {
+            get {
+                return ResourceManager.GetString("Setup_Verified", resourceCulture);
             }
         }
     }

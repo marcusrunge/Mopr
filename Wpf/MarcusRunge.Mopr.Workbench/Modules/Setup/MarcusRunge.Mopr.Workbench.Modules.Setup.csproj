@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="MarcusRunge.Toolbox.Localization.Wpf" Version="1.0.5" />
@@ -10,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
     <ProjectReference Include="..\..\Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
+    <ProjectReference Include="..\..\Services\Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

@@ -123,8 +123,26 @@
   <data name="Setup_AdministratorRequired" xml:space="preserve">
     <value>Administratorrechte erforderlich</value>
   </data>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
+  <data name="Setup_CompletionDescription" xml:space="preserve">
+    <value>MOPR ist bereit, die geprüfte Gerätekonfiguration zu übernehmen.</value>
+  </data>
+  <data name="Setup_CompletionNoChangesNotice" xml:space="preserve">
+    <value>Die Konfiguration wurde noch nicht übernommen. Sie können zu den vorherigen Schritten zurückkehren, ohne dieses Gerät zu verändern.</value>
+  </data>
+  <data name="Setup_CompletionReadyDescription" xml:space="preserve">
+    <value>Datenbankverbindung und DICOM-Speicher wurden geprüft. Kontrollieren Sie die Angaben vor dem Abschluss der Einrichtung.</value>
+  </data>
+  <data name="Setup_CompletionReadyTitle" xml:space="preserve">
+    <value>Konfiguration bereit</value>
+  </data>
   <data name="Setup_CompletionStep" xml:space="preserve">
     <value>Abschluss</value>
+  </data>
+  <data name="Setup_CompletionTitle" xml:space="preserve">
+    <value>Einrichtung abschließen</value>
   </data>
   <data name="Setup_ConfigurationLoadCanceled" xml:space="preserve">
     <value>Das Laden der MOPR-Gerätekonfiguration wurde abgebrochen.</value>
@@ -140,6 +158,9 @@
   </data>
   <data name="Setup_ConfigurationScopeDescription" xml:space="preserve">
     <value>Diese Konfiguration gilt für alle Benutzer dieses Geräts und kann nur mit erhöhten Administratorrechten geändert werden.</value>
+  </data>
+  <data name="Setup_Continue" xml:space="preserve">
+    <value>Weiter</value>
   </data>
   <data name="Setup_CurrentStep" xml:space="preserve">
     <value>Aktueller Schritt</value>
@@ -177,8 +198,50 @@
   <data name="Setup_LocalDataStatus" xml:space="preserve">
     <value>MOPR • LOKALE GERÄTEKONFIGURATION • DATEN VERBLEIBEN AUF DIESEM SYSTEM</value>
   </data>
+  <data name="Setup_RepositoryDescription" xml:space="preserve">
+    <value>Wählen Sie den Ordner aus, in dem MOPR importierte DICOM-Daten verwalten soll.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryMissing" xml:space="preserve">
+    <value>Der ausgewählte Ordner ist nicht vorhanden.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotReadable" xml:space="preserve">
+    <value>MOPR kann den ausgewählten Ordner nicht lesen.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotWritable" xml:space="preserve">
+    <value>MOPR kann nicht in den ausgewählten Ordner schreiben.</value>
+  </data>
+  <data name="Setup_RepositoryFolderDialogTitle" xml:space="preserve">
+    <value>MOPR DICOM-Speicherordner auswählen</value>
+  </data>
+  <data name="Setup_RepositoryNotSelected" xml:space="preserve">
+    <value>Wählen Sie vor der Prüfung einen Ordner aus.</value>
+  </data>
+  <data name="Setup_RepositoryPathLabel" xml:space="preserve">
+    <value>Speicherordner</value>
+  </data>
   <data name="Setup_RepositoryStep" xml:space="preserve">
     <value>DICOM-Speicher</value>
+  </data>
+  <data name="Setup_RepositoryTemporaryNotice" xml:space="preserve">
+    <value>Der Ordner wird zunächst nur geprüft. In diesem Schritt werden weder ein Repository-Eintrag noch DICOM-Daten angelegt.</value>
+  </data>
+  <data name="Setup_RepositoryTitle" xml:space="preserve">
+    <value>DICOM-Speicher</value>
+  </data>
+  <data name="Setup_RepositoryValidationCanceled" xml:space="preserve">
+    <value>Die Prüfung des DICOM-Speichers wurde abgebrochen.</value>
+  </data>
+  <data name="Setup_RepositoryValidationFailed" xml:space="preserve">
+    <value>Der ausgewählte Ordner kann nicht als MOPR DICOM-Speicher verwendet werden.</value>
+  </data>
+  <data name="Setup_RepositoryValidationRunning" xml:space="preserve">
+    <value>Der DICOM-Speicher wird geprüft...</value>
+  </data>
+  <data name="Setup_RepositoryValidationSuccessful" xml:space="preserve">
+    <value>Der DICOM-Speicher ist verfügbar und kann von MOPR verwendet werden.</value>
+  </data>
+  <data name="Setup_SelectRepositoryLocation" xml:space="preserve">
+    <value>Ordner auswählen</value>
   </data>
   <data name="Setup_TestDatabaseConnection" xml:space="preserve">
     <value>Verbindung prüfen</value>
@@ -186,7 +249,22 @@
   <data name="Setup_Title" xml:space="preserve">
     <value>Geräteeinrichtung</value>
   </data>
+  <data name="Setup_ValidateRepositoryLocation" xml:space="preserve">
+    <value>Speicher prüfen</value>
+  </data>
+  <data name="Setup_VerificationDescription" xml:space="preserve">
+    <value>Prüfen Sie die bestätigte Gerätekonfiguration, bevor MOPR sie übernimmt.</value>
+  </data>
+  <data name="Setup_VerificationNoChangesNotice" xml:space="preserve">
+    <value>Während der Prüfung werden noch keine Änderungen übernommen.</value>
+  </data>
   <data name="Setup_VerificationStep" xml:space="preserve">
     <value>Prüfung</value>
+  </data>
+  <data name="Setup_VerificationTitle" xml:space="preserve">
+    <value>Konfiguration prüfen</value>
+  </data>
+  <data name="Setup_Verified" xml:space="preserve">
+    <value>Geprüft</value>
   </data>
 </root>

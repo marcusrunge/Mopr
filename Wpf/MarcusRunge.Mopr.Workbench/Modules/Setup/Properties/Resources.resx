@@ -123,8 +123,26 @@
   <data name="Setup_AdministratorRequired" xml:space="preserve">
     <value>Administrator rights required</value>
   </data>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Setup_CompletionDescription" xml:space="preserve">
+    <value>MOPR is ready to apply the validated workstation configuration.</value>
+  </data>
+  <data name="Setup_CompletionNoChangesNotice" xml:space="preserve">
+    <value>The configuration has not been applied yet. You can return to the previous steps without changing the workstation.</value>
+  </data>
+  <data name="Setup_CompletionReadyDescription" xml:space="preserve">
+    <value>The database connection and DICOM storage have been validated. Review the information before completing setup.</value>
+  </data>
+  <data name="Setup_CompletionReadyTitle" xml:space="preserve">
+    <value>Configuration ready</value>
+  </data>
   <data name="Setup_CompletionStep" xml:space="preserve">
     <value>Completion</value>
+  </data>
+  <data name="Setup_CompletionTitle" xml:space="preserve">
+    <value>Complete setup</value>
   </data>
   <data name="Setup_ConfigurationLoadCanceled" xml:space="preserve">
     <value>Loading the MOPR workstation configuration was canceled.</value>
@@ -140,6 +158,9 @@
   </data>
   <data name="Setup_ConfigurationScopeDescription" xml:space="preserve">
     <value>This configuration applies to every user of this workstation and can only be changed with elevated administrator rights.</value>
+  </data>
+  <data name="Setup_Continue" xml:space="preserve">
+    <value>Continue</value>
   </data>
   <data name="Setup_CurrentStep" xml:space="preserve">
     <value>Current step</value>
@@ -177,8 +198,50 @@
   <data name="Setup_LocalDataStatus" xml:space="preserve">
     <value>MOPR • LOCAL WORKSTATION CONFIGURATION • DATA REMAINS ON THIS SYSTEM</value>
   </data>
+  <data name="Setup_RepositoryDescription" xml:space="preserve">
+    <value>Select the folder in which MOPR will manage imported DICOM data.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryMissing" xml:space="preserve">
+    <value>The selected folder does not exist.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotReadable" xml:space="preserve">
+    <value>MOPR cannot read the selected folder.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotWritable" xml:space="preserve">
+    <value>MOPR cannot write to the selected folder.</value>
+  </data>
+  <data name="Setup_RepositoryFolderDialogTitle" xml:space="preserve">
+    <value>Select the MOPR DICOM storage folder</value>
+  </data>
+  <data name="Setup_RepositoryNotSelected" xml:space="preserve">
+    <value>Select a folder before validating the DICOM storage.</value>
+  </data>
+  <data name="Setup_RepositoryPathLabel" xml:space="preserve">
+    <value>Storage folder</value>
+  </data>
   <data name="Setup_RepositoryStep" xml:space="preserve">
     <value>DICOM storage</value>
+  </data>
+  <data name="Setup_RepositoryTemporaryNotice" xml:space="preserve">
+    <value>The folder is only being validated. No repository entry or DICOM data will be created during this step.</value>
+  </data>
+  <data name="Setup_RepositoryTitle" xml:space="preserve">
+    <value>DICOM storage</value>
+  </data>
+  <data name="Setup_RepositoryValidationCanceled" xml:space="preserve">
+    <value>The DICOM storage validation was canceled.</value>
+  </data>
+  <data name="Setup_RepositoryValidationFailed" xml:space="preserve">
+    <value>The selected folder cannot be used as the MOPR DICOM storage.</value>
+  </data>
+  <data name="Setup_RepositoryValidationRunning" xml:space="preserve">
+    <value>Validating the DICOM storage...</value>
+  </data>
+  <data name="Setup_RepositoryValidationSuccessful" xml:space="preserve">
+    <value>The DICOM storage is available and can be used by MOPR.</value>
+  </data>
+  <data name="Setup_SelectRepositoryLocation" xml:space="preserve">
+    <value>Select folder</value>
   </data>
   <data name="Setup_TestDatabaseConnection" xml:space="preserve">
     <value>Test connection</value>
@@ -186,7 +249,22 @@
   <data name="Setup_Title" xml:space="preserve">
     <value>Workstation setup</value>
   </data>
+  <data name="Setup_ValidateRepositoryLocation" xml:space="preserve">
+    <value>Validate storage</value>
+  </data>
+  <data name="Setup_VerificationDescription" xml:space="preserve">
+    <value>Review the validated workstation configuration before MOPR applies it.</value>
+  </data>
+  <data name="Setup_VerificationNoChangesNotice" xml:space="preserve">
+    <value>No changes are applied during verification.</value>
+  </data>
   <data name="Setup_VerificationStep" xml:space="preserve">
     <value>Verification</value>
+  </data>
+  <data name="Setup_VerificationTitle" xml:space="preserve">
+    <value>Verify configuration</value>
+  </data>
+  <data name="Setup_Verified" xml:space="preserve">
+    <value>Verified</value>
   </data>
 </root>
