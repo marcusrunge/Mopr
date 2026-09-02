@@ -262,10 +262,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
                 PersistenceConfiguration configuration,
                 CancellationToken cancellationToken = default)
         {
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
+            ArgumentNullException.ThrowIfNull(configuration);
 
             cancellationToken.ThrowIfCancellationRequested();
 

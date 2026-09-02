@@ -61,11 +61,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Changing the workstation configuration requires elevated administrator rights. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator access active ähnelt.
+        /// </summary>
+        public static string Setup_AdministratorAccessActive {
+            get {
+                return ResourceManager.GetString("Setup_AdministratorAccessActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator rights required ähnelt.
         /// </summary>
         public static string Setup_AdministratorRequired {
             get {
                 return ResourceManager.GetString("Setup_AdministratorRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completion ähnelt.
+        /// </summary>
+        public static string Setup_CompletionStep {
+            get {
+                return ResourceManager.GetString("Setup_CompletionStep", resourceCulture);
             }
         }
         
@@ -84,6 +102,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string Setup_ConfigurationLoadFailed {
             get {
                 return ResourceManager.GetString("Setup_ConfigurationLoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading workstation configuration... ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoading {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die WORKSTATION SETTINGS ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationScope {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This configuration applies to every user of this workstation and can only be changed with elevated administrator rights. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationScopeDescription {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationScopeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current step ähnelt.
+        /// </summary>
+        public static string Setup_CurrentStep {
+            get {
+                return ResourceManager.GetString("Setup_CurrentStep", resourceCulture);
             }
         }
         
@@ -133,7 +187,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration applies to all users of this workstation. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Specify the database used by MOPR on this workstation. ähnelt.
         /// </summary>
         public static string Setup_DatabaseDescription {
             get {
@@ -151,11 +205,47 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Configure the shared MOPR settings for this workstation. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure MOPR once for this workstation. The settings will then apply to every authorized user. ähnelt.
         /// </summary>
         public static string Setup_Description {
             get {
                 return ResourceManager.GetString("Setup_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR SETUP ähnelt.
+        /// </summary>
+        public static string Setup_HeaderBadge {
+            get {
+                return ResourceManager.GetString("Setup_HeaderBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR WORKSTATION CONFIGURATION ähnelt.
+        /// </summary>
+        public static string Setup_HeaderContext {
+            get {
+                return ResourceManager.GetString("Setup_HeaderContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR • LOCAL WORKSTATION CONFIGURATION • DATA REMAINS ON THIS SYSTEM ähnelt.
+        /// </summary>
+        public static string Setup_LocalDataStatus {
+            get {
+                return ResourceManager.GetString("Setup_LocalDataStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM storage ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryStep {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryStep", resourceCulture);
             }
         }
         
@@ -169,11 +259,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Set up MOPR ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Workstation setup ähnelt.
         /// </summary>
         public static string Setup_Title {
             get {
                 return ResourceManager.GetString("Setup_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verification ähnelt.
+        /// </summary>
+        public static string Setup_VerificationStep {
+            get {
+                return ResourceManager.GetString("Setup_VerificationStep", resourceCulture);
             }
         }
     }

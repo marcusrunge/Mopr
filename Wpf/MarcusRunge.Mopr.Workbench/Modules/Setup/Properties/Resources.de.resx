@@ -117,14 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Setup_AdministratorAccessActive" xml:space="preserve">
+    <value>Administratorzugriff aktiv</value>
+  </data>
   <data name="Setup_AdministratorRequired" xml:space="preserve">
-    <value>Zum Ändern der Gerätekonfiguration sind erhöhte Administratorrechte erforderlich.</value>
+    <value>Administratorrechte erforderlich</value>
+  </data>
+  <data name="Setup_CompletionStep" xml:space="preserve">
+    <value>Abschluss</value>
   </data>
   <data name="Setup_ConfigurationLoadCanceled" xml:space="preserve">
     <value>Das Laden der MOPR-Gerätekonfiguration wurde abgebrochen.</value>
   </data>
   <data name="Setup_ConfigurationLoadFailed" xml:space="preserve">
     <value>Die MOPR-Gerätekonfiguration konnte nicht geladen werden.</value>
+  </data>
+  <data name="Setup_ConfigurationLoading" xml:space="preserve">
+    <value>Gerätekonfiguration wird geladen...</value>
+  </data>
+  <data name="Setup_ConfigurationScope" xml:space="preserve">
+    <value>GERÄTEWEITE EINSTELLUNGEN</value>
+  </data>
+  <data name="Setup_ConfigurationScopeDescription" xml:space="preserve">
+    <value>Diese Konfiguration gilt für alle Benutzer dieses Geräts und kann nur mit erhöhten Administratorrechten geändert werden.</value>
+  </data>
+  <data name="Setup_CurrentStep" xml:space="preserve">
+    <value>Aktueller Schritt</value>
   </data>
   <data name="Setup_DatabaseConnectionCanceled" xml:space="preserve">
     <value>Die Prüfung der Datenbankverbindung wurde abgebrochen.</value>
@@ -142,18 +160,33 @@
     <value>Die Datenbankverbindung wird geprüft...</value>
   </data>
   <data name="Setup_DatabaseDescription" xml:space="preserve">
-    <value>Die Datenbankeinstellung gilt für alle Benutzer dieses Geräts.</value>
+    <value>Legen Sie fest, mit welcher Datenbank sich MOPR auf diesem Gerät verbindet.</value>
   </data>
   <data name="Setup_DatabaseTitle" xml:space="preserve">
     <value>Datenbank</value>
   </data>
   <data name="Setup_Description" xml:space="preserve">
-    <value>Richten Sie die gemeinsame MOPR-Konfiguration für dieses Gerät ein.</value>
+    <value>Konfigurieren Sie MOPR einmalig für dieses Gerät. Die Einstellungen gelten anschließend für alle berechtigten Benutzer.</value>
+  </data>
+  <data name="Setup_HeaderBadge" xml:space="preserve">
+    <value>MOPR SETUP</value>
+  </data>
+  <data name="Setup_HeaderContext" xml:space="preserve">
+    <value>MOPR GERÄTEKONFIGURATION</value>
+  </data>
+  <data name="Setup_LocalDataStatus" xml:space="preserve">
+    <value>MOPR • LOKALE GERÄTEKONFIGURATION • DATEN VERBLEIBEN AUF DIESEM SYSTEM</value>
+  </data>
+  <data name="Setup_RepositoryStep" xml:space="preserve">
+    <value>DICOM-Speicher</value>
   </data>
   <data name="Setup_TestDatabaseConnection" xml:space="preserve">
     <value>Verbindung prüfen</value>
   </data>
   <data name="Setup_Title" xml:space="preserve">
-    <value>MOPR einrichten</value>
+    <value>Geräteeinrichtung</value>
+  </data>
+  <data name="Setup_VerificationStep" xml:space="preserve">
+    <value>Prüfung</value>
   </data>
 </root>

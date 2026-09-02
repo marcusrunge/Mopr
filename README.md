@@ -31,7 +31,7 @@ The current implementation includes:
 - machine, database, repository, and security configuration contracts
 - protected machine-configuration storage
 - Windows administrative authorization
-- startup diagnostics
+- startup diagnostics and startup-route selection
 - application-wide single-instance protection
 - English and German localization
 - isolated test projects for desktop, imaging, Core, MIRAS, persistence, and repository functionality
@@ -80,6 +80,7 @@ The desktop project is the WPF and Prism composition root. It owns:
 - machine-specific configuration loading, validation, path handling, and protection
 - Windows administrator-role evaluation and administrative authorization
 - startup diagnostics
+- startup-route selection between setup and the regular workbench
 - application lifetime coordination
 - single-instance coordination and foreground activation
 - application assets and localized resources
@@ -227,7 +228,8 @@ C:\
     │   │   ├── Configuration
     │   │   ├── Diagnostics
     │   │   ├── Lifetime
-    │   │   └── SingleInstance
+    │   │   ├── SingleInstance
+    │   │   └── Startup
     │   ├── Assets
     │   ├── Properties
     │   ├── Services
@@ -303,7 +305,8 @@ C:\
         ├── Desktop.Test
         │   └── Application
         │       ├── Administration
-        │       └── Configuration
+        │       ├── Configuration
+        │       └── Startup
         ├── Modules.Imaging.Test
         │   └── ViewModels
         ├── Services.Core.Test
@@ -312,7 +315,7 @@ C:\
         └── Services.Repository.Test
 ```
 
-Generated `bin` and `obj` directories, build output, IDE metadata, and other generated files are intentionally omitted.
+The structure above represents source-controlled project content. Generated and machine-specific content such as `bin`, `obj`, `.vs`, compiler-generated files, and `*.csproj.user` files is intentionally omitted.
 
 ## Dependency Direction
 
@@ -522,6 +525,7 @@ The test suites cover:
 - single-instance application behavior
 - Windows administrative authorization
 - application and machine configuration
+- startup-route selection
 - imaging workbench view-model behavior
 - Core MIRAS flow state, concurrency, cancellation, restart, and shutdown behavior
 - MIRAS result mapping, localization, and edge cases

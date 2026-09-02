@@ -117,14 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Setup_AdministratorAccessActive" xml:space="preserve">
+    <value>Administrator access active</value>
+  </data>
   <data name="Setup_AdministratorRequired" xml:space="preserve">
-    <value>Changing the workstation configuration requires elevated administrator rights.</value>
+    <value>Administrator rights required</value>
+  </data>
+  <data name="Setup_CompletionStep" xml:space="preserve">
+    <value>Completion</value>
   </data>
   <data name="Setup_ConfigurationLoadCanceled" xml:space="preserve">
     <value>Loading the MOPR workstation configuration was canceled.</value>
   </data>
   <data name="Setup_ConfigurationLoadFailed" xml:space="preserve">
     <value>The MOPR workstation configuration could not be loaded.</value>
+  </data>
+  <data name="Setup_ConfigurationLoading" xml:space="preserve">
+    <value>Loading workstation configuration...</value>
+  </data>
+  <data name="Setup_ConfigurationScope" xml:space="preserve">
+    <value>WORKSTATION SETTINGS</value>
+  </data>
+  <data name="Setup_ConfigurationScopeDescription" xml:space="preserve">
+    <value>This configuration applies to every user of this workstation and can only be changed with elevated administrator rights.</value>
+  </data>
+  <data name="Setup_CurrentStep" xml:space="preserve">
+    <value>Current step</value>
   </data>
   <data name="Setup_DatabaseConnectionCanceled" xml:space="preserve">
     <value>The database connection test was canceled.</value>
@@ -142,18 +160,33 @@
     <value>Testing the database connection...</value>
   </data>
   <data name="Setup_DatabaseDescription" xml:space="preserve">
-    <value>The database configuration applies to all users of this workstation.</value>
+    <value>Specify the database used by MOPR on this workstation.</value>
   </data>
   <data name="Setup_DatabaseTitle" xml:space="preserve">
     <value>Database</value>
   </data>
   <data name="Setup_Description" xml:space="preserve">
-    <value>Configure the shared MOPR settings for this workstation.</value>
+    <value>Configure MOPR once for this workstation. The settings will then apply to every authorized user.</value>
+  </data>
+  <data name="Setup_HeaderBadge" xml:space="preserve">
+    <value>MOPR SETUP</value>
+  </data>
+  <data name="Setup_HeaderContext" xml:space="preserve">
+    <value>MOPR WORKSTATION CONFIGURATION</value>
+  </data>
+  <data name="Setup_LocalDataStatus" xml:space="preserve">
+    <value>MOPR • LOCAL WORKSTATION CONFIGURATION • DATA REMAINS ON THIS SYSTEM</value>
+  </data>
+  <data name="Setup_RepositoryStep" xml:space="preserve">
+    <value>DICOM storage</value>
   </data>
   <data name="Setup_TestDatabaseConnection" xml:space="preserve">
     <value>Test connection</value>
   </data>
   <data name="Setup_Title" xml:space="preserve">
-    <value>Set up MOPR</value>
+    <value>Workstation setup</value>
+  </data>
+  <data name="Setup_VerificationStep" xml:space="preserve">
+    <value>Verification</value>
   </data>
 </root>

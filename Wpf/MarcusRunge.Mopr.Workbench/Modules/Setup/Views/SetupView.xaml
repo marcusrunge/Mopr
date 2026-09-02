@@ -7,56 +7,181 @@
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
              xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewModels:SetupViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="1280"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid Background="{DynamicResource ApplicationPageBackgroundThemeBrush}">
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="48" HorizontalAlignment="Center" MaxWidth="760">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="24" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
 
-                <StackPanel>
-                    <TextBlock FontSize="32" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_Title}" />
-                    <TextBlock Margin="0,12,0,0" FontSize="16" Text="{x:Static properties:Resources.Setup_Description}" TextWrapping="Wrap" />
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="SetupBackgroundBrush" Color="#10171D" />
+        <SolidColorBrush x:Key="SetupHeaderBackgroundBrush" Color="#151E26" />
+        <SolidColorBrush x:Key="SetupCardBackgroundBrush" Color="#18232D" />
+        <SolidColorBrush x:Key="SetupCardSecondaryBackgroundBrush" Color="#141E26" />
+        <SolidColorBrush x:Key="SetupCardBorderBrush" Color="#2B3B47" />
+        <SolidColorBrush x:Key="SetupTextBrush" Color="#E6EDF2" />
+        <SolidColorBrush x:Key="SetupSecondaryTextBrush" Color="#A6B4BF" />
+        <SolidColorBrush x:Key="SetupMutedTextBrush" Color="#738490" />
+        <SolidColorBrush x:Key="SetupAccentBrush" Color="#57CCD9" />
+        <SolidColorBrush x:Key="SetupAccentBackgroundBrush" Color="#173740" />
+        <SolidColorBrush x:Key="SetupAccentHoverBrush" Color="#72DAE5" />
+        <SolidColorBrush x:Key="SetupAccentPressedBrush" Color="#3EABB8" />
+        <SolidColorBrush x:Key="SetupSuccessBrush" Color="#61D6A2" />
+        <SolidColorBrush x:Key="SetupWarningBrush" Color="#F2C14E" />
+        <SolidColorBrush x:Key="SetupErrorBrush" Color="#F0787F" />
+
+        <Style x:Key="SetupSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SetupTextBrush}" />
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="SetupDescriptionStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SetupSecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="LineHeight" Value="21" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="SetupLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SetupTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="SetupTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Foreground" Value="{StaticResource SetupTextBrush}" />
+            <Setter Property="Background" Value="#111A21" />
+            <Setter Property="BorderBrush" Value="{StaticResource SetupCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CaretBrush" Value="{StaticResource SetupAccentBrush}" />
+            <Setter Property="SelectionBrush" Value="{StaticResource SetupAccentBrush}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource SetupAccentBrush}" />
+                </Trigger>
+
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.55" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SetupPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="MinWidth" Value="170" />
+            <Setter Property="Padding" Value="20,8" />
+            <Setter Property="Foreground" Value="#071317" />
+            <Setter Property="Background" Value="{StaticResource SetupAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SetupAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource SetupAccentHoverBrush}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource SetupAccentHoverBrush}" />
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{StaticResource SetupAccentPressedBrush}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource SetupAccentPressedBrush}" />
+                </Trigger>
+
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.42" />
+                    <Setter Property="Cursor" Value="Arrow" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SetupStepNumberStyle" TargetType="Border">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Background" Value="#131D25" />
+            <Setter Property="BorderBrush" Value="{StaticResource SetupCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="17" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource SetupBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="112" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="44" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{StaticResource SetupHeaderBackgroundBrush}"
+                BorderBrush="{StaticResource SetupCardBorderBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="48,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <Border Width="Auto"
+                            Padding="9,4"
+                            HorizontalAlignment="Left"
+                            Background="{StaticResource SetupAccentBackgroundBrush}"
+                            BorderBrush="#2A5963"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                        <TextBlock Foreground="{StaticResource SetupAccentBrush}"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Text="{x:Static properties:Resources.Setup_HeaderBadge}" />
+                    </Border>
+
+                    <TextBlock Margin="0,10,0,0"
+                               Foreground="{StaticResource SetupTextBrush}"
+                               FontSize="27"
+                               FontWeight="SemiBold"
+                               Text="{x:Static properties:Resources.Setup_Title}" />
                 </StackPanel>
 
-                <Border Grid.Row="2" Padding="24" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
-                    <StackPanel>
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
-                        <TextBlock Margin="0,8,0,16" Text="{x:Static properties:Resources.Setup_DatabaseDescription}" TextWrapping="Wrap" />
-                        <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_DatabaseConnectionLabel}" />
-                        <TextBox IsEnabled="{Binding CanModify}" Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}" />
+                <Border Grid.Column="1"
+                        Padding="14,9"
+                        VerticalAlignment="Center"
+                        Background="#162129"
+                        BorderBrush="{StaticResource SetupCardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="9"
+                                 Height="9"
+                                 Margin="0,0,9,0"
+                                 VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="{StaticResource SetupWarningBrush}" />
 
-                        <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
-                            <Button Command="{Binding TestDatabaseConnectionCommand}" Content="{x:Static properties:Resources.Setup_TestDatabaseConnection}" />
-                            <ProgressBar Margin="12,0,0,0" Width="120" Height="4" IsIndeterminate="True" VerticalAlignment="Center">
-                                <ProgressBar.Style>
-                                    <Style TargetType="ProgressBar">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsTestingDatabase}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ProgressBar.Style>
-                            </ProgressBar>
-                        </StackPanel>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanModify}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource SetupSuccessBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
 
-                        <TextBlock Margin="0,12,0,0" Text="{Binding DatabaseStatusText}" TextWrapping="Wrap" />
-
-                        <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource SystemFillColorCautionBrush}" Text="{x:Static properties:Resources.Setup_AdministratorRequired}" TextWrapping="Wrap">
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   FontSize="13">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Setter Property="Text" Value="{x:Static properties:Resources.Setup_AdministratorRequired}" />
+
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanModify}" Value="False">
-                                            <Setter Property="Visibility" Value="Visible" />
+                                        <DataTrigger Binding="{Binding CanModify}" Value="True">
+                                            <Setter Property="Text" Value="{x:Static properties:Resources.Setup_AdministratorAccessActive}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -64,20 +189,360 @@
                         </TextBlock>
                     </StackPanel>
                 </Border>
+            </Grid>
+        </Border>
 
-                <ProgressBar Grid.Row="4" Height="4" IsIndeterminate="True">
-                    <ProgressBar.Style>
-                        <Style TargetType="ProgressBar">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ProgressBar.Style>
-                </ProgressBar>
+        <ScrollViewer Grid.Row="1"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid Width="1120"
+                  Margin="48,36,48,48"
+                  HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Foreground="{StaticResource SetupTextBrush}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
+
+                    <TextBlock Margin="0,10,0,28"
+                               Style="{StaticResource SetupDescriptionStyle}"
+                               Text="{x:Static properties:Resources.Setup_Description}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource SetupStepNumberStyle}"
+                                Background="{StaticResource SetupAccentBackgroundBrush}"
+                                BorderBrush="#2A5963">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource SetupAccentBrush}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Text="01" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                            <TextBlock Foreground="{StaticResource SetupTextBrush}"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
+
+                            <TextBlock Margin="0,3,0,0"
+                                       Foreground="{StaticResource SetupAccentBrush}"
+                                       FontSize="12"
+                                       Text="{x:Static properties:Resources.Setup_CurrentStep}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Width="1"
+                            Height="24"
+                            Margin="17,5,0,5"
+                            HorizontalAlignment="Left"
+                            Background="{StaticResource SetupCardBorderBrush}" />
+
+                    <Grid Opacity="0.48">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource SetupStepNumberStyle}">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Text="02" />
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Margin="14,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   FontSize="14"
+                                   Text="{x:Static properties:Resources.Setup_RepositoryStep}" />
+                    </Grid>
+
+                    <Border Width="1"
+                            Height="24"
+                            Margin="17,5,0,5"
+                            HorizontalAlignment="Left"
+                            Background="{StaticResource SetupCardBorderBrush}" />
+
+                    <Grid Opacity="0.48">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource SetupStepNumberStyle}">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Text="03" />
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Margin="14,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   FontSize="14"
+                                   Text="{x:Static properties:Resources.Setup_VerificationStep}" />
+                    </Grid>
+
+                    <Border Width="1"
+                            Height="24"
+                            Margin="17,5,0,5"
+                            HorizontalAlignment="Left"
+                            Background="{StaticResource SetupCardBorderBrush}" />
+
+                    <Grid Opacity="0.48">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource SetupStepNumberStyle}">
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Text="04" />
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Margin="14,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   FontSize="14"
+                                   Text="{x:Static properties:Resources.Setup_CompletionStep}" />
+                    </Grid>
+
+                    <Border Margin="0,32,0,0"
+                            Padding="18"
+                            Background="{StaticResource SetupCardSecondaryBackgroundBrush}"
+                            BorderBrush="{StaticResource SetupCardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="7">
+                        <StackPanel>
+                            <TextBlock Foreground="{StaticResource SetupAccentBrush}"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
+
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource SetupDescriptionStyle}"
+                                       Text="{x:Static properties:Resources.Setup_ConfigurationScopeDescription}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        Padding="32"
+                        VerticalAlignment="Top"
+                        Background="{StaticResource SetupCardBackgroundBrush}"
+                        BorderBrush="{StaticResource SetupCardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="9">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="28" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="22" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="48" />
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Width="48"
+                                    Height="48"
+                                    Background="{StaticResource SetupAccentBackgroundBrush}"
+                                    BorderBrush="#2A5963"
+                                    BorderThickness="1"
+                                    CornerRadius="7">
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource SetupAccentBrush}"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           Text="DB" />
+                            </Border>
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
+                                           Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
+
+                                <TextBlock Margin="0,5,0,0"
+                                           Style="{StaticResource SetupDescriptionStyle}"
+                                           Text="{x:Static properties:Resources.Setup_DatabaseDescription}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Background="{StaticResource SetupCardBorderBrush}" />
+
+                        <StackPanel Grid.Row="4">
+                            <TextBlock Margin="0,0,0,8"
+                                       Style="{StaticResource SetupLabelStyle}"
+                                       Text="{x:Static properties:Resources.Setup_DatabaseConnectionLabel}" />
+
+                            <TextBox Style="{StaticResource SetupTextBoxStyle}"
+                                     IsEnabled="{Binding CanModify}"
+                                     Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Style="{StaticResource SetupPrimaryButtonStyle}"
+                                    Command="{Binding TestDatabaseConnectionCommand}"
+                                    Content="{x:Static properties:Resources.Setup_TestDatabaseConnection}" />
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <ProgressBar Height="4" IsIndeterminate="True">
+                                    <ProgressBar.Style>
+                                        <Style TargetType="ProgressBar">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTestingDatabase}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ProgressBar.Style>
+                                </ProgressBar>
+
+                                <TextBlock Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                           FontSize="13"
+                                           Text="{Binding DatabaseStatusText}"
+                                           TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource SetupSuccessBrush}" />
+                                                </DataTrigger>
+
+                                                <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}" Value="False">
+                                                    <Setter Property="Foreground" Value="{StaticResource SetupErrorBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="8"
+                                Padding="15"
+                                Background="#27231A"
+                                BorderBrush="#5B4C26"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanModify}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Width="24"
+                                        Height="24"
+                                        Background="#443819"
+                                        CornerRadius="12">
+                                    <TextBlock HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource SetupWarningBrush}"
+                                               FontSize="14"
+                                               FontWeight="Bold"
+                                               Text="!" />
+                                </Border>
+
+                                <TextBlock Grid.Column="2"
+                                           VerticalAlignment="Center"
+                                           Foreground="#D9C98E"
+                                           FontSize="13"
+                                           Text="{x:Static properties:Resources.Setup_AdministratorRequired}"
+                                           TextWrapping="Wrap" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
             </Grid>
         </ScrollViewer>
+
+        <Border Grid.Row="2"
+                Background="#0D1318"
+                BorderBrush="{StaticResource SetupCardBorderBrush}"
+                BorderThickness="0,1,0,0">
+            <TextBlock Margin="48,0"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource SetupMutedTextBrush}"
+                       FontSize="11"
+                       Text="{x:Static properties:Resources.Setup_LocalDataStatus}" />
+        </Border>
+
+        <Border Grid.RowSpan="3" Background="#B010171D">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Width="220" Height="5" IsIndeterminate="True" />
+
+                <TextBlock Margin="0,16,0,0"
+                           Foreground="{StaticResource SetupTextBrush}"
+                           FontSize="14"
+                           Text="{x:Static properties:Resources.Setup_ConfigurationLoading}" />
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
