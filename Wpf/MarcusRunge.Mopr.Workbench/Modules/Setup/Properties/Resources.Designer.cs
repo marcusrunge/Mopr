@@ -88,6 +88,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string Setup_CancelSetupCompletion {
+            get {
+                return ResourceManager.GetString("Setup_CancelSetupCompletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete setup ähnelt.
+        /// </summary>
+        public static string Setup_CompleteSetup {
+            get {
+                return ResourceManager.GetString("Setup_CompleteSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completing setup... ähnelt.
+        /// </summary>
+        public static string Setup_CompletingSetup {
+            get {
+                return ResourceManager.GetString("Setup_CompletingSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Setup completion was canceled safely. The setup has not been marked as complete. ähnelt.
         /// </summary>
         public static string Setup_CompletionCanceled {
@@ -525,6 +552,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string Setup_Title {
             get {
                 return ResourceManager.GetString("Setup_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Use LocalDB ähnelt.
+        /// </summary>
+        public static string Setup_UseLocalDatabase {
+            get {
+                return ResourceManager.GetString("Setup_UseLocalDatabase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Uses the local SQL Server LocalDB instance. LocalDB must already be installed on this workstation. ähnelt.
+        /// </summary>
+        public static string Setup_UseLocalDatabaseDescription {
+            get {
+                return ResourceManager.GetString("Setup_UseLocalDatabaseDescription", resourceCulture);
             }
         }
         

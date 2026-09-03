@@ -29,7 +29,9 @@ The current implementation includes:
 - controlled repository repair operations
 - MIRAS issue mapping, result classification, localized messages, and flow-state management
 - machine, database, repository, and security configuration contracts
-- protected machine-configuration storage
+- guided repository, database, verification, and completion setup workflow
+- protected machine-configuration storage and setup audit identity handling
+- repository-location validation and setup completion coordination
 - Windows administrative authorization
 - startup diagnostics and startup-route selection
 - application-wide single-instance protection
@@ -161,7 +163,7 @@ MIRAS does not silently repair repository data and does not automatically create
 
 - Entity Framework Core database context and context factories
 - SQL Server and in-memory provider configuration
-- database migrations
+- Entity Framework Core migrations and model snapshots
 - DICOM import persistence
 - entity repositories
 - persistence-integrity verification
@@ -303,13 +305,15 @@ Wpf/
         │       └── Startup/
         ├── Modules.Imaging.Test/
         │   └── ViewModels/
+        ├── Modules.Setup.Test/
+        │   └── ViewModels/
         ├── Services.Core.Test/
         ├── Services.Miras.Test/
         ├── Services.Persistence.Test/
         └── Services.Repository.Test/
 ```
 
-The structure intentionally shows source-controlled project areas only. Build output, IDE state, generated compiler files, local exports, and user-specific project settings are omitted, including `bin`, `obj`, `.vs`, `ref`, `refint`, `*.g.cs`, `*.g.i.cs`, `*.cache`, and `*.csproj.user`.
+The structure intentionally shows source-controlled project areas only. Build output, IDE state, generated compiler files, temporary backups, local exports, and user-specific project settings are omitted, including `bin`, `obj`, `.vs`, `ref`, `refint`, `*.g.cs`, `*.g.i.cs`, `*.cache`, `*.tmp`, and `*.csproj.user`.
 
 ## Dependency Direction
 
@@ -506,6 +510,8 @@ dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Desktop.Test\MarcusRunge.Mopr.Wor
 
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Imaging.Test\MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj --configuration Debug
 
+dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Setup.Test\MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj --configuration Debug
+
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Core.Test\MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj --configuration Debug
 
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Miras.Test\MarcusRunge.Mopr.Workbench.Services.Miras.Test.csproj --configuration Debug
@@ -521,6 +527,7 @@ The test suites cover:
 - Windows administrative authorization
 - application, machine, and repository-location configuration validation
 - startup-route selection
+- guided setup workflow and setup view-model behavior
 - imaging workbench view-model behavior
 - Core MIRAS flow state, concurrency, cancellation, restart, and shutdown behavior
 - MIRAS result mapping, localization, and edge cases

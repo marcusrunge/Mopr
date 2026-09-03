@@ -126,6 +126,15 @@
   <data name="Setup_Back" xml:space="preserve">
     <value>Back</value>
   </data>
+  <data name="Setup_CancelSetupCompletion" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Setup_CompleteSetup" xml:space="preserve">
+    <value>Complete setup</value>
+  </data>
+  <data name="Setup_CompletingSetup" xml:space="preserve">
+    <value>Completing setup...</value>
+  </data>
   <data name="Setup_CompletionCanceled" xml:space="preserve">
     <value>Setup completion was canceled safely. The setup has not been marked as complete.</value>
   </data>
@@ -272,6 +281,12 @@
   </data>
   <data name="Setup_Title" xml:space="preserve">
     <value>Workstation setup</value>
+  </data>
+  <data name="Setup_UseLocalDatabase" xml:space="preserve">
+    <value>Use LocalDB</value>
+  </data>
+  <data name="Setup_UseLocalDatabaseDescription" xml:space="preserve">
+    <value>Uses the local SQL Server LocalDB instance. LocalDB must already be installed on this workstation.</value>
   </data>
   <data name="Setup_ValidateRepositoryLocation" xml:space="preserve">
     <value>Validate storage</value>
