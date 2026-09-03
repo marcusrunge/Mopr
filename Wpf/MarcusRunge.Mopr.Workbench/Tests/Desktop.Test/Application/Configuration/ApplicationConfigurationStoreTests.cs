@@ -2,6 +2,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -64,10 +65,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
         {
             using var context = new StoreTestContext(isElevatedAdministrator: false);
 
-            await Assert.ThrowsAsync<UnauthorizedAccessException>(
-                async () => await context.Store.SaveAsync(
-                    new ApplicationConfiguration(),
-                    TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await context.Store.SaveAsync(new ApplicationConfiguration(), TestContext.Current.CancellationToken));
 
             Assert.False(File.Exists(context.ConfigurationFilePath));
             Assert.Equal(0, context.ProtectionService.ProtectDirectoryCallCount);
@@ -79,14 +77,10 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
         {
             using var context = new StoreTestContext();
             Directory.CreateDirectory(context.ConfigurationDirectoryPath);
-            await File.WriteAllTextAsync(
-                context.ConfigurationFilePath,
-                "{ invalid json",
-                TestContext.Current.CancellationToken);
 
-            await Assert.ThrowsAsync<System.Text.Json.JsonException>(
-                async () => await context.Store.LoadAsync(
-                    TestContext.Current.CancellationToken));
+            await File.WriteAllTextAsync(context.ConfigurationFilePath, "{ invalid json", TestContext.Current.CancellationToken);
+
+            await Assert.ThrowsAsync<System.Text.Json.JsonException>(async () => await context.Store.LoadAsync(TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -94,22 +88,19 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
         {
             using var context = new StoreTestContext();
             Directory.CreateDirectory(context.ConfigurationDirectoryPath);
-            await File.WriteAllTextAsync(
-                context.ConfigurationFilePath,
-                """
-                {
+
+            await File.WriteAllTextAsync(context.ConfigurationFilePath, """
+                                {
+                
                   "isSetupComplete": true,
                   "setupVersion": 1,
                   "databaseConfiguration": {
                     "connectionString": ""
                   }
                 }
-                """,
-                TestContext.Current.CancellationToken);
+                """, TestContext.Current.CancellationToken);
 
-            await Assert.ThrowsAsync<InvalidDataException>(
-                async () => await context.Store.LoadAsync(
-                    TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(async () => await context.Store.LoadAsync(TestContext.Current.CancellationToken));
         }
 
         private sealed class StoreTestContext : IDisposable
@@ -120,6 +111,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             {
                 PathProvider = new MachineConfigurationPathProvider(_rootPath);
                 ProtectionService = new RecordingProtectionService();
+
                 Store = new ApplicationConfigurationStore(
                     new TestAuthorizationService(isElevatedAdministrator),
                     PathProvider,
@@ -145,7 +137,8 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             }
         }
 
-        private sealed class TestAuthorizationService(bool isElevatedAdministrator) : IAdministrativeAuthorizationService
+        private sealed class TestAuthorizationService(bool isElevatedAdministrator)
+            : IAdministrativeAuthorizationService
         {
             public bool IsElevatedAdministrator { get; } = isElevatedAdministrator;
 
@@ -160,13 +153,47 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
         internal sealed class RecordingProtectionService : IMachineConfigurationProtectionService
         {
+            private static readonly byte[] ProtectionPrefix = Encoding.UTF8.GetBytes("MOPR-TEST-PROTECTED:");
+
+            public int ProtectDataCallCount { get; private set; }
+
             public int ProtectDirectoryCallCount { get; private set; }
 
             public int ProtectFileCallCount { get; private set; }
 
+            public int UnprotectDataCallCount { get; private set; }
+
+            public byte[] ProtectData(byte[] unprotectedData)
+            {
+                ArgumentNullException.ThrowIfNull(unprotectedData);
+
+                ProtectDataCallCount++;
+
+                var protectedData = new byte[ProtectionPrefix.Length + unprotectedData.Length];
+
+                ProtectionPrefix.CopyTo(protectedData, 0);
+                unprotectedData.CopyTo(protectedData, ProtectionPrefix.Length);
+
+                return protectedData;
+            }
+
             public void ProtectDirectory(string directoryPath) => ProtectDirectoryCallCount++;
 
             public void ProtectFile(string filePath) => ProtectFileCallCount++;
+
+            public byte[] UnprotectData(byte[] protectedData)
+            {
+                ArgumentNullException.ThrowIfNull(protectedData);
+
+                UnprotectDataCallCount++;
+
+                if (protectedData.Length < ProtectionPrefix.Length || !protectedData.AsSpan(0, ProtectionPrefix.Length).SequenceEqual(ProtectionPrefix))
+                {
+                    throw new InvalidDataException("The test machine configuration payload is not protected.");
+                }
+
+                return protectedData[ProtectionPrefix.Length..];
+            }
         }
     }
 }

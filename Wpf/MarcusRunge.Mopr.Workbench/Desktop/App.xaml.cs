@@ -122,7 +122,6 @@ namespace MarcusRunge.Mopr.Workbench
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
-
             containerRegistry.RegisterSingleton<IAdministrativeAuthorizationService, WindowsAdministrativeAuthorizationService>();
             containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
@@ -147,22 +146,31 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
 
             containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
+
+            containerRegistry.RegisterSingleton<ISetupAuditIdentityProvider, SetupAuditIdentityProvider>();
+            containerRegistry.RegisterSingleton<ISetupCompletionService, SetupCompletionService>();
             containerRegistry.RegisterSingleton<IApplicationStartupRouteService, ApplicationStartupRouteService>();
 
             containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
+
             containerRegistry.RegisterSingleton<IRepository>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMirasFactory, MirasFactory>();
+
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
+
             containerRegistry.RegisterSingleton<IMirasService>(provider => provider.Resolve<IMiras>().MirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
 
             containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<IApplicationLifetime>(), provider.Resolve<IMirasService>()));
+
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
+
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }
 
@@ -191,14 +199,17 @@ namespace MarcusRunge.Mopr.Workbench
                 // MIRAS must never inspect repository relationships before the
                 // configured Persistence provider is fully initialized.
                 await persistence.Initialization.ConfigureAwait(false);
+
                 cancellationToken.ThrowIfCancellationRequested();
 
                 await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(false);
 
                 var mirasFlowService = Container.Resolve<ICore>().MirasApplicationService?.MirasFlowService ?? throw new InvalidOperationException("The MIRAS flow service has not been initialized.");
+
                 var result = await mirasFlowService.StartAsync(cancellationToken).ConfigureAwait(false);
 
-                _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
+                _startupDiagnostics!.WriteInformation(
+                    $"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -239,7 +250,6 @@ namespace MarcusRunge.Mopr.Workbench
         private void PublishApplicationConfiguration(IApplicationConfiguration configuration)
         {
             ArgumentNullException.ThrowIfNull(configuration);
-
             Container.Resolve<BehaviorSubject<IApplicationConfiguration>>().OnNext(configuration);
         }
 
@@ -290,11 +300,13 @@ namespace MarcusRunge.Mopr.Workbench
             try
             {
                 _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics!, new ForegroundPermission());
+
                 return true;
             }
             catch (Exception exception)
             {
                 _startupDiagnostics!.WriteError("The MOPR single-instance coordinator could not be created.", exception);
+
                 ShowSingleInstanceStartupFailedMessage();
                 return false;
             }
@@ -310,11 +322,13 @@ namespace MarcusRunge.Mopr.Workbench
             catch (OperationCanceledException)
             {
                 _startupDiagnostics!.WriteInformation("Forwarding the startup request to the primary MOPR instance was canceled or timed out.");
+
                 ShowForwardingFailedMessage();
             }
             catch (Exception exception)
             {
                 _startupDiagnostics!.WriteError("The startup request could not be forwarded to the primary MOPR instance.", exception);
+
                 ShowForwardingFailedMessage();
             }
             finally
@@ -338,6 +352,7 @@ namespace MarcusRunge.Mopr.Workbench
                 }
 
                 var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
+
                 _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
             });
         }
@@ -345,6 +360,7 @@ namespace MarcusRunge.Mopr.Workbench
         private void HandleProtectedStartupFailure(Exception exception)
         {
             _startupDiagnostics!.WriteError("MOPR startup failed before protected application initialization completed.", exception);
+
             _shellReady.TrySetException(exception);
             DisposeSingleInstanceCoordinator();
             ShowSingleInstanceStartupFailedMessage();

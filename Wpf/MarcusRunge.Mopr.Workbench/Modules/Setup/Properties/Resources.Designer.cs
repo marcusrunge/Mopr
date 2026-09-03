@@ -88,11 +88,47 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup completion was canceled safely. The setup has not been marked as complete. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionCanceled {
+            get {
+                return ResourceManager.GetString("Setup_CompletionCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancellation has been requested. MOPR is safely completing or reverting the current operation. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionCancellationRequested {
+            get {
+                return ResourceManager.GetString("Setup_CompletionCancellationRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be confirmed. Check the connection and try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionDatabaseValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionDatabaseValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is ready to apply the validated workstation configuration. ähnelt.
         /// </summary>
         public static string Setup_CompletionDescription {
             get {
                 return ResourceManager.GetString("Setup_CompletionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup could not be completed. The setup has not been marked as complete. Please try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionFailed", resourceCulture);
             }
         }
         
@@ -124,11 +160,47 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected image repository could not be confirmed. Check the storage location and try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRepositoryValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup could not be completed and the previous technical state could not be fully restored. Do not continue using MOPR and contact your administrator. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRollbackFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRollbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completing setup. The database and image repository are being prepared. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRunning {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Completion ähnelt.
         /// </summary>
         public static string Setup_CompletionStep {
             get {
                 return ResourceManager.GetString("Setup_CompletionStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup was completed successfully. MOPR is opening the imaging workbench. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_CompletionSuccessful", resourceCulture);
             }
         }
         

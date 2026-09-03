@@ -126,8 +126,20 @@
   <data name="Setup_Back" xml:space="preserve">
     <value>Back</value>
   </data>
+  <data name="Setup_CompletionCanceled" xml:space="preserve">
+    <value>Setup completion was canceled safely. The setup has not been marked as complete.</value>
+  </data>
+  <data name="Setup_CompletionCancellationRequested" xml:space="preserve">
+    <value>Cancellation has been requested. MOPR is safely completing or reverting the current operation.</value>
+  </data>
+  <data name="Setup_CompletionDatabaseValidationFailed" xml:space="preserve">
+    <value>The database connection could not be confirmed. Check the connection and try again.</value>
+  </data>
   <data name="Setup_CompletionDescription" xml:space="preserve">
     <value>MOPR is ready to apply the validated workstation configuration.</value>
+  </data>
+  <data name="Setup_CompletionFailed" xml:space="preserve">
+    <value>Setup could not be completed. The setup has not been marked as complete. Please try again.</value>
   </data>
   <data name="Setup_CompletionNoChangesNotice" xml:space="preserve">
     <value>The configuration has not been applied yet. You can return to the previous steps without changing the workstation.</value>
@@ -138,8 +150,20 @@
   <data name="Setup_CompletionReadyTitle" xml:space="preserve">
     <value>Configuration ready</value>
   </data>
+  <data name="Setup_CompletionRepositoryValidationFailed" xml:space="preserve">
+    <value>The selected image repository could not be confirmed. Check the storage location and try again.</value>
+  </data>
+  <data name="Setup_CompletionRollbackFailed" xml:space="preserve">
+    <value>Setup could not be completed and the previous technical state could not be fully restored. Do not continue using MOPR and contact your administrator.</value>
+  </data>
+  <data name="Setup_CompletionRunning" xml:space="preserve">
+    <value>Completing setup. The database and image repository are being prepared.</value>
+  </data>
   <data name="Setup_CompletionStep" xml:space="preserve">
     <value>Completion</value>
+  </data>
+  <data name="Setup_CompletionSuccessful" xml:space="preserve">
+    <value>Setup was completed successfully. MOPR is opening the imaging workbench.</value>
   </data>
   <data name="Setup_CompletionTitle" xml:space="preserve">
     <value>Complete setup</value>

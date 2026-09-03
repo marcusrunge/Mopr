@@ -126,8 +126,20 @@
   <data name="Setup_Back" xml:space="preserve">
     <value>Zurück</value>
   </data>
+  <data name="Setup_CompletionCanceled" xml:space="preserve">
+    <value>Der Abschluss der Einrichtung wurde sicher abgebrochen. Die Einrichtung wurde nicht als abgeschlossen gespeichert.</value>
+  </data>
+  <data name="Setup_CompletionCancellationRequested" xml:space="preserve">
+    <value>Der Abbruch wurde angefordert. MOPR beendet den aktuellen Vorgang sicher oder stellt den vorherigen Zustand wieder her.</value>
+  </data>
+  <data name="Setup_CompletionDatabaseValidationFailed" xml:space="preserve">
+    <value>Die Datenbankverbindung konnte nicht bestätigt werden. Prüfen Sie die Verbindung und versuchen Sie es erneut.</value>
+  </data>
   <data name="Setup_CompletionDescription" xml:space="preserve">
     <value>MOPR ist bereit, die geprüfte Gerätekonfiguration zu übernehmen.</value>
+  </data>
+  <data name="Setup_CompletionFailed" xml:space="preserve">
+    <value>Die Einrichtung konnte nicht abgeschlossen werden. Sie wurde nicht als abgeschlossen gespeichert. Bitte versuchen Sie es erneut.</value>
   </data>
   <data name="Setup_CompletionNoChangesNotice" xml:space="preserve">
     <value>Die Konfiguration wurde noch nicht übernommen. Sie können zu den vorherigen Schritten zurückkehren, ohne dieses Gerät zu verändern.</value>
@@ -138,8 +150,20 @@
   <data name="Setup_CompletionReadyTitle" xml:space="preserve">
     <value>Konfiguration bereit</value>
   </data>
+  <data name="Setup_CompletionRepositoryValidationFailed" xml:space="preserve">
+    <value>Der ausgewählte Bildspeicher konnte nicht bestätigt werden. Prüfen Sie den Speicherort und versuchen Sie es erneut.</value>
+  </data>
+  <data name="Setup_CompletionRollbackFailed" xml:space="preserve">
+    <value>Die Einrichtung konnte nicht abgeschlossen und der vorherige technische Zustand nicht vollständig wiederhergestellt werden. Verwenden Sie MOPR nicht weiter und wenden Sie sich an Ihren Administrator.</value>
+  </data>
+  <data name="Setup_CompletionRunning" xml:space="preserve">
+    <value>Die Einrichtung wird abgeschlossen. Datenbank und Bildspeicher werden vorbereitet.</value>
+  </data>
   <data name="Setup_CompletionStep" xml:space="preserve">
     <value>Abschluss</value>
+  </data>
+  <data name="Setup_CompletionSuccessful" xml:space="preserve">
+    <value>Die Einrichtung wurde erfolgreich abgeschlossen. MOPR öffnet die Imaging-Workbench.</value>
   </data>
   <data name="Setup_CompletionTitle" xml:space="preserve">
     <value>Einrichtung abschließen</value>
