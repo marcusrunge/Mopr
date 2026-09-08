@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="MarcusRunge.Base" Version="1.0.5" />
     <PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
