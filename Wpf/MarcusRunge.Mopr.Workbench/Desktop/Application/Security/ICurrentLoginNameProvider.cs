@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Security
+﻿namespace MarcusRunge.Mopr.Workbench.Application.Security
 {
     /// <summary>
     /// Provides the login name of the current operating-system identity.

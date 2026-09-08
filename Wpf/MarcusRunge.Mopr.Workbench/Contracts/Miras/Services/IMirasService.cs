@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Miras
+namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Services
 {
     /// <summary>
     /// Provides application-oriented medical image recovery

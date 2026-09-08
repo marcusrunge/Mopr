@@ -1,19 +1,19 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Dicom.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Dicom.Models
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
 {
     /// <summary>
-    /// Represents the application-oriented result of a DICOM import operation.
+    /// Represents the public result of a DICOM import operation.
     /// </summary>
-    public sealed record DicomImportResult
+    public sealed record DicomImportApplicationResult
     {
         private readonly IReadOnlyList<string> _technicalErrors;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DicomImportResult"/> class.
+        /// Initializes a new instance of the <see cref="DicomImportApplicationResult"/> class.
         /// </summary>
         /// <param name="status">The structured import status.</param>
         /// <param name="discoveredFiles">The number of discovered source files.</param>
@@ -23,7 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Dicom.Models
         /// <param name="skippedFiles">The number of skipped files.</param>
         /// <param name="failedFiles">The number of files that failed to import.</param>
         /// <param name="technicalErrors">Technical diagnostics that must not be displayed as unfiltered user messages.</param>
-        public DicomImportResult(DicomImportStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
+        public DicomImportApplicationResult(DicomImportApplicationStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
         {
             Status = status;
             DiscoveredFiles = discoveredFiles;
@@ -56,9 +56,9 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Dicom.Models
         public int ImportedFiles { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the complete operation succeeded without failed files.
+        /// Gets a value indicating whether the operation completed without individual file errors.
         /// </summary>
-        public bool IsSuccessful => Status is DicomImportStatus.Completed or DicomImportStatus.CompletedWithSkippedFiles;
+        public bool IsSuccessful => Status is DicomImportApplicationStatus.Completed or DicomImportApplicationStatus.CompletedWithSkippedFiles;
 
         /// <summary>
         /// Gets the number of skipped files.
@@ -68,7 +68,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Dicom.Models
         /// <summary>
         /// Gets the structured import status.
         /// </summary>
-        public DicomImportStatus Status { get; }
+        public DicomImportApplicationStatus Status { get; }
 
         /// <summary>
         /// Gets technical diagnostics that must not be displayed as unfiltered user messages.
@@ -81,17 +81,17 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Dicom.Models
         public int ValidDicomFiles { get; }
 
         /// <summary>
-        /// Creates a result without importing any files.
+        /// Creates a result without executing the repository importer.
         /// </summary>
         /// <param name="status">The prerequisite or cancellation status.</param>
         /// <returns>The structured result.</returns>
-        public static DicomImportResult WithoutImport(DicomImportStatus status) => new(status);
+        public static DicomImportApplicationResult WithoutImport(DicomImportApplicationStatus status) => new(status);
 
         /// <summary>
         /// Creates a failed result containing separated technical diagnostics.
         /// </summary>
         /// <param name="exception">The technical failure.</param>
         /// <returns>The failed result.</returns>
-        public static DicomImportResult Failed(Exception exception) => new(DicomImportStatus.Failed, technicalErrors: new[] { (exception ?? throw new ArgumentNullException(nameof(exception))).ToString() });
+        public static DicomImportApplicationResult Failed(Exception exception) => new(DicomImportApplicationStatus.Failed, technicalErrors: [(exception ?? throw new ArgumentNullException(nameof(exception))).ToString()]);
     }
 }

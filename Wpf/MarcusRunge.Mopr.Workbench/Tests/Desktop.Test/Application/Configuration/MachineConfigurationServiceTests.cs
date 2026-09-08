@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Configuration;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;

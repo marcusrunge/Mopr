@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services
 {
     /// <summary>
     /// Loads and saves the machine-wide MOPR application configuration.

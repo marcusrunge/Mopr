@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using System;
 using System.Threading;
@@ -18,6 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Security
         public async Task<int?> GetCurrentUserIdAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
             var loginName = _loginNameProvider.GetCurrentLoginName();
             if (string.IsNullOrWhiteSpace(loginName))
             {
@@ -30,8 +31,8 @@ namespace MarcusRunge.Mopr.Workbench.Application.Security
                 return null;
             }
 
-            // Import operations must be attributed only to an already persisted
-            // application user. This boundary never creates users implicitly.
+            // Runtime operations must be attributed only to an existing persistent user.
+            // This provider deliberately does not create application users implicitly.
             var user = await userRepository.GetByLoginNameAsync(loginName, cancellationToken).ConfigureAwait(false);
             return user is { Id: > 0 } ? user.Id : null;
         }

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {

@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
+﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
 {
     /// <summary>
     /// Defines the machine-wide MOPR application configuration.

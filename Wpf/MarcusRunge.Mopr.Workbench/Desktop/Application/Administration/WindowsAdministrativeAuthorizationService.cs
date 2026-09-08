@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using System;
 
 namespace MarcusRunge.Mopr.Workbench.Application.Administration

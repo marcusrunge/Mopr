@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Implementations;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
@@ -234,7 +235,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
 
         private sealed class TestRepositoryBase : IRepositoryBase
         {
-            public MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.IApplicationConfiguration? ApplicationConfiguration => null;
+            public IApplicationConfiguration? ApplicationConfiguration => null;
             public Microsoft.Extensions.Logging.ILogger? Logger => null;
             public IRepositoryOperationsCoordinator? OperationsCoordinator => null;
             public MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts.IPersistence? Persistence => null;

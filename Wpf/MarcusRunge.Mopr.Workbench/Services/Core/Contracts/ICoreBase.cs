@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 using System;

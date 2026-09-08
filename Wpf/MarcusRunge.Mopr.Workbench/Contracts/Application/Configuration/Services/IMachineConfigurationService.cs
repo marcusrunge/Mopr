@@ -1,8 +1,9 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services
 {
     /// <summary>
     /// Provides controlled access to the machine-wide MOPR configuration.

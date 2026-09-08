@@ -1,13 +1,17 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
+using MarcusRunge.Mopr.Workbench.Application.Import;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Application.Security;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
 using MarcusRunge.Mopr.Workbench.Application.Startup;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
@@ -20,10 +24,10 @@ using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Wpf;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Views;
+using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;
@@ -34,6 +38,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 
 namespace MarcusRunge.Mopr.Workbench
 {
@@ -121,6 +127,10 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            ArgumentNullException.ThrowIfNull(containerRegistry);
+
+            // Application-wide infrastructure is registered first because all subsequent
+            // technical modules depend on the shared lifetime and configuration state.
             containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
             containerRegistry.RegisterSingleton<IAdministrativeAuthorizationService, WindowsAdministrativeAuthorizationService>();
             containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
@@ -129,48 +139,56 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IRepositoryLocationValidationService, RepositoryLocationValidationService>();
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
-
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);
             containerRegistry.RegisterInstance<IObservable<PersistenceConfiguration>>(persistenceConfigurationSubject);
 
             var applicationConfiguration = new ApplicationConfiguration();
-
             containerRegistry.RegisterInstance<IApplicationConfiguration>(applicationConfiguration);
 
             var applicationConfigurationSubject = new BehaviorSubject<IApplicationConfiguration>(applicationConfiguration);
-
             containerRegistry.RegisterInstance(applicationConfigurationSubject);
             containerRegistry.RegisterInstance<IObservable<IApplicationConfiguration>>(applicationConfigurationSubject);
 
+            // The DICOM module owns parsing, metadata extraction and image decoding only.
             containerRegistry.RegisterSingleton<IDicomFactory, DicomFactory>();
             containerRegistry.RegisterSingleton<IDicom>(provider => provider.Resolve<IDicomFactory>().Create());
 
+            // Persistence must be registered before application services that resolve
+            // persisted users, repository locations or audit identities.
             containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
-
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
-
             containerRegistry.RegisterSingleton<ISetupAuditIdentityProvider, SetupAuditIdentityProvider>();
             containerRegistry.RegisterSingleton<ISetupCompletionService, SetupCompletionService>();
             containerRegistry.RegisterSingleton<IApplicationStartupRouteService, ApplicationStartupRouteService>();
 
+            // The repository module owns physical DICOM storage, atomic import,
+            // compensation and repository-level integrity operations.
             containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
+            containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
-            containerRegistry.RegisterSingleton<IRepository>(provider => provider.Resolve<IRepositoryFactory>().Create());
+            // Runtime security adapters resolve the current Windows identity against
+            // an existing persistent MOPR user without implicit user provisioning.
+            containerRegistry.RegisterSingleton<ICurrentLoginNameProvider, WindowsCurrentLoginNameProvider>();
+            containerRegistry.RegisterSingleton<IAuditIdentityProvider, AuditIdentityProvider>();
 
-            containerRegistry.RegisterSingleton<IMirasFactory, MirasFactory>();
+            // The public import application service coordinates prerequisites and delegates
+            // the actual atomic import to the existing repository import implementation.
+            containerRegistry.RegisterSingleton<IDicomImportApplicationService, DicomImportApplicationService>();
 
+            // MIRAS depends on both Persistence and Repository and must therefore be
+            // constructed only after both technical modules have been registered.
+            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
-
             containerRegistry.RegisterSingleton<IMirasService>(provider => provider.Resolve<IMiras>().MirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
 
+            // Core exposes UI-facing workflows over the initialized technical services.
             containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<IApplicationLifetime>(), provider.Resolve<IMirasService>()));
-
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
+            // WPF-specific services remain at the outermost application boundary.
             containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
-
             containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
         }
 

@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Administration
+﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services
 {
     /// <summary>
     /// Provides authorization for changes to machine-wide MOPR configuration.

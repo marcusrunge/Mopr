@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services
 {
     /// <summary>
     /// Coordinates the technical completion of the machine-wide MOPR setup.

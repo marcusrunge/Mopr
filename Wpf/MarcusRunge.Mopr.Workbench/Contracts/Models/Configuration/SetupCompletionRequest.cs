@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using System;
 
 namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration

@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Configuration;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using System;
 using System.IO;
 using System.Security.Cryptography;
