@@ -8,7 +8,7 @@
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Persistence</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Persistence</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.5" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.6" />
     <PackageReference Include="MarcusRunge.Base.EntityFramework" Version="1.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <PrivateAssets>all</PrivateAssets>

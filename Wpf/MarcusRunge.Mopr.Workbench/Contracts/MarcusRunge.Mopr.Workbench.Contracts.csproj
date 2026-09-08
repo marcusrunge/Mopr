@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.5" />
+    <PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.6" />
   </ItemGroup>
 
   <ItemGroup>
