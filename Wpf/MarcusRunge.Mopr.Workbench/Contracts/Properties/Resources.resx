@@ -399,34 +399,34 @@
   <data name="ViewportOrientation_VolumePreview" xml:space="preserve">
     <value>Volume preview</value>
   </data>
-<data name="DicomImportApplicationStatus_AuditIdentityUnavailable" xml:space="preserve">
-  <value>Audit identity unavailable</value>
-</data>
-<data name="DicomImportApplicationStatus_Canceled" xml:space="preserve">
-  <value>Import canceled</value>
-</data>
-<data name="DicomImportApplicationStatus_Completed" xml:space="preserve">
-  <value>Import completed</value>
-</data>
-<data name="DicomImportApplicationStatus_CompletedWithErrors" xml:space="preserve">
-  <value>Import completed with individual errors</value>
-</data>
-<data name="DicomImportApplicationStatus_CompletedWithSkippedFiles" xml:space="preserve">
-  <value>Import completed with skipped files</value>
-</data>
-<data name="DicomImportApplicationStatus_DefaultRepositoryMissing" xml:space="preserve">
-  <value>No default repository configured</value>
-</data>
-<data name="DicomImportApplicationStatus_Failed" xml:space="preserve">
-  <value>Import failed</value>
-</data>
-<data name="DicomImportApplicationStatus_RepositoryUnavailable" xml:space="preserve">
-  <value>Repository unavailable</value>
-</data>
-<data name="DicomImportApplicationStatus_SourceMissing" xml:space="preserve">
-  <value>No import source selected</value>
-</data>
-<data name="DicomImportApplicationStatus_SourceUnavailable" xml:space="preserve">
-  <value>Import source unavailable</value>
-</data>
+  <data name="DicomImportStatus_AuditIdentityUnavailable" xml:space="preserve">
+    <value>Audit identity unavailable</value>
+  </data>
+  <data name="DicomImportStatus_Canceled" xml:space="preserve">
+    <value>Import canceled</value>
+  </data>
+  <data name="DicomImportStatus_Completed" xml:space="preserve">
+    <value>Import completed</value>
+  </data>
+  <data name="DicomImportStatus_CompletedWithErrors" xml:space="preserve">
+    <value>Import completed with individual errors</value>
+  </data>
+  <data name="DicomImportStatus_CompletedWithSkippedFiles" xml:space="preserve">
+    <value>Import completed with skipped files</value>
+  </data>
+  <data name="DicomImportStatus_DefaultRepositoryMissing" xml:space="preserve">
+    <value>No default repository configured</value>
+  </data>
+  <data name="DicomImportStatus_Failed" xml:space="preserve">
+    <value>Import failed</value>
+  </data>
+  <data name="DicomImportStatus_RepositoryUnavailable" xml:space="preserve">
+    <value>Repository unavailable</value>
+  </data>
+  <data name="DicomImportStatus_SourceMissing" xml:space="preserve">
+    <value>No import source selected</value>
+  </data>
+  <data name="DicomImportStatus_SourceUnavailable" xml:space="preserve">
+    <value>Import source unavailable</value>
+  </data>
 </root>

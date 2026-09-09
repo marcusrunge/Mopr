@@ -8,12 +8,12 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
     /// <summary>
     /// Represents the public result of a DICOM import operation.
     /// </summary>
-    public sealed record DicomImportApplicationResult
+    public sealed record DicomImportResult
     {
         private readonly IReadOnlyList<string> _technicalErrors;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DicomImportApplicationResult"/> class.
+        /// Initializes a new instance of the <see cref="DicomImportResult"/> class.
         /// </summary>
         /// <param name="status">The structured import status.</param>
         /// <param name="discoveredFiles">The number of discovered source files.</param>
@@ -23,7 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// <param name="skippedFiles">The number of skipped files.</param>
         /// <param name="failedFiles">The number of files that failed to import.</param>
         /// <param name="technicalErrors">Technical diagnostics that must not be displayed as unfiltered user messages.</param>
-        public DicomImportApplicationResult(DicomImportApplicationStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
+        public DicomImportResult(DicomImportStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
         {
             Status = status;
             DiscoveredFiles = discoveredFiles;
@@ -58,7 +58,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// <summary>
         /// Gets a value indicating whether the operation completed without individual file errors.
         /// </summary>
-        public bool IsSuccessful => Status is DicomImportApplicationStatus.Completed or DicomImportApplicationStatus.CompletedWithSkippedFiles;
+        public bool IsSuccessful => Status is DicomImportStatus.Completed or DicomImportStatus.CompletedWithSkippedFiles;
 
         /// <summary>
         /// Gets the number of skipped files.
@@ -68,7 +68,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// <summary>
         /// Gets the structured import status.
         /// </summary>
-        public DicomImportApplicationStatus Status { get; }
+        public DicomImportStatus Status { get; }
 
         /// <summary>
         /// Gets technical diagnostics that must not be displayed as unfiltered user messages.
@@ -85,13 +85,13 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// </summary>
         /// <param name="status">The prerequisite or cancellation status.</param>
         /// <returns>The structured result.</returns>
-        public static DicomImportApplicationResult WithoutImport(DicomImportApplicationStatus status) => new(status);
+        public static DicomImportResult WithoutImport(DicomImportStatus status) => new(status);
 
         /// <summary>
         /// Creates a failed result containing separated technical diagnostics.
         /// </summary>
         /// <param name="exception">The technical failure.</param>
         /// <returns>The failed result.</returns>
-        public static DicomImportApplicationResult Failed(Exception exception) => new(DicomImportApplicationStatus.Failed, technicalErrors: [(exception ?? throw new ArgumentNullException(nameof(exception))).ToString()]);
+        public static DicomImportResult Failed(Exception exception) => new(DicomImportStatus.Failed, technicalErrors: [(exception ?? throw new ArgumentNullException(nameof(exception))).ToString()]);
     }
 }

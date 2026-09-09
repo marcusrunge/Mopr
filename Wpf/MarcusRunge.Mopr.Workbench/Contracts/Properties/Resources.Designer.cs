@@ -61,6 +61,96 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Audit identity unavailable ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_AuditIdentityUnavailable {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_AuditIdentityUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import canceled ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_Canceled {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_Completed {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed with individual errors ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_CompletedWithErrors {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_CompletedWithErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed with skipped files ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_CompletedWithSkippedFiles {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_CompletedWithSkippedFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No default repository configured ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_DefaultRepositoryMissing {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_DefaultRepositoryMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import failed ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_Failed {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository unavailable ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_RepositoryUnavailable {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_RepositoryUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No import source selected ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_SourceMissing {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_SourceMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import source unavailable ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_SourceUnavailable {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_SourceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Angle ähnelt.
         /// </summary>
         public static string MeasurementType_Angle {

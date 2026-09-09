@@ -8,66 +8,66 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums
     /// Defines the public result status of a DICOM import operation.
     /// </summary>
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-    public enum DicomImportApplicationStatus
+    public enum DicomImportStatus
     {
         /// <summary>
         /// No import source was specified.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_SourceMissing", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_SourceMissing", typeof(Resources))]
         SourceMissing = 0,
 
         /// <summary>
         /// The specified import source is not available.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_SourceUnavailable", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_SourceUnavailable", typeof(Resources))]
         SourceUnavailable = 1,
 
         /// <summary>
         /// No default repository location has been configured.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_DefaultRepositoryMissing", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_DefaultRepositoryMissing", typeof(Resources))]
         DefaultRepositoryMissing = 2,
 
         /// <summary>
         /// The configured default repository is not available.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_RepositoryUnavailable", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_RepositoryUnavailable", typeof(Resources))]
         RepositoryUnavailable = 3,
 
         /// <summary>
         /// No valid persistent audit identity is available for the current user.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_AuditIdentityUnavailable", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_AuditIdentityUnavailable", typeof(Resources))]
         AuditIdentityUnavailable = 4,
 
         /// <summary>
         /// The import operation was canceled safely.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_Canceled", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_Canceled", typeof(Resources))]
         Canceled = 5,
 
         /// <summary>
         /// The import operation failed because of a technical error.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_Failed", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_Failed", typeof(Resources))]
         Failed = 6,
 
         /// <summary>
         /// All importable files were imported successfully.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_Completed", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_Completed", typeof(Resources))]
         Completed = 7,
 
         /// <summary>
         /// The import completed successfully and one or more files were skipped.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_CompletedWithSkippedFiles", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_CompletedWithSkippedFiles", typeof(Resources))]
         CompletedWithSkippedFiles = 8,
 
         /// <summary>
         /// The import completed with one or more individual file errors.
         /// </summary>
-        [LocalizedDescription("DicomImportApplicationStatus_CompletedWithErrors", typeof(Resources))]
+        [LocalizedDescription("DicomImportStatus_CompletedWithErrors", typeof(Resources))]
         CompletedWithErrors = 9
     }
 }

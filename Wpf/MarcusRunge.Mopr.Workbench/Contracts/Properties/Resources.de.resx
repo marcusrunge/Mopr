@@ -399,34 +399,34 @@
   <data name="ViewportOrientation_VolumePreview" xml:space="preserve">
     <value>Volumenvorschau</value>
   </data>
-<data name="DicomImportApplicationStatus_AuditIdentityUnavailable" xml:space="preserve">
-  <value>Auditidentität nicht verfügbar</value>
-</data>
-<data name="DicomImportApplicationStatus_Canceled" xml:space="preserve">
-  <value>Import abgebrochen</value>
-</data>
-<data name="DicomImportApplicationStatus_Completed" xml:space="preserve">
-  <value>Import vollständig abgeschlossen</value>
-</data>
-<data name="DicomImportApplicationStatus_CompletedWithErrors" xml:space="preserve">
-  <value>Import mit einzelnen Fehlern abgeschlossen</value>
-</data>
-<data name="DicomImportApplicationStatus_CompletedWithSkippedFiles" xml:space="preserve">
-  <value>Import mit übersprungenen Dateien abgeschlossen</value>
-</data>
-<data name="DicomImportApplicationStatus_DefaultRepositoryMissing" xml:space="preserve">
-  <value>Kein Standard-Bildspeicher eingerichtet</value>
-</data>
-<data name="DicomImportApplicationStatus_Failed" xml:space="preserve">
-  <value>Import fehlgeschlagen</value>
-</data>
-<data name="DicomImportApplicationStatus_RepositoryUnavailable" xml:space="preserve">
-  <value>Bildspeicher nicht verfügbar</value>
-</data>
-<data name="DicomImportApplicationStatus_SourceMissing" xml:space="preserve">
-  <value>Keine Importquelle ausgewählt</value>
-</data>
-<data name="DicomImportApplicationStatus_SourceUnavailable" xml:space="preserve">
-  <value>Importquelle nicht verfügbar</value>
-</data>
+  <data name="DicomImportStatus_AuditIdentityUnavailable" xml:space="preserve">
+    <value>Auditidentität nicht verfügbar</value>
+  </data>
+  <data name="DicomImportStatus_Canceled" xml:space="preserve">
+    <value>Import abgebrochen</value>
+  </data>
+  <data name="DicomImportStatus_Completed" xml:space="preserve">
+    <value>Import vollständig abgeschlossen</value>
+  </data>
+  <data name="DicomImportStatus_CompletedWithErrors" xml:space="preserve">
+    <value>Import mit einzelnen Fehlern abgeschlossen</value>
+  </data>
+  <data name="DicomImportStatus_CompletedWithSkippedFiles" xml:space="preserve">
+    <value>Import mit übersprungenen Dateien abgeschlossen</value>
+  </data>
+  <data name="DicomImportStatus_DefaultRepositoryMissing" xml:space="preserve">
+    <value>Kein Standard-Bildspeicher eingerichtet</value>
+  </data>
+  <data name="DicomImportStatus_Failed" xml:space="preserve">
+    <value>Import fehlgeschlagen</value>
+  </data>
+  <data name="DicomImportStatus_RepositoryUnavailable" xml:space="preserve">
+    <value>Bildspeicher nicht verfügbar</value>
+  </data>
+  <data name="DicomImportStatus_SourceMissing" xml:space="preserve">
+    <value>Keine Importquelle ausgewählt</value>
+  </data>
+  <data name="DicomImportStatus_SourceUnavailable" xml:space="preserve">
+    <value>Importquelle nicht verfügbar</value>
+  </data>
 </root>

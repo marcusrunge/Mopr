@@ -175,7 +175,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // The public import application service coordinates prerequisites and delegates
             // the actual atomic import to the existing repository import implementation.
-            containerRegistry.RegisterSingleton<IDicomImportApplicationService, DicomImportApplicationService>();
+            containerRegistry.RegisterSingleton<Contracts.Application.Import.Services.IDicomImportService, DicomImportService>();
 
             // MIRAS depends on both Persistence and Repository and must therefore be
             // constructed only after both technical modules have been registered.

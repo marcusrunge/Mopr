@@ -5,7 +5,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
     /// <summary>
     /// Contains the user-selected input for a directory-based DICOM import.
     /// </summary>
-    public sealed record DicomImportApplicationRequest(string SourceDirectoryPath, bool AllowOverwrite = false)
+    public sealed record DicomImportRequest(string SourceDirectoryPath, bool AllowOverwrite = false)
     {
         /// <summary>
         /// Gets the directory selected as the import source.
