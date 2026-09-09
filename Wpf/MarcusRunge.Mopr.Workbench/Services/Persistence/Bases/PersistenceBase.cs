@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Data.SqlClient;
@@ -24,7 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         protected IUnrealObjectRepository? _unrealObject;
         protected IUserRepository? _user;
 
-        private readonly IApplicationLifetime _applicationLifetime;
+        private readonly ILifetimeService _applicationLifetime;
         private readonly Lock _configurationSynchronization = new();
         private readonly Lock _exceptionThrownLock = new();
         private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
@@ -37,7 +37,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         private PersistenceConfiguration? _persistenceConfiguration;
         private ServiceProvider? _serviceProvider;
 
-        internal PersistenceBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration>? persistenceConfigurationObservable)
+        internal PersistenceBase(ILogger? logger, ILifetimeService? applicationLifetime, IObservable<PersistenceConfiguration>? persistenceConfigurationObservable)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime), "Application lifetime cannot be null.");
@@ -65,7 +65,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         }
 
         /// <inheritdoc/>
-        IApplicationLifetime? IPersistenceBase.ApplicationLifetime => _applicationLifetime;
+        ILifetimeService? IPersistenceBase.ApplicationLifetime => _applicationLifetime;
 
         /// <inheritdoc/>
         PersistenceConfiguration? IPersistenceBase.Configuration => _persistenceConfiguration;

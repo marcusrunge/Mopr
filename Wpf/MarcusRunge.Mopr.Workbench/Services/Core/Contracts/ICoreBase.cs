@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
         /// <summary>
         /// Gets the application lifetime used by long-running Core operations.
         /// </summary>
-        IApplicationLifetime ApplicationLifetime { get; }
+        ILifetimeService ApplicationLifetime { get; }
 
         /// <summary>
         /// Gets the DICOM module used for DICOM-related operations within Core.

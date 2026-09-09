@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
@@ -19,7 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
     {
         private readonly object _synchronization = new();
 
-        private IApplicationLifetime? _applicationLifetime;
+        private ILifetimeService? _applicationLifetime;
         private Task<MirasOperationResult>? _activeRun;
         private MirasFlowState _currentState = MirasFlowState.Idle;
         private MirasOperationResult? _lastResult;
@@ -114,7 +114,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
             }
         }
 
-        private IApplicationLifetime ApplicationLifetime => _applicationLifetime ?? throw new InvalidOperationException("The application lifetime has not been initialized.");
+        private ILifetimeService ApplicationLifetime => _applicationLifetime ?? throw new InvalidOperationException("The application lifetime has not been initialized.");
 
         private IMirasService MirasService => _mirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized.");
 

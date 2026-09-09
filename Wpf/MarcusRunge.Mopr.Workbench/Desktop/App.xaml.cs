@@ -9,8 +9,8 @@ using MarcusRunge.Mopr.Workbench.Application.Startup;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Security;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
@@ -27,7 +27,6 @@ using MarcusRunge.Mopr.Workbench.Services.Repository;
 using MarcusRunge.Mopr.Workbench.Services.Wpf;
 using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Views;
-using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;
@@ -37,9 +36,8 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 
 namespace MarcusRunge.Mopr.Workbench
 {
@@ -97,12 +95,12 @@ namespace MarcusRunge.Mopr.Workbench
 
         protected override void OnExit(ExitEventArgs e)
         {
-            ApplicationLifetime? applicationLifetime = null;
+            LifetimeService? applicationLifetime = null;
 
             try
             {
                 _shellReady.TrySetCanceled();
-                applicationLifetime = Container?.Resolve<IApplicationLifetime>() as ApplicationLifetime;
+                applicationLifetime = Container?.Resolve<ILifetimeService>() as LifetimeService;
 
                 // Cancellation is signaled before the initialization task is
                 // observed so active Persistence and MIRAS operations can stop.
@@ -121,7 +119,7 @@ namespace MarcusRunge.Mopr.Workbench
         {
             base.OnInitialized();
 
-            var applicationStopping = Container.Resolve<IApplicationLifetime>().ApplicationStopping;
+            var applicationStopping = Container.Resolve<ILifetimeService>().ApplicationStopping;
             _applicationInitialization = InitializeApplicationAsync(applicationStopping);
         }
 
@@ -131,7 +129,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // Application-wide infrastructure is registered first because all subsequent
             // technical modules depend on the shared lifetime and configuration state.
-            containerRegistry.RegisterSingleton<IApplicationLifetime, ApplicationLifetime>();
+            containerRegistry.RegisterSingleton<ILifetimeService, LifetimeService>();
             containerRegistry.RegisterSingleton<IAdministrativeAuthorizationService, WindowsAdministrativeAuthorizationService>();
             containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
@@ -155,7 +153,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // Persistence must be registered before application services that resolve
             // persisted users, repository locations or audit identities.
-            containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+            containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
@@ -165,7 +163,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // The repository module owns physical DICOM storage, atomic import,
             // compensation and repository-level integrity operations.
-            containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
+            containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
             containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
             // Runtime security adapters resolve the current Windows identity against
@@ -179,12 +177,12 @@ namespace MarcusRunge.Mopr.Workbench
 
             // MIRAS depends on both Persistence and Repository and must therefore be
             // constructed only after both technical modules have been registered.
-            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<IApplicationLifetime>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
+            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
             containerRegistry.RegisterSingleton<IMirasService>(provider => provider.Resolve<IMiras>().MirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
 
             // Core exposes UI-facing workflows over the initialized technical services.
-            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<IApplicationLifetime>(), provider.Resolve<IMirasService>()));
+            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<ILifetimeService>(), provider.Resolve<IMirasService>()));
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
@@ -226,8 +224,7 @@ namespace MarcusRunge.Mopr.Workbench
 
                 var result = await mirasFlowService.StartAsync(cancellationToken).ConfigureAwait(false);
 
-                _startupDiagnostics!.WriteInformation(
-                    $"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
+                _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
     public class PersistenceFactory : IPersistenceFactory
     {
         // Reference to the application lifetime, used for managing application shutdown and cancellation.
-        private readonly IApplicationLifetime? _applicationLifetime;
+        private readonly ILifetimeService? _applicationLifetime;
         // Stores the  module instance created by this factory (lazy-created).
         private IPersistence? _moduleInstance;
 
@@ -31,13 +31,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
         // Observable for the persistence configuration.
         private readonly IObservable<PersistenceConfiguration> _persistenceConfigurationObservable;
 
-        public PersistenceFactory(IApplicationLifetime applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
+        public PersistenceFactory(ILifetimeService applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
         {
             _applicationLifetime = applicationLifetime;
             _persistenceConfigurationObservable = persistenceConfigurationObservable;
         }
 
-        public PersistenceFactory(ILogger? logger, IApplicationLifetime applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
+        public PersistenceFactory(ILogger? logger, ILifetimeService applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime;

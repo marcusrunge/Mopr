@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -11,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations
     /// </summary>
     internal sealed class Core : CoreBase
     {
-        internal Core(ILogger? logger, IDicom? dicom, IApplicationLifetime applicationLifetime, IMirasService mirasService) : base(logger, dicom, applicationLifetime, mirasService)
+        internal Core(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasService) : base(logger, dicom, applicationLifetime, mirasService)
         {
             // Imaging remains independent of Persistence and MIRAS, while the
             // application service receives the shared Core lifetime and check port.

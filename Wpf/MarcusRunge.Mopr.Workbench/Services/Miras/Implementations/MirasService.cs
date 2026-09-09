@@ -1,4 +1,4 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
@@ -20,7 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     {
         private readonly IMirasBase _base;
 
-        private IApplicationLifetime? ApplicationLifetime => Base.ApplicationLifetime;
+        private ILifetimeService? ApplicationLifetime => Base.ApplicationLifetime;
 
         private IMirasBase Base => _base;
 

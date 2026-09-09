@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
         /// <summary>
         /// Gets the application lifetime.
         /// </summary>
-        internal IApplicationLifetime? ApplicationLifetime { get; }
+        internal ILifetimeService? ApplicationLifetime { get; }
 
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.

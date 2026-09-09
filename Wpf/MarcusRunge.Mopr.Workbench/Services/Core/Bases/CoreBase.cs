@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -12,12 +12,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
     /// <summary>
     /// Provides the shared dependencies and service references of one Core module instance.
     /// </summary>
-    internal abstract class CoreBase(ILogger? logger, IDicom? dicom, IApplicationLifetime applicationLifetime, IMirasService mirasCheckService) : ICoreBase, ICore
+    internal abstract class CoreBase(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasCheckService) : ICoreBase, ICore
     {
         protected IImagingService? _imagingService;
         protected IMirasApplicationService? _mirasApplicationService;
 
-        private readonly IApplicationLifetime _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
+        private readonly ILifetimeService _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
         private readonly IDicom? _dicom = dicom;
         private readonly object _exceptionThrownLock = new();
         private readonly ILogger? _logger = logger;
@@ -45,7 +45,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         }
 
         /// <inheritdoc/>
-        IApplicationLifetime ICoreBase.ApplicationLifetime => _applicationLifetime;
+        ILifetimeService ICoreBase.ApplicationLifetime => _applicationLifetime;
 
         /// <inheritdoc/>
         IDicom? ICoreBase.Dicom => _dicom;

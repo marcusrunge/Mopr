@@ -1,8 +1,8 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {
-    internal sealed class TestApplicationLifetime : IApplicationLifetime, IDisposable
+    internal sealed class TestApplicationLifetime : ILifetimeService, IDisposable
     {
         private readonly CancellationTokenSource _applicationStopping = new();
 

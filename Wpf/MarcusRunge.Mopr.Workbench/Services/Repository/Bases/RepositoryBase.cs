@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         protected IDicomRepositoryService? _repositoryService;
 
         private readonly IDisposable? _applicationConfigurationSubscription;
-        private readonly IApplicationLifetime? _applicationLifetime;
+        private readonly ILifetimeService? _applicationLifetime;
         private readonly Lock _exceptionThrownLock = new();
         private readonly ILogger? _logger;
         private readonly IPersistence? _persistence;
@@ -25,7 +25,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         private IApplicationConfiguration? _applicationConfiguration;
         private Action<Exception>? _exceptionThrown;
 
-        internal RepositoryBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence)
+        internal RepositoryBase(ILogger? logger, ILifetimeService? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime;

@@ -1,17 +1,16 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using System;
 using System.Threading;
 
 namespace MarcusRunge.Mopr.Workbench.Application.Lifetime
 {
-    internal sealed class ApplicationLifetime : IApplicationLifetime, IDisposable
+    internal sealed class LifetimeService : ILifetimeService, IDisposable
     {
         private readonly CancellationTokenSource _applicationStopping = new();
         private int _disposed;
         private int _stopping;
 
-        public CancellationToken ApplicationStopping =>
-            _applicationStopping.Token;
+        public CancellationToken ApplicationStopping => _applicationStopping.Token;
 
         /// <summary>
         /// Signals that the application is stopping without disposing the

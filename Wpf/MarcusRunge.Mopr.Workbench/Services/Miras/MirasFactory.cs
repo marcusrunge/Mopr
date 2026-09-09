@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -23,20 +23,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
     /// </summary>
     public sealed class MirasFactory : IMirasFactory
     {
-        private readonly IApplicationLifetime? _applicationLifetime;
+        private readonly ILifetimeService? _applicationLifetime;
         private readonly ILogger? _logger;
         private readonly IPersistence _persistence;
         private readonly IRepository _repository;
         private IMiras? _moduleInstance;
 
-        public MirasFactory(IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository)
+        public MirasFactory(ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository)
         {
             _applicationLifetime = applicationLifetime;
             _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public MirasFactory(ILogger? logger, IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository)
+        public MirasFactory(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository)
         {
             _logger = logger;
             _applicationLifetime = applicationLifetime;

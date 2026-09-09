@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -11,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
     /// <summary>
     /// Provides the dependencies and exception propagation shared by one MIRAS module instance.
     /// </summary>
-    internal abstract class MirasBase(ILogger? logger, IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
+    internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
     {
         protected IMirasService? _mirasService;
 
@@ -32,7 +32,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         }
 
         /// <inheritdoc/>
-        IApplicationLifetime? IMirasBase.ApplicationLifetime => applicationLifetime;
+        ILifetimeService? IMirasBase.ApplicationLifetime => applicationLifetime;
 
         /// <inheritdoc/>
         ILogger? IMirasBase.Logger => logger;

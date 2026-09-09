@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -278,7 +278,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        private sealed class TestApplicationLifetime : IApplicationLifetime, IDisposable
+        private sealed class TestApplicationLifetime : ILifetimeService, IDisposable
         {
             private readonly CancellationTokenSource _applicationStopping = new();
 
@@ -292,7 +292,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             }
         }
 
-        private sealed class TestPersistenceBase(IApplicationLifetime applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : PersistenceBase(null, applicationLifetime, persistenceConfigurationObservable)
+        private sealed class TestPersistenceBase(ILifetimeService applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : PersistenceBase(null, applicationLifetime, persistenceConfigurationObservable)
         {
         }
     }

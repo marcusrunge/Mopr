@@ -1,4 +1,4 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -11,6 +11,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     /// </summary>
     internal sealed class Miras : MirasBase
     {
-        internal Miras(ILogger? logger, IApplicationLifetime? applicationLifetime, IPersistence persistence, IRepository repository) : base(logger, applicationLifetime, persistence, repository) => _mirasService = new MirasService(this);
+        internal Miras(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : base(logger, applicationLifetime, persistence, repository) => _mirasService = new MirasService(this);
     }
 }

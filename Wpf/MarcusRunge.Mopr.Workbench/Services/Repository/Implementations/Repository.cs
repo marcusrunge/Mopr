@@ -1,5 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Bases;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
     // Concrete internal module implementation that wires up services for this module instance.
     internal class Repository : RepositoryBase
     {
-        internal Repository(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence) : base(logger, applicationLifetime, applicationConfigurationObservable, persistence)
+        internal Repository(ILogger? logger, ILifetimeService? applicationLifetime, IObservable<IApplicationConfiguration>? applicationConfigurationObservable, IPersistence? persistence) : base(logger, applicationLifetime, applicationConfigurationObservable, persistence)
         {
             /*
              * The coordinator is created first so import and repair resolve the same

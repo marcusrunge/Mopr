@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -23,21 +23,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core
     /// </summary>
     public sealed class CoreFactory : ICoreFactory
     {
-        private readonly IApplicationLifetime _applicationLifetime;
+        private readonly ILifetimeService _applicationLifetime;
         private readonly IDicom? _dicom;
         private readonly ILogger? _logger;
         private readonly IMirasService _mirasService;
 
         private ICore? _moduleInstance;
 
-        public CoreFactory(IDicom? dicom, IApplicationLifetime applicationLifetime, IMirasService mirasService)
+        public CoreFactory(IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasService)
         {
             _dicom = dicom;
             _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
             _mirasService = mirasService ?? throw new ArgumentNullException(nameof(mirasService));
         }
 
-        public CoreFactory(ILogger? logger, IDicom? dicom, IApplicationLifetime applicationLifetime, IMirasService mirasService)
+        public CoreFactory(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasService)
         {
             _logger = logger;
             _dicom = dicom;

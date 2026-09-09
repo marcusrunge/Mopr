@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
     /// </summary>
     internal class Persistence : PersistenceBase
     {
-        internal Persistence(ILogger? logger, IApplicationLifetime? applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : base(logger, applicationLifetime, persistenceConfigurationObservable)
+        internal Persistence(ILogger? logger, ILifetimeService? applicationLifetime, IObservable<PersistenceConfiguration> persistenceConfigurationObservable) : base(logger, applicationLifetime, persistenceConfigurationObservable)
         {
             /*
              * Granular repositories remain available for normal entity operations.
