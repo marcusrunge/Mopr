@@ -1,15 +1,12 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
-using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Miras
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {
     /// <summary>
     /// Controls application-level MIRAS checks independently of the user interface.
     /// </summary>
-    public interface IMirasFlowService : INotifyPropertyChanged
+    public interface IFlow
     {
         /// <summary>
         /// Gets a value indicating whether cancellation can currently be requested.

@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
@@ -12,17 +11,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
     /// <summary>
     /// Provides the shared dependencies and service references of one Core module instance.
     /// </summary>
-    internal abstract class CoreBase(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasCheckService) : ICoreBase, ICore
+    internal abstract class CoreBase(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime) : ICoreBase, ICore
     {
         protected IImagingService? _imagingService;
-        protected IMirasApplicationService? _mirasApplicationService;
 
         private readonly ILifetimeService _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
         private readonly IDicom? _dicom = dicom;
         private readonly object _exceptionThrownLock = new();
         private readonly ILogger? _logger = logger;
-        private readonly IMirasService _mirasService = mirasCheckService ?? throw new ArgumentNullException(nameof(mirasCheckService));
-
+        
         private Action<Exception>? _exceptionThrown;
 
         /// <inheritdoc/>
@@ -54,13 +51,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         public IImagingService? ImagingService => _imagingService;
 
         /// <inheritdoc/>
-        ILogger? ICoreBase.Logger => _logger;
-
-        /// <inheritdoc/>
-        public IMirasApplicationService? MirasApplicationService => _mirasApplicationService;
-
-        /// <inheritdoc/>
-        IMirasService ICoreBase.MirasService => _mirasService;
+        ILogger? ICoreBase.Logger => _logger;        
 
         /// <inheritdoc/>
         void ICoreBase.OnExceptionThrown(Exception exception)

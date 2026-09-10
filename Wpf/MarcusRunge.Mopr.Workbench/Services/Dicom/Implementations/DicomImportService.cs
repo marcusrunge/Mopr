@@ -81,7 +81,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
             }
         }
 
-        protected override void OnCreate(IDicomBase @base) => _base = @base;
+        protected override void OnCreate(IDicomBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
         protected override Task OnCreateAsync(IDicomBase @base, CancellationToken cancellationToken)
         {

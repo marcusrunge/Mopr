@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,11 +24,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
         /// Gets the logger used within the Core module.
         /// </summary>
         ILogger? Logger { get; }
-
-        /// <summary>
-        /// Gets the MIRAS integrity-check service used by the application flow.
-        /// </summary>
-        IMirasService MirasService { get; }
 
         /// <summary>
         /// Reports an exception raised by an internal Core service.

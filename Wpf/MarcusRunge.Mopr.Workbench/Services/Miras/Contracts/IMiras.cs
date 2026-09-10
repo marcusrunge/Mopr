@@ -1,6 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
-
-namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {
     /// <summary>
     /// Defines the public contract of the assembly.
@@ -13,8 +11,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
         event Action<Exception> ExceptionThrown;
 
         /// <summary>
-        /// Gets the IMirasService instance exposed by the assembly, if available.
+        /// Gets the IFlow instance exposed by the assembly, if available.
         /// </summary>
-        IMirasService? MirasService { get; }
+        IFlow? Flow { get; }
+
+        /// <summary>
+        /// Gets the IOperations instance exposed by the assembly, if available.
+        /// </summary>
+        IOperations? Operations { get; }
     }
 }

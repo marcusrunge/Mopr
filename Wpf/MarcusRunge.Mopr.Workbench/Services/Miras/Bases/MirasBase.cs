@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -13,7 +12,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
     /// </summary>
     internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
     {
-        protected IMirasService? _mirasService;
+        protected IFlow? _flow;
+        protected IOperations? _operations;
 
         private readonly Lock _exceptionThrownLock = new();
         private Action<Exception>? _exceptionThrown;
@@ -34,11 +34,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         /// <inheritdoc/>
         ILifetimeService? IMirasBase.ApplicationLifetime => applicationLifetime;
 
+        public IFlow? Flow => _flow;
+
         /// <inheritdoc/>
         ILogger? IMirasBase.Logger => logger;
 
         /// <inheritdoc/>
-        public IMirasService? MirasService => _mirasService;
+        public IOperations? Operations => _operations;
 
         /// <inheritdoc/>
         IPersistence? IMirasBase.Persistence => persistence;

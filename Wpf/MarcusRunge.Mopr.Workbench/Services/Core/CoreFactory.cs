@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using Microsoft.Extensions.Logging;
@@ -26,23 +25,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core
         private readonly ILifetimeService _applicationLifetime;
         private readonly IDicom? _dicom;
         private readonly ILogger? _logger;
-        private readonly IMirasService _mirasService;
 
         private ICore? _moduleInstance;
 
-        public CoreFactory(IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasService)
+        public CoreFactory(IDicom? dicom, ILifetimeService applicationLifetime)
         {
             _dicom = dicom;
             _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
-            _mirasService = mirasService ?? throw new ArgumentNullException(nameof(mirasService));
         }
 
-        public CoreFactory(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime, IMirasService mirasService)
+        public CoreFactory(ILogger? logger, IDicom? dicom, ILifetimeService applicationLifetime)
         {
             _logger = logger;
             _dicom = dicom;
             _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
-            _mirasService = mirasService ?? throw new ArgumentNullException(nameof(mirasService));
         }
 
         /// <inheritdoc/>
@@ -50,7 +46,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core
         {
             // The factory retains one stable Core instance with all dependencies
             // supplied by the composition root.
-            return _moduleInstance ??= new Implementations.Core(_logger, _dicom, _applicationLifetime, _mirasService);
+            return _moduleInstance ??= new Implementations.Core(_logger, _dicom, _applicationLifetime);
         }
     }
 }

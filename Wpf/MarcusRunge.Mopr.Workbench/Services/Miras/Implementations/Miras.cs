@@ -11,6 +11,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     /// </summary>
     internal sealed class Miras : MirasBase
     {
-        internal Miras(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : base(logger, applicationLifetime, persistence, repository) => _mirasService = new MirasService(this);
+        internal Miras(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : base(logger, applicationLifetime, persistence, repository)
+        {
+            _operations = Implementations.Operations.Create(this);
+            _flow = Implementations.Flow.Create(this);            
+        }
     }
 }

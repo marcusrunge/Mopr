@@ -1,30 +1,23 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
-using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Miras;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
 {
     /// <summary>
     /// Controls the lifetime, concurrency and cancellation of application-level
     /// MIRAS integrity checks.
     /// </summary>
-    internal sealed class MirasFlowService : CreateableBindableBase<IMirasFlowService, MirasFlowService, IMirasApplicationServiceBase>, IMirasFlowService
+    internal sealed class Flow : CreateableBindableBase<IFlow, Flow, IMirasBase>, IFlow
     {
-        private readonly object _synchronization = new();
+        private readonly Lock _synchronization = new();
 
-        private ILifetimeService? _applicationLifetime;
-        private Task<MirasOperationResult>? _activeRun;
+        private Task<MirasOperationResult>? _activeRun;        
+        private IMirasBase? _base;
         private MirasFlowState _currentState = MirasFlowState.Idle;
         private MirasOperationResult? _lastResult;
-        private Exception? _lastUnexpectedError;
-        private IMirasService? _mirasService;
+        private Exception? _lastUnexpectedError;        
         private CancellationTokenSource? _userCancellation;
 
         /// <inheritdoc/>
@@ -46,7 +39,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
             {
                 lock (_synchronization)
                 {
-                    return _activeRun is null && !ApplicationLifetime.ApplicationStopping.IsCancellationRequested;
+                    return _activeRun is null && !_base?.ApplicationLifetime?.ApplicationStopping.IsCancellationRequested == true;
                 }
             }
         }
@@ -114,30 +107,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
             }
         }
 
-        private ILifetimeService ApplicationLifetime => _applicationLifetime ?? throw new InvalidOperationException("The application lifetime has not been initialized.");
-
-        private IMirasService MirasService => _mirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized.");
-
-        /// <summary>
-        /// Creates a MIRAS flow service owned by the supplied MIRAS application service.
-        /// </summary>
-        /// <param name="base">The owning MIRAS application service context.</param>
-        /// <returns>The created flow service, or <see langword="null"/> when no context was supplied.</returns>
-        internal new static IMirasFlowService? Create(IMirasApplicationServiceBase? @base)
-        {
-            if (@base is null)
-            {
-                return null;
-            }
-
-            // The flow contains mutable run state and cancellation sources. It must
-            // therefore be owned by one Core module instead of being shared globally.
-            var service = new MirasFlowService();
-            service.OnCreate(@base);
-
-            return service;
-        }
-
         /// <inheritdoc/>
         public void Cancel()
         {
@@ -177,9 +146,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
                     return _activeRun;
                 }
 
-                if (ApplicationLifetime.ApplicationStopping.IsCancellationRequested)
+                if (_base?.ApplicationLifetime?.ApplicationStopping.IsCancellationRequested == true)
                 {
-                    return Task.FromCanceled<MirasOperationResult>(ApplicationLifetime.ApplicationStopping);
+                    return Task.FromCanceled<MirasOperationResult>(_base.ApplicationLifetime.ApplicationStopping);
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -200,30 +169,38 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
             return activeRun;
         }
 
-        /// <inheritdoc/>
-        protected override void OnCreate(IMirasApplicationServiceBase @base)
-        {
-            var applicationServiceBase = @base ?? throw new ArgumentNullException(nameof(@base));
-            _applicationLifetime = applicationServiceBase.CoreBase.ApplicationLifetime;
-            _mirasService = applicationServiceBase.CoreBase.MirasService;
-        }
+        protected override void OnCreate(IMirasBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
-        /// <inheritdoc/>
-        protected override Task OnCreateAsync(IMirasApplicationServiceBase @base, CancellationToken cancellationToken)
+        protected override Task OnCreateAsync(IMirasBase @base, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return Task.CompletedTask;
         }
 
+        private void RaiseFlowPropertiesChanged()
+        {
+            RaisePropertyChanged(nameof(CurrentState));
+            RaisePropertyChanged(nameof(IsRunning));
+            RaisePropertyChanged(nameof(CanStart));
+            RaisePropertyChanged(nameof(CanCancel));
+            RaisePropertyChanged(nameof(LastResult));
+            RaisePropertyChanged(nameof(HasUnexpectedError));
+        }
+
         private async Task<MirasOperationResult> RunAsync(CancellationTokenSource userCancellation, CancellationToken callerCancellation)
         {
+            if(_base?.Operations == null)
+            {
+                throw new InvalidOperationException("The MIRAS operations are not available.");
+            }
+
             await Task.Yield();
 
-            using var effectiveCancellation = CancellationTokenSource.CreateLinkedTokenSource(userCancellation.Token, callerCancellation, ApplicationLifetime.ApplicationStopping);
+            using var effectiveCancellation = CancellationTokenSource.CreateLinkedTokenSource(userCancellation.Token, callerCancellation, _base?.ApplicationLifetime?.ApplicationStopping ?? CancellationToken.None);
 
             try
             {
-                var result = await MirasService.CheckRepositoryAsync(effectiveCancellation.Token).ConfigureAwait(false);
+                var result = await _base!.Operations.CheckRepositoryAsync(effectiveCancellation.Token).ConfigureAwait(false);
 
                 lock (_synchronization)
                 {
@@ -266,16 +243,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Miras
                 completedUserCancellation?.Dispose();
                 RaiseFlowPropertiesChanged();
             }
-        }
-
-        private void RaiseFlowPropertiesChanged()
-        {
-            RaisePropertyChanged(nameof(CurrentState));
-            RaisePropertyChanged(nameof(IsRunning));
-            RaisePropertyChanged(nameof(CanStart));
-            RaisePropertyChanged(nameof(CanCancel));
-            RaisePropertyChanged(nameof(LastResult));
-            RaisePropertyChanged(nameof(HasUnexpectedError));
         }
     }
 }

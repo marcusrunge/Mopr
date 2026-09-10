@@ -1,7 +1,7 @@
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -16,9 +16,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     /// <summary>
     /// Orchestrates MIRAS integrity checks across persistence and repository services.
     /// </summary>
-    internal sealed class MirasService : IMirasService
+    internal sealed class Operations : CreateableBindableBase<IOperations, Operations, IMirasBase>, IOperations
     {
-        private readonly IMirasBase _base;
+        private IMirasBase _base;
 
         private ILifetimeService? ApplicationLifetime => Base.ApplicationLifetime;
 
@@ -27,8 +27,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
 
         private IRepository Repository => Base.Repository ?? throw new InvalidOperationException("Repository has not been initialized.");
-
-        internal MirasService(IMirasBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
         /// <inheritdoc/>
         public async Task<MirasOperationResult> CheckRepositoryAsync(CancellationToken cancellationToken = default)
@@ -100,6 +98,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             }
         }
 
+        protected override void OnCreate(IMirasBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
+
+        protected override Task OnCreateAsync(IMirasBase @base, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.CompletedTask;
+        }
+
         private static void AddPersistenceIssues(MirasOperationResult result, IEnumerable<PersistenceIntegrityIssue> persistenceIssues)
         {
             foreach (var persistenceIssue in persistenceIssues)
@@ -169,11 +175,140 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             });
         }
 
-        private static CancellationTokenSource CreateLinkedCancellationSource(CancellationToken cancellationToken, CancellationToken applicationStopping) =>
-            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, applicationStopping);
+        private static MirasUserMessage CreateIssueMessage(MirasIssue issue) => new()
+        {
+            AlertLevel = issue.AlertLevel,
+            CanExecuteRecommendedAction = issue.IssueState == MirasIssueState.ActionAvailable,
+            Description = GetIssueDescription(issue.IssueType),
+            IssueId = issue.Id,
+            IssueState = issue.IssueState,
+            RecommendedActionText = GetRecommendedActionText(issue.RecommendedAction),
+            StatusText = GetIssueStatusText(issue.IssueState),
+            TechnicalDetails = string.Empty,
+            Title = GetIssueTitle(issue.IssueType)
+        };
 
-        private CancellationTokenSource CreateLinkedCancellationSource(CancellationToken cancellationToken) =>
-            CreateLinkedCancellationSource(cancellationToken, ApplicationLifetime?.ApplicationStopping ?? CancellationToken.None);
+        private static CancellationTokenSource CreateLinkedCancellationSource(CancellationToken cancellationToken, CancellationToken applicationStopping) =>
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, applicationStopping);
+
+        private static string CreatePersistenceTechnicalDetails(PersistenceIntegrityIssue issue) => $"EntityType={issue.EntityType}; EntityId={issue.EntityId?.ToString() ?? "none"}; IssueType={issue.IssueType}; PropertyName={issue.PropertyName}; ReferencedEntityType={issue.ReferencedEntityType}; ReferencedEntityId={issue.ReferencedEntityId?.ToString() ?? "none"}; Value={issue.Value}; Details={issue.TechnicalDetails}";
+
+        private static MirasUserMessage CreateTechnicalFailureMessage(string description) => new()
+        {
+            AlertLevel = MirasAlertLevel.Warning,
+            CanExecuteRecommendedAction = false,
+            Description = description,
+            IssueId = Guid.Empty,
+            IssueState = MirasIssueState.ActionRequired,
+            RecommendedActionText = Resources.MirasRecommendedAction_ContactAdministrator,
+            StatusText = Resources.MirasStatus_ActionRequired,
+            TechnicalDetails = string.Empty,
+            Title = Resources.MirasOperation_TechnicalFailure_Title
+        };
+
+        private static string GetIssueDescription(MirasIssueType issueType) => issueType switch
+        {
+            MirasIssueType.MissingFile => Properties.Resources.MirasIssue_MissingFile_Description,
+            MirasIssueType.MisplacedFile => Properties.Resources.MirasIssue_MisplacedFile_Description,
+            MirasIssueType.DuplicateFile => Properties.Resources.MirasIssue_DuplicateFile_Description,
+            MirasIssueType.IdentityMismatch => Properties.Resources.MirasIssue_IdentityMismatch_Description,
+            MirasIssueType.OrphanedFile => Properties.Resources.MirasIssue_OrphanedFile_Description,
+            MirasIssueType.InvalidDicomFile => Properties.Resources.MirasIssue_InvalidDicomFile_Description,
+            MirasIssueType.UnreadableFile => Properties.Resources.MirasIssue_UnreadableFile_Description,
+            MirasIssueType.IncompleteImport => Properties.Resources.MirasIssue_IncompleteImport_Description,
+            MirasIssueType.RelationshipConflict => Properties.Resources.MirasIssue_RelationshipConflict_Description,
+            MirasIssueType.RepositoryUnavailable => Properties.Resources.MirasIssue_RepositoryUnavailable_Description,
+            MirasIssueType.PersistenceUnavailable => Properties.Resources.MirasIssue_PersistenceUnavailable_Description,
+            MirasIssueType.PersistenceRequiredValueMissing => Properties.Resources.MirasIssue_PersistenceRequiredValueMissing_Description,
+            MirasIssueType.PersistenceValueInvalid => Properties.Resources.MirasIssue_PersistenceValueInvalid_Description,
+            MirasIssueType.PersistenceUniqueValueConflict => Properties.Resources.MirasIssue_PersistenceUniqueValueConflict_Description,
+            MirasIssueType.PersistenceRelationshipConflict => Properties.Resources.MirasIssue_PersistenceRelationshipConflict_Description,
+            MirasIssueType.PersistenceAuditReferenceInvalid => Properties.Resources.MirasIssue_PersistenceAuditReferenceInvalid_Description,
+            _ => Properties.Resources.MirasIssue_Unknown_Description
+        };
+
+        private static string GetIssueStatusText(MirasIssueState issueState) => issueState switch
+        {
+            MirasIssueState.ActionAvailable => Resources.MirasStatus_ActionAvailable,
+            MirasIssueState.ActionRequired => Resources.MirasStatus_ActionRequired,
+            MirasIssueState.AutomaticallyResolved => Resources.MirasStatus_AutomaticallyResolved,
+            _ => Resources.MirasStatus_Detected
+        };
+
+        private static string GetIssueTitle(MirasIssueType issueType) => issueType switch
+        {
+            MirasIssueType.MissingFile => Resources.MirasIssueType_MissingFile,
+            MirasIssueType.MisplacedFile => Resources.MirasIssueType_MisplacedFile,
+            MirasIssueType.DuplicateFile => Resources.MirasIssueType_DuplicateFile,
+            MirasIssueType.IdentityMismatch => Resources.MirasIssueType_IdentityMismatch,
+            MirasIssueType.OrphanedFile => Resources.MirasIssueType_OrphanedFile,
+            MirasIssueType.InvalidDicomFile => Resources.MirasIssueType_InvalidDicomFile,
+            MirasIssueType.UnreadableFile => Resources.MirasIssueType_UnreadableFile,
+            MirasIssueType.IncompleteImport => Resources.MirasIssueType_IncompleteImport,
+            MirasIssueType.RelationshipConflict => Resources.MirasIssueType_RelationshipConflict,
+            MirasIssueType.RepositoryUnavailable => Resources.MirasIssueType_RepositoryUnavailable,
+            MirasIssueType.PersistenceUnavailable => Resources.MirasIssueType_PersistenceUnavailable,
+            MirasIssueType.PersistenceRequiredValueMissing => Resources.MirasIssueType_PersistenceRequiredValueMissing,
+            MirasIssueType.PersistenceValueInvalid => Resources.MirasIssueType_PersistenceValueInvalid,
+            MirasIssueType.PersistenceUniqueValueConflict => Resources.MirasIssueType_PersistenceUniqueValueConflict,
+            MirasIssueType.PersistenceRelationshipConflict => Resources.MirasIssueType_PersistenceRelationshipConflict,
+            MirasIssueType.PersistenceAuditReferenceInvalid => Resources.MirasIssueType_PersistenceAuditReferenceInvalid,
+            _ => Resources.MirasIssueType_Unknown
+        };
+
+        private static string GetRecommendedActionText(MirasRecommendedAction action) => action switch
+        {
+            MirasRecommendedAction.LocateFile => Resources.MirasRecommendedAction_LocateFile,
+            MirasRecommendedAction.RestoreExpectedLocation => Resources.MirasRecommendedAction_RestoreExpectedLocation,
+            MirasRecommendedAction.RebuildPersistenceEntry => Resources.MirasRecommendedAction_RebuildPersistenceEntry,
+            MirasRecommendedAction.RetryOperation => Resources.MirasRecommendedAction_RetryOperation,
+            MirasRecommendedAction.ReviewConflict => Resources.MirasRecommendedAction_ReviewConflict,
+            MirasRecommendedAction.ReviewDuplicate => Resources.MirasRecommendedAction_ReviewDuplicate,
+            MirasRecommendedAction.ReviewInvalidFile => Resources.MirasRecommendedAction_ReviewInvalidFile,
+            MirasRecommendedAction.ReconnectRepository => Resources.MirasRecommendedAction_ReconnectRepository,
+            MirasRecommendedAction.ContactAdministrator => Resources.MirasRecommendedAction_ContactAdministrator,
+            _ => Resources.MirasRecommendedAction_None
+        };
+
+        private static MirasAlertLevel GetRepositoryAlertLevel(DicomRepositoryIssueType issueType) => issueType switch
+        {
+            DicomRepositoryIssueType.MissingFile => MirasAlertLevel.Caution,
+            DicomRepositoryIssueType.MisplacedFile => MirasAlertLevel.Caution,
+            DicomRepositoryIssueType.DuplicateFile => MirasAlertLevel.Caution,
+            DicomRepositoryIssueType.OrphanedFile => MirasAlertLevel.Caution,
+            DicomRepositoryIssueType.IdentityMismatch => MirasAlertLevel.Warning,
+            DicomRepositoryIssueType.InvalidDicomFile => MirasAlertLevel.Warning,
+            DicomRepositoryIssueType.UnreadableFile => MirasAlertLevel.Warning,
+            DicomRepositoryIssueType.IncompleteImport => MirasAlertLevel.Warning,
+            DicomRepositoryIssueType.RepositoryLocationUnavailable => MirasAlertLevel.Warning,
+            DicomRepositoryIssueType.RelationshipConflict => MirasAlertLevel.Warning,
+            _ => MirasAlertLevel.Warning
+        };
+
+        private static MirasIssueState GetRepositoryIssueState(DicomRepositoryIssue issue)
+        {
+            if (issue.AutomaticallyResolved)
+            {
+                return MirasIssueState.AutomaticallyResolved;
+            }
+
+            return issue.CanResolveAutomatically ? MirasIssueState.ActionAvailable : MirasIssueState.ActionRequired;
+        }
+
+        private static MirasRecommendedAction GetRepositoryRecommendedAction(DicomRepositoryIssueType issueType) => issueType switch
+        {
+            DicomRepositoryIssueType.MissingFile => MirasRecommendedAction.LocateFile,
+            DicomRepositoryIssueType.MisplacedFile => MirasRecommendedAction.RestoreExpectedLocation,
+            DicomRepositoryIssueType.DuplicateFile => MirasRecommendedAction.ReviewDuplicate,
+            DicomRepositoryIssueType.IdentityMismatch => MirasRecommendedAction.ReviewConflict,
+            DicomRepositoryIssueType.OrphanedFile => MirasRecommendedAction.RebuildPersistenceEntry,
+            DicomRepositoryIssueType.InvalidDicomFile => MirasRecommendedAction.ReviewInvalidFile,
+            DicomRepositoryIssueType.UnreadableFile => MirasRecommendedAction.ContactAdministrator,
+            DicomRepositoryIssueType.IncompleteImport => MirasRecommendedAction.ReviewConflict,
+            DicomRepositoryIssueType.RepositoryLocationUnavailable => MirasRecommendedAction.ReconnectRepository,
+            DicomRepositoryIssueType.RelationshipConflict => MirasRecommendedAction.ReviewConflict,
+            _ => MirasRecommendedAction.ContactAdministrator
+        };
 
         private static MirasIssue MapPersistenceIssue(PersistenceIntegrityIssue issue)
         {
@@ -247,137 +382,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             };
         }
 
-        private static string CreatePersistenceTechnicalDetails(PersistenceIntegrityIssue issue) => $"EntityType={issue.EntityType}; EntityId={issue.EntityId?.ToString() ?? "none"}; IssueType={issue.IssueType}; PropertyName={issue.PropertyName}; ReferencedEntityType={issue.ReferencedEntityType}; ReferencedEntityId={issue.ReferencedEntityId?.ToString() ?? "none"}; Value={issue.Value}; Details={issue.TechnicalDetails}";
-
-        private static MirasUserMessage CreateIssueMessage(MirasIssue issue) => new()
-        {
-            AlertLevel = issue.AlertLevel,
-            CanExecuteRecommendedAction = issue.IssueState == MirasIssueState.ActionAvailable,
-            Description = GetIssueDescription(issue.IssueType),
-            IssueId = issue.Id,
-            IssueState = issue.IssueState,
-            RecommendedActionText = GetRecommendedActionText(issue.RecommendedAction),
-            StatusText = GetIssueStatusText(issue.IssueState),
-            TechnicalDetails = string.Empty,
-            Title = GetIssueTitle(issue.IssueType)
-        };
-
-        private static MirasUserMessage CreateTechnicalFailureMessage(string description) => new()
-        {
-            AlertLevel = MirasAlertLevel.Warning,
-            CanExecuteRecommendedAction = false,
-            Description = description,
-            IssueId = Guid.Empty,
-            IssueState = MirasIssueState.ActionRequired,
-            RecommendedActionText = Resources.MirasRecommendedAction_ContactAdministrator,
-            StatusText = Resources.MirasStatus_ActionRequired,
-            TechnicalDetails = string.Empty,
-            Title = Resources.MirasOperation_TechnicalFailure_Title
-        };
-
-        private static MirasAlertLevel GetRepositoryAlertLevel(DicomRepositoryIssueType issueType) => issueType switch
-        {
-            DicomRepositoryIssueType.MissingFile => MirasAlertLevel.Caution,
-            DicomRepositoryIssueType.MisplacedFile => MirasAlertLevel.Caution,
-            DicomRepositoryIssueType.DuplicateFile => MirasAlertLevel.Caution,
-            DicomRepositoryIssueType.OrphanedFile => MirasAlertLevel.Caution,
-            DicomRepositoryIssueType.IdentityMismatch => MirasAlertLevel.Warning,
-            DicomRepositoryIssueType.InvalidDicomFile => MirasAlertLevel.Warning,
-            DicomRepositoryIssueType.UnreadableFile => MirasAlertLevel.Warning,
-            DicomRepositoryIssueType.IncompleteImport => MirasAlertLevel.Warning,
-            DicomRepositoryIssueType.RepositoryLocationUnavailable => MirasAlertLevel.Warning,
-            DicomRepositoryIssueType.RelationshipConflict => MirasAlertLevel.Warning,
-            _ => MirasAlertLevel.Warning
-        };
-
-        private static MirasIssueState GetRepositoryIssueState(DicomRepositoryIssue issue)
-        {
-            if (issue.AutomaticallyResolved)
-            {
-                return MirasIssueState.AutomaticallyResolved;
-            }
-
-            return issue.CanResolveAutomatically ? MirasIssueState.ActionAvailable : MirasIssueState.ActionRequired;
-        }
-
-        private static MirasRecommendedAction GetRepositoryRecommendedAction(DicomRepositoryIssueType issueType) => issueType switch
-        {
-            DicomRepositoryIssueType.MissingFile => MirasRecommendedAction.LocateFile,
-            DicomRepositoryIssueType.MisplacedFile => MirasRecommendedAction.RestoreExpectedLocation,
-            DicomRepositoryIssueType.DuplicateFile => MirasRecommendedAction.ReviewDuplicate,
-            DicomRepositoryIssueType.IdentityMismatch => MirasRecommendedAction.ReviewConflict,
-            DicomRepositoryIssueType.OrphanedFile => MirasRecommendedAction.RebuildPersistenceEntry,
-            DicomRepositoryIssueType.InvalidDicomFile => MirasRecommendedAction.ReviewInvalidFile,
-            DicomRepositoryIssueType.UnreadableFile => MirasRecommendedAction.ContactAdministrator,
-            DicomRepositoryIssueType.IncompleteImport => MirasRecommendedAction.ReviewConflict,
-            DicomRepositoryIssueType.RepositoryLocationUnavailable => MirasRecommendedAction.ReconnectRepository,
-            DicomRepositoryIssueType.RelationshipConflict => MirasRecommendedAction.ReviewConflict,
-            _ => MirasRecommendedAction.ContactAdministrator
-        };
-
-        private static string GetIssueDescription(MirasIssueType issueType) => issueType switch
-        {
-            MirasIssueType.MissingFile => Properties.Resources.MirasIssue_MissingFile_Description,
-            MirasIssueType.MisplacedFile => Properties.Resources.MirasIssue_MisplacedFile_Description,
-            MirasIssueType.DuplicateFile => Properties.Resources.MirasIssue_DuplicateFile_Description,
-            MirasIssueType.IdentityMismatch => Properties.Resources.MirasIssue_IdentityMismatch_Description,
-            MirasIssueType.OrphanedFile => Properties.Resources.MirasIssue_OrphanedFile_Description,
-            MirasIssueType.InvalidDicomFile => Properties.Resources.MirasIssue_InvalidDicomFile_Description,
-            MirasIssueType.UnreadableFile => Properties.Resources.MirasIssue_UnreadableFile_Description,
-            MirasIssueType.IncompleteImport => Properties.Resources.MirasIssue_IncompleteImport_Description,
-            MirasIssueType.RelationshipConflict => Properties.Resources.MirasIssue_RelationshipConflict_Description,
-            MirasIssueType.RepositoryUnavailable => Properties.Resources.MirasIssue_RepositoryUnavailable_Description,
-            MirasIssueType.PersistenceUnavailable => Properties.Resources.MirasIssue_PersistenceUnavailable_Description,
-            MirasIssueType.PersistenceRequiredValueMissing => Properties.Resources.MirasIssue_PersistenceRequiredValueMissing_Description,
-            MirasIssueType.PersistenceValueInvalid => Properties.Resources.MirasIssue_PersistenceValueInvalid_Description,
-            MirasIssueType.PersistenceUniqueValueConflict => Properties.Resources.MirasIssue_PersistenceUniqueValueConflict_Description,
-            MirasIssueType.PersistenceRelationshipConflict => Properties.Resources.MirasIssue_PersistenceRelationshipConflict_Description,
-            MirasIssueType.PersistenceAuditReferenceInvalid => Properties.Resources.MirasIssue_PersistenceAuditReferenceInvalid_Description,
-            _ => Properties.Resources.MirasIssue_Unknown_Description
-        };
-
-        private static string GetIssueStatusText(MirasIssueState issueState) => issueState switch
-        {
-            MirasIssueState.ActionAvailable => Resources.MirasStatus_ActionAvailable,
-            MirasIssueState.ActionRequired => Resources.MirasStatus_ActionRequired,
-            MirasIssueState.AutomaticallyResolved => Resources.MirasStatus_AutomaticallyResolved,
-            _ => Resources.MirasStatus_Detected
-        };
-
-        private static string GetIssueTitle(MirasIssueType issueType) => issueType switch
-        {
-            MirasIssueType.MissingFile => Resources.MirasIssueType_MissingFile,
-            MirasIssueType.MisplacedFile => Resources.MirasIssueType_MisplacedFile,
-            MirasIssueType.DuplicateFile => Resources.MirasIssueType_DuplicateFile,
-            MirasIssueType.IdentityMismatch => Resources.MirasIssueType_IdentityMismatch,
-            MirasIssueType.OrphanedFile => Resources.MirasIssueType_OrphanedFile,
-            MirasIssueType.InvalidDicomFile => Resources.MirasIssueType_InvalidDicomFile,
-            MirasIssueType.UnreadableFile => Resources.MirasIssueType_UnreadableFile,
-            MirasIssueType.IncompleteImport => Resources.MirasIssueType_IncompleteImport,
-            MirasIssueType.RelationshipConflict => Resources.MirasIssueType_RelationshipConflict,
-            MirasIssueType.RepositoryUnavailable => Resources.MirasIssueType_RepositoryUnavailable,
-            MirasIssueType.PersistenceUnavailable => Resources.MirasIssueType_PersistenceUnavailable,
-            MirasIssueType.PersistenceRequiredValueMissing => Resources.MirasIssueType_PersistenceRequiredValueMissing,
-            MirasIssueType.PersistenceValueInvalid => Resources.MirasIssueType_PersistenceValueInvalid,
-            MirasIssueType.PersistenceUniqueValueConflict => Resources.MirasIssueType_PersistenceUniqueValueConflict,
-            MirasIssueType.PersistenceRelationshipConflict => Resources.MirasIssueType_PersistenceRelationshipConflict,
-            MirasIssueType.PersistenceAuditReferenceInvalid => Resources.MirasIssueType_PersistenceAuditReferenceInvalid,
-            _ => Resources.MirasIssueType_Unknown
-        };
-
-        private static string GetRecommendedActionText(MirasRecommendedAction action) => action switch
-        {
-            MirasRecommendedAction.LocateFile => Resources.MirasRecommendedAction_LocateFile,
-            MirasRecommendedAction.RestoreExpectedLocation => Resources.MirasRecommendedAction_RestoreExpectedLocation,
-            MirasRecommendedAction.RebuildPersistenceEntry => Resources.MirasRecommendedAction_RebuildPersistenceEntry,
-            MirasRecommendedAction.RetryOperation => Resources.MirasRecommendedAction_RetryOperation,
-            MirasRecommendedAction.ReviewConflict => Resources.MirasRecommendedAction_ReviewConflict,
-            MirasRecommendedAction.ReviewDuplicate => Resources.MirasRecommendedAction_ReviewDuplicate,
-            MirasRecommendedAction.ReviewInvalidFile => Resources.MirasRecommendedAction_ReviewInvalidFile,
-            MirasRecommendedAction.ReconnectRepository => Resources.MirasRecommendedAction_ReconnectRepository,
-            MirasRecommendedAction.ContactAdministrator => Resources.MirasRecommendedAction_ContactAdministrator,
-            _ => Resources.MirasRecommendedAction_None
-        };
+        private CancellationTokenSource CreateLinkedCancellationSource(CancellationToken cancellationToken) =>
+                                                                                                    CreateLinkedCancellationSource(cancellationToken, ApplicationLifetime?.ApplicationStopping ?? CancellationToken.None);
 
         private async Task<DicomRepositoryRepairResult> InspectRepositoryAsync(CancellationToken cancellationToken)
         {

@@ -21,6 +21,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
         internal ILogger? Logger { get; }
 
         /// <summary>
+        /// Gets the operations.
+        /// </summary>
+        internal IOperations? Operations { get; }
+
+        /// <summary>
         /// Gets the persistence for using within the module.
         /// </summary>
         internal IPersistence? Persistence { get; }

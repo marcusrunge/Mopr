@@ -11,7 +11,6 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
@@ -179,10 +178,10 @@ namespace MarcusRunge.Mopr.Workbench
             // constructed only after both technical modules have been registered.
             containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
-            containerRegistry.RegisterSingleton<IMirasService>(provider => provider.Resolve<IMiras>().MirasService ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
+            containerRegistry.RegisterSingleton<IOperations>(provider => provider.Resolve<IMiras>().Operations ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
 
             // Core exposes UI-facing workflows over the initialized technical services.
-            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<ILifetimeService>(), provider.Resolve<IMirasService>()));
+            containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<ILifetimeService>()));
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
@@ -220,9 +219,9 @@ namespace MarcusRunge.Mopr.Workbench
 
                 await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(false);
 
-                var mirasFlowService = Container.Resolve<ICore>().MirasApplicationService?.MirasFlowService ?? throw new InvalidOperationException("The MIRAS flow service has not been initialized.");
+                var mirasFlow = Container.Resolve<IMiras>().Flow ?? throw new InvalidOperationException("The MIRAS flow has not been initialized.");
 
-                var result = await mirasFlowService.StartAsync(cancellationToken).ConfigureAwait(false);
+                var result = await mirasFlow.StartAsync(cancellationToken).ConfigureAwait(false);
 
                 _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
             }

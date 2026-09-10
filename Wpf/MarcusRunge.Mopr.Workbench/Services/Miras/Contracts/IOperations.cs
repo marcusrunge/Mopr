@@ -1,14 +1,12 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Services
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {
     /// <summary>
     /// Provides application-oriented medical image recovery
     /// and assurance operations.
     /// </summary>
-    public interface IMirasService
+    public interface IOperations
     {
         /// <summary>
         /// Checks the configured medical image repository without initiating an automatic repair.
