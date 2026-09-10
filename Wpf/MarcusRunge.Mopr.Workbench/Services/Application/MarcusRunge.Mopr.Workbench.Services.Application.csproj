@@ -6,7 +6,7 @@
 	<UseWPF>true</UseWPF>
 	<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-  <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Wpf</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Wpf</AssemblyName></PropertyGroup>
+  <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Application</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Application</AssemblyName></PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MarcusRunge.Base" Version="1.0.6" />

@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog
 {
     public interface IDialogService
     {

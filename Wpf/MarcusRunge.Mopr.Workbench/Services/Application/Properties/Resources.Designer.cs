@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Properties {
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MarcusRunge.Mopr.Workbench.Services.Wpf.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MarcusRunge.Mopr.Workbench.Services.Application.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -1,8 +1,8 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using Microsoft.Win32;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Implementations.Dialog
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Dialog
 {
     internal class FileDialogService : CreateableBindableBase<IFileDialogService, FileDialogService, IDialogServiceBase>, IFileDialogService
     {

@@ -6,7 +6,6 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -15,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
@@ -27,9 +27,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = new(StringComparer.OrdinalIgnoreCase);
         private readonly Queue<string> _dicomFrameCacheOrder = new();
         private readonly HashSet<string> _pendingRenderViewportIds = new(StringComparer.OrdinalIgnoreCase);
-        private readonly System.Windows.Threading.DispatcherTimer _renderThrottleTimer = new System.Windows.Threading.DispatcherTimer();
+        private readonly System.Windows.Threading.DispatcherTimer _renderThrottleTimer = new();
         private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = new(StringComparer.OrdinalIgnoreCase);
-        private readonly IWpf _wpf;
+        private readonly IApplication _wpf;
         private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
         private string _activeViewportId = "Single.Main";
@@ -49,7 +49,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
         private readonly IImagingMeasurementContext _measurementContext;
 
-        public ImageViewerViewModel(ICore core, IWpf wpf, IDicom dicom, IImagingMeasurementContext measurementContext)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext)
         {
             _core = core;
             _wpf = wpf;

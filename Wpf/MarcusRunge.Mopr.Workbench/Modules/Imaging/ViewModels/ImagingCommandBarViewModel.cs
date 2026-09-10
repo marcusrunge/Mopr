@@ -4,18 +4,18 @@ using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using Prism.Commands;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
         private readonly ICore _core;
-        private readonly IWpf _wpf;
+        private readonly IApplication _wpf;
         private ImagingTool _activeTool;
         private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _cancelOpenCommand, _crosshairCommand, _layoutCommand, _applyCtLungWindowCommand, _measureCommand, _applyCtMediastinumWindowCommand, _moreCommand, _openCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
@@ -23,7 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private CancellationTokenSource? _openCancellationTokenSource;
         private string _statusText = Resources.CommandBar_Status;
 
-        public ImagingCommandBarViewModel(ICore core, IWpf wpf)
+        public ImagingCommandBarViewModel(ICore core, IApplication wpf)
         {
             _core = core;
             _wpf = wpf;

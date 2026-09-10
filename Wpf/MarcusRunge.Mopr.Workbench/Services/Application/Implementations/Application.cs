@@ -1,12 +1,12 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Bases;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using Microsoft.Extensions.Logging;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Implementations
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
 {
     // Concrete internal module implementation that wires up services for this module instance.
-    internal class Wpf : WpfBase
+    internal class Application : ApplicationBase
     {
-        internal Wpf(ILogger? logger) : base(logger)
+        internal Application(ILogger? logger) : base(logger)
         {
             // What happens here:
             // - The assembly constructor performs "composition" for this module instance by creating and assigning

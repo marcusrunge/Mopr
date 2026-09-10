@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
 {
     /// <summary>
     /// Internal base contract for exposing services to internal consumers.
     /// </summary>
-    internal interface IWpfBase
+    internal interface IApplicationBase
     {
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.

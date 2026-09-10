@@ -1,12 +1,12 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Media;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
 {
     /// <summary>
     /// Defines the public contract of the assembly.
     /// </summary>
-    public interface IWpf
+    public interface IApplication
     {
         /// <summary>
         /// Occurs when an exception is thrown.

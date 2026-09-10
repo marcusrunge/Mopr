@@ -4,7 +4,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
@@ -24,7 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     /// <param name="setupCompletionService">The setup-completion service.</param>
     /// <param name="wpf">The WPF service facade.</param>
     /// <param name="regionManager">The Prism region manager.</param>
-    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISetupCompletionService setupCompletionService, IWpf wpf, IRegionManager regionManager) : BindableBase, INavigationAware, IConfirmNavigationRequest
+    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISetupCompletionService setupCompletionService, IApplication application, IRegionManager regionManager) : BindableBase, INavigationAware, IConfirmNavigationRequest
     {
         private const int CompletionStep = 4;
         private const int DatabaseStep = 1;
@@ -35,7 +35,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private readonly IRegionManager _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
         private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = repositoryLocationValidationService ?? throw new ArgumentNullException(nameof(repositoryLocationValidationService));
         private readonly ISetupCompletionService _setupCompletionService = setupCompletionService ?? throw new ArgumentNullException(nameof(setupCompletionService));
-        private readonly IWpf _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
+        private readonly IApplication _application = application ?? throw new ArgumentNullException(nameof(application));
         private IApplicationConfiguration? _applicationConfiguration;
         private DelegateCommand? _backCommand, _cancelSetupCompletionCommand, _completeSetupCommand, _continueCommand, _selectRepositoryLocationCommand, _testDatabaseConnectionCommand, _useLocalDatabaseCommand, _validateRepositoryLocationCommand;
 
@@ -479,7 +479,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
 
         private void ExecuteSelectRepositoryLocation()
         {
-            var fileDialogService = _wpf.DialogService?.FileDialogService ?? throw new InvalidOperationException("The WPF file dialog service has not been initialized.");
+            var fileDialogService = _application.DialogService?.FileDialogService ?? throw new InvalidOperationException("The WPF file dialog service has not been initialized.");
             var selectedPath = fileDialogService.SelectFolder(Resources.Setup_RepositoryFolderDialogTitle, string.IsNullOrWhiteSpace(RepositoryLocationPath) ? null : RepositoryLocationPath);
             if (!string.IsNullOrWhiteSpace(selectedPath)) RepositoryLocationPath = selectedPath;
         }

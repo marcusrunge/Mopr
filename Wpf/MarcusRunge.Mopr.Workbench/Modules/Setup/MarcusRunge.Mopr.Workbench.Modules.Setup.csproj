@@ -11,7 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
     <ProjectReference Include="..\..\Core\MarcusRunge.Mopr.Workbench.Core.csproj" />
-    <ProjectReference Include="..\..\Services\Wpf\MarcusRunge.Mopr.Workbench.Services.Wpf.csproj" />
+    <ProjectReference Include="..\..\Services\Application\MarcusRunge.Mopr.Workbench.Services.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

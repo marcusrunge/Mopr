@@ -1,13 +1,13 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Dialog;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts.Media;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Bases
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
     // Internal base for modules; holds optional service references for derived types.
-    internal abstract class WpfBase(ILogger? logger) : IWpfBase, IWpf
+    internal abstract class ApplicationBase(ILogger? logger) : IApplicationBase, IApplication
     {
         // Backing field for IServiceA (assigned by derived modules).
         protected IDialogService? _dialogService;
@@ -36,12 +36,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf.Bases
         public IDialogService? DialogService => _dialogService;
 
         /// <inheritdoc/>
-        ILogger? IWpfBase.Logger => logger;
+        ILogger? IApplicationBase.Logger => logger;
 
         public IMediaService? MediaService => _mediaService;
 
         /// <inheritdoc/>
-        void IWpfBase.OnExceptionThrown(Exception exception)
+        void IApplicationBase.OnExceptionThrown(Exception exception)
         {
             // Log the exception with the module's logger, if available.
             logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);

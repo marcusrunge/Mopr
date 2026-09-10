@@ -24,8 +24,6 @@ using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository;
-using MarcusRunge.Mopr.Workbench.Services.Wpf;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
 using MarcusRunge.Mopr.Workbench.Views;
 using Prism.Ioc;
 using Prism.Modularity;
@@ -38,6 +36,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
+using MarcusRunge.Mopr.Workbench.Services.Application;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench
 {
@@ -186,8 +186,8 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
-            containerRegistry.RegisterSingleton<IWpfFactory, WpfFactory>();
-            containerRegistry.RegisterSingleton<IWpf>(provider => provider.Resolve<IWpfFactory>().Create());
+            containerRegistry.RegisterSingleton<IApplicationFactory, ApplicationFactory>();
+            containerRegistry.RegisterSingleton<IApplication>(provider => provider.Resolve<IApplicationFactory>().Create());
         }
 
         private async Task InitializeApplicationAsync(CancellationToken cancellationToken)

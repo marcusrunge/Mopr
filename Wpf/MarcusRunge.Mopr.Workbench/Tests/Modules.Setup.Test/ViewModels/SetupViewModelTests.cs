@@ -5,9 +5,8 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
-using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
-using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 {
@@ -367,7 +366,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 
             public SetupViewModel ViewModel { get; }
 
-            public Mock<IWpf> Wpf { get; } = new(MockBehavior.Strict);
+            public Mock<IApplication> Wpf { get; } = new(MockBehavior.Strict);
 
             public async Task LoadAsync(CancellationToken cancellationToken)
             {

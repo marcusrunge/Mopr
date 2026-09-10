@@ -1,42 +1,42 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Wpf.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Wpf
+namespace MarcusRunge.Mopr.Workbench.Services.Application
 {
     /// <summary>
     /// Defines a factory contract for creating a clean architecture module instance.
     /// </summary>
-    public interface IWpfFactory
+    public interface IApplicationFactory
     {
         /// <summary>
         /// Creates (or returns) a module instance.
         /// </summary>
-        IWpf Create();
+        IApplication Create();
     }
 
     /// <summary>
     /// Default factory implementation that provides a factory and module instance.
     /// </summary>
-    public class WpfFactory : IWpfFactory
+    public class ApplicationFactory : IApplicationFactory
     {
         // Stores the module instance created by this factory (lazy-created).
-        private IWpf? _moduleInstance;
+        private IApplication? _moduleInstance;
 
         // Logger reference for potential logging; can be null if not provided.
         private readonly ILogger? _logger;
 
-        public WpfFactory()
+        public ApplicationFactory()
         {
         }
 
-        public WpfFactory(ILogger? logger)
+        public ApplicationFactory(ILogger? logger)
         {
             _logger = logger;
         }
 
 
         /// <inheritdoc/>
-        public IWpf Create() =>
+        public IApplication Create() =>
             /* What happens here:
                - Lazy initialization of the instance.
                - If _moduleInstance is null, a new Implementations.MarcusRunge.Mopr.Workbench.Services.Wpf is created and cached.
@@ -45,6 +45,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Wpf
                Purpose/intent:
                - Ensures consumers get a single shared module instance per process/app-domain-like context,
                  created on first demand. */
-            _moduleInstance ??= new Implementations.Wpf(_logger);
+            _moduleInstance ??= new Implementations.Application(_logger);
     }
 }
