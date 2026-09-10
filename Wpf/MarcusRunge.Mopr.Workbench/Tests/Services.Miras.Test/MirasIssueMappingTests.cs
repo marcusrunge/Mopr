@@ -27,7 +27,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             persistenceResult.Issues.Add(persistenceIssue);
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Blocked, result.Status);
             Assert.Equal(expectedAlertLevel, result.HighestAlertLevel);
@@ -75,7 +75,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             var issue = Assert.Single(result.Issues);
             Assert.Equal(41, issue.InstanceId);
@@ -94,7 +94,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             var issue = Assert.Single(result.Issues);
             Assert.Null(issue.InstanceId);
@@ -128,7 +128,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             repositoryResult.Issues.Add(repositoryIssue);
             context.ConfigureRepositoryResult(repositoryResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.CompletedWithIssues, result.Status);
             Assert.Equal(expectedAlertLevel, result.HighestAlertLevel);
@@ -186,7 +186,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
             context.ConfigureRepositoryResult(repositoryResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.CompletedWithIssues, result.Status);
             Assert.False(result.HasActionRequired);
@@ -222,7 +222,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
             context.ConfigureRepositoryResult(repositoryResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.CompletedWithIssues, result.Status);
             Assert.False(result.HasActionRequired);
@@ -259,7 +259,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             });
             context.ConfigureRepositoryResult(repositoryResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.CompletedWithIssues, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -296,7 +296,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Blocked, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);

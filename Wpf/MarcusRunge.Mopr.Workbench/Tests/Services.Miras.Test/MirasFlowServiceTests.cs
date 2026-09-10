@@ -1,9 +1,8 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
 using Moq;
-using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {
     public sealed class MirasFlowServiceTests
     {
@@ -35,7 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
                 Status = operationStatus
             };
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
 
             var actualResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
@@ -47,7 +46,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             Assert.False(context.Flow.CanCancel);
             Assert.False(context.Flow.HasUnexpectedError);
 
-            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
+            context.Operations.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -56,7 +55,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             using var context = new MirasFlowServiceTestContext();
             var completion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
 
             var firstRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
             var secondRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
@@ -78,7 +77,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             Assert.Same(expectedResult, await firstRun);
             Assert.Same(expectedResult, await secondRun);
 
-            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
+            context.Operations.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -91,7 +90,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             };
             var secondCompletion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).Returns(secondCompletion.Task);
+            context.Operations.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).Returns(secondCompletion.Task);
 
             Assert.Same(firstResult, await context.Flow.StartAsync(TestContext.Current.CancellationToken));
             Assert.Same(firstResult, context.Flow.LastResult);
@@ -126,7 +125,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
                 Status = MirasOperationStatus.Completed
             };
 
-            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).ReturnsAsync(secondResult);
+            context.Operations.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).ReturnsAsync(secondResult);
 
             var actualFirstResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
             var actualSecondResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
@@ -136,7 +135,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             Assert.Same(secondResult, context.Flow.LastResult);
             Assert.Equal(MirasFlowState.Completed, context.Flow.CurrentState);
 
-            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            context.Operations.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -150,7 +149,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
                 Status = MirasOperationStatus.Completed
             };
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 invocationCount++;
 
@@ -209,7 +208,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             using var callerCancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             var checkStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 checkStarted.TrySetResult();
 
@@ -240,7 +239,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             using var context = new MirasFlowServiceTestContext();
             var checkStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 checkStarted.TrySetResult();
 
@@ -253,7 +252,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
 
             await checkStarted.Task.WaitAsync(TestContext.Current.CancellationToken);
 
-            context.ApplicationLifetime.Stop();
+            context.ApplicationLifetime.Cancel();
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await run);
 
@@ -268,7 +267,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await rejectedRun);
 
-            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
+            context.Operations.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -281,7 +280,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
                 Status = MirasOperationStatus.Completed
             };
 
-            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ThrowsAsync(expectedException).ReturnsAsync(successfulResult);
+            context.Operations.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ThrowsAsync(expectedException).ReturnsAsync(successfulResult);
 
             var actualException = await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.Flow.StartAsync(TestContext.Current.CancellationToken));
 
@@ -308,43 +307,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             var completion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             var changedProperties = new HashSet<string?>();
 
-            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
+            context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
 
-            context.Flow.PropertyChanged += OnPropertyChanged;
+            var run = context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-            try
+            Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
+            Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
+            Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
+            Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
+            Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
+            Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
+
+            changedProperties.Clear();
+
+            completion.SetResult(new MirasOperationResult
             {
-                var run = context.Flow.StartAsync(TestContext.Current.CancellationToken);
+                Status = MirasOperationStatus.Completed
+            });
 
-                Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
-                Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
-                Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
-                Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
-                Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
-                Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
+            await run;
 
-                changedProperties.Clear();
-
-                completion.SetResult(new MirasOperationResult
-                {
-                    Status = MirasOperationStatus.Completed
-                });
-
-                await run;
-
-                Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
-                Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
-                Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
-                Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
-                Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
-                Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
-            }
-            finally
-            {
-                context.Flow.PropertyChanged -= OnPropertyChanged;
-            }
-
-            void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs) => changedProperties.Add(eventArgs.PropertyName);
+            Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
+            Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
+            Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
+            Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
+            Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
+            Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
         }
     }
 }

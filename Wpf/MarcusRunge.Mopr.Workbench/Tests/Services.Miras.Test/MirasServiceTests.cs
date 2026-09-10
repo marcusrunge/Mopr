@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 ScannedFiles = 8
             });
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Completed, result.Status);
             Assert.Equal(MirasAlertLevel.Normal, result.HighestAlertLevel);
@@ -61,7 +61,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Blocked, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -102,7 +102,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             persistenceResult.Errors.Add("Technical persistence error containing C:\\Sensitive\\database.data");
             context.ConfigurePersistenceResult(persistenceResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Incomplete, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -139,7 +139,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             repositoryResult.Errors.Add("Technical repository error containing C:\\Sensitive\\image.dcm");
             context.ConfigureRepositoryResult(repositoryResult);
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Incomplete, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -165,7 +165,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("Sensitive persistence failure"));
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Failed, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -190,7 +190,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.RepositoryRepairService.Setup(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("Sensitive repository failure"));
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Failed, result.Status);
             Assert.Equal(MirasAlertLevel.Warning, result.HighestAlertLevel);
@@ -214,7 +214,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             cancellationSource.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.CheckRepositoryAsync(cancellationSource.Token));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Operations.CheckRepositoryAsync(cancellationSource.Token));
 
             context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
@@ -228,7 +228,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns<PersistenceIntegrityRequest, CancellationToken>((_, cancellationToken) => Task.FromCanceled<PersistenceIntegrityResult>(CreateCanceledToken(cancellationToken)));
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken));
 
             context.VerifyPersistenceCalledOnce();
             context.VerifyRepositoryNotCalled();
@@ -251,7 +251,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 });
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(
-                () => context.Service.CheckRepositoryAsync(cancellationSource.Token));
+                () => context.Operations.CheckRepositoryAsync(cancellationSource.Token));
 
             context.VerifyPersistenceCalledOnce();
             context.VerifyRepositoryNotCalled();
@@ -263,7 +263,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var context = new MirasServiceTestContext();
             context.ApplicationLifetime.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken));
 
             context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
@@ -280,7 +280,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.RepositoryRepairService.Setup(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).Callback<DicomRepositoryRepairRequest, CancellationToken>((request, _) => capturedRequest = request).ReturnsAsync(new DicomRepositoryRepairResult());
 
-            var result = await context.Service.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(MirasOperationStatus.Completed, result.Status);
 
