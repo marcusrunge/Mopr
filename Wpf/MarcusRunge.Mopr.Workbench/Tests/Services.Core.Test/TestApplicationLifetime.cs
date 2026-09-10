@@ -8,7 +8,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
 
         public CancellationToken ApplicationStopping => _applicationStopping.Token;
 
-        public void Stop() => _applicationStopping.Cancel();
+        public void Cancel() => _applicationStopping.Cancel();
 
         public void Dispose()
         {

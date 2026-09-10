@@ -1,4 +1,4 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Services;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -22,7 +22,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             ApplicationLifetime = new TestApplicationLifetime();
 
             var factory = new MirasFactory(ApplicationLifetime, Persistence.Object, Repository.Object);
-            Service = factory.Create().MirasService ?? throw new InvalidOperationException("The MIRAS service was not initialized.");
+            Service = factory.Create().Operations ?? throw new InvalidOperationException("The MIRAS service was not initialized.");
         }
 
         public TestApplicationLifetime ApplicationLifetime { get; }
@@ -35,7 +35,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public Mock<IDicomRepositoryRepairService> RepositoryRepairService { get; }
 
-        public IMirasService Service { get; }
+        public IOperations Service { get; }
 
         public void ConfigurePersistenceResult(PersistenceIntegrityResult result) => PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => request.VerifyAuditReferences && request.VerifyRelationships && request.VerifyRequiredValues && request.VerifyUniqueValues), It.IsAny<CancellationToken>())).ReturnsAsync(result);
 

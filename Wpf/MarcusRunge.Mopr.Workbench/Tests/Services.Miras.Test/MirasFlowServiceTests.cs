@@ -1,19 +1,16 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
 using Moq;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
+namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
 {
     public sealed class MirasFlowServiceTests
     {
         [Fact]
         public void NewFlow_HasExpectedIdleState()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
 
             Assert.Equal(MirasFlowState.Idle, context.Flow.CurrentState);
             Assert.False(context.Flow.IsRunning);
@@ -29,42 +26,37 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         [InlineData(MirasOperationStatus.Blocked)]
         [InlineData(MirasOperationStatus.Incomplete)]
         [InlineData(MirasOperationStatus.Failed)]
-        public async Task StartAsync_ReturnedMirasResult_CompletesFlow(MirasOperationStatus operationStatus)
+        public async Task StartAsync_ReturnedMirasResult_CompletesFlow(
+            MirasOperationStatus operationStatus)
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
+            var expectedResult = new MirasOperationResult
+            {
+                Status = operationStatus
+            };
 
-            ConfigureOperationResult(context, operationStatus);
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
 
             var actualResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-            Assert.Equal(operationStatus, actualResult.Status);
-            Assert.Same(actualResult, context.Flow.LastResult);
+            Assert.Same(expectedResult, actualResult);
+            Assert.Same(expectedResult, context.Flow.LastResult);
             Assert.Equal(MirasFlowState.Completed, context.Flow.CurrentState);
             Assert.False(context.Flow.IsRunning);
             Assert.True(context.Flow.CanStart);
             Assert.False(context.Flow.CanCancel);
             Assert.False(context.Flow.HasUnexpectedError);
 
-            context.VerifyPersistenceCalledOnce();
-
-            if (operationStatus is MirasOperationStatus.Completed or MirasOperationStatus.CompletedWithIssues or MirasOperationStatus.Incomplete)
-            {
-                context.VerifyRepositoryCalledOnce();
-            }
-            else
-            {
-                context.VerifyRepositoryNotCalled();
-            }
+            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task StartAsync_WhileRunning_ReturnsSameTaskAndStartsOneCheck()
         {
-            using var context = new MirasServiceTestContext();
-            var completion = new TaskCompletionSource<PersistenceIntegrityResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var context = new MirasFlowServiceTestContext();
+            var completion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns(completion.Task);
-            context.ConfigureRepositoryResult(new DicomRepositoryRepairResult());
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
 
             var firstRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
             var secondRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
@@ -76,31 +68,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.True(context.Flow.CanCancel);
             Assert.Null(context.Flow.LastResult);
 
-            completion.SetResult(new PersistenceIntegrityResult());
+            var expectedResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Completed
+            };
 
-            var firstResult = await firstRun;
-            var secondResult = await secondRun;
+            completion.SetResult(expectedResult);
 
-            Assert.Same(firstResult, secondResult);
-            Assert.Equal(MirasOperationStatus.Completed, firstResult.Status);
-            Assert.Same(firstResult, context.Flow.LastResult);
+            Assert.Same(expectedResult, await firstRun);
+            Assert.Same(expectedResult, await secondRun);
 
-            context.VerifyPersistenceCalledOnce();
-            context.VerifyRepositoryCalledOnce();
+            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task NewRun_ClearsPreviousResultWhileRunning()
         {
-            using var context = new MirasServiceTestContext();
-            var secondPersistenceCompletion = new TaskCompletionSource<PersistenceIntegrityResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var context = new MirasFlowServiceTestContext();
+            var firstResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Completed
+            };
+            var secondCompletion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.PersistenceIntegrityService.SetupSequence(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new PersistenceIntegrityResult()).Returns(secondPersistenceCompletion.Task);
-            context.RepositoryRepairService.SetupSequence(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new DicomRepositoryRepairResult()).ReturnsAsync(new DicomRepositoryRepairResult());
+            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).Returns(secondCompletion.Task);
 
-            var firstResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
-
-            Assert.Equal(MirasOperationStatus.Completed, firstResult.Status);
+            Assert.Same(firstResult, await context.Flow.StartAsync(TestContext.Current.CancellationToken));
             Assert.Same(firstResult, context.Flow.LastResult);
 
             var secondRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
@@ -109,61 +102,67 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.True(context.Flow.IsRunning);
             Assert.Null(context.Flow.LastResult);
 
-            secondPersistenceCompletion.SetResult(new PersistenceIntegrityResult());
+            var secondResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Blocked
+            };
 
-            var secondResult = await secondRun;
+            secondCompletion.SetResult(secondResult);
 
-            Assert.Equal(MirasOperationStatus.Completed, secondResult.Status);
-            Assert.NotSame(firstResult, secondResult);
+            Assert.Same(secondResult, await secondRun);
             Assert.Same(secondResult, context.Flow.LastResult);
-
-            context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            context.RepositoryRepairService.Verify(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
         public async Task SequentialRuns_UseIndependentResults()
         {
-            using var context = new MirasServiceTestContext();
-            var secondRepositoryResult = new DicomRepositoryRepairResult();
-            secondRepositoryResult.Issues.Add(CreateRepositoryIssue(DicomRepositoryIssueType.MissingFile));
+            using var context = new MirasFlowServiceTestContext();
+            var firstResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.CompletedWithIssues
+            };
+            var secondResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Completed
+            };
 
-            context.PersistenceIntegrityService.SetupSequence(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new PersistenceIntegrityResult()).ReturnsAsync(new PersistenceIntegrityResult());
-            context.RepositoryRepairService.SetupSequence(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new DicomRepositoryRepairResult()).ReturnsAsync(secondRepositoryResult);
+            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ReturnsAsync(firstResult).ReturnsAsync(secondResult);
 
-            var firstResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
-            var secondResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            var actualFirstResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            var actualSecondResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-            Assert.Equal(MirasOperationStatus.Completed, firstResult.Status);
-            Assert.Equal(MirasOperationStatus.CompletedWithIssues, secondResult.Status);
-            Assert.NotSame(firstResult, secondResult);
+            Assert.Same(firstResult, actualFirstResult);
+            Assert.Same(secondResult, actualSecondResult);
             Assert.Same(secondResult, context.Flow.LastResult);
             Assert.Equal(MirasFlowState.Completed, context.Flow.CurrentState);
 
-            context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            context.RepositoryRepairService.Verify(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
         public async Task Cancel_WhileRunning_CancelsRunAndAllowsRestart()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
             var invocationCount = 0;
             var firstRunStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var secondResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Completed
+            };
 
-            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns<PersistenceIntegrityRequest, CancellationToken>(async (_, cancellationToken) =>
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 invocationCount++;
 
                 if (invocationCount == 1)
                 {
                     firstRunStarted.TrySetResult();
+
                     await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
                 }
 
-                return new PersistenceIntegrityResult();
+                return secondResult;
             });
-            context.ConfigureRepositoryResult(new DicomRepositoryRepairResult());
 
             var firstRun = context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
@@ -181,20 +180,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.Null(context.Flow.LastResult);
             Assert.False(context.Flow.HasUnexpectedError);
 
-            var secondResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            var actualSecondResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-            Assert.Equal(MirasOperationStatus.Completed, secondResult.Status);
-            Assert.Same(secondResult, context.Flow.LastResult);
+            Assert.Same(secondResult, actualSecondResult);
             Assert.Equal(2, invocationCount);
-
-            context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            context.VerifyRepositoryCalledOnce();
         }
 
         [Fact]
         public void Cancel_WhileIdle_IsIdempotent()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
 
             context.Flow.Cancel();
             context.Flow.Cancel();
@@ -210,15 +205,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         [Fact]
         public async Task CallerCancellation_CancelsRunWithoutUnexpectedError()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
             using var callerCancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             var checkStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns<PersistenceIntegrityRequest, CancellationToken>(async (_, cancellationToken) =>
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 checkStarted.TrySetResult();
-                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
-                return new PersistenceIntegrityResult();
+
+                await Task.Delay(
+                    Timeout.InfiniteTimeSpan,
+                    cancellationToken);
+
+                return new MirasOperationResult();
             });
 
             var run = context.Flow.StartAsync(callerCancellation.Token);
@@ -230,34 +229,31 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await run);
 
             Assert.Equal(MirasFlowState.Canceled, context.Flow.CurrentState);
-            Assert.False(context.Flow.IsRunning);
-            Assert.True(context.Flow.CanStart);
-            Assert.False(context.Flow.CanCancel);
             Assert.False(context.Flow.HasUnexpectedError);
             Assert.Null(context.Flow.LastResult);
-
-            context.VerifyPersistenceCalledOnce();
-            context.VerifyRepositoryNotCalled();
+            Assert.True(context.Flow.CanStart);
         }
 
         [Fact]
         public async Task ApplicationStopping_CancelsRunAndPreventsRestart()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
             var checkStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns<PersistenceIntegrityRequest, CancellationToken>(async (_, cancellationToken) =>
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns<CancellationToken>(async cancellationToken =>
             {
                 checkStarted.TrySetResult();
+
                 await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
-                return new PersistenceIntegrityResult();
+
+                return new MirasOperationResult();
             });
 
             var run = context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
             await checkStarted.Task.WaitAsync(TestContext.Current.CancellationToken);
 
-            context.ApplicationLifetime.Cancel();
+            context.ApplicationLifetime.Stop();
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await run);
 
@@ -272,130 +268,83 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await rejectedRun);
 
-            context.VerifyPersistenceCalledOnce();
-            context.VerifyRepositoryNotCalled();
+            context.MirasService.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task OperationsFailure_CompletesFlowWithFailedResultAndAllowsRestart()
+        public async Task UnexpectedException_SetsFailedAndAllowsRestart()
         {
-            using var context = new MirasServiceTestContext();
+            using var context = new MirasFlowServiceTestContext();
             var expectedException = new InvalidOperationException("Unexpected MIRAS test failure.");
+            var successfulResult = new MirasOperationResult
+            {
+                Status = MirasOperationStatus.Completed
+            };
 
-            context.PersistenceIntegrityService.SetupSequence(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).ThrowsAsync(expectedException).ReturnsAsync(new PersistenceIntegrityResult());
-            context.ConfigureRepositoryResult(new DicomRepositoryRepairResult());
+            context.MirasService.SetupSequence(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).ThrowsAsync(expectedException).ReturnsAsync(successfulResult);
 
-            var failedResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            var actualException = await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.Flow.StartAsync(TestContext.Current.CancellationToken));
 
-            Assert.Equal(MirasOperationStatus.Failed, failedResult.Status);
-            Assert.True(failedResult.HasTechnicalErrors);
-            Assert.Same(failedResult, context.Flow.LastResult);
-            Assert.Equal(MirasFlowState.Completed, context.Flow.CurrentState);
+            Assert.Same(expectedException, actualException);
+            Assert.Equal(MirasFlowState.Failed, context.Flow.CurrentState);
             Assert.False(context.Flow.IsRunning);
             Assert.True(context.Flow.CanStart);
             Assert.False(context.Flow.CanCancel);
-            Assert.False(context.Flow.HasUnexpectedError);
+            Assert.Null(context.Flow.LastResult);
+            Assert.True(context.Flow.HasUnexpectedError);
 
-            var successfulResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            var actualResult = await context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-            Assert.Equal(MirasOperationStatus.Completed, successfulResult.Status);
+            Assert.Same(successfulResult, actualResult);
             Assert.Same(successfulResult, context.Flow.LastResult);
             Assert.Equal(MirasFlowState.Completed, context.Flow.CurrentState);
             Assert.False(context.Flow.HasUnexpectedError);
-
-            context.PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            context.VerifyRepositoryCalledOnce();
         }
 
         [Fact]
         public async Task StateChanges_RaiseBindingNotifications()
         {
-            using var context = new MirasServiceTestContext();
-            var completion = new TaskCompletionSource<PersistenceIntegrityResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var context = new MirasFlowServiceTestContext();
+            var completion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             var changedProperties = new HashSet<string?>();
 
-            context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).Returns(completion.Task);
-            context.ConfigureRepositoryResult(new DicomRepositoryRepairResult());
+            context.MirasService.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
 
-            var run = context.Flow.StartAsync(TestContext.Current.CancellationToken);
+            context.Flow.PropertyChanged += OnPropertyChanged;
 
-            Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
-            Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
-            Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
-            Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
-            Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
-            Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
-
-            changedProperties.Clear();
-
-            completion.SetResult(new PersistenceIntegrityResult());
-
-            await run;
-
-            Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
-            Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
-            Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
-            Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
-            Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
-            Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
-        }
-
-        private static void ConfigureOperationResult(MirasServiceTestContext context, MirasOperationStatus operationStatus)
-        {
-            switch (operationStatus)
+            try
             {
-                case MirasOperationStatus.Completed:
-                    context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
-                    context.ConfigureRepositoryResult(new DicomRepositoryRepairResult());
-                    break;
+                var run = context.Flow.StartAsync(TestContext.Current.CancellationToken);
 
-                case MirasOperationStatus.CompletedWithIssues:
-                    var repositoryResult = new DicomRepositoryRepairResult();
-                    repositoryResult.Issues.Add(CreateRepositoryIssue(DicomRepositoryIssueType.MissingFile));
-                    context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
-                    context.ConfigureRepositoryResult(repositoryResult);
-                    break;
+                Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
+                Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
+                Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
+                Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
+                Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
+                Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
 
-                case MirasOperationStatus.Blocked:
-                    var blockedPersistenceResult = new PersistenceIntegrityResult();
-                    blockedPersistenceResult.Issues.Add(CreatePersistenceIssue(PersistenceIntegrityIssueType.MissingParent));
-                    context.ConfigurePersistenceResult(blockedPersistenceResult);
-                    break;
+                changedProperties.Clear();
 
-                case MirasOperationStatus.Incomplete:
-                    var incompleteRepositoryResult = new DicomRepositoryRepairResult();
-                    incompleteRepositoryResult.Errors.Add("Repository inspection failed.");
-                    context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
-                    context.ConfigureRepositoryResult(incompleteRepositoryResult);
-                    break;
+                completion.SetResult(new MirasOperationResult
+                {
+                    Status = MirasOperationStatus.Completed
+                });
 
-                case MirasOperationStatus.Failed:
-                    context.PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.IsAny<PersistenceIntegrityRequest>(), It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("Unexpected MIRAS test failure."));
-                    break;
+                await run;
 
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(operationStatus), operationStatus, "The MIRAS operation status is not supported by this test scenario.");
+                Assert.Contains(nameof(context.Flow.CurrentState), changedProperties);
+                Assert.Contains(nameof(context.Flow.IsRunning), changedProperties);
+                Assert.Contains(nameof(context.Flow.CanStart), changedProperties);
+                Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
+                Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
+                Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
             }
+            finally
+            {
+                context.Flow.PropertyChanged -= OnPropertyChanged;
+            }
+
+            void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs) => changedProperties.Add(eventArgs.PropertyName);
         }
-
-        private static PersistenceIntegrityIssue CreatePersistenceIssue(PersistenceIntegrityIssueType issueType) => new()
-        {
-            DetectedAtUtc = DateTime.UtcNow,
-            EntityId = 42,
-            EntityType = PersistenceIntegrityEntityType.Instance,
-            IssueType = issueType,
-            PropertyName = "TestProperty",
-            ReferencedEntityType = PersistenceIntegrityEntityType.Unknown,
-            TechnicalDetails = "Technical test details",
-            Value = "Technical test value"
-        };
-
-        private static DicomRepositoryIssue CreateRepositoryIssue(DicomRepositoryIssueType issueType) => new()
-        {
-            CanResolveAutomatically = false,
-            DetectedAtUtc = DateTime.UtcNow,
-            IssueType = issueType,
-            TechnicalDetails = "Technical test details"
-        };
     }
 }
