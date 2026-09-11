@@ -49,11 +49,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         {
             public TestMirasBase(ILifetimeService applicationLifetime, IOperations operations)
             {
-                ApplicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
+                LifetimeService = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
                 Operations = operations ?? throw new ArgumentNullException(nameof(operations));
             }
 
-            public ILifetimeService? ApplicationLifetime { get; }
+            public ILifetimeService? LifetimeService { get; }
 
             public ILogger? Logger => null;
 

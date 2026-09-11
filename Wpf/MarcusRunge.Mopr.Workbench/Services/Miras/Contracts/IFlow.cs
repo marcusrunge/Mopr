@@ -7,7 +7,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
     /// <summary>
     /// Controls application-level MIRAS checks independently of the user interface.
     /// </summary>
-    public interface IFlow : INotifyPropertyChanged
+    public interface IFlow
     {
         /// <summary>
         /// Gets a value indicating whether cancellation can currently be requested.

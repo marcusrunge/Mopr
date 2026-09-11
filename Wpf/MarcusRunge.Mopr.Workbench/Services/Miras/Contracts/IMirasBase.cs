@@ -13,7 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
         /// <summary>
         /// Gets the application lifetime.
         /// </summary>
-        internal ILifetimeService? ApplicationLifetime { get; }
+        internal ILifetimeService? LifetimeService { get; }
 
         /// <summary>
         /// Gets the ILogger instance used for logging within the module.

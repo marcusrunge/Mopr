@@ -39,7 +39,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             {
                 lock (_synchronization)
                 {
-                    return _activeRun is null && !_base?.ApplicationLifetime?.ApplicationStopping.IsCancellationRequested == true;
+                    return _activeRun is null && !_base?.LifetimeService?.ApplicationStopping.IsCancellationRequested == true;
                 }
             }
         }
@@ -146,9 +146,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                     return _activeRun;
                 }
 
-                if (_base?.ApplicationLifetime?.ApplicationStopping.IsCancellationRequested == true)
+                if (_base?.LifetimeService?.ApplicationStopping.IsCancellationRequested == true)
                 {
-                    return Task.FromCanceled<MirasOperationResult>(_base.ApplicationLifetime.ApplicationStopping);
+                    return Task.FromCanceled<MirasOperationResult>(_base.LifetimeService.ApplicationStopping);
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -196,7 +196,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
 
             await Task.Yield();
 
-            using var effectiveCancellation = CancellationTokenSource.CreateLinkedTokenSource(userCancellation.Token, callerCancellation, _base?.ApplicationLifetime?.ApplicationStopping ?? CancellationToken.None);
+            using var effectiveCancellation = CancellationTokenSource.CreateLinkedTokenSource(userCancellation.Token, callerCancellation, _base?.LifetimeService?.ApplicationStopping ?? CancellationToken.None);
 
             try
             {

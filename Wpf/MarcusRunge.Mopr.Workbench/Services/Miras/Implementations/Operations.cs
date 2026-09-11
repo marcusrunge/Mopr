@@ -18,15 +18,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     /// </summary>
     internal sealed class Operations : CreateableBindableBase<IOperations, Operations, IMirasBase>, IOperations
     {
-        private IMirasBase _base;
+        private IMirasBase? _base;
 
-        private ILifetimeService? ApplicationLifetime => Base.ApplicationLifetime;
+        private ILifetimeService? LifetimeService => _base?.LifetimeService ?? throw new InvalidOperationException("Lifetime has not been initialized.");
 
-        private IMirasBase Base => _base;
+        private IPersistence Persistence => _base?.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
 
-        private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
-
-        private IRepository Repository => Base.Repository ?? throw new InvalidOperationException("Repository has not been initialized.");
+        private IRepository Repository => _base?.Repository ?? throw new InvalidOperationException("Repository has not been initialized.");
 
         /// <inheritdoc/>
         public async Task<MirasOperationResult> CheckRepositoryAsync(CancellationToken cancellationToken = default)
@@ -89,7 +87,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             }
             catch (Exception exception)
             {
-                Base.OnExceptionThrown(exception);
+                _base?.OnExceptionThrown(exception);
                 result.TechnicalErrors.Add(exception.ToString());
                 result.Messages.Add(CreateTechnicalFailureMessage(Resources.MirasOperation_CheckFailed_Description));
                 result.Status = MirasOperationStatus.Failed;
@@ -322,13 +320,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                 _ => MirasIssueType.Unknown
             };
 
-            var alertLevel = issue.IssueType == PersistenceIntegrityIssueType.InvalidAuditReference
-                ? MirasAlertLevel.Caution
-                : MirasAlertLevel.Warning;
+            var alertLevel = issue.IssueType == PersistenceIntegrityIssueType.InvalidAuditReference ? MirasAlertLevel.Caution : MirasAlertLevel.Warning;
 
-            var recommendedAction = issue.IssueType is PersistenceIntegrityIssueType.DuplicateUniqueValue or PersistenceIntegrityIssueType.MissingParent
-                ? MirasRecommendedAction.ReviewConflict
-                : MirasRecommendedAction.ContactAdministrator;
+            var recommendedAction = issue.IssueType is PersistenceIntegrityIssueType.DuplicateUniqueValue or PersistenceIntegrityIssueType.MissingParent ? MirasRecommendedAction.ReviewConflict : MirasRecommendedAction.ContactAdministrator;
 
             return new MirasIssue
             {
@@ -383,12 +377,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
         }
 
         private CancellationTokenSource CreateLinkedCancellationSource(CancellationToken cancellationToken) =>
-                                                                                                    CreateLinkedCancellationSource(cancellationToken, ApplicationLifetime?.ApplicationStopping ?? CancellationToken.None);
+                                                                                                    CreateLinkedCancellationSource(cancellationToken, LifetimeService?.ApplicationStopping ?? CancellationToken.None);
 
         private async Task<DicomRepositoryRepairResult> InspectRepositoryAsync(CancellationToken cancellationToken)
         {
-            var repairService = Repository.RepositoryRepairService
-                ?? throw new InvalidOperationException("The repository repair service has not been initialized.");
+            var repairService = Repository.RepositoryRepairService ?? throw new InvalidOperationException("The repository repair service has not been initialized.");
 
             // CheckRepositoryAsync is strictly an inspection operation. The request-level
             // repair switch remains disabled regardless of application-wide repair settings.

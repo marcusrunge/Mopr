@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
 using Moq;
+using System.ComponentModel;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {
@@ -306,6 +307,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             using var context = new MirasFlowServiceTestContext();
             var completion = new TaskCompletionSource<MirasOperationResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             var changedProperties = new HashSet<string?>();
+            var observableFlow = Assert.IsType<INotifyPropertyChanged>(context.Flow, exactMatch: false);
+
+            observableFlow.PropertyChanged += (_, eventArgs) => changedProperties.Add(eventArgs.PropertyName);
 
             context.Operations.Setup(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>())).Returns(completion.Task);
 
@@ -333,6 +337,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.Contains(nameof(context.Flow.CanCancel), changedProperties);
             Assert.Contains(nameof(context.Flow.LastResult), changedProperties);
             Assert.Contains(nameof(context.Flow.HasUnexpectedError), changedProperties);
+
+            context.Operations.Verify(service => service.CheckRepositoryAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

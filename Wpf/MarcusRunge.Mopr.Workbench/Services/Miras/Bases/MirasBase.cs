@@ -32,7 +32,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         }
 
         /// <inheritdoc/>
-        ILifetimeService? IMirasBase.ApplicationLifetime => applicationLifetime;
+        ILifetimeService? IMirasBase.LifetimeService => applicationLifetime;
 
         public IFlow? Flow => _flow;
 
