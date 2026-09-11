@@ -1,9 +1,9 @@
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Properties;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;

@@ -1,10 +1,9 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using ContractsResources = MarcusRunge.Mopr.Workbench.Contracts.Properties.Resources;
-using MirasResources = MarcusRunge.Mopr.Workbench.Services.Miras.Properties.Resources;
+using Resources = MarcusRunge.Mopr.Workbench.Services.Miras.Properties.Resources;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {
@@ -62,79 +61,37 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         [Fact]
         public void ContractResources_ContainAllEnglishUserMessages() =>
             AssertAllResourcesExist(
-                ContractsResources.ResourceManager,
+                Resources.ResourceManager,
                 ContractUserMessageResourceKeys,
                 EnglishCulture);
 
         [Fact]
-        public void ContractResources_ContainAllGermanUserMessages() =>
-            AssertAllResourcesExist(
-                ContractsResources.ResourceManager,
-                ContractUserMessageResourceKeys,
-                GermanCulture);
+        public void ContractResources_ContainAllGermanUserMessages() => AssertAllResourcesExist(Resources.ResourceManager, ContractUserMessageResourceKeys, GermanCulture);
 
         [Fact]
-        public void MirasResources_ContainAllEnglishUserMessages() =>
-            AssertAllResourcesExist(
-                MirasResources.ResourceManager,
-                MirasUserMessageResourceKeys,
-                EnglishCulture);
+        public void MirasResources_ContainAllEnglishUserMessages() => AssertAllResourcesExist(Resources.ResourceManager, MirasUserMessageResourceKeys, EnglishCulture);
 
         [Fact]
-        public void MirasResources_ContainAllGermanUserMessages() =>
-            AssertAllResourcesExist(
-                MirasResources.ResourceManager,
-                MirasUserMessageResourceKeys,
-                GermanCulture);
+        public void MirasResources_ContainAllGermanUserMessages() => AssertAllResourcesExist(Resources.ResourceManager, MirasUserMessageResourceKeys, GermanCulture);
 
         [Fact]
         public void Resources_ContainRequiredGermanActionPhrase()
         {
-            Assert.Equal(
-                "MIRAS Aktion erforderlich",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasOperation_TechnicalFailure_Title",
-                    GermanCulture));
+            Assert.Equal("MIRAS Aktion erforderlich", GetRequiredResource(Resources.ResourceManager, "MirasOperation_TechnicalFailure_Title", GermanCulture));
 
-            Assert.Equal(
-                "MIRAS Aktion erforderlich",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasStatus_ActionRequired",
-                    GermanCulture));
+            Assert.Equal("MIRAS Aktion erforderlich", GetRequiredResource(Resources.ResourceManager, "MirasStatus_ActionRequired", GermanCulture));
 
-            Assert.Equal(
-                "MIRAS Aktion erforderlich",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasIssueState_ActionRequired",
-                    GermanCulture));
+            Assert.Equal("MIRAS Aktion erforderlich", GetRequiredResource(Resources.ResourceManager, "MirasIssueState_ActionRequired", GermanCulture));
         }
 
         [Fact]
         public void Resources_ContainRequiredEnglishActionPhrase()
         {
-            Assert.Equal(
-                "MIRAS action required",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasOperation_TechnicalFailure_Title",
-                    EnglishCulture));
+            Assert.Equal("MIRAS action required", GetRequiredResource(Resources.ResourceManager, "MirasOperation_TechnicalFailure_Title", EnglishCulture));
 
-            Assert.Equal(
-                "MIRAS action required",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasStatus_ActionRequired",
-                    EnglishCulture));
+            Assert.Equal("MIRAS action required", GetRequiredResource(Resources.ResourceManager, "MirasStatus_ActionRequired", EnglishCulture));
 
-            Assert.Equal(
-                "MIRAS action required",
-                GetRequiredResource(
-                    ContractsResources.ResourceManager,
-                    "MirasIssueState_ActionRequired",
-                    EnglishCulture));
+            Assert.Equal("MIRAS action required", GetRequiredResource(Resources.ResourceManager, "MirasIssueState_ActionRequired", EnglishCulture));
         }
 
         [Theory]
@@ -144,26 +101,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             var attribute = enumType.GetCustomAttribute<TypeConverterAttribute>();
 
             Assert.NotNull(attribute);
-            Assert.Equal(
-                typeof(EnumDescriptionTypeConverter).AssemblyQualifiedName,
-                attribute.ConverterTypeName);
+            Assert.Equal(typeof(EnumDescriptionTypeConverter).AssemblyQualifiedName, attribute.ConverterTypeName);
         }
 
         [Theory]
         [MemberData(nameof(GetLocalizedEnumValues))]
-        public void EnumValue_HasEnglishAndGermanResources(
-            Type enumType,
-            string enumValue)
+        public void EnumValue_HasEnglishAndGermanResources(Type enumType, string enumValue)
         {
             var resourceKey = $"{enumType.Name}_{enumValue}";
-            var englishValue = GetRequiredResource(
-                ContractsResources.ResourceManager,
-                resourceKey,
-                EnglishCulture);
-            var germanValue = GetRequiredResource(
-                ContractsResources.ResourceManager,
-                resourceKey,
-                GermanCulture);
+            var englishValue = GetRequiredResource(Resources.ResourceManager, resourceKey, EnglishCulture);
+            var germanValue = GetRequiredResource(Resources.ResourceManager, resourceKey, GermanCulture);
 
             Assert.False(string.IsNullOrWhiteSpace(englishValue));
             Assert.False(string.IsNullOrWhiteSpace(germanValue));
@@ -176,43 +123,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             string enumValue)
         {
             var member = Assert.Single(enumType.GetMember(enumValue));
-            var attribute = Assert.Single(
-                member.GetCustomAttributes(),
-                candidate =>
-                    candidate.GetType().FullName ==
-                    typeof(LocalizedDescriptionAttribute).FullName);
+            var attribute = Assert.Single(member.GetCustomAttributes(), candidate => candidate.GetType().FullName == typeof(LocalizedDescriptionAttribute).FullName);
 
             Assert.NotNull(attribute);
         }
 
         [Theory]
         [MemberData(nameof(GetContractUserMessageResources))]
-        public void ContractUserMessageResource_DoesNotContainTechnicalRawDetails(
-            string resourceKey)
+        public void ContractUserMessageResource_DoesNotContainTechnicalRawDetails(string resourceKey)
         {
-            AssertResourceContainsNoTechnicalRawDetails(
-                ContractsResources.ResourceManager,
-                resourceKey,
-                EnglishCulture);
-            AssertResourceContainsNoTechnicalRawDetails(
-                ContractsResources.ResourceManager,
-                resourceKey,
-                GermanCulture);
+            AssertResourceContainsNoTechnicalRawDetails(Resources.ResourceManager, resourceKey, EnglishCulture);
+            AssertResourceContainsNoTechnicalRawDetails(Resources.ResourceManager, resourceKey, GermanCulture);
         }
 
         [Theory]
         [MemberData(nameof(GetMirasUserMessageResources))]
-        public void MirasUserMessageResource_DoesNotContainTechnicalRawDetails(
-            string resourceKey)
+        public void MirasUserMessageResource_DoesNotContainTechnicalRawDetails(string resourceKey)
         {
-            AssertResourceContainsNoTechnicalRawDetails(
-                MirasResources.ResourceManager,
-                resourceKey,
-                EnglishCulture);
-            AssertResourceContainsNoTechnicalRawDetails(
-                MirasResources.ResourceManager,
-                resourceKey,
-                GermanCulture);
+            AssertResourceContainsNoTechnicalRawDetails(Resources.ResourceManager, resourceKey, EnglishCulture);
+            AssertResourceContainsNoTechnicalRawDetails(Resources.ResourceManager, resourceKey, GermanCulture);
         }
 
         public static TheoryData<Type> GetLocalizedEnumTypes()
@@ -242,11 +171,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             return data;
         }
 
-        public static TheoryData<string> GetContractUserMessageResources() =>
-            CreateResourceTheoryData(ContractUserMessageResourceKeys);
+        public static TheoryData<string> GetContractUserMessageResources() => CreateResourceTheoryData(ContractUserMessageResourceKeys);
 
-        public static TheoryData<string> GetMirasUserMessageResources() =>
-            CreateResourceTheoryData(MirasUserMessageResourceKeys);
+        public static TheoryData<string> GetMirasUserMessageResources() => CreateResourceTheoryData(MirasUserMessageResourceKeys);
 
         private static TheoryData<string> CreateResourceTheoryData(
             IEnumerable<string> resourceKeys)
@@ -261,82 +188,35 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             return data;
         }
 
-        private static void AssertAllResourcesExist(
-            System.Resources.ResourceManager resourceManager,
-            IEnumerable<string> resourceKeys,
-            CultureInfo culture)
+        private static void AssertAllResourcesExist(System.Resources.ResourceManager resourceManager, IEnumerable<string> resourceKeys, CultureInfo culture)
         {
             foreach (var resourceKey in resourceKeys)
             {
-                _ = GetRequiredResource(
-                    resourceManager,
-                    resourceKey,
-                    culture);
+                _ = GetRequiredResource(resourceManager, resourceKey, culture);
             }
         }
 
-        private static void AssertResourceContainsNoTechnicalRawDetails(
-            System.Resources.ResourceManager resourceManager,
-            string resourceKey,
-            CultureInfo culture)
+        private static void AssertResourceContainsNoTechnicalRawDetails(System.Resources.ResourceManager resourceManager, string resourceKey, CultureInfo culture)
         {
-            var value = GetRequiredResource(
-                resourceManager,
-                resourceKey,
-                culture);
+            var value = GetRequiredResource(resourceManager, resourceKey, culture);
 
-            Assert.DoesNotContain(
-                @"C:\",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                @"\\",
-                value,
-                StringComparison.Ordinal);
-            Assert.DoesNotContain(
-                ".dcm",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "InstanceId",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "RepositoryLocationId",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "SopInstanceUid",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "SeriesInstanceUid",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "StudyInstanceUid",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "StackTrace",
-                value,
-                StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(
-                "Exception:",
-                value,
-                StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(@"C:\", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(@"\\", value, StringComparison.Ordinal);
+            Assert.DoesNotContain(".dcm", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("InstanceId", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("RepositoryLocationId", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("SopInstanceUid", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("SeriesInstanceUid", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("StudyInstanceUid", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("StackTrace", value, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("Exception:", value, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetRequiredResource(
-            System.Resources.ResourceManager resourceManager,
-            string resourceKey,
-            CultureInfo culture)
+        private static string GetRequiredResource(System.Resources.ResourceManager resourceManager, string resourceKey, CultureInfo culture)
         {
             var value = resourceManager.GetString(resourceKey, culture);
 
-            Assert.False(
-                string.IsNullOrWhiteSpace(value),
-                $"The resource '{resourceKey}' is missing for culture '{culture.Name}'.");
+            Assert.False(string.IsNullOrWhiteSpace(value), $"The resource '{resourceKey}' is missing for culture '{culture.Name}'.");
 
             return value;
         }

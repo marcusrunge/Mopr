@@ -1,9 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
     /// <summary>
     /// Represents the result of a MIRAS operation.

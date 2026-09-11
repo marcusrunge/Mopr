@@ -2,7 +2,7 @@
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Enums
 {
     /// <summary>
     /// Defines the operational alert level of a MIRAS issue.

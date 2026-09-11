@@ -1,5 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
-using MarcusRunge.Mopr.Workbench.Contracts.Miras.Models;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using Moq;
 using System.ComponentModel;
 

@@ -1,7 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Miras.Enums;
-using System;
+﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Miras.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
     /// <summary>
     /// Represents a structured integrity issue detected by MIRAS.
