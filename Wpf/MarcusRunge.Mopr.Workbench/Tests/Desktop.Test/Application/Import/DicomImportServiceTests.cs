@@ -1,7 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Import;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;

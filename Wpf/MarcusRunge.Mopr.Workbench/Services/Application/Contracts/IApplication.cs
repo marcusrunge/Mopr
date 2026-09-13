@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
@@ -17,6 +18,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         /// Gets the IDialogService instance exposed by the assembly, if available.
         /// </summary>
         IDialogService? DialogService { get; }
+
+        /// <summary>
+        /// Gets the IImportService instance exposed by the assembly, if available.
+        /// </summary>
+        IImportService? ImportService { get; }
 
         /// <summary>
         /// Gets the IMediaService instance exposed by the assembly, if available.

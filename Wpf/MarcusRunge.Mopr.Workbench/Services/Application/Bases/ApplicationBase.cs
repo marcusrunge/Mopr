@@ -1,16 +1,20 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
     // Internal base for modules; holds optional service references for derived types.
-    internal abstract class ApplicationBase(ILogger? logger) : IApplicationBase, IApplication
+    internal abstract class ApplicationBase(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
     {
-        // Backing field for IServiceA (assigned by derived modules).
         protected IDialogService? _dialogService;
+        protected IImportService? _importService;
         protected IMediaService? _mediaService;
 
         // Lock object to synchronize access to the ExceptionThrown event handlers.
@@ -33,12 +37,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         }
 
         /// <inheritdoc/>
+        IAuditIdentityProvider? IApplicationBase.AuditIdentityProvider => auditIdentityProvider;
+
+        /// <inheritdoc/>
         public IDialogService? DialogService => _dialogService;
+
+        /// <inheritdoc/>
+        public IImportService? ImportService => _importService;
 
         /// <inheritdoc/>
         ILogger? IApplicationBase.Logger => logger;
 
+        /// <inheritdoc/>
         public IMediaService? MediaService => _mediaService;
+
+        /// <inheritdoc/>
+        IPersistence? IApplicationBase.Persistence => persistence;
+
+        /// <inheritdoc/>
+        IRepository? IApplicationBase.Repository => repository;
 
         /// <inheritdoc/>
         void IApplicationBase.OnExceptionThrown(Exception exception)

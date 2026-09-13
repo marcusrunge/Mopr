@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

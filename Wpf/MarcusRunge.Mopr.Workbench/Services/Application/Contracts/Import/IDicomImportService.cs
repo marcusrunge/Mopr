@@ -1,8 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Services
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {
     /// <summary>
     /// Provides the public application use case for importing DICOM files from a directory.

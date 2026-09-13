@@ -1,7 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
-using MarcusRunge.Mopr.Workbench.Application.Import;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Application.Security;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
@@ -14,6 +13,8 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
+using MarcusRunge.Mopr.Workbench.Services.Application;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom;
@@ -35,8 +36,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using WorkbenchResources = MarcusRunge.Mopr.Workbench.Properties.Resources;
-using MarcusRunge.Mopr.Workbench.Services.Application;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench
 {
@@ -44,8 +43,8 @@ namespace MarcusRunge.Mopr.Workbench
     {
         private readonly TaskCompletionSource _shellReady = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private Task? _applicationInitialization;
-        private StartupDiagnostics? _startupDiagnostics;
         private SingleInstanceCoordinator? _singleInstanceCoordinator;
+        private StartupDiagnostics? _startupDiagnostics;
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
@@ -54,6 +53,36 @@ namespace MarcusRunge.Mopr.Workbench
         }
 
         protected override Window CreateShell() => Container.Resolve<MainWindow>();
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            LifetimeService? applicationLifetime = null;
+
+            try
+            {
+                _shellReady.TrySetCanceled();
+                applicationLifetime = Container?.Resolve<ILifetimeService>() as LifetimeService;
+
+                // Cancellation is signaled before the initialization task is
+                // observed so active Persistence and MIRAS operations can stop.
+                applicationLifetime?.Stop();
+                ObserveApplicationInitialization();
+            }
+            finally
+            {
+                applicationLifetime?.Dispose();
+                DisposeSingleInstanceCoordinator();
+                base.OnExit(e);
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            var applicationStopping = Container.Resolve<ILifetimeService>().ApplicationStopping;
+            _applicationInitialization = InitializeApplicationAsync(applicationStopping);
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -90,36 +119,6 @@ namespace MarcusRunge.Mopr.Workbench
             {
                 HandleProtectedStartupFailure(exception);
             }
-        }
-
-        protected override void OnExit(ExitEventArgs e)
-        {
-            LifetimeService? applicationLifetime = null;
-
-            try
-            {
-                _shellReady.TrySetCanceled();
-                applicationLifetime = Container?.Resolve<ILifetimeService>() as LifetimeService;
-
-                // Cancellation is signaled before the initialization task is
-                // observed so active Persistence and MIRAS operations can stop.
-                applicationLifetime?.Stop();
-                ObserveApplicationInitialization();
-            }
-            finally
-            {
-                applicationLifetime?.Dispose();
-                DisposeSingleInstanceCoordinator();
-                base.OnExit(e);
-            }
-        }
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            var applicationStopping = Container.Resolve<ILifetimeService>().ApplicationStopping;
-            _applicationInitialization = InitializeApplicationAsync(applicationStopping);
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -170,10 +169,6 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<ICurrentLoginNameProvider, WindowsCurrentLoginNameProvider>();
             containerRegistry.RegisterSingleton<IAuditIdentityProvider, AuditIdentityProvider>();
 
-            // The public import application service coordinates prerequisites and delegates
-            // the actual atomic import to the existing repository import implementation.
-            containerRegistry.RegisterSingleton<Contracts.Application.Import.Services.IDicomImportService, DicomImportService>();
-
             // MIRAS depends on both Persistence and Repository and must therefore be
             // constructed only after both technical modules have been registered.
             containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
@@ -185,8 +180,78 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
-            containerRegistry.RegisterSingleton<IApplicationFactory, ApplicationFactory>();
+            containerRegistry.RegisterSingleton<IApplicationFactory>(provider => new ApplicationFactory(provider.Resolve<IAuditIdentityProvider>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
             containerRegistry.RegisterSingleton<IApplication>(provider => provider.Resolve<IApplicationFactory>().Create());
+        }
+
+        private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+
+        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceStartupFailedMessage, WorkbenchResources.SingleInstanceStartupFailedTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+
+        private void DisposeSingleInstanceCoordinator()
+        {
+            if (_singleInstanceCoordinator is null)
+            {
+                return;
+            }
+
+            _singleInstanceCoordinator.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            _singleInstanceCoordinator = null;
+        }
+
+        private async Task ForwardToPrimaryInstanceAndExitAsync(string[] arguments)
+        {
+            try
+            {
+                using var stopping = new CancellationTokenSource(TimeSpan.FromSeconds(6));
+                await _singleInstanceCoordinator!.ForwardToPrimaryInstanceAsync(arguments, stopping.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                _startupDiagnostics!.WriteInformation("Forwarding the startup request to the primary MOPR instance was canceled or timed out.");
+
+                ShowForwardingFailedMessage();
+            }
+            catch (Exception exception)
+            {
+                _startupDiagnostics!.WriteError("The startup request could not be forwarded to the primary MOPR instance.", exception);
+
+                ShowForwardingFailedMessage();
+            }
+            finally
+            {
+                DisposeSingleInstanceCoordinator();
+                Shutdown();
+            }
+        }
+
+        private async Task HandleForwardedRequestAsync(SingleInstanceRequest request, CancellationToken cancellationToken)
+        {
+            await _shellReady.Task.WaitAsync(cancellationToken);
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.ActivateFromSecondInstance();
+                }
+
+                var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
+
+                _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
+            });
+        }
+
+        private void HandleProtectedStartupFailure(Exception exception)
+        {
+            _startupDiagnostics!.WriteError("MOPR startup failed before protected application initialization completed.", exception);
+
+            _shellReady.TrySetException(exception);
+            DisposeSingleInstanceCoordinator();
+            ShowSingleInstanceStartupFailedMessage();
+            Shutdown();
         }
 
         private async Task InitializeApplicationAsync(CancellationToken cancellationToken)
@@ -261,23 +326,6 @@ namespace MarcusRunge.Mopr.Workbench
             });
         }
 
-        private void PublishApplicationConfiguration(IApplicationConfiguration configuration)
-        {
-            ArgumentNullException.ThrowIfNull(configuration);
-            Container.Resolve<BehaviorSubject<IApplicationConfiguration>>().OnNext(configuration);
-        }
-
-        private void PublishPersistenceConfiguration(IApplicationConfiguration configuration)
-        {
-            ArgumentNullException.ThrowIfNull(configuration);
-
-            Container.Resolve<BehaviorSubject<PersistenceConfiguration>>().OnNext(new PersistenceConfiguration
-            {
-                ConnectionString = configuration.Database.ConnectionString,
-                Mode = PersistenceMode.SqlServer
-            });
-        }
-
         private void ObserveApplicationInitialization()
         {
             var applicationInitialization = _applicationInitialization;
@@ -309,6 +357,23 @@ namespace MarcusRunge.Mopr.Workbench
             }
         }
 
+        private void PublishApplicationConfiguration(IApplicationConfiguration configuration)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+            Container.Resolve<BehaviorSubject<IApplicationConfiguration>>().OnNext(configuration);
+        }
+
+        private void PublishPersistenceConfiguration(IApplicationConfiguration configuration)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            Container.Resolve<BehaviorSubject<PersistenceConfiguration>>().OnNext(new PersistenceConfiguration
+            {
+                ConnectionString = configuration.Database.ConnectionString,
+                Mode = PersistenceMode.SqlServer
+            });
+        }
+
         private bool TryAcquireSingleInstance()
         {
             try
@@ -324,76 +389,6 @@ namespace MarcusRunge.Mopr.Workbench
                 ShowSingleInstanceStartupFailedMessage();
                 return false;
             }
-        }
-
-        private async Task ForwardToPrimaryInstanceAndExitAsync(string[] arguments)
-        {
-            try
-            {
-                using var stopping = new CancellationTokenSource(TimeSpan.FromSeconds(6));
-                await _singleInstanceCoordinator!.ForwardToPrimaryInstanceAsync(arguments, stopping.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                _startupDiagnostics!.WriteInformation("Forwarding the startup request to the primary MOPR instance was canceled or timed out.");
-
-                ShowForwardingFailedMessage();
-            }
-            catch (Exception exception)
-            {
-                _startupDiagnostics!.WriteError("The startup request could not be forwarded to the primary MOPR instance.", exception);
-
-                ShowForwardingFailedMessage();
-            }
-            finally
-            {
-                DisposeSingleInstanceCoordinator();
-                Shutdown();
-            }
-        }
-
-        private async Task HandleForwardedRequestAsync(SingleInstanceRequest request, CancellationToken cancellationToken)
-        {
-            await _shellReady.Task.WaitAsync(cancellationToken);
-
-            await Dispatcher.InvokeAsync(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (MainWindow is MainWindow mainWindow)
-                {
-                    mainWindow.ActivateFromSecondInstance();
-                }
-
-                var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
-
-                _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
-            });
-        }
-
-        private void HandleProtectedStartupFailure(Exception exception)
-        {
-            _startupDiagnostics!.WriteError("MOPR startup failed before protected application initialization completed.", exception);
-
-            _shellReady.TrySetException(exception);
-            DisposeSingleInstanceCoordinator();
-            ShowSingleInstanceStartupFailedMessage();
-            Shutdown();
-        }
-
-        private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
-
-        private static void ShowSingleInstanceStartupFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceStartupFailedMessage, WorkbenchResources.SingleInstanceStartupFailedTitle, MessageBoxButton.OK, MessageBoxImage.Error);
-
-        private void DisposeSingleInstanceCoordinator()
-        {
-            if (_singleInstanceCoordinator is null)
-            {
-                return;
-            }
-
-            _singleInstanceCoordinator.DisposeAsync().AsTask().GetAwaiter().GetResult();
-            _singleInstanceCoordinator = null;
         }
     }
 }

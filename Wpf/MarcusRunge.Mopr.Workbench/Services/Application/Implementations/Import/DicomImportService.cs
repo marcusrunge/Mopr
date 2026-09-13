@@ -1,29 +1,28 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Security;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums;
+﻿using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
-using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using RepositoryDicomImportRequest = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportRequest;
 using RepositoryDicomImportResult = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportResult;
 
-namespace MarcusRunge.Mopr.Workbench.Application.Import
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
 {
     /// <summary>
     /// Coordinates application prerequisites and delegates DICOM processing to the existing atomic repository importer.
     /// </summary>
-    internal sealed class DicomImportService(IPersistence persistence, RepositoryContract repository, IAuditIdentityProvider auditIdentityProvider) : IDicomImportService
+    internal sealed class DicomImportService() : CreateableBindableBase<IDicomImportService, DicomImportService, IImportServiceBase>, IDicomImportService
     {
-        private readonly IAuditIdentityProvider _auditIdentityProvider = auditIdentityProvider ?? throw new ArgumentNullException(nameof(auditIdentityProvider));
-        private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
-        private readonly RepositoryContract _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        private IImportServiceBase? _base;
+        private IAuditIdentityProvider AuditIdentityProvider => Base.ApplicationBase?.AuditIdentityProvider ?? throw new ArgumentNullException(nameof(IAuditIdentityProvider));
+        private IImportServiceBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+        private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new ArgumentNullException(nameof(IPersistence));
+        private RepositoryContract Repository => Base.ApplicationBase?.Repository ?? throw new ArgumentNullException(nameof(RepositoryContract));
 
         /// <inheritdoc/>
         public async Task<DicomImportResult> ImportDirectoryAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
@@ -44,7 +43,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Import
                     return DicomImportResult.WithoutImport(DicomImportStatus.SourceUnavailable);
                 }
 
-                var repositoryLocationRepository = _persistence.RepositoryLocation;
+                var repositoryLocationRepository = Persistence.RepositoryLocation;
                 if (repositoryLocationRepository is null)
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.RepositoryUnavailable);
@@ -61,13 +60,13 @@ namespace MarcusRunge.Mopr.Workbench.Application.Import
                     return DicomImportResult.WithoutImport(DicomImportStatus.RepositoryUnavailable);
                 }
 
-                var auditUserId = await _auditIdentityProvider.GetCurrentUserIdAsync(cancellationToken).ConfigureAwait(false);
+                var auditUserId = await AuditIdentityProvider.GetCurrentUserIdAsync(cancellationToken).ConfigureAwait(false);
                 if (auditUserId is null or <= 0)
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.AuditIdentityUnavailable);
                 }
 
-                var repositoryImporter = _repository.ImportService;
+                var repositoryImporter = Repository.ImportService;
                 if (repositoryImporter is null)
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.RepositoryUnavailable);
@@ -96,6 +95,14 @@ namespace MarcusRunge.Mopr.Workbench.Application.Import
             {
                 return DicomImportResult.Failed(exception);
             }
+        }
+
+        protected override void OnCreate(IImportServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
+
+        protected override Task OnCreateAsync(IImportServiceBase @base, CancellationToken cancellationToken)
+        {
+            _base = @base;
+            return Task.CompletedTask;
         }
 
         private static bool IsRepositoryAvailable(RepositoryLocation repositoryLocation) => repositoryLocation.Id > 0 && repositoryLocation.IsEnabled && !string.IsNullOrWhiteSpace(repositoryLocation.RootPath) && Directory.Exists(repositoryLocation.RootPath);

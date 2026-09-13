@@ -1,4 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
@@ -6,7 +8,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
     // Concrete internal module implementation that wires up services for this module instance.
     internal class Application : ApplicationBase
     {
-        internal Application(ILogger? logger) : base(logger)
+        internal Application(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository) : base(logger, auditIdentityProvider, persistence, repository)
         {
             // What happens here:
             // - The assembly constructor performs "composition" for this module instance by creating and assigning
@@ -31,6 +33,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
 
             _dialogService = Dialog.DialogService.Create(this);
             _mediaService = Media.MediaService.Create(this);
+            _importService = Import.ImportService.Create(this);
         }
     }
 }

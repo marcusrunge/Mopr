@@ -1,8 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Properties;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Properties;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Enums
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Enums
 {
     /// <summary>
     /// Defines the public result status of a DICOM import operation.

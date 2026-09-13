@@ -5,8 +5,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
     internal abstract class DialogServiceBase(IApplicationBase? applicationBase) : IDialogServiceBase, IDialogService
     {
-        protected IFileDialogService? _fileDialogService;        
+        protected IFileDialogService? _fileDialogService;
 
+        /// <inheritdoc/>
         public IFileDialogService? FileDialogService => _fileDialogService;
 
         IApplicationBase? IServiceBase.ApplicationBase => applicationBase;

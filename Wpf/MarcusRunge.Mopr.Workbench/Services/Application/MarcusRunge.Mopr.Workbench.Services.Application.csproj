@@ -10,11 +10,14 @@
 
   <ItemGroup>
     <PackageReference Include="MarcusRunge.Base" Version="1.0.6" />
+	<PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
+    <ProjectReference Include="..\Persistence\MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" />
+    <ProjectReference Include="..\Repository\MarcusRunge.Mopr.Workbench.Services.Repository.csproj" />
   </ItemGroup>
 
   <ItemGroup>
