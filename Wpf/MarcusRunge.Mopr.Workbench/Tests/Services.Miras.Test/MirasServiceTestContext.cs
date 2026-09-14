@@ -13,8 +13,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public MirasServiceTestContext()
         {
-            MirasStaticState.Reset();
-
             Persistence = new Mock<IPersistence>(MockBehavior.Strict);
             PersistenceIntegrityService = new Mock<IPersistenceIntegrityService>(MockBehavior.Strict);
             Repository = new Mock<IRepository>(MockBehavior.Strict);
@@ -41,19 +39,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public IOperations Operations { get; }
 
-        public void ConfigurePersistenceResult(PersistenceIntegrityResult result) =>
-            PersistenceIntegrityService
-                .Setup(service => service.VerifyAsync(
-                    It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(result);
+        public void ConfigurePersistenceResult(PersistenceIntegrityResult result) => PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
 
-        public void ConfigureRepositoryResult(DicomRepositoryRepairResult result) =>
-            RepositoryRepairService
-                .Setup(service => service.RepairAsync(
-                    It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)),
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(result);
+        public void ConfigureRepositoryResult(DicomRepositoryRepairResult result) => RepositoryRepairService.Setup(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
 
         public void Dispose()
         {
@@ -64,43 +52,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             _disposed = true;
 
-            // Remove static references before disposing the lifetime owned by this context.
-            MirasStaticState.Reset();
             ApplicationLifetime.Dispose();
 
             GC.SuppressFinalize(this);
         }
 
-        public void VerifyPersistenceCalledOnce() =>
-            PersistenceIntegrityService.Verify(
-                service => service.VerifyAsync(
-                    It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
+        public void VerifyPersistenceCalledOnce() => PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)), It.IsAny<CancellationToken>()), Times.Once);
 
-        public void VerifyRepositoryCalledOnce() =>
-            RepositoryRepairService.Verify(
-                service => service.RepairAsync(
-                    It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
+        public void VerifyRepositoryCalledOnce() => RepositoryRepairService.Verify(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)), It.IsAny<CancellationToken>()), Times.Once);
 
-        public void VerifyRepositoryNotCalled() =>
-            RepositoryRepairService.Verify(
-                service => service.RepairAsync(
-                    It.IsAny<DicomRepositoryRepairRequest>(),
-                    It.IsAny<CancellationToken>()),
-                Times.Never);
+        public void VerifyRepositoryNotCalled() => RepositoryRepairService.Verify(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
-        private static bool IsSafePersistenceRequest(PersistenceIntegrityRequest request) =>
-            request.VerifyAuditReferences &&
-            request.VerifyRelationships &&
-            request.VerifyRequiredValues &&
-            request.VerifyUniqueValues;
+        private static bool IsSafePersistenceRequest(PersistenceIntegrityRequest request) => request.VerifyAuditReferences && request.VerifyRelationships && request.VerifyRequiredValues && request.VerifyUniqueValues;
 
-        private static bool IsSafeRepositoryRequest(DicomRepositoryRepairRequest request) =>
-            request.VerifyFiles &&
-            !request.RepairMissingFiles &&
-            request.RepositoryLocationId == null;
+        private static bool IsSafeRepositoryRequest(DicomRepositoryRepairRequest request) => request.VerifyFiles && !request.RepairMissingFiles && request.RepositoryLocationId == null;
     }
 }

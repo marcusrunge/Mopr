@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+﻿using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Implementations;
 
@@ -229,7 +230,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             }
         }
 
-        private static IRepositoryOperationsCoordinator CreateCoordinator() => RepositoryOperationsCoordinator.Create(new TestRepositoryBase());
+        private static IRepositoryOperationsCoordinator CreateCoordinator()
+        {
+            var repositoryBase = new TestRepositoryBase();
+            return RepositoryOperationsCoordinator.Create(repositoryBase, CreationLifetime.Scoped);
+        }
 
         private static string CreateDestinationPath() => Path.Combine(Path.GetTempPath(), "MoprRepositoryCoordinatorTests", Guid.NewGuid().ToString("N"), "Image.dcm");
 

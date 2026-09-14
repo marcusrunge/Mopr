@@ -1,3 +1,4 @@
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -13,8 +14,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     {
         internal Miras(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : base(logger, applicationLifetime, persistence, repository)
         {
-            _operations = Implementations.Operations.Create(this);
-            _flow = Implementations.Flow.Create(this);            
+            // Each MIRAS graph must retain its own lifetime, persistence and repository
+            // dependencies. The MIRAS root is therefore the stable scope identity for
+            // both operations and flow services.
+            _operations = Implementations.Operations.Create(this, CreationLifetime.Scoped);
+            _flow = Implementations.Flow.Create(this, CreationLifetime.Scoped);
         }
     }
 }

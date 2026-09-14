@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+﻿using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -14,13 +15,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public MirasFlowServiceTestContext()
         {
-            MirasStaticState.Reset();
-
             ApplicationLifetime = new TestApplicationLifetime();
             Operations = new Mock<IOperations>(MockBehavior.Strict);
 
             var mirasBase = new TestMirasBase(ApplicationLifetime, Operations.Object);
-            Flow = MirasFlow.Create(mirasBase);
+            Flow = MirasFlow.Create(mirasBase, CreationLifetime.Scoped);
         }
 
         public TestApplicationLifetime ApplicationLifetime { get; }
@@ -37,33 +36,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             }
 
             _disposed = true;
-
-            // Remove static references before disposing the lifetime owned by this context.
-            MirasStaticState.Reset();
             ApplicationLifetime.Dispose();
-
             GC.SuppressFinalize(this);
         }
 
-        private sealed class TestMirasBase : IMirasBase
+        private sealed class TestMirasBase(ILifetimeService applicationLifetime, IOperations operations) : IMirasBase
         {
-            public TestMirasBase(ILifetimeService applicationLifetime, IOperations operations)
-            {
-                LifetimeService = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
-                Operations = operations ?? throw new ArgumentNullException(nameof(operations));
-            }
-
-            public ILifetimeService? LifetimeService { get; }
+            public ILifetimeService? LifetimeService { get; } = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
 
             public ILogger? Logger => null;
 
-            public IOperations? Operations { get; }
+            public IOperations? Operations { get; } = operations ?? throw new ArgumentNullException(nameof(operations));
 
-            public IPersistence? Persistence => null;
+            public IPersistence Persistence => throw new InvalidOperationException("Persistence is not available in the isolated MIRAS flow test context.");
 
-            public IRepository? Repository => null;
+            public IRepository Repository => throw new InvalidOperationException("Repository is not available in the isolated MIRAS flow test context.");
 
-            public void OnExceptionThrown(Exception exception) => ArgumentNullException.ThrowIfNull(exception);
+            public void OnExceptionThrown(Exception exception)
+            {
+            }
         }
     }
 }
