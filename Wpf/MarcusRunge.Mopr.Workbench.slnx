@@ -11,18 +11,19 @@
     <File Path="Export-MoprSourceCode.ps1" />
   </Folder>
   <Folder Name="/Services/">
+    <Project Path="MarcusRunge.Mopr.Workbench/Services/Application/MarcusRunge.Mopr.Workbench.Services.Application.csproj" Id="08043b25-74e3-4e71-b355-16c23a38bf9f" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Core/MarcusRunge.Mopr.Workbench.Services.Core.csproj" Id="aac45427-2e64-4b6a-a8ec-432cca6f8e82" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Dicom/MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" Id="e4c298a5-ef5a-4aaa-a679-2679895487fe" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Services/Miras/MarcusRunge.Mopr.Workbench.Services.Miras.csproj" Id="ae8056c9-8960-40b9-8703-0712c54825d5" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Persistence/MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" Id="c974e841-20d0-427c-8838-c0a2b2f3ee3b" />
     <Project Path="MarcusRunge.Mopr.Workbench/Services/Repository/MarcusRunge.Mopr.Workbench.Services.Repository.csproj" Id="a06b9358-8f85-426b-be5e-d5ed03d7fc12" />
-    <Project Path="MarcusRunge.Mopr.Workbench/Services/Application/MarcusRunge.Mopr.Workbench.Services.Application.csproj" Id="08043b25-74e3-4e71-b355-16c23a38bf9f" />
-    <Project Path="MarcusRunge.Mopr.Workbench/Services/Miras/MarcusRunge.Mopr.Workbench.Services.Miras.csproj" Id="ae8056c9-8960-40b9-8703-0712c54825d5" />
   </Folder>
   <Folder Name="/Tests/">
-    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Setup.Test/MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj" Id="ab808657-cd7f-4d1c-817a-459f0f998c91" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Desktop.Test/MarcusRunge.Mopr.Workbench.Test.csproj" Id="1da94cd5-83e8-4c6c-9ea3-df1e25c7847c" />
-    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Core.Test/MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj" Id="8136d28c-da09-4956-9db5-83fabb43cb89" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Application.Test/MarcusRunge.Mopr.Workbench.Services.Application.Test.csproj" Id="bbbf1d2d-49ea-4a5c-9632-23d78f904a15" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Imaging.Test/MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Setup.Test/MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj" Id="ab808657-cd7f-4d1c-817a-459f0f998c91" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Core.Test/MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj" Id="8136d28c-da09-4956-9db5-83fabb43cb89" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Miras.Test/MarcusRunge.Mopr.Workbench.Services.Miras.Test.csproj" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Persistence.Test/MarcusRunge.Mopr.Workbench.Services.Persistence.Test.csproj" Id="9058754d-9a17-45e0-813d-edd7669598fe" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Repository.Test/MarcusRunge.Mopr.Workbench.Services.Repository.Test.csproj" Id="2d0aa19d-037f-4f4d-b7ca-f712b28c7fa9" />

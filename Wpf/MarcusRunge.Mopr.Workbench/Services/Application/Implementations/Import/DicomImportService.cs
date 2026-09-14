@@ -99,11 +99,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
 
         protected override void OnCreate(IImportServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
-        protected override Task OnCreateAsync(IImportServiceBase @base, CancellationToken cancellationToken)
-        {
-            _base = @base;
-            return Task.CompletedTask;
-        }
+        protected override Task OnCreateAsync(IImportServiceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
 
         private static bool IsRepositoryAvailable(RepositoryLocation repositoryLocation) => repositoryLocation.Id > 0 && repositoryLocation.IsEnabled && !string.IsNullOrWhiteSpace(repositoryLocation.RootPath) && Directory.Exists(repositoryLocation.RootPath);
 
