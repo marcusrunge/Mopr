@@ -117,6 +117,45 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DicomImportSourceType_AutoDetect" xml:space="preserve">
+    <value>Detect automatically</value>
+  </data>
+  <data name="DicomImportSourceType_CdRom" xml:space="preserve">
+    <value>CD-ROM</value>
+  </data>
+  <data name="DicomImportSourceType_Dvd" xml:space="preserve">
+    <value>DVD</value>
+  </data>
+  <data name="DicomImportSourceType_ExternalDrive" xml:space="preserve">
+    <value>External drive</value>
+  </data>
+  <data name="DicomImportSourceType_IsoImage" xml:space="preserve">
+    <value>ISO image</value>
+  </data>
+  <data name="DicomImportSourceType_LocalDirectory" xml:space="preserve">
+    <value>Local directory</value>
+  </data>
+  <data name="DicomImportSourceType_MappedNetworkDrive" xml:space="preserve">
+    <value>Mapped network drive</value>
+  </data>
+  <data name="DicomImportSourceType_NetworkShare" xml:space="preserve">
+    <value>Network share</value>
+  </data>
+  <data name="DicomImportSourceType_RemovableDrive" xml:space="preserve">
+    <value>Removable drive</value>
+  </data>
+  <data name="DicomImportSourceType_SdCard" xml:space="preserve">
+    <value>SD card</value>
+  </data>
+  <data name="DicomImportSourceType_Unknown" xml:space="preserve">
+    <value>Unknown source</value>
+  </data>
+  <data name="DicomImportSourceType_UsbDrive" xml:space="preserve">
+    <value>USB storage device</value>
+  </data>
+  <data name="DicomImportSourceType_VirtualDrive" xml:space="preserve">
+    <value>Virtual drive</value>
+  </data>
   <data name="DicomImportStatus_AuditIdentityUnavailable" xml:space="preserve">
     <value>Audit identity unavailable</value>
   </data>
@@ -143,6 +182,9 @@
   </data>
   <data name="DicomImportStatus_SourceMissing" xml:space="preserve">
     <value>No import source selected</value>
+  </data>
+  <data name="DicomImportStatus_SourceTypeUnsupported" xml:space="preserve">
+    <value>The selected import source is not supported yet</value>
   </data>
   <data name="DicomImportStatus_SourceUnavailable" xml:space="preserve">
     <value>Import source unavailable</value>

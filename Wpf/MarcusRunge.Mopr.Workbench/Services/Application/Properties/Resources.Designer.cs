@@ -61,6 +61,123 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Detect automatically ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_AutoDetect {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_AutoDetect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die CD-ROM ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_CdRom {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_CdRom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DVD ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_Dvd {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_Dvd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die External drive ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_ExternalDrive {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_ExternalDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ISO image ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_IsoImage {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_IsoImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Local directory ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_LocalDirectory {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_LocalDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Mapped network drive ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_MappedNetworkDrive {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_MappedNetworkDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Network share ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_NetworkShare {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_NetworkShare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removable drive ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_RemovableDrive {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_RemovableDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SD card ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_SdCard {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_SdCard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown source ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_Unknown {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die USB storage device ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_UsbDrive {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_UsbDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Virtual drive ähnelt.
+        /// </summary>
+        public static string DicomImportSourceType_VirtualDrive {
+            get {
+                return ResourceManager.GetString("DicomImportSourceType_VirtualDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Audit identity unavailable ähnelt.
         /// </summary>
         public static string DicomImportStatus_AuditIdentityUnavailable {
@@ -138,6 +255,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
         public static string DicomImportStatus_SourceMissing {
             get {
                 return ResourceManager.GetString("DicomImportStatus_SourceMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected import source is not supported yet ähnelt.
+        /// </summary>
+        public static string DicomImportStatus_SourceTypeUnsupported {
+            get {
+                return ResourceManager.GetString("DicomImportStatus_SourceTypeUnsupported", resourceCulture);
             }
         }
         

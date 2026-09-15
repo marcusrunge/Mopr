@@ -14,6 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
     public sealed class DicomImportServiceTestContext : IDisposable
     {
         private int _auditUserId;
+        private bool _disposed;
         private int _repositoryLocationId;
 
         public DicomImportServiceTestContext()
@@ -24,10 +25,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             EnsureDirectoryExists(SourceDirectoryPath);
             EnsureDirectoryExists(RepositoryDirectoryPath);
 
-            // The application graph is intentionally created once for this fixture.
-            // CreateableBindableBase currently keeps one static DICOM import service
-            // per closed generic type, so all tests retain the same stable mocks while
-            // their configured behavior and recorded invocations are reset per test.
+            // Every context owns an independent application graph. The import services
+            // use the graph-owned ImportService instance as their stable scoped identity.
             Factory = new ApplicationFactory(AuditIdentityProvider.Object, Persistence.Object, Repository.Object);
             Application = Factory.Create();
             Service = Application.ImportService?.DicomImportService ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
@@ -63,8 +62,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
             TryDeleteDirectory(SourceDirectoryPath);
             TryDeleteDirectory(RepositoryDirectoryPath);
+            GC.SuppressFinalize(this);
         }
 
         public void Reset(bool repositoryLocationRepositoryAvailable = true, bool repositoryImportServiceAvailable = true, int auditUserId = 41, int repositoryLocationId = 23)
@@ -89,26 +95,40 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 RootPath = RepositoryDirectoryPath
             };
 
-            RepositoryLocationRepository.Setup(repository => repository.GetDefaultAsync(It.IsAny<CancellationToken>())).ReturnsAsync(defaultRepositoryLocation);
+            RepositoryLocationRepository
+                .Setup(repository => repository.GetDefaultAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(defaultRepositoryLocation);
 
-            Persistence.SetupGet(persistence => persistence.RepositoryLocation).Returns(repositoryLocationRepositoryAvailable ? RepositoryLocationRepository.Object : null);
+            Persistence
+                .SetupGet(persistence => persistence.RepositoryLocation)
+                .Returns(repositoryLocationRepositoryAvailable ? RepositoryLocationRepository.Object : null);
 
-            AuditIdentityProvider.Setup(provider => provider.GetCurrentUserIdAsync(It.IsAny<CancellationToken>())).ReturnsAsync(AuditUserId);
+            AuditIdentityProvider
+                .Setup(provider => provider.GetCurrentUserIdAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(AuditUserId);
 
-            Repository.SetupGet(repository => repository.ImportService).Returns(repositoryImportServiceAvailable ? RepositoryImportService.Object : null);
+            Repository
+                .SetupGet(repository => repository.ImportService)
+                .Returns(repositoryImportServiceAvailable ? RepositoryImportService.Object : null);
 
             SetImportResult(new RepositoryImportResult());
         }
 
-        public void SetAuditUserId(int? auditUserId) => AuditIdentityProvider.Setup(provider => provider.GetCurrentUserIdAsync(It.IsAny<CancellationToken>())).ReturnsAsync(auditUserId);
+        public void SetAuditUserId(int? auditUserId) => AuditIdentityProvider
+            .Setup(provider => provider.GetCurrentUserIdAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(auditUserId);
 
-        public void SetDefaultRepositoryLocation(RepositoryLocation? repositoryLocation) => RepositoryLocationRepository.Setup(repository => repository.GetDefaultAsync(It.IsAny<CancellationToken>())).ReturnsAsync(repositoryLocation);
+        public void SetDefaultRepositoryLocation(RepositoryLocation? repositoryLocation) => RepositoryLocationRepository
+            .Setup(repository => repository.GetDefaultAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(repositoryLocation);
 
         public void SetImportResult(RepositoryImportResult result)
         {
             ArgumentNullException.ThrowIfNull(result);
 
-            RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            RepositoryImportService
+                .Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(result);
         }
 
         public void VerifyAuditIdentityNotRequested() => AuditIdentityProvider.Verify(provider => provider.GetCurrentUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);

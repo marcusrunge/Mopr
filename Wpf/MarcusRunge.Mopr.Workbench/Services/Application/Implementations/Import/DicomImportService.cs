@@ -19,13 +19,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
     internal sealed class DicomImportService() : CreateableBindableBase<IDicomImportService, DicomImportService, IImportServiceBase>, IDicomImportService
     {
         private IImportServiceBase? _base;
-        private IAuditIdentityProvider AuditIdentityProvider => Base.ApplicationBase?.AuditIdentityProvider ?? throw new ArgumentNullException(nameof(IAuditIdentityProvider));
-        private IImportServiceBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
-        private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new ArgumentNullException(nameof(IPersistence));
-        private RepositoryContract Repository => Base.ApplicationBase?.Repository ?? throw new ArgumentNullException(nameof(RepositoryContract));
+
+        private IAuditIdentityProvider AuditIdentityProvider => Base.ApplicationBase?.AuditIdentityProvider ?? throw new InvalidOperationException("The audit identity provider has not been initialized.");
+
+        private IImportServiceBase Base => _base ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
+
+        private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
+
+        private RepositoryContract Repository => Base.ApplicationBase?.Repository ?? throw new InvalidOperationException("The repository service has not been initialized.");
 
         /// <inheritdoc/>
-        public async Task<DicomImportResult> ImportDirectoryAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
+        public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -33,12 +37,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (string.IsNullOrWhiteSpace(request.SourceDirectoryPath))
+                if (string.IsNullOrWhiteSpace(request.SourcePath))
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.SourceMissing);
                 }
 
-                if (!Directory.Exists(request.SourceDirectoryPath))
+                var repositorySourceType = MapSourceType(request.SourceType);
+                if (repositorySourceType is null)
+                {
+                    return DicomImportResult.WithoutImport(DicomImportStatus.SourceTypeUnsupported);
+                }
+
+                if (!Directory.Exists(request.SourcePath))
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.SourceUnavailable);
                 }
@@ -72,16 +82,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                     return DicomImportResult.WithoutImport(DicomImportStatus.RepositoryUnavailable);
                 }
 
-                // This service supplies validated coordination data only. File discovery,
-                // DICOM validation, copying, persistence and compensation remain exclusively
-                // inside the existing atomic repository importer.
+                // The application adapter validates and classifies the selected source.
+                // Atomic file handling, DICOM validation, persistence and compensation
+                // remain exclusively inside the existing repository importer.
                 var repositoryRequest = new RepositoryDicomImportRequest
                 {
                     AllowOverwrite = request.AllowOverwrite,
                     CreatedByUserId = auditUserId.Value,
                     RepositoryLocationId = repositoryLocation.Id,
-                    SourcePath = request.SourceDirectoryPath,
-                    SourceType = ImportSourceType.Directory
+                    SourcePath = request.SourcePath,
+                    SourceType = repositorySourceType.Value
                 };
 
                 var repositoryResult = await repositoryImporter.ImportAsync(repositoryRequest, cancellationToken).ConfigureAwait(false);
@@ -97,11 +107,28 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             }
         }
 
+        /// <inheritdoc/>
+        public Task<DicomImportResult> ImportDirectoryAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            var directoryRequest = new DicomImportRequest(request.SourcePath, DicomImportSourceType.LocalDirectory, request.AllowOverwrite);
+            return ImportAsync(directoryRequest, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         protected override void OnCreate(IImportServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
+        /// <inheritdoc/>
         protected override Task OnCreateAsync(IImportServiceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
 
         private static bool IsRepositoryAvailable(RepositoryLocation repositoryLocation) => repositoryLocation.Id > 0 && repositoryLocation.IsEnabled && !string.IsNullOrWhiteSpace(repositoryLocation.RootPath) && Directory.Exists(repositoryLocation.RootPath);
+
+        private static ImportSourceType? MapSourceType(DicomImportSourceType sourceType) => sourceType switch
+        {
+            DicomImportSourceType.AutoDetect => ImportSourceType.Directory,
+            DicomImportSourceType.LocalDirectory => ImportSourceType.Directory,
+            _ => null
+        };
 
         private static DicomImportResult MapResult(RepositoryDicomImportResult result)
         {

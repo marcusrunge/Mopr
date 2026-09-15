@@ -12,9 +12,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
     {
         internal ImportService(IApplicationBase? applicationBase) : base(applicationBase)
         {
-            // This ImportService instance supplies all dependencies and forms the stable
-            // scope identity. Independent application graphs must never share their
-            // DICOM import facade or its captured application context.
+            // Services are created in dependency order so every consumer observes
+            // a completely composed import graph during initialization and use.
+            _dicomImportDriveProvider = DicomImportDriveProvider.Create(this, CreationLifetime.Scoped);
+            _dicomImportSourceResolver = DicomImportSourceResolver.Create(this, CreationLifetime.Scoped);
             _dicomImportService = Import.DicomImportService.Create(this, CreationLifetime.Scoped);
         }
 

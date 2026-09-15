@@ -68,6 +68,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Enums
         /// The import completed with one or more individual file errors.
         /// </summary>
         [LocalizedDescription("DicomImportStatus_CompletedWithErrors", typeof(Resources))]
-        CompletedWithErrors = 9
+        CompletedWithErrors = 9,
+
+        /// <summary>
+        /// The selected import source type is recognized but not currently supported.
+        /// </summary>
+        [LocalizedDescription("DicomImportStatus_SourceTypeUnsupported", typeof(Resources))]
+        SourceTypeUnsupported = 10
     }
 }
