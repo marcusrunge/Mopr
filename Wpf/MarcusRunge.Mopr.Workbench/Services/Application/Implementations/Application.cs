@@ -1,38 +1,23 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
 {
-    // Concrete internal module implementation that wires up services for this module instance.
-    internal class Application : ApplicationBase
+    /// <summary>
+    /// Composes the services owned by one application-service instance.
+    /// </summary>
+    internal sealed class Application : ApplicationBase
     {
-        internal Application(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository) : base(logger, auditIdentityProvider, persistence, repository)
+        internal Application(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository) : base(logger, auditIdentityProvider, operatingSystemIdentityProvider, persistence, repository)
         {
-            // What happens here:
-            // - The assembly constructor performs "composition" for this module instance by creating and assigning
-            //   the concrete service implementations to the protected backing fields defined in the base class.
-
-            // Service creation pattern:
-            // - Each service is created via its static Create(...) factory.
-            // - The current assembly instance ('this') is passed as the base/context argument so the service can:
-            //   - access assembly-provided dependencies,
-            //   - register itself with module state,
-            //   - or use the assembly as an initialization context.
-
-            // Ordering / intention:
-            // - Services are created in a defined order (A, then B, then I).
-            // - This can be important if later services assume earlier services exist or if initialization
-            //   side-effects are expected in that sequence.
-
-            // Resulting state:
-            // - After the constructor finishes, the assembly's ServiceA/ServiceB/ServiceI accessors
-            //   (exposed by the base class / interfaces) return these created instances.
-            // - The assembly is therefore "ready for use" regarding these service references.
-
             _dialogService = Dialog.DialogService.Create(this);
             _mediaService = Media.MediaService.Create(this);
+
+            // Identity is created before import because import attribution will
+            // obtain its persistent user ID from the authenticated identity graph.
             _identityService = Identity.IdentityService.Create(this);
             _importService = Import.ImportService.Create(this);
         }

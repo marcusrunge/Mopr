@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
@@ -11,18 +12,17 @@ using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
-    // Internal base for modules; holds optional service references for derived types.
-    internal abstract class ApplicationBase(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
+    /// <summary>
+    /// Provides shared dependencies and service references for one application-service graph.
+    /// </summary>
+    internal abstract class ApplicationBase(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
 
-        // Lock object to synchronize access to the ExceptionThrown event handlers.
         private readonly Lock _exceptionThrownLock = new();
-
-        // Backing field for the ExceptionThrown event handlers.
         private Action<Exception>? _exceptionThrown;
 
         /// <inheritdoc/>
@@ -30,11 +30,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         {
             add
             {
-                lock (_exceptionThrownLock) _exceptionThrown += value;
+                lock (_exceptionThrownLock)
+                {
+                    _exceptionThrown += value;
+                }
             }
             remove
             {
-                lock (_exceptionThrownLock) _exceptionThrown -= value;
+                lock (_exceptionThrownLock)
+                {
+                    _exceptionThrown -= value;
+                }
             }
         }
 
@@ -57,6 +63,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         public IMediaService? MediaService => _mediaService;
 
         /// <inheritdoc/>
+        IOperatingSystemIdentityProvider? IApplicationBase.OperatingSystemIdentityProvider => operatingSystemIdentityProvider;
+
+        /// <inheritdoc/>
         IPersistence? IApplicationBase.Persistence => persistence;
 
         /// <inheritdoc/>
@@ -65,30 +74,37 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         /// <inheritdoc/>
         void IApplicationBase.OnExceptionThrown(Exception exception)
         {
-            // Log the exception with the module's logger, if available.
+            if (exception is null)
+            {
+                throw new ArgumentNullException(nameof(exception));
+            }
+
             logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
-            // Capture the current handlers to invoke outside the lock.
+
             Action<Exception>? handlers;
-            // Lock to safely read the current handlers.
+
+            // Handlers are captured under the lock and invoked afterward so a
+            // callback cannot block subscription changes or cause a deadlock.
             lock (_exceptionThrownLock)
             {
-                // Capture the current handlers to invoke outside the lock.
                 handlers = _exceptionThrown;
             }
-            // If there are no handlers, there's nothing to invoke.
+
             if (handlers is null)
+            {
                 return;
-            // Invoke each handler in a try-catch to ensure one failing handler doesn't prevent others from being notified.
+            }
+
             foreach (Action<Exception> handler in handlers.GetInvocationList().Cast<Action<Exception>>())
             {
                 try
                 {
-                    // Invoke the handler with the exception.
                     handler(exception);
                 }
                 catch (Exception callbackException)
                 {
-                    // Log any exceptions thrown by the handlers, but continue invoking the remaining handlers.
+                    // One failing subscriber must not prevent the remaining
+                    // application exception observers from being notified.
                     logger?.LogError(callbackException, "Exception thrown by ExceptionThrown event handler.");
                 }
             }

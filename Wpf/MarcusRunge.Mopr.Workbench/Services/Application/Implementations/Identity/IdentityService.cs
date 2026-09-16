@@ -5,11 +5,14 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identity
 {
-    internal class IdentityService : IdentityServiceBase
+    /// <summary>
+    /// Provides the identity services owned by one application-service instance.
+    /// </summary>
+    internal sealed class IdentityService : IdentityServiceBase
     {
-        internal IdentityService(IApplicationBase? applicationBase) : base(applicationBase)
+        private IdentityService(IApplicationBase applicationBase) : base(applicationBase)
         {
-            _operatingSystemIdentityProvider = Identity.OperatingSystemIdentityProvider.Create(this, CreationLifetime.Scoped);
+            _currentUserContext = CurrentUserContextManager.Create(this, CreationLifetime.Scoped);
         }
 
         internal static IIdentityService? Create(IApplicationBase? applicationBase) => applicationBase is null ? null : new IdentityService(applicationBase);

@@ -1,6 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services
 {
     /// <summary>
     /// Provides the authenticated identity of the current operating-system user.

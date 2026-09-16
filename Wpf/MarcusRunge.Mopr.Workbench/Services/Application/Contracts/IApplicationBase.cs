@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
@@ -11,29 +12,34 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
     internal interface IApplicationBase
     {
         /// <summary>
-        /// Gets the IAuditIdentityProvider instance used for audit identity operations within the module.
+        /// Gets the audit identity provider used for audit identity operations within the application-service graph.
         /// </summary>
         internal IAuditIdentityProvider? AuditIdentityProvider { get; }
 
         /// <summary>
-        /// Gets the ILogger instance used for logging within the module.
+        /// Gets the logger used within the application-service graph.
         /// </summary>
         internal ILogger? Logger { get; }
 
         /// <summary>
-        /// Gets the IPersistence instance used for persistence operations within the module.
+        /// Gets the operating-system identity provider used to resolve the current authenticated identity.
+        /// </summary>
+        internal IOperatingSystemIdentityProvider? OperatingSystemIdentityProvider { get; }
+
+        /// <summary>
+        /// Gets the Persistence instance used within the application-service graph.
         /// </summary>
         internal IPersistence? Persistence { get; }
 
         /// <summary>
-        /// Gets the RepositoryContract instance used for repository operations within the module.
+        /// Gets the Repository instance used within the application-service graph.
         /// </summary>
         internal RepositoryContract? Repository { get; }
 
         /// <summary>
-        /// Called when [exception thrown].
+        /// Reports an exception raised within the application-service graph.
         /// </summary>
-        /// <param name="exception">The exception.</param>
+        /// <param name="exception">The exception to report.</param>
         internal void OnExceptionThrown(Exception exception);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
+using MarcusRunge.Mopr.Workbench.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Application.Security;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
@@ -8,6 +9,7 @@ using MarcusRunge.Mopr.Workbench.Application.Startup;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Core;
@@ -170,6 +172,7 @@ namespace MarcusRunge.Mopr.Workbench
             // an existing persistent MOPR user without implicit user provisioning.
             containerRegistry.RegisterSingleton<ICurrentLoginNameProvider, WindowsCurrentLoginNameProvider>();
             containerRegistry.RegisterSingleton<IAuditIdentityProvider, AuditIdentityProvider>();
+            containerRegistry.RegisterSingleton<IOperatingSystemIdentityProvider, OperatingSystemIdentityProvider>();
 
             // MIRAS depends on both Persistence and Repository and must therefore be
             // constructed only after both technical modules have been registered.
@@ -182,7 +185,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
-            containerRegistry.RegisterSingleton<IApplicationFactory>(provider => new ApplicationFactory(provider.Resolve<IAuditIdentityProvider>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
+            containerRegistry.RegisterSingleton<IApplicationFactory>(provider => new ApplicationFactory(provider.Resolve<IAuditIdentityProvider>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IOperatingSystemIdentityProvider>()));
             containerRegistry.RegisterSingleton<IApplication>(provider => provider.Resolve<IApplicationFactory>().Create());
         }
 

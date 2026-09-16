@@ -1,4 +1,6 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity
 {
     /// <summary>
     /// Defines the interface for an identity service.
@@ -6,8 +8,8 @@
     public interface IIdentityService
     {
         /// <summary>
-        /// Gets the operating-system identity provider.
+        /// Gets the current-user context.
         /// </summary>
-        IOperatingSystemIdentityProvider? OperatingSystemIdentityProvider { get; }
+        ICurrentUserContext? CurrentUserContext { get; }
     }
 }
