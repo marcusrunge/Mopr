@@ -97,6 +97,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import ähnelt.
+        /// </summary>
+        public static string CommandBar_Import {
+            get {
+                return ResourceManager.GetString("CommandBar_Import", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Layout ähnelt.
         /// </summary>
         public static string CommandBar_Layout {

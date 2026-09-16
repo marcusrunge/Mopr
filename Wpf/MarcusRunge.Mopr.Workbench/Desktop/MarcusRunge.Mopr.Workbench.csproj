@@ -28,6 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Modules\Import\MarcusRunge.Mopr.Workbench.Modules.Import.csproj" />
 		<ProjectReference Include="..\Modules\Setup\MarcusRunge.Mopr.Workbench.Modules.Setup.csproj" />
 		<ProjectReference Include="..\Services\Application\MarcusRunge.Mopr.Workbench.Services.Application.csproj" />
 		<ProjectReference Include="..\Services\Miras\MarcusRunge.Mopr.Workbench.Services.Miras.csproj" />

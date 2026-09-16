@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BackToImagingButton" xml:space="preserve">
+    <value>Zurück zur Bildanzeige</value>
+  </data>
+  <data name="CancelImportButton" xml:space="preserve">
+    <value>Import abbrechen</value>
+  </data>
+  <data name="DiscoveredFilesLabel" xml:space="preserve">
+    <value>Gefunden</value>
+  </data>
+  <data name="FailedFilesLabel" xml:space="preserve">
+    <value>Fehlgeschlagen</value>
+  </data>
+  <data name="ImportableFilesLabel" xml:space="preserve">
+    <value>Importierbar</value>
+  </data>
+  <data name="ImportedFilesLabel" xml:space="preserve">
+    <value>Importiert</value>
+  </data>
+  <data name="ImportResultAuditIdentityUnavailable" xml:space="preserve">
+    <value>Der aktuelle Benutzer konnte für den Import nicht erfasst werden. Wenden Sie sich an die Administration.</value>
+  </data>
+  <data name="ImportResultCanceled" xml:space="preserve">
+    <value>Der Import wurde sicher abgebrochen.</value>
+  </data>
+  <data name="ImportResultCompleted" xml:space="preserve">
+    <value>Alle importierbaren DICOM-Dateien wurden erfolgreich importiert.</value>
+  </data>
+  <data name="ImportResultCompletedWithErrors" xml:space="preserve">
+    <value>Der Import wurde abgeschlossen, einige Dateien konnten jedoch nicht importiert werden.</value>
+  </data>
+  <data name="ImportResultCompletedWithSkippedFiles" xml:space="preserve">
+    <value>Der Import wurde erfolgreich abgeschlossen. Vorhandene oder nicht importierbare Dateien wurden übersprungen.</value>
+  </data>
+  <data name="ImportResultDefaultRepositoryMissing" xml:space="preserve">
+    <value>Es ist kein standardmäßiger DICOM-Speicherort eingerichtet.</value>
+  </data>
+  <data name="ImportResultFailed" xml:space="preserve">
+    <value>Der Import konnte aufgrund eines technischen Problems nicht abgeschlossen werden.</value>
+  </data>
+  <data name="ImportResultRepositoryUnavailable" xml:space="preserve">
+    <value>Der eingerichtete DICOM-Speicherort ist derzeit nicht verfügbar.</value>
+  </data>
+  <data name="ImportResultSourceMissing" xml:space="preserve">
+    <value>Wählen Sie vor dem Start eine Importquelle aus.</value>
+  </data>
+  <data name="ImportResultSourceTypeUnsupported" xml:space="preserve">
+    <value>Diese Art von Importquelle wird derzeit noch nicht unterstützt.</value>
+  </data>
+  <data name="ImportRunningMessage" xml:space="preserve">
+    <value>MOPR prüft die ausgewählte Quelle und übernimmt gültige DICOM-Daten sicher in den Speicher.</value>
+  </data>
+  <data name="ImportRunningTitle" xml:space="preserve">
+    <value>Import wird durchgeführt</value>
+  </data>
+  <data name="ImportSubtitle" xml:space="preserve">
+    <value>Wählen Sie einen lokalen Ordner, einen Wechseldatenträger, ein optisches Medium oder einen erreichbaren Netzwerkpfad mit DICOM-Daten aus.</value>
+  </data>
+  <data name="ImportTitle" xml:space="preserve">
+    <value>DICOM-Daten importieren</value>
+  </data>
+  <data name="NewImportButton" xml:space="preserve">
+    <value>Neuer Import</value>
+  </data>
+  <data name="NoSourceSelected" xml:space="preserve">
+    <value>Keine Quelle ausgewählt</value>
+  </data>
+  <data name="ResultSectionTitle" xml:space="preserve">
+    <value>Importergebnis</value>
+  </data>
+  <data name="SelectSourceButton" xml:space="preserve">
+    <value>Quelle auswählen</value>
+  </data>
+  <data name="SelectSourceDialogTitle" xml:space="preserve">
+    <value>DICOM-Importquelle auswählen</value>
+  </data>
+  <data name="SkippedFilesLabel" xml:space="preserve">
+    <value>Übersprungen</value>
+  </data>
+  <data name="SourceSectionTitle" xml:space="preserve">
+    <value>Importquelle</value>
+  </data>
+  <data name="StartImportButton" xml:space="preserve">
+    <value>Import starten</value>
+  </data>
+  <data name="ValidDicomFilesLabel" xml:space="preserve">
+    <value>Gültige DICOM</value>
+  </data>
+  <data name="ImportResultSourceUnavailable" xml:space="preserve">
+    <value>Die ausgewählte Importquelle ist nicht mehr verfügbar. Prüfen Sie das Laufwerk oder die Netzwerkverbindung.</value>
+  </data>
+  <data name="CloseDialogButton" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+</root>

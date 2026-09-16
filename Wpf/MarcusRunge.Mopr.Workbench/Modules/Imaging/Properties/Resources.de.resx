@@ -489,4 +489,7 @@
   <data name="PropertiesPanel_Tab_Measurements" xml:space="preserve">
     <value>Messungen</value>
   </data>
+  <data name="CommandBar_Import" xml:space="preserve">
+    <value>Importieren</value>
+  </data>
 </root>

@@ -12,6 +12,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
+using MarcusRunge.Mopr.Workbench.Modules.Import;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
 using MarcusRunge.Mopr.Workbench.Services.Application;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -49,6 +50,7 @@ namespace MarcusRunge.Mopr.Workbench
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
             moduleCatalog.AddModule<ImagingModule>();
+            moduleCatalog.AddModule<ImportModule>();
             moduleCatalog.AddModule<SetupModule>();
         }
 

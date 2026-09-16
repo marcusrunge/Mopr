@@ -2,37 +2,58 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
+using Prism.Dialogs;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using PrismDialogService = Prism.Dialogs.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
+        private const string ImportDialogName = "ImportView";
+
         private readonly ICore _core;
+        private readonly PrismDialogService _dialogService;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
-        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _cancelOpenCommand, _crosshairCommand, _layoutCommand, _applyCtLungWindowCommand, _measureCommand, _applyCtMediastinumWindowCommand, _moreCommand, _openCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
+        private DelegateCommand? _applyCtBoneWindowCommand;
+        private DelegateCommand? _applyCtBrainWindowCommand;
+        private DelegateCommand? _applyCtLungWindowCommand;
+        private DelegateCommand? _applyCtMediastinumWindowCommand;
+        private DelegateCommand? _cancelOpenCommand;
+        private DelegateCommand? _crosshairCommand;
+        private DelegateCommand? _importCommand;
+        private DelegateCommand? _layoutCommand;
+        private DelegateCommand? _measureCommand;
+        private DelegateCommand? _moreCommand;
+        private DelegateCommand? _openCommand;
+        private DelegateCommand? _panCommand;
+        private DelegateCommand? _resetViewCommand;
+        private DelegateCommand? _resetWindowLevelToDefaultCommand;
+        private DelegateCommand? _windowLevelCommand;
+        private DelegateCommand? _zoomCommand;
         private ImagingLayout _currentLayout;
         private bool _isBusy;
         private CancellationTokenSource? _openCancellationTokenSource;
         private string _statusText = Resources.CommandBar_Status;
 
-        public ImagingCommandBarViewModel(ICore core, IApplication wpf)
+        public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService)
         {
-            _core = core;
-            _wpf = wpf;
+            _core = core ?? throw new ArgumentNullException(nameof(core));
+            _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
-            _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
+            _core.ImagingService.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
 
-            _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
-            _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
+            _activeTool = _core.ImagingService.ImagingToolService.ActiveTool;
+            _currentLayout = _core.ImagingService.ImagingLayoutService.CurrentLayout;
         }
 
         public ImagingTool ActiveTool
@@ -40,21 +61,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             get => _activeTool;
             private set
             {
-                if (SetProperty(ref _activeTool, value))
+                if (!SetProperty(ref _activeTool, value))
                 {
-                    RaisePropertyChanged(nameof(IsZoomActive));
-                    RaisePropertyChanged(nameof(IsPanActive));
-                    RaisePropertyChanged(nameof(IsWindowLevelActive));
-                    RaisePropertyChanged(nameof(IsCrosshairActive));
-                    RaisePropertyChanged(nameof(IsMeasureActive));
+                    return;
                 }
+
+                RaisePropertyChanged(nameof(IsZoomActive));
+                RaisePropertyChanged(nameof(IsPanActive));
+                RaisePropertyChanged(nameof(IsWindowLevelActive));
+                RaisePropertyChanged(nameof(IsCrosshairActive));
+                RaisePropertyChanged(nameof(IsMeasureActive));
             }
         }
 
         public DelegateCommand ApplyCtBoneWindowCommand => _applyCtBoneWindowCommand ??= new DelegateCommand(ApplyBoneWindow);
+
         public DelegateCommand ApplyCtBrainWindowCommand => _applyCtBrainWindowCommand ??= new DelegateCommand(ApplyBrainWindow);
+
         public DelegateCommand ApplyCtLungWindowCommand => _applyCtLungWindowCommand ??= new DelegateCommand(ApplyLungWindow);
-        public DelegateCommand ApplyCtMediastinumWindowCommand => _applyCtMediastinumWindowCommand ??= new DelegateCommand(ApplyMediastinumWindow);        
+
+        public DelegateCommand ApplyCtMediastinumWindowCommand => _applyCtMediastinumWindowCommand ??= new DelegateCommand(ApplyMediastinumWindow);
+
         public DelegateCommand CancelOpenCommand => _cancelOpenCommand ??= new DelegateCommand(CancelOpen, CanCancelOpen);
 
         public DelegateCommand CrosshairCommand => _crosshairCommand ??= new DelegateCommand(ActivateCrosshair);
@@ -62,28 +89,28 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ImagingLayout CurrentLayout
         {
             get => _currentLayout;
-            private set
-            {
-                if (SetProperty(ref _currentLayout, value))
-                {
-                }
-            }
+            private set => SetProperty(ref _currentLayout, value);
         }
 
         public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
+
+        public DelegateCommand ImportCommand => _importCommand ??= new DelegateCommand(OpenImport, CanOpenImport);
 
         public bool IsBusy
         {
             get => _isBusy;
             private set
             {
-                if (SetProperty(ref _isBusy, value))
+                if (!SetProperty(ref _isBusy, value))
                 {
-                    _openCommand?.RaiseCanExecuteChanged();
-                    _cancelOpenCommand?.RaiseCanExecuteChanged();
-                    RaisePropertyChanged(nameof(OpenButtonText));
-                    RaisePropertyChanged(nameof(IsCancelVisible));
+                    return;
                 }
+
+                _openCommand?.RaiseCanExecuteChanged();
+                _importCommand?.RaiseCanExecuteChanged();
+                _cancelOpenCommand?.RaiseCanExecuteChanged();
+                RaisePropertyChanged(nameof(OpenButtonText));
+                RaisePropertyChanged(nameof(IsCancelVisible));
             }
         }
 
@@ -134,7 +161,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public override void Destroy()
         {
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged -= OnActiveToolChanged;
-            _core.ImagingService!.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
+            _core.ImagingService.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
+
+            _openCancellationTokenSource?.Cancel();
+            _openCancellationTokenSource?.Dispose();
+            _openCancellationTokenSource = null;
 
             base.Destroy();
         }
@@ -148,6 +179,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _core.ImagingService!.ImagingToolService!.ClearActiveTool();
                 return;
             }
+
             _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Measure);
         }
 
@@ -167,9 +199,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private bool CanCancelOpen() => IsBusy;
 
+        private bool CanOpen() => !IsBusy;
+
+        private bool CanOpenImport() => !IsBusy;
+
         private void CancelOpen()
         {
-            if (_openCancellationTokenSource == null)
+            if (_openCancellationTokenSource is null)
             {
                 return;
             }
@@ -177,8 +213,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             StatusText = Resources.CommandBar_Canceling;
             _openCancellationTokenSource.Cancel();
         }
-
-        private bool CanOpen() => !IsBusy;
 
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
@@ -208,10 +242,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
                 _openCancellationTokenSource = new CancellationTokenSource();
 
-                var progress = new Progress<ImagingStudyLoadProgress>(value =>
-                {
-                    StatusText = value.DisplayText;
-                });
+                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.DisplayText);
 
                 await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath, progress, _openCancellationTokenSource.Token);
 
@@ -221,9 +252,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     return;
                 }
 
-                var summary = _core.ImagingService!.ImagingStudyService!.LastScanSummary;
-
+                var summary = _core.ImagingService.ImagingStudyService.LastScanSummary;
                 StatusText = summary?.DisplayText ?? string.Empty;
+            }
+            catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)
+            {
+                StatusText = Resources.CommandBar_LoadCanceled;
             }
             catch (Exception exception)
             {
@@ -234,9 +268,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 _openCancellationTokenSource?.Dispose();
                 _openCancellationTokenSource = null;
-
                 IsBusy = false;
             }
+        }
+
+        private void OpenImport()
+        {
+            if (!CanOpenImport())
+            {
+                return;
+            }
+
+            _dialogService.ShowDialog(ImportDialogName);
         }
 
         private void OpenMoreMenu()
@@ -246,8 +289,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private void ResetView()
         {
             _core.ImagingService!.ImagingViewportService!.Reset();
-            _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
-            _core.ImagingService!.ImagingToolService!.ClearActiveTool();
+            _core.ImagingService.ImagingWindowLevelService!.ResetWindowLevelToDefault();
+            _core.ImagingService.ImagingToolService!.ClearActiveTool();
         }
 
         private void ResetWindowLevelToDefault() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();

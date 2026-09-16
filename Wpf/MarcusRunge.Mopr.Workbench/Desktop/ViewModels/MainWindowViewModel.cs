@@ -1,6 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Properties;
-using Prism.Mvvm;
 
 namespace MarcusRunge.Mopr.Workbench.ViewModels
 {
