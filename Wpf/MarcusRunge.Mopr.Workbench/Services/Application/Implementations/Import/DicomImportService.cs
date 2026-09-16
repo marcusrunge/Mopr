@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
@@ -28,6 +28,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
 
         private RepositoryContract Repository => Base.ApplicationBase?.Repository ?? throw new InvalidOperationException("The repository service has not been initialized.");
 
+        private IDicomImportSourceResolver SourceResolver => Base.DicomImportSourceResolver ?? throw new InvalidOperationException("The DICOM import source resolver has not been initialized.");
+
         /// <inheritdoc/>
         public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
@@ -42,15 +44,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                     return DicomImportResult.WithoutImport(DicomImportStatus.SourceMissing);
                 }
 
-                var repositorySourceType = MapSourceType(request.SourceType);
-                if (repositorySourceType is null)
-                {
-                    return DicomImportResult.WithoutImport(DicomImportStatus.SourceTypeUnsupported);
-                }
-
-                if (!Directory.Exists(request.SourcePath))
+                var source = await SourceResolver.ResolveAsync(request, cancellationToken).ConfigureAwait(false);
+                if (!source.Exists || !source.IsReady)
                 {
                     return DicomImportResult.WithoutImport(DicomImportStatus.SourceUnavailable);
+                }
+
+                if (!source.IsRepositoryImportSupported || !TryMapSourceType(source.SourceType, out var repositorySourceType))
+                {
+                    return DicomImportResult.WithoutImport(DicomImportStatus.SourceTypeUnsupported);
                 }
 
                 var repositoryLocationRepository = Persistence.RepositoryLocation;
@@ -82,16 +84,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                     return DicomImportResult.WithoutImport(DicomImportStatus.RepositoryUnavailable);
                 }
 
-                // The application adapter validates and classifies the selected source.
-                // Atomic file handling, DICOM validation, persistence and compensation
-                // remain exclusively inside the existing repository importer.
+                // The resolver supplies the effective readable path and preserves the
+                // source origin. Atomic file handling, persistence and compensation
+                // remain exclusively inside the repository importer.
                 var repositoryRequest = new RepositoryDicomImportRequest
                 {
                     AllowOverwrite = request.AllowOverwrite,
                     CreatedByUserId = auditUserId.Value,
                     RepositoryLocationId = repositoryLocation.Id,
-                    SourcePath = request.SourcePath,
-                    SourceType = repositorySourceType.Value
+                    SourcePath = source.EffectiveSourcePath,
+                    SourceType = repositorySourceType
                 };
 
                 var repositoryResult = await repositoryImporter.ImportAsync(repositoryRequest, cancellationToken).ConfigureAwait(false);
@@ -111,8 +113,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         public Task<DicomImportResult> ImportDirectoryAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var directoryRequest = new DicomImportRequest(request.SourcePath, DicomImportSourceType.LocalDirectory, request.AllowOverwrite);
-            return ImportAsync(directoryRequest, cancellationToken);
+            return ImportAsync(new DicomImportRequest(request.SourcePath, DicomImportSourceType.LocalDirectory, request.AllowOverwrite), cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -123,18 +124,31 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
 
         private static bool IsRepositoryAvailable(RepositoryLocation repositoryLocation) => repositoryLocation.Id > 0 && repositoryLocation.IsEnabled && !string.IsNullOrWhiteSpace(repositoryLocation.RootPath) && Directory.Exists(repositoryLocation.RootPath);
 
-        private static ImportSourceType? MapSourceType(DicomImportSourceType sourceType) => sourceType switch
-        {
-            DicomImportSourceType.AutoDetect => ImportSourceType.Directory,
-            DicomImportSourceType.LocalDirectory => ImportSourceType.Directory,
-            _ => null
-        };
-
         private static DicomImportResult MapResult(RepositoryDicomImportResult result)
         {
             ArgumentNullException.ThrowIfNull(result);
             var status = result.FailedFiles > 0 || result.Errors.Count > 0 ? DicomImportStatus.CompletedWithErrors : result.SkippedFiles > 0 ? DicomImportStatus.CompletedWithSkippedFiles : DicomImportStatus.Completed;
             return new DicomImportResult(status, result.DiscoveredFiles, result.ValidDicomFiles, result.ImportableFiles, result.ImportedFiles, result.SkippedFiles, result.FailedFiles, result.Errors);
+        }
+
+        private static bool TryMapSourceType(DicomImportSourceType sourceType, out ImportSourceType repositorySourceType)
+        {
+            repositorySourceType = sourceType switch
+            {
+                DicomImportSourceType.LocalDirectory => ImportSourceType.Directory,
+                DicomImportSourceType.UsbDrive => ImportSourceType.UsbDrive,
+                DicomImportSourceType.RemovableDrive => ImportSourceType.UsbDrive,
+                DicomImportSourceType.ExternalDrive => ImportSourceType.Directory,
+                DicomImportSourceType.SdCard => ImportSourceType.UsbDrive,
+                DicomImportSourceType.CdRom => ImportSourceType.CdRom,
+                DicomImportSourceType.Dvd => ImportSourceType.Dvd,
+                DicomImportSourceType.NetworkShare => ImportSourceType.NetworkShare,
+                DicomImportSourceType.MappedNetworkDrive => ImportSourceType.NetworkShare,
+                DicomImportSourceType.VirtualDrive => ImportSourceType.Directory,
+                _ => ImportSourceType.Unknown
+            };
+
+            return repositorySourceType != ImportSourceType.Unknown;
         }
     }
 }

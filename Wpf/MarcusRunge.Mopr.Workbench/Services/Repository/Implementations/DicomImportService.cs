@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -88,12 +88,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             IList<DicomImportFileInfo> fileInfos = request.SourceType switch
             {
-                ImportSourceType.Directory => CreateFileInfos(request.SourcePath),
-                ImportSourceType.CdRom => throw new NotSupportedException(),
-                ImportSourceType.Dvd => throw new NotSupportedException(),
-                ImportSourceType.UsbDrive => throw new NotSupportedException(),
-                ImportSourceType.IsoImage => throw new NotSupportedException(),
-                ImportSourceType.NetworkShare => throw new NotSupportedException(),
+                ImportSourceType.Directory or ImportSourceType.CdRom or ImportSourceType.Dvd or ImportSourceType.UsbDrive or ImportSourceType.NetworkShare => CreateFileInfos(request.SourcePath),
+                ImportSourceType.IsoImage => throw new NotSupportedException("ISO images must be mounted by the application source provider before repository import starts."),
                 ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
                 _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported.")
             };
