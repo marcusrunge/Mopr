@@ -33,6 +33,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
 
             _dialogService = Dialog.DialogService.Create(this);
             _mediaService = Media.MediaService.Create(this);
+            _identityService = Identity.IdentityService.Create(this);
             _importService = Import.ImportService.Create(this);
         }
     }

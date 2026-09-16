@@ -8,6 +8,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     public class User : BindableEntityBase
     {
         private string? _firstName, _lastName, _loginName, _middleName, _shortName, _suffix, _title;
+        private bool _isActive = true;
 
         /// <summary>
         /// Gets or sets the collection of instances created by the user.
@@ -45,12 +46,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         public string? FirstName { get => _firstName; set => SetProperty(ref _firstName, value); }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the user may perform authenticated MOPR operations.
+        /// </summary>
+        public bool IsActive { get => _isActive; set => SetProperty(ref _isActive, value); }
+
+        /// <summary>
         /// Gets or sets the last name.
         /// </summary>
         public string? LastName { get => _lastName; set => SetProperty(ref _lastName, value); }
 
         /// <summary>
-        /// Gets or sets the login name.
+        /// Gets or sets the operating-system login name assigned to the user.
         /// </summary>
         public string? LoginName { get => _loginName; set => SetProperty(ref _loginName, value); }
 

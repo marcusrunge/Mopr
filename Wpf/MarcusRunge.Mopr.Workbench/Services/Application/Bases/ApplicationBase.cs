@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -14,6 +15,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
     internal abstract class ApplicationBase(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
+        protected IIdentityService? _identityService;
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
 
@@ -41,6 +43,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         /// <inheritdoc/>
         public IDialogService? DialogService => _dialogService;
+
+        /// <inheritdoc/>
+        public IIdentityService? IdentityService => _identityService;
 
         /// <inheritdoc/>
         public IImportService? ImportService => _importService;

@@ -25,4 +25,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\Identity\" />
+  </ItemGroup>
+
 </Project>

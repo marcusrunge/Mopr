@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Base.EntityFramework;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 internal class UserConfiguration : EntityConfigurationBase<User, UserConfiguration>
@@ -11,6 +12,9 @@ internal class UserConfiguration : EntityConfigurationBase<User, UserConfigurati
         builder.Property(x => x.LoginName)
                .HasMaxLength(256);
 
+        // LoginName remains the single durable operating-system identity mapping.
+        // Persistence-level uniqueness protects shared SQL databases against
+        // concurrent provisioning attempts from different workstations.
         builder.HasIndex(x => x.LoginName)
                .IsUnique();
 
@@ -31,5 +35,10 @@ internal class UserConfiguration : EntityConfigurationBase<User, UserConfigurati
 
         builder.Property(x => x.Suffix)
                .HasMaxLength(128);
+
+        // Existing users must remain usable after applying the migration.
+        // Explicit deactivation is introduced only through controlled MOPR workflows.
+        builder.Property(x => x.IsActive)
+               .HasDefaultValue(true);
     }
 }
