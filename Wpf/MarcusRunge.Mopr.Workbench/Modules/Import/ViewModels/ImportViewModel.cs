@@ -79,7 +79,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         public DelegateCommand StartNewImportCommand { get; }
 
-        public string Title => Properties.Resources.ImportTitle;
+        public static string Title => Properties.Resources.ImportTitle;
 
         /// <inheritdoc/>
         public bool CanCloseDialog() => !IsImporting;
@@ -118,6 +118,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             {
                 return;
             }
+
+            RequestClose.Invoke(ButtonResult.Cancel);
         }
 
         private async void ExecuteStartImport()
