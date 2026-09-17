@@ -223,6 +223,204 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User setup completed ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_Completed {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User setup failed ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_Failed {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Operating-system identity unavailable ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_OperatingSystemIdentityUnavailable {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_OperatingSystemIdentityUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User data unavailable ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_PersistenceUnavailable {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user has already been set up ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_UserAlreadyExists {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_UserAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please check the entered user information ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_ValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a first name ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_FirstNameRequired {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_FirstNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first name is too long ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_FirstNameTooLong {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_FirstNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a last name ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_LastNameRequired {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_LastNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The last name is too long ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_LastNameTooLong {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_LastNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The short name contains unsupported characters ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_ShortNameInvalid {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_ShortNameInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a short name ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_ShortNameRequired {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_ShortNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The short name is too long ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_ShortNameTooLong {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_ShortNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sign-in failed ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_Failed {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid persistent user assignment ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_InvalidPersistentUserId {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_InvalidPersistentUserId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Operating-system identity unavailable ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_OperatingSystemIdentityUnavailable {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_OperatingSystemIdentityUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User data unavailable ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_PersistenceUnavailable {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Signed in ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_SignedIn {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_SignedIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User disabled ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_UserDisabled {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_UserDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User setup required ähnelt.
+        /// </summary>
+        public static string UserSignInStatus_UserUnknown {
+            get {
+                return ResourceManager.GetString("UserSignInStatus_UserUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Layout: Axial / Sagittal / Coronal ähnelt.
         /// </summary>
         public static string Viewer_Layout_AxialSagittalCoronal {

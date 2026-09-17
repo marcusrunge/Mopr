@@ -3,7 +3,6 @@ using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
 using MarcusRunge.Mopr.Workbench.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
-using MarcusRunge.Mopr.Workbench.Application.Security;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
 using MarcusRunge.Mopr.Workbench.Application.Startup;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
@@ -169,9 +168,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
             // Runtime security adapters resolve the current Windows identity against
-            // an existing persistent MOPR user without implicit user provisioning.
-            containerRegistry.RegisterSingleton<ICurrentLoginNameProvider, WindowsCurrentLoginNameProvider>();
-            containerRegistry.RegisterSingleton<IAuditIdentityProvider, AuditIdentityProvider>();
+            // an existing persistent MOPR user without implicit user provisioning.            
             containerRegistry.RegisterSingleton<IOperatingSystemIdentityProvider, OperatingSystemIdentityProvider>();
 
             // MIRAS depends on both Persistence and Repository and must therefore be

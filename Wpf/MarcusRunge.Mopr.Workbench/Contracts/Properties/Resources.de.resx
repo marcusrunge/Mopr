@@ -222,4 +222,70 @@
   <data name="ViewportOrientation_VolumePreview" xml:space="preserve">
     <value>Volumenvorschau</value>
   </data>
+  <data name="UserSignInStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="UserSignInStatus_SignedIn" xml:space="preserve">
+    <value>Angemeldet</value>
+  </data>
+  <data name="UserSignInStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
+    <value>Windows-Identität nicht verfügbar</value>
+  </data>
+  <data name="UserSignInStatus_UserUnknown" xml:space="preserve">
+    <value>Benutzer-Erstanlage erforderlich</value>
+  </data>
+  <data name="UserSignInStatus_UserDisabled" xml:space="preserve">
+    <value>Benutzer deaktiviert</value>
+  </data>
+  <data name="UserSignInStatus_InvalidPersistentUserId" xml:space="preserve">
+    <value>Ungültige Benutzerzuordnung</value>
+  </data>
+  <data name="UserSignInStatus_PersistenceUnavailable" xml:space="preserve">
+    <value>Benutzerdaten nicht verfügbar</value>
+  </data>
+  <data name="UserSignInStatus_Failed" xml:space="preserve">
+    <value>Anmeldung fehlgeschlagen</value>
+  </data>
+  <data name="UserProvisioningStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="UserProvisioningStatus_Completed" xml:space="preserve">
+    <value>Benutzer-Erstanlage abgeschlossen</value>
+  </data>
+  <data name="UserProvisioningStatus_ValidationFailed" xml:space="preserve">
+    <value>Bitte prüfen Sie die eingegebenen Benutzerdaten</value>
+  </data>
+  <data name="UserProvisioningStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
+    <value>Windows-Identität nicht verfügbar</value>
+  </data>
+  <data name="UserProvisioningStatus_UserAlreadyExists" xml:space="preserve">
+    <value>Der Benutzer wurde bereits angelegt</value>
+  </data>
+  <data name="UserProvisioningStatus_PersistenceUnavailable" xml:space="preserve">
+    <value>Benutzerdaten nicht verfügbar</value>
+  </data>
+  <data name="UserProvisioningStatus_Failed" xml:space="preserve">
+    <value>Benutzer-Erstanlage fehlgeschlagen</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_FirstNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Vornamen ein</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_FirstNameTooLong" xml:space="preserve">
+    <value>Der Vorname ist zu lang</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_LastNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Nachnamen ein</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_LastNameTooLong" xml:space="preserve">
+    <value>Der Nachname ist zu lang</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Kurznamen ein</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameTooLong" xml:space="preserve">
+    <value>Der Kurzname ist zu lang</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameInvalid" xml:space="preserve">
+    <value>Der Kurzname enthält nicht unterstützte Zeichen</value>
+  </data>
 </root>

@@ -222,4 +222,70 @@
   <data name="ViewportOrientation_VolumePreview" xml:space="preserve">
     <value>Volume preview</value>
   </data>
+  <data name="UserSignInStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="UserSignInStatus_SignedIn" xml:space="preserve">
+    <value>Signed in</value>
+  </data>
+  <data name="UserSignInStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
+    <value>Operating-system identity unavailable</value>
+  </data>
+  <data name="UserSignInStatus_UserUnknown" xml:space="preserve">
+    <value>User setup required</value>
+  </data>
+  <data name="UserSignInStatus_UserDisabled" xml:space="preserve">
+    <value>User disabled</value>
+  </data>
+  <data name="UserSignInStatus_InvalidPersistentUserId" xml:space="preserve">
+    <value>Invalid persistent user assignment</value>
+  </data>
+  <data name="UserSignInStatus_PersistenceUnavailable" xml:space="preserve">
+    <value>User data unavailable</value>
+  </data>
+  <data name="UserSignInStatus_Failed" xml:space="preserve">
+    <value>Sign-in failed</value>
+  </data>
+  <data name="UserProvisioningStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="UserProvisioningStatus_Completed" xml:space="preserve">
+    <value>User setup completed</value>
+  </data>
+  <data name="UserProvisioningStatus_ValidationFailed" xml:space="preserve">
+    <value>Please check the entered user information</value>
+  </data>
+  <data name="UserProvisioningStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
+    <value>Operating-system identity unavailable</value>
+  </data>
+  <data name="UserProvisioningStatus_UserAlreadyExists" xml:space="preserve">
+    <value>The user has already been set up</value>
+  </data>
+  <data name="UserProvisioningStatus_PersistenceUnavailable" xml:space="preserve">
+    <value>User data unavailable</value>
+  </data>
+  <data name="UserProvisioningStatus_Failed" xml:space="preserve">
+    <value>User setup failed</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_FirstNameRequired" xml:space="preserve">
+    <value>Please enter a first name</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_FirstNameTooLong" xml:space="preserve">
+    <value>The first name is too long</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_LastNameRequired" xml:space="preserve">
+    <value>Please enter a last name</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_LastNameTooLong" xml:space="preserve">
+    <value>The last name is too long</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameRequired" xml:space="preserve">
+    <value>Please enter a short name</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameTooLong" xml:space="preserve">
+    <value>The short name is too long</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_ShortNameInvalid" xml:space="preserve">
+    <value>The short name contains unsupported characters</value>
+  </data>
 </root>
