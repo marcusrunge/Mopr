@@ -15,7 +15,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
     /// <summary>
     /// Provides shared dependencies and service references for one application-service graph.
     /// </summary>
-    internal abstract class ApplicationBase(ILogger? logger, IAuditIdentityProvider? auditIdentityProvider, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
+    internal abstract class ApplicationBase(ILogger? logger, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
@@ -45,7 +45,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         }
 
         /// <inheritdoc/>
-        IAuditIdentityProvider? IApplicationBase.AuditIdentityProvider => auditIdentityProvider;
+        IAuditIdentityProvider? IApplicationBase.AuditIdentityProvider => (_identityService as IIdentityServiceBase)?.AuditIdentityProvider;
 
         /// <inheritdoc/>
         public IDialogService? DialogService => _dialogService;

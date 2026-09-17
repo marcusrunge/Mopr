@@ -70,7 +70,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var persistence = new Mock<IPersistence>(MockBehavior.Strict);
             persistence.SetupGet(x => x.User).Returns(userRepository.Object);
 
-            var factory = new ApplicationFactory(auditIdentityProvider: null, persistence: persistence.Object, repository: null, operatingSystemIdentityProvider: operatingSystemIdentityProvider.Object);
+            var factory = new ApplicationFactory(persistence: persistence.Object, repository: null, operatingSystemIdentityProvider: operatingSystemIdentityProvider.Object);
             IApplication application = factory.Create();
             var identityService = application.IdentityService ?? throw new InvalidOperationException("The identity service is not available.");
             var identityServiceBase = identityService as IIdentityServiceBase ?? throw new InvalidOperationException("The internal identity-service contract is not available.");

@@ -13,13 +13,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
     {
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenImportCompletesSuccessfully_ReturnsCompletedResult()
+        public async Task ImportAsync_WhenImportCompletesSuccessfully_ReturnsCompletedResult()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.SetImportResult(new RepositoryImportResult { ImportedFiles = 2 });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.Completed, result.Status);
             Assert.True(result.IsSuccessful);
@@ -28,11 +28,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenSourceIsEmpty_ReturnsSourceMissing()
+        public async Task ImportAsync_WhenSourceIsEmpty_ReturnsSourceMissing()
         {
             using var context = new DicomImportServiceTestContext();
 
-            var result = await context.Service.ImportDirectoryAsync(new DicomImportRequest(string.Empty), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(new DicomImportRequest(string.Empty), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.SourceMissing, result.Status);
             Assert.False(result.IsSuccessful);
@@ -41,13 +41,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenSourceDoesNotExist_ReturnsSourceUnavailable()
+        public async Task ImportAsync_WhenSourceDoesNotExist_ReturnsSourceUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
             var unavailableSourcePath = Path.Combine(context.SourceDirectoryPath, "Unavailable");
 
-            var result = await context.Service.ImportDirectoryAsync(new DicomImportRequest(unavailableSourcePath), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(new DicomImportRequest(unavailableSourcePath), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.SourceUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
@@ -56,53 +56,50 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryLocationRepositoryIsUnavailable_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenRepositoryLocationRepositoryIsUnavailable_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.Reset(repositoryLocationRepositoryAvailable: false);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenDefaultRepositoryIsMissing_ReturnsDefaultRepositoryMissing()
+        public async Task ImportAsync_WhenDefaultRepositoryIsMissing_ReturnsDefaultRepositoryMissing()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.SetDefaultRepositoryLocation(null);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.DefaultRepositoryMissing, result.Status);
             Assert.False(result.IsSuccessful);
             context.VerifyDefaultRepositoryRequestedOnce(TestContext.Current.CancellationToken);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenDefaultRepositoryHasInvalidId_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenDefaultRepositoryHasInvalidId_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.Reset(repositoryLocationId: 0);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenDefaultRepositoryIsDisabled_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenDefaultRepositoryIsDisabled_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -114,16 +111,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 RootPath = context.RepositoryDirectoryPath
             });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenDefaultRepositoryRootPathIsEmpty_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenDefaultRepositoryRootPathIsEmpty_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -135,16 +131,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 RootPath = string.Empty
             });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenDefaultRepositoryDirectoryDoesNotExist_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenDefaultRepositoryDirectoryDoesNotExist_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -156,11 +151,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 RootPath = Path.Combine(context.RepositoryDirectoryPath, "Unavailable")
             });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
@@ -168,44 +162,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         [InlineData(null)]
         [InlineData(0)]
         [InlineData(-1)]
-        public async Task ImportDirectoryAsync_WhenAuditIdentityIsInvalid_ReturnsAuditIdentityUnavailable(int? auditUserId)
+        public async Task ImportAsync_WhenAuditIdentityIsInvalid_ReturnsAuditIdentityUnavailable(int? auditUserId)
         {
             using var context = new DicomImportServiceTestContext();
 
             context.SetAuditUserId(auditUserId);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.AuditIdentityUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityRequestedOnce(TestContext.Current.CancellationToken);
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryImportServiceIsUnavailable_ReturnsRepositoryUnavailable()
+        public async Task ImportAsync_WhenRepositoryImportServiceIsUnavailable_ReturnsRepositoryUnavailable()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.Reset(repositoryImportServiceAvailable: false);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.RepositoryUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
-            context.VerifyAuditIdentityRequestedOnce(TestContext.Current.CancellationToken);
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenCanceledBeforeInvocation_ReturnsCanceledWithoutCallingDependencies()
+        public async Task ImportAsync_WhenCanceledBeforeInvocation_ReturnsCanceledWithoutCallingDependencies()
         {
             using var context = new DicomImportServiceTestContext();
 
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             cancellationSource.Cancel();
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), cancellationSource.Token);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), cancellationSource.Token);
 
             Assert.Equal(DicomImportStatus.Canceled, result.Status);
             Assert.False(result.IsSuccessful);
@@ -214,49 +206,53 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryLocationLookupIsCanceled_ReturnsCanceled()
+        public async Task ImportAsync_WhenRepositoryLocationLookupIsCanceled_ReturnsCanceled()
         {
             using var context = new DicomImportServiceTestContext();
 
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             context.RepositoryLocationRepository.Setup(repository => repository.GetDefaultAsync(cancellationSource.Token)).Callback(cancellationSource.Cancel).ThrowsAsync(new OperationCanceledException(cancellationSource.Token));
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), cancellationSource.Token);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), cancellationSource.Token);
             Assert.Equal(DicomImportStatus.Canceled, result.Status);
             Assert.False(result.IsSuccessful);
             context.RepositoryLocationRepository.Verify(repository => repository.GetDefaultAsync(cancellationSource.Token), Times.Once);
-            context.VerifyAuditIdentityNotRequested();
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenAuditIdentityLookupIsCanceled_ReturnsCanceled()
+        public async Task ImportAsync_WhenCancellationIsRequestedAfterRepositoryLookup_ReturnsCanceled()
         {
             using var context = new DicomImportServiceTestContext();
-
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-            context.AuditIdentityProvider.Setup(provider => provider.GetCurrentUserIdAsync(cancellationSource.Token)).Callback(cancellationSource.Cancel).ThrowsAsync(new OperationCanceledException(cancellationSource.Token));
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), cancellationSource.Token);
+
+            context.RepositoryLocationRepository
+                .Setup(repository => repository.GetDefaultAsync(cancellationSource.Token))
+                .Callback(cancellationSource.Cancel)
+                .ReturnsAsync(new RepositoryLocation { Id = context.RepositoryLocationId, IsDefault = true, IsEnabled = true, RootPath = context.RepositoryDirectoryPath });
+
+            var result = await context.Service.ImportAsync(context.CreateRequest(), cancellationSource.Token);
+
             Assert.Equal(DicomImportStatus.Canceled, result.Status);
             Assert.False(result.IsSuccessful);
-            context.AuditIdentityProvider.Verify(provider => provider.GetCurrentUserIdAsync(cancellationSource.Token), Times.Once);
+            context.RepositoryLocationRepository.Verify(repository => repository.GetDefaultAsync(cancellationSource.Token), Times.Once);
             context.VerifyRepositoryImporterNotCalled();
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryImportIsCanceled_ReturnsCanceled()
+        public async Task ImportAsync_WhenRepositoryImportIsCanceled_ReturnsCanceled()
         {
             using var context = new DicomImportServiceTestContext();
 
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
             context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), cancellationSource.Token)).Callback(cancellationSource.Cancel).ThrowsAsync(new OperationCanceledException(cancellationSource.Token));
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), cancellationSource.Token);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), cancellationSource.Token);
             Assert.Equal(DicomImportStatus.Canceled, result.Status);
             Assert.False(result.IsSuccessful);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), cancellationSource.Token), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryImportCompletes_MapsAllCounters()
+        public async Task ImportAsync_WhenRepositoryImportCompletes_MapsAllCounters()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -284,7 +280,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             context.SetImportResult(repositoryResult);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(3, result.DiscoveredFiles);
             Assert.Equal(2, result.ValidDicomFiles);
@@ -297,7 +293,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenFilesWereSkipped_ReturnsCompletedWithSkippedFiles()
+        public async Task ImportAsync_WhenFilesWereSkipped_ReturnsCompletedWithSkippedFiles()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -307,7 +303,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 SkippedFiles = 2
             });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.CompletedWithSkippedFiles, result.Status);
             Assert.True(result.IsSuccessful);
@@ -316,7 +312,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenFailedFilesAreReported_ReturnsCompletedWithErrors()
+        public async Task ImportAsync_WhenFailedFilesAreReported_ReturnsCompletedWithErrors()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -326,7 +322,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 ImportedFiles = 2
             });
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.CompletedWithErrors, result.Status);
             Assert.False(result.IsSuccessful);
@@ -335,7 +331,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryReturnsTechnicalErrors_ReturnsCompletedWithErrors()
+        public async Task ImportAsync_WhenRepositoryReturnsTechnicalErrors_ReturnsCompletedWithErrors()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -347,7 +343,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             repositoryResult.Errors.Add("Technical repository import detail.");
             context.SetImportResult(repositoryResult);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.CompletedWithErrors, result.Status);
             Assert.False(result.IsSuccessful);
@@ -356,7 +352,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenRepositoryReturnsTechnicalErrors_KeepsErrorsSeparateFromStatus()
+        public async Task ImportAsync_WhenRepositoryReturnsTechnicalErrors_KeepsErrorsSeparateFromStatus()
         {
             using var context = new DicomImportServiceTestContext();
 
@@ -369,7 +365,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             repositoryResult.Errors.Add(technicalError);
             context.SetImportResult(repositoryResult);
 
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportStatus.CompletedWithErrors, result.Status);
             Assert.Equal(technicalError, Assert.Single(result.TechnicalErrors));
@@ -377,13 +373,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenUnexpectedExceptionOccurs_ReturnsFailedWithSeparatedTechnicalDetails()
+        public async Task ImportAsync_WhenUnexpectedExceptionOccurs_ReturnsFailedWithSeparatedTechnicalDetails()
         {
             using var context = new DicomImportServiceTestContext();
 
             const string technicalError = @"Access to C:\Sensitive\Repository was denied.";
             context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), TestContext.Current.CancellationToken)).ThrowsAsync(new IOException(technicalError));
-            var result = await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             Assert.Equal(DicomImportStatus.Failed, result.Status);
             Assert.False(result.IsSuccessful);
             Assert.Contains(technicalError, Assert.Single(result.TechnicalErrors), StringComparison.Ordinal);
@@ -391,61 +387,60 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenInvoked_UsesCurrentAuditUserAsCreatedByUserId()
+        public async Task ImportAsync_WhenInvoked_UsesCurrentAuditUserAsCreatedByUserId()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.Reset(auditUserId: 73);
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 73), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenInvoked_UsesDefaultRepositoryLocationId()
+        public async Task ImportAsync_WhenInvoked_UsesDefaultRepositoryLocationId()
         {
             using var context = new DicomImportServiceTestContext();
 
             context.Reset(repositoryLocationId: 91);
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.RepositoryLocationId == 91), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenInvoked_MapsPublicRequestToRepositoryRequest()
+        public async Task ImportAsync_WhenInvoked_MapsPublicRequestToRepositoryRequest()
         {
             using var context = new DicomImportServiceTestContext();
 
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(allowOverwrite: true), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(allowOverwrite: true), TestContext.Current.CancellationToken);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.AllowOverwrite && request.CreatedByUserId == context.AuditUserId && request.RepositoryLocationId == context.RepositoryLocationId && request.SourcePath == context.SourceDirectoryPath && request.SourceType == ImportSourceType.Directory), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenOverwriteIsDisabled_ForwardsDisabledOverwrite()
+        public async Task ImportAsync_WhenOverwriteIsDisabled_ForwardsDisabledOverwrite()
         {
             using var context = new DicomImportServiceTestContext();
 
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => !request.AllowOverwrite), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenInvoked_ForwardsCancellationTokenToAllAsyncDependencies()
+        public async Task ImportAsync_WhenInvoked_ForwardsCancellationTokenToRepositoryDependencies()
         {
             using var context = new DicomImportServiceTestContext();
 
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             context.VerifyDefaultRepositoryRequestedOnce(TestContext.Current.CancellationToken);
-            context.VerifyAuditIdentityRequestedOnce(TestContext.Current.CancellationToken);
             context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenInvoked_CallsExistingRepositoryImporterExactlyOnce()
+        public async Task ImportAsync_WhenInvoked_CallsExistingRepositoryImporterExactlyOnce()
         {
             using var context = new DicomImportServiceTestContext();
 
-            await context.Service.ImportDirectoryAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             context.VerifyRepositoryImporterCalledOnce();
         }
 
@@ -461,7 +456,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
 
         [Fact]
-        public async Task ImportDirectoryAsync_WhenApplicationGraphsRunConcurrently_UsesOnlyGraphOwnedDependencies()
+        public async Task ImportAsync_WhenApplicationGraphsRunConcurrently_UsesOnlyGraphOwnedDependencies()
         {
             using var firstContext = new DicomImportServiceTestContext();
             using var secondContext = new DicomImportServiceTestContext();
@@ -469,8 +464,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             secondContext.Reset(auditUserId: 72, repositoryLocationId: 82);
 
             await Task.WhenAll(
-                firstContext.Service.ImportDirectoryAsync(firstContext.CreateRequest(), TestContext.Current.CancellationToken),
-                secondContext.Service.ImportDirectoryAsync(secondContext.CreateRequest(), TestContext.Current.CancellationToken));
+                firstContext.Service.ImportAsync(firstContext.CreateRequest(), TestContext.Current.CancellationToken),
+                secondContext.Service.ImportAsync(secondContext.CreateRequest(), TestContext.Current.CancellationToken));
 
             firstContext.RepositoryImportService.Verify(service => service.ImportAsync(
                 It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 && request.RepositoryLocationId == 81),
@@ -498,3 +493,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
     }
 }
+
+

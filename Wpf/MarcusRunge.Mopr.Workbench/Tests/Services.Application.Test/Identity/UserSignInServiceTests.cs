@@ -302,7 +302,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 Persistence = new Mock<IPersistence>(MockBehavior.Strict);
                 Persistence.SetupGet(x => x.User).Returns(userRepositoryAvailable ? UserRepository.Object : null);
 
-                Factory = new ApplicationFactory(Mock.Of<IAuditIdentityProvider>(), Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
+                Factory = new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
 
                 Application = Factory.Create();
                 UserSignInService = Application.IdentityService?.UserSignInService ?? throw new InvalidOperationException("The user sign-in service is not available.");
