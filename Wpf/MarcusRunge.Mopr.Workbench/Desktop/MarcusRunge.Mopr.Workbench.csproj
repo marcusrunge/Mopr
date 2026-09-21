@@ -5,16 +5,9 @@
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Assets\mopr.ico</ApplicationIcon>
 		<PackageIcon>mopr.png</PackageIcon>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Compile Remove="Services\**" />
-		<EmbeddedResource Remove="Services\**" />
-		<None Remove="Services\**" />
-		<Page Remove="Services\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Assets\mopr.ico">
@@ -41,12 +34,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Properties\Resources.de.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Resources.de.resx</DependentUpon>
-		</Compile>
-
 		<Compile Update="Properties\Resources.Designer.cs">
 			<DesignTime>True</DesignTime>
 			<AutoGen>True</AutoGen>
@@ -55,11 +42,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Update="Properties\Resources.de.resx">
-			<Generator>PublicResXFileCodeGenerator</Generator>
-			<LastGenOutput>Resources.de.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-
 		<EmbeddedResource Update="Properties\Resources.resx">
 			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>

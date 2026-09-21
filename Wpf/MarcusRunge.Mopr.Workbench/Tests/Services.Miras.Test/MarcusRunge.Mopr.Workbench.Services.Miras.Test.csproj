@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -22,11 +21,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Test.Shared\MarcusRunge.Mopr.Workbench.Test.Shared.csproj" />
 		<ProjectReference Include="..\..\Services\Miras\MarcusRunge.Mopr.Workbench.Services.Miras.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Using Include="MarcusRunge.Mopr.Workbench.Test.Shared.Application" />
 		<Using Include="Xunit" />
 	</ItemGroup>
-
 </Project>

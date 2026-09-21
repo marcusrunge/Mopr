@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<RootNamespace>MarcusRunge.Mopr.Workbench.Test.Shared</RootNamespace>
+		<AssemblyName>MarcusRunge.Mopr.Workbench.Test.Shared</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Contracts\MarcusRunge.Mopr.Workbench.Contracts.csproj" />
+	</ItemGroup>
+</Project>

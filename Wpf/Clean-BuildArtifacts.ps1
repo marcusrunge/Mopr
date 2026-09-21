@@ -1,58 +1,87 @@
 param(
-    [string]$RootPath = "."
+    [string]$RootPath = ".",
+    [int]$RetryCount = 3,
+    [int]$RetryDelayMilliseconds = 300
 )
 
-$root = (Resolve-Path $RootPath).Path
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$root = (Resolve-Path -LiteralPath $RootPath).Path
+$buildDirectoryNames = @(
+    "bin"
+    "obj"
+    ".vs"
+    "TestResults"
+    "artifacts"
+)
 
 Write-Host "Bereinige $root" -ForegroundColor Cyan
 
-Get-ChildItem `
-    -Path $root `
-    -Directory `
-    -Recurse `
-    -Force |
-Where-Object {
-    $_.Name -eq "bin" `
-    -or $_.Name -eq "obj" `
-    -or $_.Name -eq ".vs" `
-    -or $_.Name -eq "TestResults" `
-    -or $_.Name -eq "artifacts"
-} |
-Sort-Object FullName -Descending |
-ForEach-Object {
+# Materialize all paths before deleting anything. This prevents recursive
+# enumeration from changing while parent and child directories are removed.
+$buildDirectories = @(
+    Get-ChildItem -LiteralPath $root -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -in $buildDirectoryNames } |
+    Sort-Object { $_.FullName.Length } -Descending |
+    Select-Object -ExpandProperty FullName
+)
 
-    Write-Host "Lösche $($_.FullName)" -ForegroundColor Yellow
-
-    try
+foreach ($directoryPath in $buildDirectories)
+{
+    if (-not (Test-Path -LiteralPath $directoryPath -PathType Container))
     {
-        Remove-Item `
-            -LiteralPath $_.FullName `
-            -Recurse `
-            -Force `
-            -ErrorAction Stop
+        continue
     }
-    catch
+
+    Write-Host "Lösche $directoryPath" -ForegroundColor Yellow
+
+    for ($attempt = 1; $attempt -le $RetryCount; $attempt++)
     {
-        Write-Warning $_.Exception.Message
+        try
+        {
+            Remove-Item -LiteralPath $directoryPath -Recurse -Force -ErrorAction Stop
+
+            if (-not (Test-Path -LiteralPath $directoryPath))
+            {
+                break
+            }
+
+            throw "Das Verzeichnis ist nach Remove-Item weiterhin vorhanden."
+        }
+        catch
+        {
+            if ($attempt -eq $RetryCount)
+            {
+                Write-Warning "Konnte '$directoryPath' nach $RetryCount Versuchen nicht löschen: $($_.Exception.Message)"
+                break
+            }
+
+            Start-Sleep -Milliseconds $RetryDelayMilliseconds
+        }
     }
 }
+
+$remainingDirectories = @(
+    Get-ChildItem -LiteralPath $root -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -in $buildDirectoryNames } |
+    Sort-Object FullName |
+    Select-Object -ExpandProperty FullName
+)
 
 Write-Host ""
 Write-Host "Verbleibende Buildordner:" -ForegroundColor Cyan
 
-Get-ChildItem `
-    -Path $root `
-    -Directory `
-    -Recurse `
-    -Force |
-Where-Object {
-    $_.Name -eq "bin" `
-    -or $_.Name -eq "obj" `
-    -or $_.Name -eq ".vs" `
-    -or $_.Name -eq "TestResults" `
-    -or $_.Name -eq "artifacts"
-} |
-Select-Object -ExpandProperty FullName
+if ($remainingDirectories.Count -eq 0)
+{
+    Write-Host "Keine." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Bereinigung erfolgreich abgeschlossen." -ForegroundColor Green
+    exit 0
+}
+
+$remainingDirectories | ForEach-Object { Write-Warning $_ }
 
 Write-Host ""
-Write-Host "Fertig." -ForegroundColor Green
+Write-Warning "Die Bereinigung ist unvollständig. Schließe Visual Studio sowie laufende Build- und Testprozesse und führe das Skript erneut aus."
+exit 1
