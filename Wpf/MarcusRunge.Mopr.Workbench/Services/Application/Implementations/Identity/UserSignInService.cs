@@ -41,7 +41,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return UserSignInResult.OperatingSystemIdentityUnavailable();
             }
 
-            operatingSystemIdentity = NormalizeOperatingSystemIdentity(operatingSystemIdentity);
+            operatingSystemIdentity = new OperatingSystemIdentity(IdentityValueNormalizer.NormalizeLoginName(operatingSystemIdentity.LoginName));
 
             var userRepository = applicationBase.Persistence?.User;
 
@@ -62,8 +62,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
             catch (Exception exception)
             {
-                // Technical details remain within the application-service error
-                // channel. Callers receive only the stable sign-in status.
+                // Technical details remain in the internal application error
+                // channel and must not become user-facing sign-in messages.
                 applicationBase.OnExceptionThrown(exception);
                 return UserSignInResult.Failed(operatingSystemIdentity);
             }
@@ -82,7 +82,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             try
             {
-                currentUser = CreateCurrentUser(persistentUser, operatingSystemIdentity.LoginName);
+                currentUser = CurrentUserMapper.Map(persistentUser, operatingSystemIdentity.LoginName);
             }
             catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
             {
@@ -109,36 +109,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
         {
             cancellationToken.ThrowIfCancellationRequested();
             return Task.CompletedTask;
-        }
-
-        private static CurrentUser CreateCurrentUser(User user, string resolvedLoginName)
-        {
-            ArgumentNullException.ThrowIfNull(user);
-
-            return new CurrentUser(
-                user.Id,
-                resolvedLoginName,
-                NormalizeRequiredValue(user.FirstName, nameof(user.FirstName)),
-                NormalizeRequiredValue(user.LastName, nameof(user.LastName)),
-                NormalizeRequiredValue(user.ShortName, nameof(user.ShortName)),
-                user.IsActive);
-        }
-
-        private static OperatingSystemIdentity NormalizeOperatingSystemIdentity(OperatingSystemIdentity identity)
-        {
-            ArgumentNullException.ThrowIfNull(identity);
-
-            return new OperatingSystemIdentity(NormalizeRequiredValue(identity.LoginName, nameof(identity.LoginName)));
-        }
-
-        private static string NormalizeRequiredValue(string? value, string propertyName)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new InvalidOperationException($"The persistent user property '{propertyName}' does not contain a usable value.");
-            }
-
-            return value.Trim();
         }
     }
 }

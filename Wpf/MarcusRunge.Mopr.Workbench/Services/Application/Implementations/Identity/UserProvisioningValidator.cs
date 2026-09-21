@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identity
 {
@@ -16,15 +17,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var firstName = Normalize(request.FirstName);
-            var lastName = Normalize(request.LastName);
-            var shortName = Normalize(request.ShortName);
+            var firstName = IdentityValueNormalizer.NormalizeName(request.FirstName);
+            var lastName = IdentityValueNormalizer.NormalizeName(request.LastName);
+            var shortName = IdentityValueNormalizer.NormalizeShortName(request.ShortName);
             var issues = new List<UserProvisioningValidationIssue>();
 
             ValidateRequiredValue(firstName, MaximumFirstNameLength, UserProvisioningValidationIssue.FirstNameRequired, UserProvisioningValidationIssue.FirstNameTooLong, issues);
-
             ValidateRequiredValue(lastName, MaximumLastNameLength, UserProvisioningValidationIssue.LastNameRequired, UserProvisioningValidationIssue.LastNameTooLong, issues);
-
             ValidateRequiredValue(shortName, MaximumShortNameLength, UserProvisioningValidationIssue.ShortNameRequired, UserProvisioningValidationIssue.ShortNameTooLong, issues);
 
             if (!string.IsNullOrEmpty(shortName) && shortName.Any(char.IsControl))
@@ -33,18 +32,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
 
             return new UserProvisioningValidationResult(firstName, lastName, shortName, issues);
-        }
-
-        private static string Normalize(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return string.Empty;
-            }
-
-            // Consecutive whitespace is collapsed so values entered through
-            // different input methods receive one deterministic representation.
-            return string.Join(" ", value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         }
 
         private static void ValidateRequiredValue(string value, int maximumLength, UserProvisioningValidationIssue requiredIssue, UserProvisioningValidationIssue tooLongIssue, ICollection<UserProvisioningValidationIssue> issues)
@@ -69,16 +56,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
     {
         private readonly IReadOnlyList<UserProvisioningValidationIssue> _issues;
 
-        internal UserProvisioningValidationResult(
-            string firstName,
-            string lastName,
-            string shortName,
-            IEnumerable<UserProvisioningValidationIssue> issues)
+        internal UserProvisioningValidationResult(string firstName, string lastName, string shortName, IEnumerable<UserProvisioningValidationIssue> issues)
         {
             FirstName = firstName;
             LastName = lastName;
             ShortName = shortName;
-            _issues = [.. (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct()];
+            _issues = (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct().ToArray();
         }
 
         internal string FirstName { get; }

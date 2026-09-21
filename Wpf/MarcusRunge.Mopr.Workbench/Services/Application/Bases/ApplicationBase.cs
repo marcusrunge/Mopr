@@ -74,10 +74,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         /// <inheritdoc/>
         void IApplicationBase.OnExceptionThrown(Exception exception)
         {
-            if (exception is null)
-            {
-                throw new ArgumentNullException(nameof(exception));
-            }
+            ArgumentNullException.ThrowIfNull(exception);
 
             logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
