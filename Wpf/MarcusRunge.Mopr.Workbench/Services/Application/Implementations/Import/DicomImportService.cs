@@ -110,13 +110,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         }
 
         /// <inheritdoc/>
-        public Task<DicomImportResult> ImportDirectoryAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(request);
-            return ImportAsync(new DicomImportRequest(request.SourcePath, DicomImportSourceType.LocalDirectory, request.AllowOverwrite), cancellationToken);
-        }
-
-        /// <inheritdoc/>
         protected override void OnCreate(IImportServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
         /// <inheritdoc/>

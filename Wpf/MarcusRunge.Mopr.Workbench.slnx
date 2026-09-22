@@ -2,6 +2,7 @@
   <Folder Name="/Modules/">
     <Project Path="MarcusRunge.Mopr.Workbench/Modules/Imaging/MarcusRunge.Mopr.Workbench.Modules.Imaging.csproj" />
     <Project Path="MarcusRunge.Mopr.Workbench/Modules/Import/MarcusRunge.Mopr.Workbench.Modules.Import.csproj" Id="f458409e-b7d4-46d6-a10d-10af3f035753" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Modules/Identity/MarcusRunge.Mopr.Workbench.Modules.Identity.csproj" Id="2b830457-5b3d-42cd-877d-284ab4c4d07e" />
     <Project Path="MarcusRunge.Mopr.Workbench/Modules/Setup/MarcusRunge.Mopr.Workbench.Modules.Setup.csproj" Id="7308fff7-7534-4e64-8ed6-13acaed97523" />
   </Folder>
   <Folder Name="/Projektmappenelemente/">
