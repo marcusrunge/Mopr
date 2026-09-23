@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Identity.Views.UserProvisioningView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:UserProvisioningViewModel}"
+             d:DesignHeight="600"
+             d:DesignWidth="1000"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <Grid />
+</UserControl>
