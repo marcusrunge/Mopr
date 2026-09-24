@@ -277,6 +277,15 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User disabled ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_UserDisabled {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_UserDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please check the entered user information ähnelt.
         /// </summary>
         public static string UserProvisioningStatus_ValidationFailed {

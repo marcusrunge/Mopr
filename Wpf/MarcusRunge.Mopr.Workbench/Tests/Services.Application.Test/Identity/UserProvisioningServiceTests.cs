@@ -1,7 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -21,10 +21,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         [Fact]
         public async Task ProvisionAsync_WhenRequestIsValid_CreatesAndPublishesPersistentUser()
         {
-            var context = CreateContext(); context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).Callback<User, CancellationToken>((user, _) => user.Id = UserId).Returns(Task.CompletedTask);
+            var context = CreateContext();
+            context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).Callback<User, CancellationToken>((user, _) => user.Id = UserId).Returns(Task.CompletedTask);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.Completed, result.Status);
@@ -43,16 +43,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.True(currentUser.IsActive);
 
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Once);
-
             context.UserRepository.Verify(x => x.AddAsync(It.Is<User>(user => user.LoginName == LoginName && user.FirstName == FirstName && user.LastName == LastName && user.ShortName == ShortName && user.IsActive), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
         public async Task ProvisionAsync_WhenValuesContainWhitespace_NormalizesBeforePersistence()
         {
-            var context = CreateContext(); context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).Callback<User, CancellationToken>((user, _) => user.Id = UserId).Returns(Task.CompletedTask);
+            var context = CreateContext();
+            context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).Callback<User, CancellationToken>((user, _) => user.Id = UserId).Returns(Task.CompletedTask);
 
-            var request = new UserProvisioningRequest($"  Marcus   Alexander  ", $"  Runge  ", $"  M   R  ");
+            var request = new UserProvisioningRequest("  Marcus   Alexander  ", "  Runge  ", "  M   R  ");
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(request, TestContext.Current.CancellationToken);
 
@@ -83,9 +83,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal(3, result.ValidationIssues.Count);
 
             context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
-
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -123,10 +121,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         [Fact]
         public async Task ProvisionAsync_WhenOperatingSystemIdentityIsUnavailable_DoesNotCreateUser()
         {
-            var context = CreateContext(); context.OperatingSystemIdentityProvider.Setup(x => x.GetCurrentIdentityAsync(TestContext.Current.CancellationToken)).ReturnsAsync((OperatingSystemIdentity?)null);
+            var context = CreateContext();
+            context.OperatingSystemIdentityProvider.Setup(x => x.GetCurrentIdentityAsync(TestContext.Current.CancellationToken)).ReturnsAsync((OperatingSystemIdentity?)null);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.OperatingSystemIdentityUnavailable, result.Status);
@@ -135,11 +133,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Null(result.User);
             Assert.Null(currentUser);
 
-            context.UserRepository.Verify(
-                x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-
-            context.UserRepository.Verify(
-                x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+            context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -148,9 +143,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var context = CreateContext(userRepositoryAvailable: false);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
-            CurrentUser? currentUser = await context.CurrentUserContext
-                .GetCurrentUserAsync(TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.PersistenceUnavailable, result.Status);
             Assert.False(result.IsSuccessful);
@@ -166,9 +159,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var context = CreateContext(existingUser);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
-            CurrentUser? currentUser = await context.CurrentUserContext
-                .GetCurrentUserAsync(TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.UserAlreadyExists, result.Status);
             Assert.False(result.IsSuccessful);
@@ -181,16 +172,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         }
 
         [Fact]
-        public async Task ProvisionAsync_WhenDisabledUserAlreadyExists_ReturnsExistingUserWithoutPublishingContext()
+        public async Task ProvisionAsync_WhenDisabledUserAlreadyExists_ReturnsUserDisabledWithoutPublishingContext()
         {
             var existingUser = CreatePersistentUser(isActive: false);
             var context = CreateContext(existingUser);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
-            Assert.Equal(UserProvisioningStatus.UserAlreadyExists, result.Status);
+            Assert.Equal(UserProvisioningStatus.UserDisabled, result.Status);
             Assert.False(result.IsSuccessful);
             Assert.NotNull(result.User);
             Assert.False(result.User.IsActive);
@@ -207,12 +197,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var context = CreateContext(setupDefaultLookup: false);
 
             context.UserRepository.Setup(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken)).ReturnsAsync(() => ++lookupCount == 1 ? null : concurrentUser);
-
-            context.UserRepository
-                .Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).ThrowsAsync(new InvalidOperationException("Unique constraint violation."));
+            context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).ThrowsAsync(new InvalidOperationException("Unique constraint violation."));
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.UserAlreadyExists, result.Status);
@@ -222,7 +209,29 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal(2, lookupCount);
 
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Exactly(2));
+            context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken), Times.Once);
+        }
 
+        [Fact]
+        public async Task ProvisionAsync_WhenConcurrentCreationCreatesDisabledUser_ReturnsUserDisabledWithoutPublishingContext()
+        {
+            var concurrentUser = CreatePersistentUser(isActive: false);
+            var lookupCount = 0;
+            var context = CreateContext(setupDefaultLookup: false);
+
+            context.UserRepository.Setup(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken)).ReturnsAsync(() => ++lookupCount == 1 ? null : concurrentUser);
+            context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).ThrowsAsync(new InvalidOperationException("Unique constraint violation."));
+
+            UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal(UserProvisioningStatus.UserDisabled, result.Status);
+            Assert.NotNull(result.User);
+            Assert.False(result.User.IsActive);
+            Assert.Null(currentUser);
+            Assert.Equal(2, lookupCount);
+
+            context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Exactly(2));
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
@@ -241,7 +250,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).ThrowsAsync(new InvalidOperationException("Technical persistence failure."));
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.Failed, result.Status);
@@ -258,7 +266,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).Returns(Task.CompletedTask);
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.Failed, result.Status);
@@ -277,9 +284,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.UserProvisioningService.ProvisionAsync(CreateRequest(), cancellation.Token));
 
             context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
-
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -290,7 +295,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             using var cancellation = new CancellationTokenSource();
 
             context.OperatingSystemIdentityProvider.Setup(x => x.GetCurrentIdentityAsync(cancellation.Token)).ReturnsAsync(new OperatingSystemIdentity(LoginName));
-
             context.UserRepository.Setup(x => x.GetByLoginNameAsync(LoginName, cancellation.Token)).ReturnsAsync((User?)null);
 
             context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), cancellation.Token)).Returns((User _, CancellationToken token) =>
@@ -314,17 +318,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var existingUser = CreatePersistentUser(isActive: true);
             var context = CreateContext(existingUser);
 
-            UserSignInResult signInResult = await context.UserSignInService
-                .SignInAsync(TestContext.Current.CancellationToken);
+            UserSignInResult signInResult = await context.UserSignInService.SignInAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserSignInStatus.SignedIn, signInResult.Status);
 
             context.UserRepository.Setup(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken)).ReturnsAsync((User?)null);
-
             context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), TestContext.Current.CancellationToken)).ThrowsAsync(new InvalidOperationException("Technical persistence failure."));
 
             UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
-
             CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserProvisioningStatus.Failed, result.Status);
@@ -360,18 +361,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 }
 
                 Persistence = new Mock<IPersistence>(MockBehavior.Strict);
-                Persistence
-                    .SetupGet(x => x.User)
-                    .Returns(userRepositoryAvailable ? UserRepository.Object : (IUserRepository?)null);
+                Persistence.SetupGet(x => x.User).Returns(userRepositoryAvailable ? UserRepository.Object : (IUserRepository?)null);
 
                 Factory = new ApplicationFactory(persistence: Persistence.Object, repository: null, operatingSystemIdentityProvider: OperatingSystemIdentityProvider.Object);
-
                 Application = Factory.Create();
-
                 UserProvisioningService = Application.IdentityService?.UserProvisioningService ?? throw new InvalidOperationException("The user-provisioning service is not available.");
-
                 UserSignInService = Application.IdentityService.UserSignInService ?? throw new InvalidOperationException("The user sign-in service is not available.");
-
                 CurrentUserContext = Application.IdentityService.CurrentUserContext ?? throw new InvalidOperationException("The current-user context is not available.");
             }
 

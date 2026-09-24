@@ -2,7 +2,7 @@
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity
+namespace MarcusRunge.Mopr.Workbench.Contracts.Enums
 {
     /// <summary>
     /// Describes the result of creating a persistent MOPR user for the current operating-system identity.
@@ -35,21 +35,27 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity
         OperatingSystemIdentityUnavailable = 3,
 
         /// <summary>
-        /// A persistent MOPR user already exists for the operating-system identity.
+        /// An active persistent MOPR user already exists for the operating-system identity.
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_UserAlreadyExists", typeof(Resources))]
         UserAlreadyExists = 4,
 
         /// <summary>
+        /// A disabled persistent MOPR user exists for the operating-system identity.
+        /// </summary>
+        [LocalizedDescription("UserProvisioningStatus_UserDisabled", typeof(Resources))]
+        UserDisabled = 5,
+
+        /// <summary>
         /// Persistence is not available for user provisioning.
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_PersistenceUnavailable", typeof(Resources))]
-        PersistenceUnavailable = 5,
+        PersistenceUnavailable = 6,
 
         /// <summary>
         /// The provisioning operation failed without exposing technical details.
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_Failed", typeof(Resources))]
-        Failed = 6
+        Failed = 7
     }
 }

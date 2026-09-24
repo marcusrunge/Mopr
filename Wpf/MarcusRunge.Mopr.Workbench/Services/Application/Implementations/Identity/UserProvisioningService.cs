@@ -142,13 +142,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return UserProvisioningResult.Failed(operatingSystemIdentity);
             }
 
-            // A concurrently created active user can become the current user
-            // immediately without requiring a second provisioning operation.
-            if (currentUser.IsActive)
+            if (!currentUser.IsActive)
             {
-                await contextManager.SetCurrentUserAsync(currentUser, cancellationToken).ConfigureAwait(false);
+                return UserProvisioningResult.UserDisabled(operatingSystemIdentity, currentUser);
             }
 
+            // An active user created by another application instance can be adopted
+            // immediately without repeating provisioning or creating a duplicate.
+            await contextManager.SetCurrentUserAsync(currentUser, cancellationToken).ConfigureAwait(false);
             return UserProvisioningResult.UserAlreadyExists(operatingSystemIdentity, currentUser);
         }
 

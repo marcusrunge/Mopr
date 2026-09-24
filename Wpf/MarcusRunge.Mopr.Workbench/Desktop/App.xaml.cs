@@ -185,6 +185,9 @@ namespace MarcusRunge.Mopr.Workbench
             // WPF-specific services remain at the outermost application boundary.
             containerRegistry.RegisterSingleton<IApplicationFactory>(provider => new ApplicationFactory(provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IOperatingSystemIdentityProvider>()));
             containerRegistry.RegisterSingleton<IApplication>(provider => provider.Resolve<IApplicationFactory>().Create());
+
+            // The user startup route service is a WPF-specific implementation that resolves the initial navigation target for the current operating-system user.
+            containerRegistry.RegisterSingleton<IUserStartupRouteService, UserStartupRouteService>();
         }
 
         private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);

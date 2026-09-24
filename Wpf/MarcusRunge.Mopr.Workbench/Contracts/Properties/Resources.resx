@@ -288,4 +288,7 @@
   <data name="UserProvisioningValidationIssue_ShortNameInvalid" xml:space="preserve">
     <value>The short name contains unsupported characters</value>
   </data>
+  <data name="UserProvisioningStatus_UserDisabled" xml:space="preserve">
+    <value>User disabled</value>
+  </data>
 </root>

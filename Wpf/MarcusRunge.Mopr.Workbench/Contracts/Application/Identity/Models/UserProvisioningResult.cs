@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,8 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             Status = status;
             OperatingSystemIdentity = operatingSystemIdentity;
             User = user;
-            _validationIssues = validationIssues?.Distinct().ToArray() ?? Array.Empty<UserProvisioningValidationIssue>();
-
+            _validationIssues = validationIssues?.Distinct().ToArray() ?? [];
             Validate();
         }
 
@@ -37,7 +37,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         public UserProvisioningStatus Status { get; }
 
         /// <summary>
-        /// Gets the created or concurrently resolved persistent MOPR user when available.
+        /// Gets the created or resolved persistent MOPR user when available.
         /// </summary>
         public CurrentUser? User { get; }
 
@@ -51,15 +51,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         /// </summary>
         public static UserProvisioningResult Completed(OperatingSystemIdentity operatingSystemIdentity, CurrentUser user)
         {
-            if (operatingSystemIdentity is null)
-            {
-                throw new ArgumentNullException(nameof(operatingSystemIdentity));
-            }
-
-            if (user is null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ValidateRequiredArguments(operatingSystemIdentity, user);
 
             if (!user.IsActive)
             {
@@ -88,21 +80,33 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         public static UserProvisioningResult OperatingSystemIdentityUnavailable() => new(UserProvisioningStatus.OperatingSystemIdentityUnavailable, null, null);
 
         /// <summary>
-        /// Creates a result indicating that a persistent user already exists.
+        /// Creates a result indicating that an active persistent user already exists.
         /// </summary>
         public static UserProvisioningResult UserAlreadyExists(OperatingSystemIdentity operatingSystemIdentity, CurrentUser user)
         {
-            if (operatingSystemIdentity is null)
-            {
-                throw new ArgumentNullException(nameof(operatingSystemIdentity));
-            }
+            ValidateRequiredArguments(operatingSystemIdentity, user);
 
-            if (user is null)
+            if (!user.IsActive)
             {
-                throw new ArgumentNullException(nameof(user));
+                throw new ArgumentException("An existing-user result requires an active persistent MOPR user.", nameof(user));
             }
 
             return new UserProvisioningResult(UserProvisioningStatus.UserAlreadyExists, operatingSystemIdentity, user);
+        }
+
+        /// <summary>
+        /// Creates a result indicating that a disabled persistent user exists.
+        /// </summary>
+        public static UserProvisioningResult UserDisabled(OperatingSystemIdentity operatingSystemIdentity, CurrentUser user)
+        {
+            ValidateRequiredArguments(operatingSystemIdentity, user);
+
+            if (user.IsActive)
+            {
+                throw new ArgumentException("A disabled-user result requires an inactive persistent MOPR user.", nameof(user));
+            }
+
+            return new UserProvisioningResult(UserProvisioningStatus.UserDisabled, operatingSystemIdentity, user);
         }
 
         /// <summary>
@@ -115,27 +119,36 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         /// </summary>
         public static UserProvisioningResult Failed(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserProvisioningStatus.Failed, operatingSystemIdentity, null);
 
+        private static void ValidateRequiredArguments(OperatingSystemIdentity operatingSystemIdentity, CurrentUser user)
+        {
+            if (operatingSystemIdentity is null)
+            {
+                throw new ArgumentNullException(nameof(operatingSystemIdentity));
+            }
+
+            if (user is null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+        }
+
         private void Validate()
         {
             if (Status == UserProvisioningStatus.Completed)
             {
-                if (OperatingSystemIdentity is null || User is null || !User.IsActive)
-                {
-                    throw new InvalidOperationException("A completed provisioning result requires an operating-system identity and an active persistent MOPR user.");
-                }
-
-                ValidateMatchingLoginNames();
+                ValidateUserState(expectedActiveState: true);
                 return;
             }
 
             if (Status == UserProvisioningStatus.UserAlreadyExists)
             {
-                if (OperatingSystemIdentity is null || User is null)
-                {
-                    throw new InvalidOperationException("An existing-user result requires an operating-system identity and a persistent MOPR user.");
-                }
+                ValidateUserState(expectedActiveState: true);
+                return;
+            }
 
-                ValidateMatchingLoginNames();
+            if (Status == UserProvisioningStatus.UserDisabled)
+            {
+                ValidateUserState(expectedActiveState: false);
                 return;
             }
 
@@ -155,9 +168,14 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             }
         }
 
-        private void ValidateMatchingLoginNames()
+        private void ValidateUserState(bool expectedActiveState)
         {
-            if (!string.Equals(OperatingSystemIdentity!.LoginName, User!.LoginName, StringComparison.OrdinalIgnoreCase))
+            if (OperatingSystemIdentity is null || User is null || User.IsActive != expectedActiveState)
+            {
+                throw new InvalidOperationException("The provisioning result contains an invalid persistent MOPR user state.");
+            }
+
+            if (!string.Equals(OperatingSystemIdentity.LoginName, User.LoginName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("The operating-system identity does not match the persistent MOPR user.");
             }
