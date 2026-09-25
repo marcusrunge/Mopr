@@ -169,7 +169,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
             // Runtime security adapters resolve the current Windows identity against
-            // an existing persistent MOPR user without implicit user provisioning.            
+            // an existing persistent MOPR user without implicit user provisioning.
             containerRegistry.RegisterSingleton<IOperatingSystemIdentityProvider, OperatingSystemIdentityProvider>();
 
             // MIRAS depends on both Persistence and Repository and must therefore be
@@ -264,10 +264,10 @@ namespace MarcusRunge.Mopr.Workbench
         {
             try
             {
-                var routeService = Container.Resolve<IApplicationStartupRouteService>();
-                var navigationTarget = await routeService.GetInitialNavigationTargetAsync(cancellationToken).ConfigureAwait(false);
+                var machineRouteService = Container.Resolve<IApplicationStartupRouteService>();
+                var machineNavigationTarget = await machineRouteService.GetInitialNavigationTargetAsync(cancellationToken).ConfigureAwait(false);
 
-                if (navigationTarget == NavigationNames.Setup)
+                if (machineNavigationTarget == NavigationNames.Setup)
                 {
                     await NavigateAsync(NavigationNames.Setup, cancellationToken).ConfigureAwait(false);
                     _startupDiagnostics!.WriteInformation("MOPR setup is required before managed application services can be initialized.");
@@ -282,19 +282,22 @@ namespace MarcusRunge.Mopr.Workbench
 
                 var persistence = Container.Resolve<IPersistence>();
 
-                // MIRAS must never inspect repository relationships before the
-                // configured Persistence provider is fully initialized.
+                // Persistent user resolution and MIRAS must never access the configured
+                // database before the Persistence provider has initialized successfully.
                 await persistence.Initialization.ConfigureAwait(false);
-
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(false);
+                var userRouteService = Container.Resolve<IUserStartupRouteService>();
+                var userNavigationTarget = await userRouteService.GetNavigationTargetAsync(cancellationToken).ConfigureAwait(false);
 
                 var mirasFlow = Container.Resolve<IMiras>().Flow ?? throw new InvalidOperationException("The MIRAS flow has not been initialized.");
+                var mirasResult = await mirasFlow.StartAsync(cancellationToken).ConfigureAwait(false);
 
-                var result = await mirasFlow.StartAsync(cancellationToken).ConfigureAwait(false);
+                _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{mirasResult.Status}' and inspected {mirasResult.ScannedItems} items.");
 
-                _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{result.Status}' and inspected {result.ScannedItems} items.");
+                await NavigateAsync(userNavigationTarget, cancellationToken).ConfigureAwait(false);
+
+                _startupDiagnostics.WriteInformation($"MOPR startup navigation completed with target '{userNavigationTarget}'.");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -302,34 +305,60 @@ namespace MarcusRunge.Mopr.Workbench
             }
             catch (Exception exception)
             {
-                // A damaged or unreadable machine configuration is routed to Setup
-                // after diagnostics capture the technical failure.
+                // A damaged or unreadable machine configuration still belongs to Setup.
+                // Failures after machine setup has completed must not silently create or
+                // authenticate a user, so they are routed to the safe identity state.
                 _startupDiagnostics!.WriteError("MOPR application initialization could not be completed.", exception);
 
                 try
                 {
-                    await NavigateAsync(NavigationNames.Setup, cancellationToken).ConfigureAwait(false);
+                    var fallbackTarget = await ResolveStartupFailureTargetAsync(cancellationToken).ConfigureAwait(false);
+                    await NavigateAsync(fallbackTarget, cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    _startupDiagnostics!.WriteInformation("Navigation to MOPR setup was canceled because the application is stopping.");
+                    _startupDiagnostics.WriteInformation("Startup failure navigation was canceled because the application is stopping.");
                 }
                 catch (Exception navigationException)
                 {
-                    _startupDiagnostics!.WriteError("MOPR setup could not be displayed after application initialization failed.", navigationException);
+                    _startupDiagnostics.WriteError("The protected startup failure state could not be displayed.", navigationException);
                 }
             }
         }
 
         private async Task NavigateAsync(string navigationTarget, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(navigationTarget))
+            {
+                throw new ArgumentException("The navigation target must not be empty.", nameof(navigationTarget));
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
+
+            var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var cancellationRegistration = cancellationToken.Register(() => completion.TrySetCanceled(cancellationToken));
 
             await Dispatcher.InvokeAsync(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Container.Resolve<IRegionManager>().RequestNavigate(RegionNames.ContentRegion, navigationTarget);
+
+                var regionManager = Container.Resolve<IRegionManager>();
+
+                regionManager.RequestNavigate(RegionNames.ContentRegion, navigationTarget, result =>
+                {
+                    if (result.Success)
+                    {
+                        completion.TrySetResult();
+                        return;
+                    }
+
+                    var exception = result.Exception ?? new InvalidOperationException($"Navigation to '{navigationTarget}' was not completed.");
+                    completion.TrySetException(new InvalidOperationException($"Navigation to '{navigationTarget}' in region '{RegionNames.ContentRegion}' failed.", exception));
+                });
             });
+
+            await completion.Task.ConfigureAwait(false);
         }
 
         private void ObserveApplicationInitialization()
@@ -378,6 +407,27 @@ namespace MarcusRunge.Mopr.Workbench
                 ConnectionString = configuration.Database.ConnectionString,
                 Mode = PersistenceMode.SqlServer
             });
+        }
+
+        private async Task<string> ResolveStartupFailureTargetAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                var routeService = Container.Resolve<IApplicationStartupRouteService>();
+                var target = await routeService.GetInitialNavigationTargetAsync(cancellationToken).ConfigureAwait(false);
+                return target == NavigationNames.Setup ? NavigationNames.Setup : NavigationNames.IdentityUnavailable;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _startupDiagnostics!.WriteError("The startup failure target could not be determined.", exception);
+                return NavigationNames.IdentityUnavailable;
+            }
         }
 
         private bool TryAcquireSingleInstance()

@@ -59,5 +59,104 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please contact the person responsible for MOPR user administration. Medical data and import functions remain unavailable. ähnelt.
+        /// </summary>
+        public static string IdentityBlockedAction {
+            get {
+                return ResourceManager.GetString("IdentityBlockedAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your Windows sign-in is assigned to a MOPR user whose access has been disabled. ähnelt.
+        /// </summary>
+        public static string IdentityBlockedDescription {
+            get {
+                return ResourceManager.GetString("IdentityBlockedDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User access disabled ähnelt.
+        /// </summary>
+        public static string IdentityBlockedTitle {
+            get {
+                return ResourceManager.GetString("IdentityBlockedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not find a user assigned to your current Windows sign-in. Your personal user information must be checked before you can continue. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningDescription {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your Windows sign-in is detected automatically and cannot be changed in MOPR. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLoginInformation {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLoginInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is preparing the guided user setup. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningPreparationStatus {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningPreparationStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User setup required ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningTitle {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current status ähnelt.
+        /// </summary>
+        public static string IdentityStatusCaption {
+            get {
+                return ResourceManager.GetString("IdentityStatusCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No user has been signed in and protected functions remain unavailable. Please verify the configured database connection or contact MOPR support. ähnelt.
+        /// </summary>
+        public static string IdentityUnavailableAction {
+            get {
+                return ResourceManager.GetString("IdentityUnavailableAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not complete the user sign-in safely. ähnelt.
+        /// </summary>
+        public static string IdentityUnavailableDescription {
+            get {
+                return ResourceManager.GetString("IdentityUnavailableDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User sign-in unavailable ähnelt.
+        /// </summary>
+        public static string IdentityUnavailableTitle {
+            get {
+                return ResourceManager.GetString("IdentityUnavailableTitle", resourceCulture);
+            }
+        }
     }
 }

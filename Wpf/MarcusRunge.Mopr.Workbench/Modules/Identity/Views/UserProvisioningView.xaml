@@ -4,11 +4,121 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels"
-             d:DataContext="{d:DesignInstance Type=viewmodels:UserProvisioningViewModel}"
-             d:DesignHeight="600"
-             d:DesignWidth="1000"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Identity.Properties"
+             d:DesignHeight="800"
+             d:DesignWidth="1280"
              mc:Ignorable="d"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid />
+             prism:ViewModelLocator.AutoWireViewModel="False">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Identity;component/Themes/IdentityControls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource IdentityBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="112" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="44" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{StaticResource IdentityHeaderBackgroundBrush}"
+                BorderBrush="{StaticResource IdentityCardBorderBrush}"
+                BorderThickness="0,0,0,1">
+
+            <Grid Margin="48,0">
+                <StackPanel VerticalAlignment="Center">
+                    <Border Padding="9,4"
+                            HorizontalAlignment="Left"
+                            Background="{StaticResource IdentityAccentBackgroundBrush}"
+                            BorderBrush="#2A5963"
+                            BorderThickness="1"
+                            CornerRadius="4">
+
+                        <TextBlock Foreground="{StaticResource IdentityAccentBrush}"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Text="{x:Static properties:Resources.IdentityStatusCaption}" />
+                    </Border>
+
+                    <TextBlock Margin="0,10,0,0"
+                               Style="{StaticResource IdentityPageTitleStyle}"
+                               Text="{x:Static properties:Resources.IdentityProvisioningTitle}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+
+            <Grid Width="1120"
+                  Margin="48,36,48,48"
+                  HorizontalAlignment="Center">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Style="{StaticResource IdentitySectionTitleStyle}"
+                               Text="{x:Static properties:Resources.IdentityProvisioningTitle}" />
+
+                    <TextBlock Margin="0,10,0,0"
+                               Style="{StaticResource IdentityDescriptionStyle}"
+                               Text="{x:Static properties:Resources.IdentityProvisioningDescription}" />
+
+                    <Border Margin="0,28,0,0"
+                            Style="{StaticResource IdentityStatusCardStyle}">
+
+                        <StackPanel>
+                            <TextBlock Foreground="{StaticResource IdentityAccentBrush}"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Text="{x:Static properties:Resources.IdentityStatusCaption}" />
+
+                            <TextBlock Margin="0,10,0,0"
+                                       Style="{StaticResource IdentityDescriptionStyle}"
+                                       Text="{x:Static properties:Resources.IdentityProvisioningPreparationStatus}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        Padding="28"
+                        Background="{StaticResource IdentityCardBackgroundBrush}"
+                        BorderBrush="{StaticResource IdentityCardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource IdentitySectionTitleStyle}"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningTitle}" />
+
+                        <TextBlock Margin="0,12,0,0"
+                                   Style="{StaticResource IdentityDescriptionStyle}"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningLoginInformation}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <Border Grid.Row="2"
+                Background="#0D1318"
+                BorderBrush="{StaticResource IdentityCardBorderBrush}"
+                BorderThickness="0,1,0,0">
+
+            <TextBlock Margin="48,0"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource IdentityMutedTextBrush}"
+                       FontSize="11"
+                       Text="{x:Static properties:Resources.IdentityProvisioningLoginInformation}" />
+        </Border>
+    </Grid>
 </UserControl>
