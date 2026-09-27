@@ -88,11 +88,110 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die USER IDENTITY ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningBadge {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not find a user assigned to your current Windows sign-in. Your personal user information must be checked before you can continue. ähnelt.
         /// </summary>
         public static string IdentityProvisioningDescription {
             get {
                 return ResourceManager.GetString("IdentityProvisioningDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die First name ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFirstNameLabel {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFirstNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a first name. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFirstNameRequired {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFirstNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first name is too long. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFirstNameTooLong {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFirstNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Windows sign-in cannot be changed in MOPR. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFooter {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFooter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This information identifies your actions in MOPR and is stored locally in the configured database. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFormDescription {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFormDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete your user information ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningFormTitle {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningFormTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last name ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLastNameLabel {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLastNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a last name. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLastNameRequired {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLastNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The last name is too long. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLastNameTooLong {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLastNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Detecting the current Windows sign-in... ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLoadingIdentity {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLoadingIdentity", resourceCulture);
             }
         }
         
@@ -106,6 +205,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Windows sign-in ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningLoginNameLabel {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningLoginNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is preparing the guided user setup. ähnelt.
         /// </summary>
         public static string IdentityProvisioningPreparationStatus {
@@ -115,11 +223,92 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Creating and signing in your MOPR user... ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningSaving {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningSaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Use a concise identifier such as your initials. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningShortNameDescription {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningShortNameDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The short name contains unsupported characters. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningShortNameInvalid {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningShortNameInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Short name ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningShortNameLabel {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningShortNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a short name. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningShortNameRequired {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningShortNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The short name is too long. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningShortNameTooLong {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningShortNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningSubmit {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningSubmit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die User setup required ähnelt.
         /// </summary>
         public static string IdentityProvisioningTitle {
             get {
                 return ResourceManager.GetString("IdentityProvisioningTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current Windows sign-in could not be detected safely. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningUnavailable {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please check the highlighted user information. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningValidationSummary {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningValidationSummary", resourceCulture);
             }
         }
         

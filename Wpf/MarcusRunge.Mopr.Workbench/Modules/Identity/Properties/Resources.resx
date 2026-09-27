@@ -150,4 +150,67 @@
   <data name="IdentityUnavailableTitle" xml:space="preserve">
     <value>User sign-in unavailable</value>
   </data>
+  <data name="IdentityProvisioningBadge" xml:space="preserve">
+    <value>USER IDENTITY</value>
+  </data>
+  <data name="IdentityProvisioningFormTitle" xml:space="preserve">
+    <value>Complete your user information</value>
+  </data>
+  <data name="IdentityProvisioningFormDescription" xml:space="preserve">
+    <value>This information identifies your actions in MOPR and is stored locally in the configured database.</value>
+  </data>
+  <data name="IdentityProvisioningLoginNameLabel" xml:space="preserve">
+    <value>Windows sign-in</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameLabel" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="IdentityProvisioningLastNameLabel" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="IdentityProvisioningShortNameLabel" xml:space="preserve">
+    <value>Short name</value>
+  </data>
+  <data name="IdentityProvisioningShortNameDescription" xml:space="preserve">
+    <value>Use a concise identifier such as your initials.</value>
+  </data>
+  <data name="IdentityProvisioningSubmit" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="IdentityProvisioningLoadingIdentity" xml:space="preserve">
+    <value>Detecting the current Windows sign-in...</value>
+  </data>
+  <data name="IdentityProvisioningSaving" xml:space="preserve">
+    <value>Creating and signing in your MOPR user...</value>
+  </data>
+  <data name="IdentityProvisioningValidationSummary" xml:space="preserve">
+    <value>Please check the highlighted user information.</value>
+  </data>
+  <data name="IdentityProvisioningUnavailable" xml:space="preserve">
+    <value>The current Windows sign-in could not be detected safely.</value>
+  </data>
+  <data name="IdentityProvisioningFooter" xml:space="preserve">
+    <value>The Windows sign-in cannot be changed in MOPR.</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameRequired" xml:space="preserve">
+    <value>Please enter a first name.</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameTooLong" xml:space="preserve">
+    <value>The first name is too long.</value>
+  </data>
+  <data name="IdentityProvisioningLastNameRequired" xml:space="preserve">
+    <value>Please enter a last name.</value>
+  </data>
+  <data name="IdentityProvisioningLastNameTooLong" xml:space="preserve">
+    <value>The last name is too long.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameRequired" xml:space="preserve">
+    <value>Please enter a short name.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameTooLong" xml:space="preserve">
+    <value>The short name is too long.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameInvalid" xml:space="preserve">
+    <value>The short name contains unsupported characters.</value>
+  </data>
 </root>

@@ -5,10 +5,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Identity.Properties"
+             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:UserProvisioningViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1280"
              mc:Ignorable="d"
-             prism:ViewModelLocator.AutoWireViewModel="False">
+             prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -42,7 +44,7 @@
                         <TextBlock Foreground="{StaticResource IdentityAccentBrush}"
                                    FontSize="11"
                                    FontWeight="Bold"
-                                   Text="{x:Static properties:Resources.IdentityStatusCaption}" />
+                                   Text="{x:Static properties:Resources.IdentityProvisioningBadge}" />
                     </Border>
 
                     <TextBlock Margin="0,10,0,0"
@@ -83,9 +85,25 @@
                                        FontWeight="Bold"
                                        Text="{x:Static properties:Resources.IdentityStatusCaption}" />
 
-                            <TextBlock Margin="0,10,0,0"
-                                       Style="{StaticResource IdentityDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.IdentityProvisioningPreparationStatus}" />
+                            <TextBlock Margin="0,10,0,0">
+                                <TextBlock.Style>
+                                    <Style BasedOn="{StaticResource IdentityDescriptionStyle}"
+                                           TargetType="TextBlock">
+
+                                        <Setter Property="Text"
+                                                Value="{x:Static properties:Resources.IdentityProvisioningPreparationStatus}" />
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasStatusMessage}"
+                                                         Value="True">
+
+                                                <Setter Property="Text"
+                                                        Value="{Binding StatusMessage}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -97,14 +115,140 @@
                         BorderThickness="1"
                         CornerRadius="8">
 
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource IdentitySectionTitleStyle}"
-                                   Text="{x:Static properties:Resources.IdentityProvisioningTitle}" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                        <TextBlock Margin="0,12,0,0"
+                        <TextBlock Style="{StaticResource IdentitySectionTitleStyle}"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningFormTitle}" />
+
+                        <TextBlock Grid.Row="1"
+                                   Margin="0,10,0,24"
                                    Style="{StaticResource IdentityDescriptionStyle}"
-                                   Text="{x:Static properties:Resources.IdentityProvisioningLoginInformation}" />
-                    </StackPanel>
+                                   Text="{x:Static properties:Resources.IdentityProvisioningFormDescription}" />
+
+                        <TextBlock Grid.Row="2"
+                                   Style="{StaticResource IdentityLabelStyle}"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningLoginNameLabel}" />
+
+                        <TextBox Grid.Row="3"
+                                 Margin="0,7,0,18"
+                                 IsReadOnly="True"
+                                 Style="{StaticResource IdentityTextBoxStyle}"
+                                 Text="{Binding LoginName, Mode=OneWay}" />
+
+                        <Grid Grid.Row="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource IdentityLabelStyle}"
+                                           Text="{x:Static properties:Resources.IdentityProvisioningFirstNameLabel}" />
+
+                                <TextBox Margin="0,7,0,0"
+                                         MaxLength="256"
+                                         Style="{StaticResource IdentityTextBoxStyle}"
+                                         Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource IdentityLabelStyle}"
+                                           Text="{x:Static properties:Resources.IdentityProvisioningLastNameLabel}" />
+
+                                <TextBox Margin="0,7,0,0"
+                                         MaxLength="256"
+                                         Style="{StaticResource IdentityTextBoxStyle}"
+                                         Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Grid.Row="5"
+                                   Margin="0,20,0,0"
+                                   Style="{StaticResource IdentityLabelStyle}"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningShortNameLabel}" />
+
+                        <TextBox Grid.Row="6"
+                                 Width="240"
+                                 Margin="0,7,0,0"
+                                 HorizontalAlignment="Left"
+                                 MaxLength="64"
+                                 Style="{StaticResource IdentityTextBoxStyle}"
+                                 Text="{Binding ShortName, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Grid.Row="7"
+                                   Margin="0,7,0,0"
+                                   Foreground="{StaticResource IdentityMutedTextBrush}"
+                                   FontSize="12"
+                                   Text="{x:Static properties:Resources.IdentityProvisioningShortNameDescription}"
+                                   TextWrapping="Wrap" />
+
+                        <StackPanel Grid.Row="8"
+                                    Margin="0,26,0,0">
+
+                            <Border Margin="0,0,0,18"
+                                    Padding="14"
+                                    Background="#3A2024"
+                                    BorderBrush="#66363B"
+                                    BorderThickness="1"
+                                    CornerRadius="5">
+
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed" />
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasValidationMessage}"
+                                                         Value="True">
+
+                                                <Setter Property="Visibility"
+                                                        Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
+                                <TextBlock Foreground="{StaticResource IdentityErrorBrush}"
+                                           FontSize="13"
+                                           LineHeight="20"
+                                           Text="{Binding ValidationMessage}"
+                                           TextWrapping="Wrap" />
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource IdentitySecondaryTextBrush}"
+                                           FontSize="13"
+                                           Text="{Binding StatusMessage}"
+                                           TextWrapping="Wrap" />
+
+                                <Button Grid.Column="2"
+                                        Command="{Binding ProvisionCommand}"
+                                        Content="{x:Static properties:Resources.IdentityProvisioningSubmit}"
+                                        IsDefault="True"
+                                        Style="{StaticResource IdentityPrimaryButtonStyle}" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </Grid>
         </ScrollViewer>
@@ -118,7 +262,41 @@
                        VerticalAlignment="Center"
                        Foreground="{StaticResource IdentityMutedTextBrush}"
                        FontSize="11"
-                       Text="{x:Static properties:Resources.IdentityProvisioningLoginInformation}" />
+                       Text="{x:Static properties:Resources.IdentityProvisioningFooter}" />
+        </Border>
+
+        <Border Grid.RowSpan="3"
+                Background="#B010171D">
+
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility"
+                            Value="Collapsed" />
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsBusy}"
+                                     Value="True">
+
+                            <Setter Property="Visibility"
+                                    Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                <ProgressBar Width="220"
+                             Height="5"
+                             IsIndeterminate="True" />
+
+                <TextBlock Margin="0,16,0,0"
+                           Foreground="{StaticResource IdentityTextBrush}"
+                           FontSize="14"
+                           Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

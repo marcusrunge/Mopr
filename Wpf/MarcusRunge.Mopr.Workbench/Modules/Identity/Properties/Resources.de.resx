@@ -150,4 +150,67 @@
   <data name="IdentityUnavailableTitle" xml:space="preserve">
     <value>Benutzeranmeldung nicht verfügbar</value>
   </data>
+  <data name="IdentityProvisioningBadge" xml:space="preserve">
+    <value>BENUTZERIDENTITÄT</value>
+  </data>
+  <data name="IdentityProvisioningFormTitle" xml:space="preserve">
+    <value>Benutzerdaten vervollständigen</value>
+  </data>
+  <data name="IdentityProvisioningFormDescription" xml:space="preserve">
+    <value>Diese Angaben kennzeichnen Ihre Aktionen in MOPR und werden ausschließlich lokal in der eingerichteten Datenbank gespeichert.</value>
+  </data>
+  <data name="IdentityProvisioningLoginNameLabel" xml:space="preserve">
+    <value>Windows-Anmeldung</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameLabel" xml:space="preserve">
+    <value>Vorname</value>
+  </data>
+  <data name="IdentityProvisioningLastNameLabel" xml:space="preserve">
+    <value>Nachname</value>
+  </data>
+  <data name="IdentityProvisioningShortNameLabel" xml:space="preserve">
+    <value>Kurzname</value>
+  </data>
+  <data name="IdentityProvisioningShortNameDescription" xml:space="preserve">
+    <value>Verwenden Sie eine kurze Kennzeichnung, beispielsweise Ihre Initialen.</value>
+  </data>
+  <data name="IdentityProvisioningSubmit" xml:space="preserve">
+    <value>Benutzer anlegen</value>
+  </data>
+  <data name="IdentityProvisioningLoadingIdentity" xml:space="preserve">
+    <value>Die aktuelle Windows-Anmeldung wird ermittelt...</value>
+  </data>
+  <data name="IdentityProvisioningSaving" xml:space="preserve">
+    <value>Der MOPR-Benutzer wird angelegt und angemeldet...</value>
+  </data>
+  <data name="IdentityProvisioningValidationSummary" xml:space="preserve">
+    <value>Bitte prüfen Sie die markierten Benutzerdaten.</value>
+  </data>
+  <data name="IdentityProvisioningUnavailable" xml:space="preserve">
+    <value>Die aktuelle Windows-Anmeldung konnte nicht sicher ermittelt werden.</value>
+  </data>
+  <data name="IdentityProvisioningFooter" xml:space="preserve">
+    <value>Die Windows-Anmeldung kann in MOPR nicht geändert werden.</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Vornamen ein.</value>
+  </data>
+  <data name="IdentityProvisioningFirstNameTooLong" xml:space="preserve">
+    <value>Der Vorname ist zu lang.</value>
+  </data>
+  <data name="IdentityProvisioningLastNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Nachnamen ein.</value>
+  </data>
+  <data name="IdentityProvisioningLastNameTooLong" xml:space="preserve">
+    <value>Der Nachname ist zu lang.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Kurznamen ein.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameTooLong" xml:space="preserve">
+    <value>Der Kurzname ist zu lang.</value>
+  </data>
+  <data name="IdentityProvisioningShortNameInvalid" xml:space="preserve">
+    <value>Der Kurzname enthält nicht unterstützte Zeichen.</value>
+  </data>
 </root>
