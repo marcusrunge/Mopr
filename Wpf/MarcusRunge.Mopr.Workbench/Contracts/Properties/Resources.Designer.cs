@@ -223,6 +223,15 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrative authorization required ähnelt.
+        /// </summary>
+        public static string UserProvisioningStatus_AdministrativeAuthorizationRequired {
+            get {
+                return ResourceManager.GetString("UserProvisioningStatus_AdministrativeAuthorizationRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die User setup completed ähnelt.
         /// </summary>
         public static string UserProvisioningStatus_Completed {

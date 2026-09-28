@@ -17,10 +17,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
         private IIdentityServiceBase Base => _base ?? throw new InvalidOperationException("The identity service has not been initialized.");
 
         /// <inheritdoc/>
+
         public async Task<UserProvisioningResult> ProvisionAsync(UserProvisioningRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
-
             cancellationToken.ThrowIfCancellationRequested();
 
             var validation = UserProvisioningValidator.Validate(request);
@@ -32,11 +32,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             var contextManager = Base.CurrentUserContextManager ?? throw new InvalidOperationException("The current-user context manager is not available.");
 
-            // A previous user must not remain authenticated while provisioning
-            // another operating-system identity is incomplete or unsuccessful.
             await contextManager.ClearAsync(cancellationToken).ConfigureAwait(false);
 
             var applicationBase = ((IServiceBase)Base).ApplicationBase ?? throw new InvalidOperationException("The application-service context is not available.");
+            var administrativeAuthorizationService = applicationBase.AdministrativeAuthorizationService;
+
+            // User provisioning changes the persistent authorization boundary. A missing
+            // authorization service therefore means denied, not implicitly authorized.
+            if (administrativeAuthorizationService?.IsElevatedAdministrator != true)
+            {
+                return UserProvisioningResult.AdministrativeAuthorizationRequired();
+            }
+
             var operatingSystemIdentityProvider = applicationBase.OperatingSystemIdentityProvider;
 
             if (operatingSystemIdentityProvider is null)

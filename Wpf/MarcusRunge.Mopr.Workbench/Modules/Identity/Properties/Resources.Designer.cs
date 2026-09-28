@@ -88,6 +88,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first MOPR user can only be created by an elevated administrator. Close MOPR and start the application again using “Run as administrator”. This also applies to authorized Active Directory administrators. ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningAuthorizationRequiredDescription {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningAuthorizationRequiredDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator rights required ähnelt.
+        /// </summary>
+        public static string IdentityProvisioningAuthorizationRequiredTitle {
+            get {
+                return ResourceManager.GetString("IdentityProvisioningAuthorizationRequiredTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die USER IDENTITY ähnelt.
         /// </summary>
         public static string IdentityProvisioningBadge {

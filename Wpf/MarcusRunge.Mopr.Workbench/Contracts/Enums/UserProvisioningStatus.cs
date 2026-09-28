@@ -45,17 +45,21 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Enums
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_UserDisabled", typeof(Resources))]
         UserDisabled = 5,
-
+        /// <summary>
+        /// The current process is not authorized to provision a persistent MOPR user.
+        /// </summary>
+        [LocalizedDescription("UserProvisioningStatus_AdministrativeAuthorizationRequired", typeof(Resources))]
+        AdministrativeAuthorizationRequired = 6,
         /// <summary>
         /// Persistence is not available for user provisioning.
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_PersistenceUnavailable", typeof(Resources))]
-        PersistenceUnavailable = 6,
+        PersistenceUnavailable = 7,
 
         /// <summary>
         /// The provisioning operation failed without exposing technical details.
         /// </summary>
         [LocalizedDescription("UserProvisioningStatus_Failed", typeof(Resources))]
-        Failed = 7
+        Failed = 8
     }
 }

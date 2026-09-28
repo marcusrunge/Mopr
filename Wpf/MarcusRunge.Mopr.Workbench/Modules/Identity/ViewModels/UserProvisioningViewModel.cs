@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
@@ -6,10 +7,6 @@ using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Identity.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 {
@@ -18,22 +15,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
     /// </summary>
     public sealed class UserProvisioningViewModel : BindableBase, INavigationAware
     {
+        private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService;
         private readonly IApplication _application;
         private readonly ILifetimeService _lifetimeService;
         private readonly IOperatingSystemIdentityProvider _operatingSystemIdentityProvider;
         private readonly IRegionManager _regionManager;
-        private CancellationTokenSource? _navigationCancellation;
         private string _firstName = string.Empty;
         private bool _isBusy;
         private string _lastName = string.Empty;
         private string _loginName = string.Empty;
+        private CancellationTokenSource? _navigationCancellation;
         private string _shortName = string.Empty;
         private string _statusMessage = string.Empty;
         private string _validationMessage = string.Empty;
 
-        public UserProvisioningViewModel(IApplication application, IOperatingSystemIdentityProvider operatingSystemIdentityProvider, ILifetimeService lifetimeService, IRegionManager regionManager)
+        public UserProvisioningViewModel(IApplication application, IAdministrativeAuthorizationService administrativeAuthorizationService, IOperatingSystemIdentityProvider operatingSystemIdentityProvider, ILifetimeService lifetimeService, IRegionManager regionManager)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
+            _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
             _operatingSystemIdentityProvider = operatingSystemIdentityProvider ?? throw new ArgumentNullException(nameof(operatingSystemIdentityProvider));
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
@@ -150,6 +149,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             _ = LoadOperatingSystemIdentityAsync(_navigationCancellation.Token);
         }
 
+        private static string CreateValidationMessage(IReadOnlyList<UserProvisioningValidationIssue> issues)
+        {
+            var messages = issues.Select(GetValidationMessage).Distinct().ToArray();
+            return messages.Length == 0 ? Resources.IdentityProvisioningValidationSummary : $"{Resources.IdentityProvisioningValidationSummary}{Environment.NewLine}{string.Join(Environment.NewLine, messages.Select(message => $"• {message}"))}";
+        }
+
+        private static string GetValidationMessage(UserProvisioningValidationIssue issue) => issue switch
+        {
+            UserProvisioningValidationIssue.FirstNameRequired => Resources.IdentityProvisioningFirstNameRequired,
+            UserProvisioningValidationIssue.FirstNameTooLong => Resources.IdentityProvisioningFirstNameTooLong,
+            UserProvisioningValidationIssue.LastNameRequired => Resources.IdentityProvisioningLastNameRequired,
+            UserProvisioningValidationIssue.LastNameTooLong => Resources.IdentityProvisioningLastNameTooLong,
+            UserProvisioningValidationIssue.ShortNameRequired => Resources.IdentityProvisioningShortNameRequired,
+            UserProvisioningValidationIssue.ShortNameTooLong => Resources.IdentityProvisioningShortNameTooLong,
+            UserProvisioningValidationIssue.ShortNameInvalid => Resources.IdentityProvisioningShortNameInvalid,
+            _ => Resources.IdentityProvisioningValidationSummary
+        };
+
         private bool CanProvision() => !IsBusy && !string.IsNullOrWhiteSpace(LoginName) && !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(LastName) && !string.IsNullOrWhiteSpace(ShortName);
 
         private void ClearValidationMessage()
@@ -253,23 +270,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                 IsBusy = false;
             }
         }
-
-        private static string CreateValidationMessage(IReadOnlyList<UserProvisioningValidationIssue> issues)
-        {
-            var messages = issues.Select(GetValidationMessage).Distinct().ToArray();
-            return messages.Length == 0 ? Resources.IdentityProvisioningValidationSummary : $"{Resources.IdentityProvisioningValidationSummary}{Environment.NewLine}{string.Join(Environment.NewLine, messages.Select(message => $"• {message}"))}";
-        }
-
-        private static string GetValidationMessage(UserProvisioningValidationIssue issue) => issue switch
-        {
-            UserProvisioningValidationIssue.FirstNameRequired => Resources.IdentityProvisioningFirstNameRequired,
-            UserProvisioningValidationIssue.FirstNameTooLong => Resources.IdentityProvisioningFirstNameTooLong,
-            UserProvisioningValidationIssue.LastNameRequired => Resources.IdentityProvisioningLastNameRequired,
-            UserProvisioningValidationIssue.LastNameTooLong => Resources.IdentityProvisioningLastNameTooLong,
-            UserProvisioningValidationIssue.ShortNameRequired => Resources.IdentityProvisioningShortNameRequired,
-            UserProvisioningValidationIssue.ShortNameTooLong => Resources.IdentityProvisioningShortNameTooLong,
-            UserProvisioningValidationIssue.ShortNameInvalid => Resources.IdentityProvisioningShortNameInvalid,
-            _ => Resources.IdentityProvisioningValidationSummary
-        };
     }
 }

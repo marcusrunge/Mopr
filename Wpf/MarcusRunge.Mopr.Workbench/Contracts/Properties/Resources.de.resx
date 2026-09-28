@@ -291,4 +291,7 @@
   <data name="UserProvisioningStatus_UserDisabled" xml:space="preserve">
     <value>Benutzer deaktiviert</value>
   </data>
+  <data name="UserProvisioningStatus_AdministrativeAuthorizationRequired" xml:space="preserve">
+    <value>Administratorberechtigung erforderlich</value>
+  </data>
 </root>

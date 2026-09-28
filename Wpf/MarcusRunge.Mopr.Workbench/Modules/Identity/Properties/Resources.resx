@@ -213,4 +213,10 @@
   <data name="IdentityProvisioningShortNameInvalid" xml:space="preserve">
     <value>The short name contains unsupported characters.</value>
   </data>
+  <data name="IdentityProvisioningAuthorizationRequiredTitle" xml:space="preserve">
+    <value>Administrator rights required</value>
+  </data>
+  <data name="IdentityProvisioningAuthorizationRequiredDescription" xml:space="preserve">
+    <value>The first MOPR user can only be created by an elevated administrator. Close MOPR and start the application again using “Run as administrator”. This also applies to authorized Active Directory administrators.</value>
+  </data>
 </root>

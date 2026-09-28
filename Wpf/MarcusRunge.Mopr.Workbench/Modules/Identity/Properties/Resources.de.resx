@@ -213,4 +213,10 @@
   <data name="IdentityProvisioningShortNameInvalid" xml:space="preserve">
     <value>Der Kurzname enthält nicht unterstützte Zeichen.</value>
   </data>
+  <data name="IdentityProvisioningAuthorizationRequiredTitle" xml:space="preserve">
+    <value>Administratorrechte erforderlich</value>
+  </data>
+  <data name="IdentityProvisioningAuthorizationRequiredDescription" xml:space="preserve">
+    <value>Der erste MOPR-Benutzer kann nur durch einen Administrator mit erhöhten Rechten angelegt werden. Beenden Sie MOPR und starten Sie die Anwendung erneut über „Als Administrator ausführen“. Dies gilt auch für berechtigte Active-Directory-Administratoren.</value>
+  </data>
 </root>

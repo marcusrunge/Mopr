@@ -168,6 +168,12 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             }
         }
 
+        /// <summary>
+        /// Creates a result indicating that elevated administrative authorization is required.
+        /// </summary>
+        /// <param name="operatingSystemIdentity">The resolved operating-system identity when available.</param>
+        /// <returns>The administrative-authorization result.</returns>
+        public static UserProvisioningResult AdministrativeAuthorizationRequired(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserProvisioningStatus.AdministrativeAuthorizationRequired, operatingSystemIdentity, null);
         private void ValidateUserState(bool expectedActiveState)
         {
             if (OperatingSystemIdentity is null || User is null || User.IsActive != expectedActiveState)
