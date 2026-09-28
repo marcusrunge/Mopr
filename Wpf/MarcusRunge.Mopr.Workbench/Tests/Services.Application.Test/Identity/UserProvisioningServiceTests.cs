@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
@@ -17,6 +18,47 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         private const string LastName = "Runge";
         private const string LoginName = @"DOMAIN\User";
         private const string ShortName = "MR";
+
+        [Fact]
+        public async Task ProvisionAsync_WhenAdministrativeAuthorizationIsMissing_ReturnsAuthorizationRequiredWithoutAccessingIdentityOrPersistence()
+        {
+            var context = CreateContext(isElevatedAdministrator: false);
+
+            UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal(UserProvisioningStatus.AdministrativeAuthorizationRequired, result.Status);
+            Assert.False(result.IsSuccessful);
+            Assert.Null(result.OperatingSystemIdentity);
+            Assert.Null(result.User);
+            Assert.Null(currentUser);
+
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Once);
+            context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
+            context.Persistence.VerifyGet(x => x.User, Times.Never);
+            context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ProvisionAsync_WhenAdministrativeAuthorizationServiceIsUnavailable_ReturnsAuthorizationRequiredWithoutAccessingDependencies()
+        {
+            var context = CreateContext(administrativeAuthorizationServiceAvailable: false);
+
+            UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal(UserProvisioningStatus.AdministrativeAuthorizationRequired, result.Status);
+            Assert.False(result.IsSuccessful);
+            Assert.Null(result.OperatingSystemIdentity);
+            Assert.Null(result.User);
+            Assert.Null(currentUser);
+
+            context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
+            context.Persistence.VerifyGet(x => x.User, Times.Never);
+            context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
 
         [Fact]
         public async Task ProvisionAsync_WhenRequestIsValid_CreatesAndPublishesPersistentUser()
@@ -42,6 +84,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal($"{FirstName} {LastName}", currentUser.DisplayName);
             Assert.True(currentUser.IsActive);
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Once);
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Once);
             context.UserRepository.Verify(x => x.AddAsync(It.Is<User>(user => user.LoginName == LoginName && user.FirstName == FirstName && user.LastName == LastName && user.ShortName == ShortName && user.IsActive), TestContext.Current.CancellationToken), Times.Once);
         }
@@ -82,6 +125,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Contains(UserProvisioningValidationIssue.ShortNameRequired, result.ValidationIssues);
             Assert.Equal(3, result.ValidationIssues.Count);
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Never);
             context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -101,6 +145,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Contains(UserProvisioningValidationIssue.ShortNameTooLong, result.ValidationIssues);
             Assert.Equal(3, result.ValidationIssues.Count);
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Never);
             context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -115,6 +160,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal(UserProvisioningStatus.ValidationFailed, result.Status);
             Assert.Contains(UserProvisioningValidationIssue.ShortNameInvalid, result.ValidationIssues);
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Never);
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -133,6 +179,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Null(result.User);
             Assert.Null(currentUser);
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Once);
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -283,6 +330,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.UserProvisioningService.ProvisionAsync(CreateRequest(), cancellation.Token));
 
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Never);
             context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Never);
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -299,8 +347,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
             context.UserRepository.Setup(x => x.AddAsync(It.IsAny<User>(), cancellation.Token)).Returns((User _, CancellationToken token) =>
             {
-                // Cancellation occurs only after validation, identity
-                // resolution and the initial uniqueness lookup succeeded.
+                // Cancellation occurs only after validation, administrative
+                // authorization, identity resolution and uniqueness lookup.
                 cancellation.Cancel();
                 return Task.FromCanceled(token);
             });
@@ -332,7 +380,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Null(currentUser);
         }
 
-        private static UserProvisioningTestContext CreateContext(User? existingUser = null, bool userRepositoryAvailable = true, bool setupDefaultLookup = true) => new(existingUser, userRepositoryAvailable, setupDefaultLookup);
+        private static UserProvisioningTestContext CreateContext(User? existingUser = null, bool userRepositoryAvailable = true, bool setupDefaultLookup = true, bool isElevatedAdministrator = true, bool administrativeAuthorizationServiceAvailable = true) =>
+            new(existingUser, userRepositoryAvailable, setupDefaultLookup, isElevatedAdministrator, administrativeAuthorizationServiceAvailable);
 
         private static User CreatePersistentUser(bool isActive) => new()
         {
@@ -348,8 +397,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
         private sealed class UserProvisioningTestContext
         {
-            public UserProvisioningTestContext(User? existingUser, bool userRepositoryAvailable, bool setupDefaultLookup)
+            public UserProvisioningTestContext(User? existingUser, bool userRepositoryAvailable, bool setupDefaultLookup, bool isElevatedAdministrator, bool administrativeAuthorizationServiceAvailable)
             {
+                AdministrativeAuthorizationService = new Mock<IAdministrativeAuthorizationService>(MockBehavior.Strict);
+                AdministrativeAuthorizationService.SetupGet(x => x.IsElevatedAdministrator).Returns(isElevatedAdministrator);
+
                 OperatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
                 OperatingSystemIdentityProvider.Setup(x => x.GetCurrentIdentityAsync(TestContext.Current.CancellationToken)).ReturnsAsync(new OperatingSystemIdentity(LoginName));
 
@@ -363,12 +415,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 Persistence = new Mock<IPersistence>(MockBehavior.Strict);
                 Persistence.SetupGet(x => x.User).Returns(userRepositoryAvailable ? UserRepository.Object : (IUserRepository?)null);
 
-                Factory = new ApplicationFactory(persistence: Persistence.Object, repository: null, operatingSystemIdentityProvider: OperatingSystemIdentityProvider.Object);
+                Factory = administrativeAuthorizationServiceAvailable
+                    ? new ApplicationFactory(AdministrativeAuthorizationService.Object, Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object)
+                    : new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
+
                 Application = Factory.Create();
                 UserProvisioningService = Application.IdentityService?.UserProvisioningService ?? throw new InvalidOperationException("The user-provisioning service is not available.");
                 UserSignInService = Application.IdentityService.UserSignInService ?? throw new InvalidOperationException("The user sign-in service is not available.");
                 CurrentUserContext = Application.IdentityService.CurrentUserContext ?? throw new InvalidOperationException("The current-user context is not available.");
             }
+
+            public Mock<IAdministrativeAuthorizationService> AdministrativeAuthorizationService { get; }
 
             public IApplication Application { get; }
 

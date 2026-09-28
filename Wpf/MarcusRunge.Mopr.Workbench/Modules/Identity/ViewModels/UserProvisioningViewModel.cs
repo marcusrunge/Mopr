@@ -39,6 +39,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             ProvisionCommand = new DelegateCommand(() => _ = ProvisionAsync(), CanProvision);
         }
 
+        /// <summary>
+        /// Gets or sets the first name entered by the administrator.
+        /// </summary>
         public string FirstName
         {
             get => _firstName;
@@ -52,10 +55,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the current process may provision a persistent MOPR user.
+        /// </summary>
+        public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
+
+        /// <summary>
+        /// Gets a value indicating whether elevated administrative authorization is required.
+        /// </summary>
+        public bool IsAdministrativeAuthorizationRequired => !HasAdministrativeAuthorization;
+
+        /// <summary>
+        /// Gets a value indicating whether a status message is available.
+        /// </summary>
         public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
+        /// <summary>
+        /// Gets a value indicating whether a validation message is available.
+        /// </summary>
         public bool HasValidationMessage => !string.IsNullOrWhiteSpace(ValidationMessage);
 
+        /// <summary>
+        /// Gets a value indicating whether an identity or provisioning operation is running.
+        /// </summary>
         public bool IsBusy
         {
             get => _isBusy;
@@ -68,6 +90,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the last name entered by the administrator.
+        /// </summary>
         public string LastName
         {
             get => _lastName;
@@ -81,6 +106,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the automatically resolved Windows login name.
+        /// </summary>
         public string LoginName
         {
             get => _loginName;
@@ -93,8 +121,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the command that provisions the persistent MOPR user.
+        /// </summary>
         public DelegateCommand ProvisionCommand { get; }
 
+        /// <summary>
+        /// Gets or sets the short name entered by the administrator.
+        /// </summary>
         public string ShortName
         {
             get => _shortName;
@@ -108,6 +142,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the current user-facing operation status.
+        /// </summary>
         public string StatusMessage
         {
             get => _statusMessage;
@@ -120,6 +157,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the current user-facing validation message.
+        /// </summary>
         public string ValidationMessage
         {
             get => _validationMessage;
@@ -132,8 +172,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <inheritdoc/>
         public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
+        /// <inheritdoc/>
         public void OnNavigatedFrom(NavigationContext navigationContext)
         {
             _navigationCancellation?.Cancel();
@@ -141,11 +183,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             _navigationCancellation = null;
         }
 
+        /// <inheritdoc/>
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
             _navigationCancellation?.Cancel();
             _navigationCancellation?.Dispose();
             _navigationCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeService.ApplicationStopping);
+
+            RaisePropertyChanged(nameof(HasAdministrativeAuthorization));
+            RaisePropertyChanged(nameof(IsAdministrativeAuthorizationRequired));
+            ProvisionCommand.RaiseCanExecuteChanged();
+
             _ = LoadOperatingSystemIdentityAsync(_navigationCancellation.Token);
         }
 
@@ -167,7 +215,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             _ => Resources.IdentityProvisioningValidationSummary
         };
 
-        private bool CanProvision() => !IsBusy && !string.IsNullOrWhiteSpace(LoginName) && !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(LastName) && !string.IsNullOrWhiteSpace(ShortName);
+        private bool CanProvision() => HasAdministrativeAuthorization && !IsBusy && !string.IsNullOrWhiteSpace(LoginName) && !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(LastName) && !string.IsNullOrWhiteSpace(ShortName);
 
         private void ClearValidationMessage()
         {
@@ -195,7 +243,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                 }
 
                 LoginName = identity.LoginName;
-                StatusMessage = string.Empty;
+                StatusMessage = IsAdministrativeAuthorizationRequired ? Resources.IdentityProvisioningAuthorizationRequiredDescription : string.Empty;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -214,6 +262,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 
         private async Task ProvisionAsync()
         {
+            if (!HasAdministrativeAuthorization)
+            {
+                StatusMessage = Resources.IdentityProvisioningAuthorizationRequiredDescription;
+                ProvisionCommand.RaiseCanExecuteChanged();
+                return;
+            }
+
             var cancellationToken = _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping;
             var provisioningService = _application.IdentityService?.UserProvisioningService;
 
@@ -242,6 +297,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 
                     case UserProvisioningStatus.UserDisabled:
                         Navigate(NavigationNames.IdentityBlocked);
+                        break;
+
+                    case UserProvisioningStatus.AdministrativeAuthorizationRequired:
+                        StatusMessage = Resources.IdentityProvisioningAuthorizationRequiredDescription;
                         break;
 
                     case UserProvisioningStatus.ValidationFailed:
