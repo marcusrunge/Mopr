@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
+using Moq;
 using System;
 using Xunit;
 
@@ -33,11 +34,14 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Administration
         [Fact]
         public void DemandElevatedAdministrator_WhenEvaluatorDeniesAccess_ThrowsUnauthorizedAccessException()
         {
-            var service = CreateService(isElevatedAdministrator: false);
+            var evaluator = new Mock<IWindowsAdministratorRoleEvaluator>(MockBehavior.Strict);
+            evaluator.SetupGet(x => x.IsElevatedAdministrator).Returns(false);
+            var service = new WindowsAdministrativeAuthorizationService(evaluator.Object);
 
             var exception = Assert.Throws<UnauthorizedAccessException>(service.DemandElevatedAdministrator);
 
-            Assert.Equal("Machine-wide MOPR configuration requires an elevated local administrator.", exception.Message);
+            Assert.Equal("Privileged MOPR administration requires an elevated local administrator.", exception.Message);
+            evaluator.VerifyGet(x => x.IsElevatedAdministrator, Times.Once);
         }
 
         private static WindowsAdministrativeAuthorizationService CreateService(bool isElevatedAdministrator) => new(new TestWindowsAdministratorRoleEvaluator(isElevatedAdministrator));

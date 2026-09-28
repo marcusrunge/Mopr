@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
     /// </summary>
     internal interface IApplicationBase
     {
+        /// <summary>
+        /// Gets the administrative authorization service used to protect
+        /// privileged MOPR administration operations.
+        /// </summary>
+        internal IAdministrativeAuthorizationService? AdministrativeAuthorizationService { get; }
+
         /// <summary>
         /// Gets the audit identity provider used for audit identity operations within the application-service graph.
         /// </summary>

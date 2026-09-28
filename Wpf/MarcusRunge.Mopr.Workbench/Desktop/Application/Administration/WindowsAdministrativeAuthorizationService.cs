@@ -4,8 +4,8 @@ using System;
 namespace MarcusRunge.Mopr.Workbench.Application.Administration
 {
     /// <summary>
-    /// Protects machine-wide MOPR configuration changes with effective Windows
-    /// administrator authorization.
+    /// Protects privileged MOPR administration operations with effective
+    /// Windows administrator authorization.
     /// </summary>
     internal sealed class WindowsAdministrativeAuthorizationService : IAdministrativeAuthorizationService
     {
@@ -25,9 +25,10 @@ namespace MarcusRunge.Mopr.Workbench.Application.Administration
         {
             if (!IsElevatedAdministrator)
             {
-                // The service enforces the security boundary without deciding how
-                // the UI requests elevation or explains the requirement to the user.
-                throw new UnauthorizedAccessException("Machine-wide MOPR configuration requires an elevated local administrator.");
+                // Authorization is based on the effective Windows access token.
+                // Local and directory-based administrators must therefore run
+                // the privileged operation with an elevated process token.
+                throw new UnauthorizedAccessException("Privileged MOPR administration requires an elevated local administrator.");
             }
         }
     }

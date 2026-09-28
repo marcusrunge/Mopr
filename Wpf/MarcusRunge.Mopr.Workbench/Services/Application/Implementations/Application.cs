@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations
     /// </summary>
     internal sealed class Application : ApplicationBase
     {
-        internal Application(ILogger? logger, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository) : base(logger, operatingSystemIdentityProvider, persistence, repository)
+        internal Application(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository) : base(logger, administrativeAuthorizationService, operatingSystemIdentityProvider, persistence, repository)
         {
             _dialogService = Dialog.DialogService.Create(this);
             _mediaService = Media.MediaService.Create(this);
