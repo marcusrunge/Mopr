@@ -243,7 +243,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                 }
 
                 LoginName = identity.LoginName;
-                StatusMessage = IsAdministrativeAuthorizationRequired ? Resources.IdentityProvisioningAuthorizationRequiredDescription : string.Empty;
+                StatusMessage = string.Empty;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -264,7 +264,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
         {
             if (!HasAdministrativeAuthorization)
             {
-                StatusMessage = Resources.IdentityProvisioningAuthorizationRequiredDescription;
                 ProvisionCommand.RaiseCanExecuteChanged();
                 return;
             }
@@ -300,7 +299,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                         break;
 
                     case UserProvisioningStatus.AdministrativeAuthorizationRequired:
-                        StatusMessage = Resources.IdentityProvisioningAuthorizationRequiredDescription;
+                        StatusMessage = string.Empty;
                         break;
 
                     case UserProvisioningStatus.ValidationFailed:

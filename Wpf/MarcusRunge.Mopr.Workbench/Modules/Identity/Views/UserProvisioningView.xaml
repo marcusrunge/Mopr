@@ -100,6 +100,13 @@
                                                 <Setter Property="Text"
                                                         Value="{Binding StatusMessage}" />
                                             </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding IsAdministrativeAuthorizationRequired}"
+                                                         Value="True">
+
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed" />
+                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </TextBlock.Style>
@@ -152,8 +159,8 @@
                         Background="{StaticResource IdentityCardBackgroundBrush}"
                         BorderBrush="{StaticResource IdentityCardBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="8">
-
+                        CornerRadius="8"
+                        IsEnabled="{Binding HasAdministrativeAuthorization}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
