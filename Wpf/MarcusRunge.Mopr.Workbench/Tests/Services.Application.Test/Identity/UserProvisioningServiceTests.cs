@@ -380,8 +380,27 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Null(currentUser);
         }
 
-        private static UserProvisioningTestContext CreateContext(User? existingUser = null, bool userRepositoryAvailable = true, bool setupDefaultLookup = true, bool isElevatedAdministrator = true, bool administrativeAuthorizationServiceAvailable = true) =>
-            new(existingUser, userRepositoryAvailable, setupDefaultLookup, isElevatedAdministrator, administrativeAuthorizationServiceAvailable);
+        [Fact]
+        public async Task ProvisionAsync_WhenAnotherPersonalUserExists_ReturnsFailedWithoutCreatingCurrentIdentity()
+        {
+            var context = CreateContext();
+            context.UserRepository.Setup(x => x.HasPersonalUsersAsync(TestContext.Current.CancellationToken)).ReturnsAsync(true);
+
+            UserProvisioningResult result = await context.UserProvisioningService.ProvisionAsync(CreateRequest(), TestContext.Current.CancellationToken);
+            CurrentUser? currentUser = await context.CurrentUserContext.GetCurrentUserAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal(UserProvisioningStatus.Failed, result.Status);
+            Assert.False(result.IsSuccessful);
+            Assert.NotNull(result.OperatingSystemIdentity);
+            Assert.Null(result.User);
+            Assert.Null(currentUser);
+
+            context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Once);
+            context.UserRepository.Verify(x => x.HasPersonalUsersAsync(TestContext.Current.CancellationToken), Times.Once);
+            context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        private static UserProvisioningTestContext CreateContext(User? existingUser = null, bool userRepositoryAvailable = true, bool setupDefaultLookup = true, bool isElevatedAdministrator = true, bool administrativeAuthorizationServiceAvailable = true) => new(existingUser, userRepositoryAvailable, setupDefaultLookup, isElevatedAdministrator, administrativeAuthorizationServiceAvailable);
 
         private static User CreatePersistentUser(bool isActive) => new()
         {
@@ -407,17 +426,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
                 UserRepository = new Mock<IUserRepository>(MockBehavior.Strict);
 
-                if (userRepositoryAvailable && setupDefaultLookup)
+                if (setupDefaultLookup)
                 {
                     UserRepository.Setup(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken)).ReturnsAsync(existingUser);
                 }
 
+                // The default test scenario represents a database that contains only the
+                // technical setup identity and therefore no personal MOPR user yet.
+                // Tests for an existing personal user explicitly override this setup.
+                UserRepository.Setup(x => x.HasPersonalUsersAsync(It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
                 Persistence = new Mock<IPersistence>(MockBehavior.Strict);
                 Persistence.SetupGet(x => x.User).Returns(userRepositoryAvailable ? UserRepository.Object : (IUserRepository?)null);
 
-                Factory = administrativeAuthorizationServiceAvailable
-                    ? new ApplicationFactory(AdministrativeAuthorizationService.Object, Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object)
-                    : new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
+                Factory = administrativeAuthorizationServiceAvailable ? new ApplicationFactory(AdministrativeAuthorizationService.Object, Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object) : new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
 
                 Application = Factory.Create();
                 UserProvisioningService = Application.IdentityService?.UserProvisioningService ?? throw new InvalidOperationException("The user-provisioning service is not available.");

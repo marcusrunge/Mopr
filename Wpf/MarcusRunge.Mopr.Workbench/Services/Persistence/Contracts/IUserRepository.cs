@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     /// Defines the contract for a repository managing User entities.
     /// </summary>
     public interface IUserRepository : IRepository<User>
-    {        
+    {
         /// <summary>
         /// Gets a User entity by its login name.
         /// </summary>
@@ -14,5 +14,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the User entity, or null if not found.</returns>
         Task<User?> GetByLoginNameAsync(string loginName, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Determines whether at least one personal MOPR user exists.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task whose result is <see langword="true"/> when at least one
+        /// nontechnical persistent MOPR user exists; otherwise, <see langword="false"/>.
+        /// </returns>
+        Task<bool> HasPersonalUsersAsync(CancellationToken cancellationToken = default);
     }
 }

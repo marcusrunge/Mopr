@@ -50,7 +50,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Test.ViewModels
         }
 
         [Fact]
-        public async Task OnNavigatedTo_WhenAdministrativeAuthorizationIsMissing_ShowsAuthorizationMessage()
+        public async Task OnNavigatedTo_WhenAdministrativeAuthorizationIsMissing_ExposesAuthorizationRequiredStateWithoutDuplicateStatusMessage()
         {
             var context = CreateContext(isElevatedAdministrator: false);
 
@@ -58,10 +58,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Test.ViewModels
 
             await WaitForAsync(() => context.ViewModel.LoginName == LoginName && !context.ViewModel.IsBusy, TestContext.Current.CancellationToken);
 
+            Assert.Equal(LoginName, context.ViewModel.LoginName);
+            Assert.False(context.ViewModel.HasAdministrativeAuthorization);
             Assert.True(context.ViewModel.IsAdministrativeAuthorizationRequired);
-            Assert.True(context.ViewModel.HasStatusMessage);
-            Assert.Equal(Resources.IdentityProvisioningAuthorizationRequiredDescription, context.ViewModel.StatusMessage);
+            Assert.False(context.ViewModel.HasStatusMessage);
+            Assert.Equal(string.Empty, context.ViewModel.StatusMessage);
             Assert.False(context.ViewModel.ProvisionCommand.CanExecute());
+
+            context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.AtLeastOnce);
+            context.OperatingSystemIdentityProvider.Verify(x => x.GetCurrentIdentityAsync(It.IsAny<CancellationToken>()), Times.Once);
+            context.UserProvisioningService.Verify(x => x.ProvisionAsync(It.IsAny<UserProvisioningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using System;
 using System.Runtime.ExceptionServices;
@@ -14,7 +15,6 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
     {
         private const string SystemFirstName = "MOPR";
         private const string SystemLastName = "System";
-        private const string SystemLoginName = @"MOPR\SYSTEM";
         private const string SystemShortName = "SYSTEM";
 
         private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
@@ -25,8 +25,8 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
             cancellationToken.ThrowIfCancellationRequested();
 
             var userRepository = _persistence.User ?? throw new InvalidOperationException("The Persistence user repository is not available.");
+            var existingUser = await userRepository.GetByLoginNameAsync(WellKnownUserLoginNames.System, cancellationToken).ConfigureAwait(false);
 
-            var existingUser = await userRepository.GetByLoginNameAsync(SystemLoginName, cancellationToken).ConfigureAwait(false);
             if (existingUser is not null)
             {
                 return ValidatePersistentUserId(existingUser);
@@ -49,6 +49,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
                 // after the initial lookup. Resolving it again distinguishes that safe
                 // uniqueness race from an actual persistence failure.
                 var concurrentlyCreatedUser = await TryGetExistingUserAsync(userRepository, cancellationToken).ConfigureAwait(false);
+
                 if (concurrentlyCreatedUser is not null)
                 {
                     return ValidatePersistentUserId(concurrentlyCreatedUser);
@@ -62,13 +63,16 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
         private static User CreateSystemUser() => new()
         {
             FirstName = SystemFirstName,
+            IsActive = true,
             LastName = SystemLastName,
-            LoginName = SystemLoginName,
+            LoginName = WellKnownUserLoginNames.System,
             ShortName = SystemShortName
         };
 
         private static int ValidatePersistentUserId(User user)
         {
+            ArgumentNullException.ThrowIfNull(user);
+
             if (user.Id <= 0)
             {
                 throw new InvalidOperationException("The technical setup audit identity does not have a valid persistent identifier.");
@@ -81,7 +85,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
         {
             try
             {
-                return await userRepository.GetByLoginNameAsync(SystemLoginName, cancellationToken).ConfigureAwait(false);
+                return await userRepository.GetByLoginNameAsync(WellKnownUserLoginNames.System, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

@@ -8,7 +8,7 @@ using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identity
 {
     /// <summary>
-    /// Creates a persistent MOPR user for the current operating-system identity.
+    /// Creates the first persistent personal MOPR user for the current operating-system identity.
     /// </summary>
     internal sealed class UserProvisioningService : CreateableBindableBase<IUserProvisioningService, UserProvisioningService, IIdentityServiceBase>, IUserProvisioningService
     {
@@ -17,7 +17,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
         private IIdentityServiceBase Base => _base ?? throw new InvalidOperationException("The identity service has not been initialized.");
 
         /// <inheritdoc/>
-
         public async Task<UserProvisioningResult> ProvisionAsync(UserProvisioningRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -32,13 +31,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             var contextManager = Base.CurrentUserContextManager ?? throw new InvalidOperationException("The current-user context manager is not available.");
 
+            // A previous identity must never remain active while the protected
+            // initial-user bootstrap is unresolved or unsuccessful.
             await contextManager.ClearAsync(cancellationToken).ConfigureAwait(false);
 
             var applicationBase = ((IServiceBase)Base).ApplicationBase ?? throw new InvalidOperationException("The application-service context is not available.");
             var administrativeAuthorizationService = applicationBase.AdministrativeAuthorizationService;
 
-            // User provisioning changes the persistent authorization boundary. A missing
-            // authorization service therefore means denied, not implicitly authorized.
+            // Initial user provisioning changes the persistent authorization
+            // boundary. A missing authorization service therefore means denied.
             if (administrativeAuthorizationService?.IsElevatedAdministrator != true)
             {
                 return UserProvisioningResult.AdministrativeAuthorizationRequired();
@@ -88,7 +89,39 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return await HandleExistingUserAsync(existingUser, operatingSystemIdentity, contextManager, applicationBase, cancellationToken).ConfigureAwait(false);
             }
 
-            var user = new User { FirstName = validation.FirstName, IsActive = true, LastName = validation.LastName, LoginName = operatingSystemIdentity.LoginName, ShortName = validation.ShortName };
+            bool hasPersonalUsers;
+
+            try
+            {
+                hasPersonalUsers = await userRepository.HasPersonalUsersAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                applicationBase.OnExceptionThrown(exception);
+                return UserProvisioningResult.Failed(operatingSystemIdentity);
+            }
+
+            if (hasPersonalUsers)
+            {
+                // The bootstrap service may create only the first personal user.
+                // Additional users require the dedicated administrative user
+                // management workflow and must never self-register at startup.
+                applicationBase.OnExceptionThrown(new InvalidOperationException("Initial user provisioning is unavailable because a personal MOPR user already exists."));
+                return UserProvisioningResult.Failed(operatingSystemIdentity);
+            }
+
+            var user = new User
+            {
+                FirstName = validation.FirstName,
+                IsActive = true,
+                LastName = validation.LastName,
+                LoginName = operatingSystemIdentity.LoginName,
+                ShortName = validation.ShortName
+            };
 
             try
             {
@@ -100,8 +133,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
             catch (Exception creationException)
             {
-                // The unique LoginName index remains authoritative across all
-                // application instances sharing the configured SQL database.
+                // A competing MOPR instance may have provisioned this Windows
+                // identity after the initial lookup.
                 var concurrentlyCreatedUser = await TryGetExistingUserAsync(userRepository, operatingSystemIdentity.LoginName, cancellationToken).ConfigureAwait(false);
 
                 if (concurrentlyCreatedUser is not null)
@@ -154,8 +187,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return UserProvisioningResult.UserDisabled(operatingSystemIdentity, currentUser);
             }
 
-            // An active user created by another application instance can be adopted
-            // immediately without repeating provisioning or creating a duplicate.
+            // A matching active user created by a competing application instance
+            // can become the current user without repeating provisioning.
             await contextManager.SetCurrentUserAsync(currentUser, cancellationToken).ConfigureAwait(false);
             return UserProvisioningResult.UserAlreadyExists(operatingSystemIdentity, currentUser);
         }
@@ -172,8 +205,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
             catch
             {
-                // The original creation exception remains authoritative when the
-                // verification lookup cannot confirm a concurrent creation.
+                // The original creation failure remains authoritative when the
+                // verification lookup cannot confirm a uniqueness race.
                 return null;
             }
         }
