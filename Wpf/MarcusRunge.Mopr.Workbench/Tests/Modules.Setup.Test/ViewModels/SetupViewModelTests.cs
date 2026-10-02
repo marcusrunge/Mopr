@@ -3,10 +3,12 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
+using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
+using Prism.Events;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 {
@@ -88,7 +90,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             var context = new SetupViewModelTestContext();
             SetupCompletionRequest? capturedRequest = null;
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<SetupCompletionRequest, CancellationToken>((request, _) => capturedRequest = request)
                 .ReturnsAsync(SetupCompletionResult.Completed());
 
@@ -108,9 +111,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             Assert.Equal(ApplicationConfiguration.CurrentSetupVersion, capturedRequest.Configuration.SetupVersion);
             Assert.True(context.ViewModel.IsSetupComplete);
 
-            context.SetupCompletionService.Verify(service => service.CompleteAsync(
-                It.Is<SetupCompletionRequest>(request => request.Configuration.Database.ConnectionString == UpdatedConnectionString && request.RepositoryPath == RepositoryPath),
-                It.IsAny<CancellationToken>()), Times.Once);
+            context.SetupCompletionService.Verify(
+                service => service.CompleteAsync(
+                    It.Is<SetupCompletionRequest>(request =>
+                        request.Configuration.Database.ConnectionString == UpdatedConnectionString &&
+                        request.RepositoryPath == RepositoryPath),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
@@ -120,7 +127,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             var context = new SetupViewModelTestContext();
             var completionSource = new TaskCompletionSource<SetupCompletionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>())).Returns(completionSource.Task);
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .Returns(completionSource.Task);
 
             await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
 
@@ -157,7 +166,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             var completionSource = new TaskCompletionSource<SetupCompletionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             CancellationToken productiveToken = default;
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<SetupCompletionRequest, CancellationToken>((_, token) => productiveToken = token)
                 .Returns(completionSource.Task);
 
@@ -188,7 +198,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             var context = new SetupViewModelTestContext();
             var completionSource = new TaskCompletionSource<SetupCompletionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>())).Returns(completionSource.Task);
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .Returns(completionSource.Task);
 
             await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
 
@@ -217,42 +229,117 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
         [InlineData(SetupCompletionStatus.Canceled)]
         [InlineData(SetupCompletionStatus.Failed)]
         [InlineData(SetupCompletionStatus.FailedAndRollbackFailed)]
-        public async Task CompleteSetupCommand_WhenCompletionDoesNotSucceed_DoesNotMarkSetupComplete(SetupCompletionStatus status)
+        public async Task CompleteSetupCommand_WhenCompletionDoesNotSucceed_DoesNotMarkSetupCompleteOrPublishEvent(SetupCompletionStatus status)
         {
             var cancellationToken = TestContext.Current.CancellationToken;
             var context = new SetupViewModelTestContext();
+            var publishedCount = 0;
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(CreateCompletionResult(status));
+            context.EventAggregator
+                .GetEvent<MachineSetupCompletedEvent>()
+                .Subscribe(() => publishedCount++);
+
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(CreateCompletionResult(status));
 
             await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
 
             context.ViewModel.CompleteSetupCommand.Execute();
 
-            await WaitUntilAsync(() => !context.ViewModel.IsCompletingSetup && !string.IsNullOrWhiteSpace(context.ViewModel.CompletionStatusText), cancellationToken);
+            await WaitUntilAsync(
+                () => !context.ViewModel.IsCompletingSetup && !string.IsNullOrWhiteSpace(context.ViewModel.CompletionStatusText),
+                cancellationToken);
 
             Assert.False(context.ViewModel.IsSetupComplete);
             Assert.Equal(GetExpectedCompletionStatusText(status), context.ViewModel.CompletionStatusText);
             Assert.True(context.ViewModel.CompleteSetupCommand.CanExecute());
             Assert.False(context.ViewModel.CancelSetupCompletionCommand.CanExecute());
+            Assert.Equal(0, publishedCount);
         }
 
         [Fact]
-        public async Task CompleteSetupCommand_WhenCompletionSucceeds_MarksSetupComplete()
+        public async Task CompleteSetupCommand_WhenCompletionSucceeds_MarksSetupCompleteAndPublishesEventOnce()
         {
             var cancellationToken = TestContext.Current.CancellationToken;
             var context = new SetupViewModelTestContext();
+            var publishedCount = 0;
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(SetupCompletionResult.Completed());
+            context.EventAggregator
+                .GetEvent<MachineSetupCompletedEvent>()
+                .Subscribe(() => publishedCount++);
+
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(SetupCompletionResult.Completed());
 
             await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
 
             context.ViewModel.CompleteSetupCommand.Execute();
 
-            await WaitUntilAsync(() => !context.ViewModel.IsCompletingSetup && context.ViewModel.IsSetupComplete, cancellationToken);
+            await WaitUntilAsync(
+                () => !context.ViewModel.IsCompletingSetup && context.ViewModel.IsSetupComplete && publishedCount == 1,
+                cancellationToken);
 
             Assert.True(context.ViewModel.IsSetupComplete);
             Assert.Equal(Resources.Setup_CompletionSuccessful, context.ViewModel.CompletionStatusText);
             Assert.False(context.ViewModel.CancelSetupCompletionCommand.CanExecute());
+            Assert.Equal(1, publishedCount);
+        }
+
+        [Fact]
+        public async Task CompleteSetupCommand_WhenCompletionSucceeds_PublishesEventAfterCompletionStateEnds()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var context = new SetupViewModelTestContext();
+            bool? wasCompletingSetupWhenPublished = null;
+
+            context.EventAggregator
+                .GetEvent<MachineSetupCompletedEvent>()
+                .Subscribe(() => wasCompletingSetupWhenPublished = context.ViewModel.IsCompletingSetup);
+
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(SetupCompletionResult.Completed());
+
+            await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
+
+            context.ViewModel.CompleteSetupCommand.Execute();
+
+            await WaitUntilAsync(() => wasCompletingSetupWhenPublished.HasValue, cancellationToken);
+
+            Assert.False(wasCompletingSetupWhenPublished);
+        }
+
+        [Fact]
+        public async Task CancelSetupCompletionCommand_WhenCompletionIsCanceled_DoesNotPublishEvent()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var context = new SetupViewModelTestContext();
+            var completionSource = new TaskCompletionSource<SetupCompletionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var publishedCount = 0;
+
+            context.EventAggregator
+                .GetEvent<MachineSetupCompletedEvent>()
+                .Subscribe(() => publishedCount++);
+
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                .Returns(completionSource.Task);
+
+            await context.PrepareCompletionStepAsync(UpdatedConnectionString, RepositoryPath, cancellationToken);
+
+            context.ViewModel.CompleteSetupCommand.Execute();
+
+            await WaitUntilAsync(() => context.ViewModel.IsCompletingSetup, cancellationToken);
+
+            context.ViewModel.CancelSetupCompletionCommand.Execute();
+            completionSource.SetResult(SetupCompletionResult.Canceled());
+
+            await WaitUntilAsync(() => !context.ViewModel.IsCompletingSetup, cancellationToken);
+
+            Assert.False(context.ViewModel.IsSetupComplete);
+            Assert.Equal(0, publishedCount);
         }
 
         [Fact]
@@ -263,7 +350,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             var completionSource = new TaskCompletionSource<SetupCompletionResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             CancellationToken productiveToken = default;
 
-            context.SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+            context.SetupCompletionService
+                .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<SetupCompletionRequest, CancellationToken>((_, token) => productiveToken = token)
                 .Returns(completionSource.Task);
 
@@ -293,7 +381,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             context.ViewModel.RepositoryLocationPath = RepositoryPath;
             context.ViewModel.ValidateRepositoryLocationCommand.Execute();
 
-            await WaitUntilAsync(() => !context.ViewModel.IsValidatingRepositoryLocation && context.ViewModel.IsRepositoryLocationValid == true, cancellationToken);
+            await WaitUntilAsync(
+                () => !context.ViewModel.IsValidatingRepositoryLocation && context.ViewModel.IsRepositoryLocationValid == true,
+                cancellationToken);
 
             Assert.True(context.ViewModel.CanContinueFromRepository);
 
@@ -329,7 +419,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             while (!condition())
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (DateTime.UtcNow >= timeoutAt) throw new TimeoutException("The expected SetupViewModel state was not reached.");
+
+                if (DateTime.UtcNow >= timeoutAt)
+                {
+                    throw new TimeoutException("The expected SetupViewModel state was not reached.");
+                }
+
                 await Task.Delay(10, cancellationToken);
             }
         }
@@ -342,7 +437,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                 ConfigurationService.Setup(service => service.LoadAsync(It.IsAny<CancellationToken>())).ReturnsAsync(CreateApplicationConfiguration());
                 ConfigurationService.Setup(service => service.TestDatabaseConnectionAsync(It.IsAny<IDatabaseConfiguration>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-                RepositoryLocationValidationService.Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                RepositoryLocationValidationService
+                    .Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync((string path, CancellationToken _) => new RepositoryLocationValidationResult
                     {
                         Exists = true,
@@ -351,14 +447,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                         NormalizedPath = path
                     });
 
-                SetupCompletionService.Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(SetupCompletionResult.Completed());
+                SetupCompletionService
+                    .Setup(service => service.CompleteAsync(It.IsAny<SetupCompletionRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(SetupCompletionResult.Completed());
 
-                ViewModel = new SetupViewModel(ConfigurationService.Object, RepositoryLocationValidationService.Object, SetupCompletionService.Object, Wpf.Object, RegionManager.Object);
+                EventAggregator = new EventAggregator();
+
+                ViewModel = new SetupViewModel(
+                    ConfigurationService.Object,
+                    RepositoryLocationValidationService.Object,
+                    SetupCompletionService.Object,
+                    Application.Object,
+                    EventAggregator);
             }
+
+            public Mock<IApplication> Application { get; } = new(MockBehavior.Strict);
 
             public Mock<IMachineConfigurationService> ConfigurationService { get; } = new(MockBehavior.Strict);
 
-            public Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Loose);
+            public IEventAggregator EventAggregator { get; }
 
             public Mock<IRepositoryLocationValidationService> RepositoryLocationValidationService { get; } = new(MockBehavior.Strict);
 
@@ -366,11 +473,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 
             public SetupViewModel ViewModel { get; }
 
-            public Mock<IApplication> Wpf { get; } = new(MockBehavior.Strict);
-
             public async Task LoadAsync(CancellationToken cancellationToken)
             {
                 ViewModel.OnNavigatedTo(null!);
+
                 await WaitUntilAsync(() => !ViewModel.IsLoading, cancellationToken);
 
                 Assert.Equal(OriginalConnectionString, ViewModel.ConnectionString);
@@ -384,7 +490,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                 ViewModel.RepositoryLocationPath = repositoryPath;
                 ViewModel.ValidateRepositoryLocationCommand.Execute();
 
-                await WaitUntilAsync(() => !ViewModel.IsValidatingRepositoryLocation && ViewModel.IsRepositoryLocationValid == true, cancellationToken);
+                await WaitUntilAsync(
+                    () => !ViewModel.IsValidatingRepositoryLocation && ViewModel.IsRepositoryLocationValid == true,
+                    cancellationToken);
 
                 ViewModel.ContinueCommand.Execute();
 
@@ -404,7 +512,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                 ViewModel.ConnectionString = connectionString;
                 ViewModel.TestDatabaseConnectionCommand.Execute();
 
-                await WaitUntilAsync(() => !ViewModel.IsTestingDatabase && ViewModel.IsDatabaseConnectionSuccessful == true, cancellationToken);
+                await WaitUntilAsync(
+                    () => !ViewModel.IsTestingDatabase && ViewModel.IsDatabaseConnectionSuccessful == true,
+                    cancellationToken);
 
                 Assert.True(ViewModel.CanContinueFromDatabase);
 
@@ -418,7 +528,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                 DatabaseConfiguration = new DatabaseConfiguration { ConnectionString = OriginalConnectionString },
                 IsSetupComplete = false,
                 RepositoryConfiguration = new RepositoryConfiguration { AutomaticallyRepairPaths = true },
-                SecurityConfiguration = new SecurityConfiguration { AllowSelfDeletion = false, AllowSelfModification = true, HideOtherUsersFromRegularUsers = true },
+                SecurityConfiguration = new SecurityConfiguration
+                {
+                    AllowSelfDeletion = false,
+                    AllowSelfModification = true,
+                    HideOtherUsersFromRegularUsers = true
+                },
                 SetupVersion = ApplicationConfiguration.CurrentSetupVersion
             };
         }

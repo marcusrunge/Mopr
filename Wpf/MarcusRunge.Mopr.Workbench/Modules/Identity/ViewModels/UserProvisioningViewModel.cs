@@ -5,21 +5,28 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Core;
+using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using Prism.Commands;
+using Prism.Events;
+using Prism.Mvvm;
+using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 {
     /// <summary>
-    /// Provides the guided setup of the persistent MOPR user assigned to the current Windows identity.
+    /// Provides the guided setup of the first persistent personal MOPR user.
     /// </summary>
     public sealed class UserProvisioningViewModel : BindableBase, INavigationAware
     {
         private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService;
         private readonly IApplication _application;
+        private readonly IEventAggregator _eventAggregator;
         private readonly ILifetimeService _lifetimeService;
         private readonly IOperatingSystemIdentityProvider _operatingSystemIdentityProvider;
         private readonly IRegionManager _regionManager;
+
         private string _firstName = string.Empty;
         private bool _isBusy;
         private string _lastName = string.Empty;
@@ -29,19 +36,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
         private string _statusMessage = string.Empty;
         private string _validationMessage = string.Empty;
 
-        public UserProvisioningViewModel(IApplication application, IAdministrativeAuthorizationService administrativeAuthorizationService, IOperatingSystemIdentityProvider operatingSystemIdentityProvider, ILifetimeService lifetimeService, IRegionManager regionManager)
+        public UserProvisioningViewModel(IApplication application, IAdministrativeAuthorizationService administrativeAuthorizationService, IOperatingSystemIdentityProvider operatingSystemIdentityProvider, ILifetimeService lifetimeService, IRegionManager regionManager, IEventAggregator eventAggregator)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
             _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
             _operatingSystemIdentityProvider = operatingSystemIdentityProvider ?? throw new ArgumentNullException(nameof(operatingSystemIdentityProvider));
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             ProvisionCommand = new DelegateCommand(() => _ = ProvisionAsync(), CanProvision);
         }
 
-        /// <summary>
-        /// Gets or sets the first name entered by the administrator.
-        /// </summary>
         public string FirstName
         {
             get => _firstName;
@@ -55,29 +60,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the current process may provision a persistent MOPR user.
-        /// </summary>
         public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
 
-        /// <summary>
-        /// Gets a value indicating whether elevated administrative authorization is required.
-        /// </summary>
-        public bool IsAdministrativeAuthorizationRequired => !HasAdministrativeAuthorization;
-
-        /// <summary>
-        /// Gets a value indicating whether a status message is available.
-        /// </summary>
         public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
-        /// <summary>
-        /// Gets a value indicating whether a validation message is available.
-        /// </summary>
         public bool HasValidationMessage => !string.IsNullOrWhiteSpace(ValidationMessage);
 
-        /// <summary>
-        /// Gets a value indicating whether an identity or provisioning operation is running.
-        /// </summary>
+        public bool IsAdministrativeAuthorizationRequired => !HasAdministrativeAuthorization;
+
         public bool IsBusy
         {
             get => _isBusy;
@@ -90,9 +80,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets or sets the last name entered by the administrator.
-        /// </summary>
         public string LastName
         {
             get => _lastName;
@@ -106,9 +93,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the automatically resolved Windows login name.
-        /// </summary>
         public string LoginName
         {
             get => _loginName;
@@ -121,14 +105,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the command that provisions the persistent MOPR user.
-        /// </summary>
         public DelegateCommand ProvisionCommand { get; }
 
-        /// <summary>
-        /// Gets or sets the short name entered by the administrator.
-        /// </summary>
         public string ShortName
         {
             get => _shortName;
@@ -142,9 +120,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the current user-facing operation status.
-        /// </summary>
         public string StatusMessage
         {
             get => _statusMessage;
@@ -157,9 +132,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the current user-facing validation message.
-        /// </summary>
         public string ValidationMessage
         {
             get => _validationMessage;
@@ -200,7 +172,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
         private static string CreateValidationMessage(IReadOnlyList<UserProvisioningValidationIssue> issues)
         {
             var messages = issues.Select(GetValidationMessage).Distinct().ToArray();
-            return messages.Length == 0 ? Resources.IdentityProvisioningValidationSummary : $"{Resources.IdentityProvisioningValidationSummary}{Environment.NewLine}{string.Join(Environment.NewLine, messages.Select(message => $"• {message}"))}";
+            return messages.Length == 0
+                ? Resources.IdentityProvisioningValidationSummary
+                : $"{Resources.IdentityProvisioningValidationSummary}{Environment.NewLine}{string.Join(Environment.NewLine, messages.Select(message => $"• {message}"))}";
         }
 
         private static string GetValidationMessage(UserProvisioningValidationIssue issue) => issue switch
@@ -291,7 +265,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                 {
                     case UserProvisioningStatus.Completed:
                     case UserProvisioningStatus.UserAlreadyExists:
-                        Navigate(NavigationNames.Imaging);
+                        // The current-user context has already been populated by
+                        // the product service. App now owns MIRAS and navigation.
+                        _eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Publish();
                         break;
 
                     case UserProvisioningStatus.UserDisabled:

@@ -76,13 +76,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal(LoginName, result.OperatingSystemIdentity.LoginName);
             Assert.NotNull(result.User);
             Assert.Same(result.User, currentUser);
-            Assert.Equal(UserId, currentUser.Id);
-            Assert.Equal(LoginName, currentUser.LoginName);
-            Assert.Equal(FirstName, currentUser.FirstName);
-            Assert.Equal(LastName, currentUser.LastName);
-            Assert.Equal(ShortName, currentUser.ShortName);
-            Assert.Equal($"{FirstName} {LastName}", currentUser.DisplayName);
-            Assert.True(currentUser.IsActive);
+            Assert.Equal(UserId, currentUser?.Id);
+            Assert.Equal(LoginName, currentUser?.LoginName);
+            Assert.Equal(FirstName, currentUser?.FirstName);
+            Assert.Equal(LastName, currentUser?.LastName);
+            Assert.Equal(ShortName, currentUser?.ShortName);
+            Assert.Equal($"{FirstName} {LastName}", currentUser?.DisplayName);
+            Assert.True(currentUser?.IsActive);
 
             context.AdministrativeAuthorizationService.VerifyGet(x => x.IsElevatedAdministrator, Times.Once);
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Once);
@@ -212,8 +212,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.False(result.IsSuccessful);
             Assert.NotNull(result.User);
             Assert.Same(result.User, currentUser);
-            Assert.Equal(UserId, currentUser.Id);
-            Assert.True(currentUser.IsActive);
+            Assert.Equal(UserId, currentUser?.Id);
+            Assert.True(currentUser?.IsActive);
 
             context.UserRepository.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -252,7 +252,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             Assert.Equal(UserProvisioningStatus.UserAlreadyExists, result.Status);
             Assert.NotNull(result.User);
             Assert.Same(result.User, currentUser);
-            Assert.Equal(UserId, currentUser.Id);
+            Assert.Equal(UserId, currentUser?.Id);
             Assert.Equal(2, lookupCount);
 
             context.UserRepository.Verify(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken), Times.Exactly(2));
