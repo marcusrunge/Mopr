@@ -23,7 +23,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 throw new InvalidOperationException("The persistent MOPR user identifier must be positive.");
             }
 
-            return new CurrentUser(user.Id, IdentityValueNormalizer.NormalizeLoginName(resolvedLoginName), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.FirstName, nameof(user.FirstName)), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.LastName, nameof(user.LastName)), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.ShortName, nameof(user.ShortName)), user.IsActive);
+            return new CurrentUser(user.Id, IdentityValueNormalizer.NormalizeLoginName(resolvedLoginName), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.FirstName, nameof(user.FirstName)), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.LastName, nameof(user.LastName)), IdentityValueNormalizer.NormalizeRequiredPersistentValue(user.ShortName, nameof(user.ShortName)), user.IsActive, NormalizeOptionalPersistentValue(user.AcademicTitle), NormalizeOptionalPersistentValue(user.PersonnelNumber), NormalizeOptionalPersistentValue(user.SecurityIdentifier));
         }
+
+        private static string? NormalizeOptionalPersistentValue(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

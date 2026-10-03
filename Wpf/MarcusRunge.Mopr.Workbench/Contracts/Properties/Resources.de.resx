@@ -294,4 +294,10 @@
   <data name="UserProvisioningStatus_AdministrativeAuthorizationRequired" xml:space="preserve">
     <value>Administratorberechtigung erforderlich</value>
   </data>
+  <data name="UserProvisioningValidationIssue_AcademicTitleTooLong" xml:space="preserve">
+    <value>Der akademische Titel ist zu lang</value>
+  </data>
+  <data name="UserProvisioningValidationIssue_PersonnelNumberTooLong" xml:space="preserve">
+    <value>Die Personalnummer ist zu lang</value>
+  </data>
 </root>

@@ -16,7 +16,10 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         /// <param name="lastName">The last name.</param>
         /// <param name="shortName">The short name.</param>
         /// <param name="isActive">Indicates whether the user may perform authenticated MOPR operations.</param>
-        public CurrentUser(int id, string loginName, string firstName, string lastName, string shortName, bool isActive)
+        /// <param name="academicTitle">The optional academic title displayed before the user's name.</param>
+        /// <param name="personnelNumber">The optional organization-specific personnel number.</param>
+        /// <param name="securityIdentifier">The optional Windows security identifier.</param>
+        public CurrentUser(int id, string loginName, string firstName, string lastName, string shortName, bool isActive, string? academicTitle = null, string? personnelNumber = null, string? securityIdentifier = null)
         {
             if (id <= 0)
             {
@@ -29,12 +32,20 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             LastName = NormalizeRequiredValue(lastName, nameof(lastName));
             ShortName = NormalizeRequiredValue(shortName, nameof(shortName));
             IsActive = isActive;
+            AcademicTitle = NormalizeOptionalValue(academicTitle);
+            PersonnelNumber = NormalizeOptionalValue(personnelNumber);
+            SecurityIdentifier = NormalizeOptionalValue(securityIdentifier);
         }
+
+        /// <summary>
+        /// Gets the optional academic title displayed before the user's name.
+        /// </summary>
+        public string? AcademicTitle { get; }
 
         /// <summary>
         /// Gets the display name.
         /// </summary>
-        public string DisplayName => $"{FirstName} {LastName}";
+        public string DisplayName => AcademicTitle is null ? $"{FirstName} {LastName}" : $"{AcademicTitle} {FirstName} {LastName}";
 
         /// <summary>
         /// Gets the first name.
@@ -62,9 +73,21 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         public string LoginName { get; }
 
         /// <summary>
+        /// Gets the optional organization-specific personnel number.
+        /// </summary>
+        public string? PersonnelNumber { get; }
+
+        /// <summary>
+        /// Gets the optional Windows security identifier.
+        /// </summary>
+        public string? SecurityIdentifier { get; }
+
+        /// <summary>
         /// Gets the short name.
         /// </summary>
         public string ShortName { get; }
+
+        private static string? NormalizeOptionalValue(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
         private static string NormalizeRequiredValue(string value, string parameterName)
         {

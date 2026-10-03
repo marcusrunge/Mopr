@@ -107,19 +107,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             if (hasPersonalUsers)
             {
-                // The bootstrap service may create only the first personal user.
-                // Additional users require the dedicated administrative user
-                // management workflow and must never self-register at startup.
+                // This service may create only the first personal user. Additional
+                // users require the dedicated administrative user management flow.
                 applicationBase.OnExceptionThrown(new InvalidOperationException("Initial user provisioning is unavailable because a personal MOPR user already exists."));
                 return UserProvisioningResult.Failed(operatingSystemIdentity);
             }
 
             var user = new User
             {
+                AcademicTitle = validation.AcademicTitle,
                 FirstName = validation.FirstName,
                 IsActive = true,
                 LastName = validation.LastName,
                 LoginName = operatingSystemIdentity.LoginName,
+                PersonnelNumber = validation.PersonnelNumber,
                 ShortName = validation.ShortName
             };
 

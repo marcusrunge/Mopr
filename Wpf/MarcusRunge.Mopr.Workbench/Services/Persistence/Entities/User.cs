@@ -7,8 +7,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     /// </summary>
     public class User : BindableEntityBase
     {
-        private string? _firstName, _lastName, _loginName, _middleName, _shortName, _suffix, _title;
+        private string? _academicTitle, _firstName, _lastName, _loginName, _middleName, _personnelNumber, _securityIdentifier, _shortName, _suffix;
         private bool _isActive = true;
+
+        /// <summary>
+        /// Gets or sets the optional academic title displayed before the user's name.
+        /// </summary>
+        public string? AcademicTitle { get => _academicTitle; set => SetProperty(ref _academicTitle, value); }
 
         /// <summary>
         /// Gets or sets the collection of instances created by the user.
@@ -96,6 +101,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         public ICollection<UnrealObject> ModifiedUnrealObjects { get; set; } = new HashSet<UnrealObject>();
 
         /// <summary>
+        /// Gets or sets the optional organization-specific personnel number.
+        /// </summary>
+        public string? PersonnelNumber { get => _personnelNumber; set => SetProperty(ref _personnelNumber, value); }
+
+        /// <summary>
+        /// Gets or sets the optional Windows security identifier assigned to the user.
+        /// </summary>
+        /// <remarks>
+        /// The security identifier becomes the durable operating-system identity
+        /// after the SID-based sign-in migration has been completed.
+        /// </remarks>
+        public string? SecurityIdentifier { get => _securityIdentifier; set => SetProperty(ref _securityIdentifier, value); }
+
+        /// <summary>
         /// Gets or sets the short name.
         /// </summary>
         public string? ShortName { get => _shortName; set => SetProperty(ref _shortName, value); }
@@ -104,10 +123,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the suffix.
         /// </summary>
         public string? Suffix { get => _suffix; set => SetProperty(ref _suffix, value); }
-
-        /// <summary>
-        /// Gets or sets the title.
-        /// </summary>
-        public string? Title { get => _title; set => SetProperty(ref _title, value); }
     }
 }

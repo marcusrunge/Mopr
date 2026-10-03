@@ -2,10 +2,10 @@
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity
+namespace MarcusRunge.Mopr.Workbench.Contracts.Enums
 {
     /// <summary>
-    /// Identifies an invalid value in a user-provisioning request.
+    /// Defines validation issues for user provisioning data.
     /// </summary>
     [TypeConverter(typeof(EnumDescriptionTypeConverter))]
     public enum UserProvisioningValidationIssue
@@ -14,42 +14,54 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity
         /// The first name is missing.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_FirstNameRequired", typeof(Resources))]
-        FirstNameRequired = 0,
+        FirstNameRequired,
 
         /// <summary>
-        /// The first name exceeds the supported length.
+        /// The first name exceeds the supported persistence length.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_FirstNameTooLong", typeof(Resources))]
-        FirstNameTooLong = 1,
+        FirstNameTooLong,
 
         /// <summary>
         /// The last name is missing.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_LastNameRequired", typeof(Resources))]
-        LastNameRequired = 2,
+        LastNameRequired,
 
         /// <summary>
-        /// The last name exceeds the supported length.
+        /// The last name exceeds the supported persistence length.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_LastNameTooLong", typeof(Resources))]
-        LastNameTooLong = 3,
+        LastNameTooLong,
 
         /// <summary>
         /// The short name is missing.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_ShortNameRequired", typeof(Resources))]
-        ShortNameRequired = 4,
+        ShortNameRequired,
 
         /// <summary>
-        /// The short name exceeds the supported length.
+        /// The short name exceeds the supported persistence length.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_ShortNameTooLong", typeof(Resources))]
-        ShortNameTooLong = 5,
+        ShortNameTooLong,
 
         /// <summary>
-        /// The short name contains unsupported control characters.
+        /// The short name contains unsupported characters.
         /// </summary>
         [LocalizedDescription("UserProvisioningValidationIssue_ShortNameInvalid", typeof(Resources))]
-        ShortNameInvalid = 6
+        ShortNameInvalid,
+
+        /// <summary>
+        /// The academic title exceeds the supported persistence length.
+        /// </summary>
+        [LocalizedDescription("UserProvisioningValidationIssue_AcademicTitleTooLong", typeof(Resources))]
+        AcademicTitleTooLong,
+
+        /// <summary>
+        /// The personnel number exceeds the supported persistence length.
+        /// </summary>
+        [LocalizedDescription("UserProvisioningValidationIssue_PersonnelNumberTooLong", typeof(Resources))]
+        PersonnelNumberTooLong
     }
 }

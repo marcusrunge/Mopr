@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels;

@@ -304,6 +304,15 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The academic title is too long ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_AcademicTitleTooLong {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_AcademicTitleTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please enter a first name ähnelt.
         /// </summary>
         public static string UserProvisioningValidationIssue_FirstNameRequired {
@@ -336,6 +345,15 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         public static string UserProvisioningValidationIssue_LastNameTooLong {
             get {
                 return ResourceManager.GetString("UserProvisioningValidationIssue_LastNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The personnel number is too long ähnelt.
+        /// </summary>
+        public static string UserProvisioningValidationIssue_PersonnelNumberTooLong {
+            get {
+                return ResourceManager.GetString("UserProvisioningValidationIssue_PersonnelNumberTooLong", resourceCulture);
             }
         }
         
