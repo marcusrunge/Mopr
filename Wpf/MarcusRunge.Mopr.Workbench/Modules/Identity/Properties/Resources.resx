@@ -219,4 +219,40 @@
   <data name="IdentityProvisioningAuthorizationRequiredDescription" xml:space="preserve">
     <value>The first MOPR user can only be created by an elevated administrator. Close MOPR and start the application again using “Run as administrator”. This also applies to authorized Active Directory administrators.</value>
   </data>
+  <data name="InitialSetupBadge" xml:space="preserve">
+    <value>INITIAL SETUP</value>
+  </data>
+  <data name="InitialSetupTitle" xml:space="preserve">
+    <value>Complete initial setup</value>
+  </data>
+  <data name="InitialSetupScopeTitle" xml:space="preserve">
+    <value>Setup progress</value>
+  </data>
+  <data name="InitialSetupScopeDescription" xml:space="preserve">
+    <value>The machine-wide configuration is complete. Create the first personal MOPR user to finish initial setup.</value>
+  </data>
+  <data name="InitialSetupDatabaseStep" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="InitialSetupRepositoryStep" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="InitialSetupVerificationStep" xml:space="preserve">
+    <value>Verification</value>
+  </data>
+  <data name="InitialSetupMachineConfigurationStep" xml:space="preserve">
+    <value>Machine configuration</value>
+  </data>
+  <data name="InitialSetupUserStep" xml:space="preserve">
+    <value>First user</value>
+  </data>
+  <data name="InitialSetupCompletedStep" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="InitialSetupCurrentStep" xml:space="preserve">
+    <value>Current step</value>
+  </data>
+  <data name="InitialSetupFooter" xml:space="preserve">
+    <value>Local setup · Step 05 of 05 · The Windows sign-in cannot be changed in MOPR.</value>
+  </data>
 </root>

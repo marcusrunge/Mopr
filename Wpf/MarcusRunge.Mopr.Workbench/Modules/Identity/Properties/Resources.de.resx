@@ -219,4 +219,40 @@
   <data name="IdentityProvisioningAuthorizationRequiredDescription" xml:space="preserve">
     <value>Der erste MOPR-Benutzer kann nur durch einen Administrator mit erhöhten Rechten angelegt werden. Beenden Sie MOPR und starten Sie die Anwendung erneut über „Als Administrator ausführen“. Dies gilt auch für berechtigte Active-Directory-Administratoren.</value>
   </data>
+  <data name="InitialSetupBadge" xml:space="preserve">
+    <value>ERSTEINRICHTUNG</value>
+  </data>
+  <data name="InitialSetupTitle" xml:space="preserve">
+    <value>Ersteinrichtung abschließen</value>
+  </data>
+  <data name="InitialSetupScopeTitle" xml:space="preserve">
+    <value>Fortschritt der Ersteinrichtung</value>
+  </data>
+  <data name="InitialSetupScopeDescription" xml:space="preserve">
+    <value>Die Maschinenkonfiguration ist abgeschlossen. Legen Sie den ersten persönlichen MOPR-Benutzer an, um die Ersteinrichtung abzuschließen.</value>
+  </data>
+  <data name="InitialSetupDatabaseStep" xml:space="preserve">
+    <value>Datenbank</value>
+  </data>
+  <data name="InitialSetupRepositoryStep" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="InitialSetupVerificationStep" xml:space="preserve">
+    <value>Überprüfung</value>
+  </data>
+  <data name="InitialSetupMachineConfigurationStep" xml:space="preserve">
+    <value>Maschinenkonfiguration</value>
+  </data>
+  <data name="InitialSetupUserStep" xml:space="preserve">
+    <value>Erster Benutzer</value>
+  </data>
+  <data name="InitialSetupCompletedStep" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="InitialSetupCurrentStep" xml:space="preserve">
+    <value>Aktueller Schritt</value>
+  </data>
+  <data name="InitialSetupFooter" xml:space="preserve">
+    <value>Lokale Ersteinrichtung · Schritt 05 von 05 · Die Windows-Anmeldung kann in MOPR nicht geändert werden.</value>
+  </data>
 </root>

@@ -365,5 +365,113 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
                 return ResourceManager.GetString("IdentityUnavailableTitle", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die INITIAL SETUP ähnelt.
+        /// </summary>
+        public static string InitialSetupBadge {
+            get {
+                return ResourceManager.GetString("InitialSetupBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string InitialSetupCompletedStep {
+            get {
+                return ResourceManager.GetString("InitialSetupCompletedStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current step ähnelt.
+        /// </summary>
+        public static string InitialSetupCurrentStep {
+            get {
+                return ResourceManager.GetString("InitialSetupCurrentStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
+        /// </summary>
+        public static string InitialSetupDatabaseStep {
+            get {
+                return ResourceManager.GetString("InitialSetupDatabaseStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Local setup · Step 05 of 05 · The Windows sign-in cannot be changed in MOPR. ähnelt.
+        /// </summary>
+        public static string InitialSetupFooter {
+            get {
+                return ResourceManager.GetString("InitialSetupFooter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Machine configuration ähnelt.
+        /// </summary>
+        public static string InitialSetupMachineConfigurationStep {
+            get {
+                return ResourceManager.GetString("InitialSetupMachineConfigurationStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository ähnelt.
+        /// </summary>
+        public static string InitialSetupRepositoryStep {
+            get {
+                return ResourceManager.GetString("InitialSetupRepositoryStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The machine-wide configuration is complete. Create the first personal MOPR user to finish initial setup. ähnelt.
+        /// </summary>
+        public static string InitialSetupScopeDescription {
+            get {
+                return ResourceManager.GetString("InitialSetupScopeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup progress ähnelt.
+        /// </summary>
+        public static string InitialSetupScopeTitle {
+            get {
+                return ResourceManager.GetString("InitialSetupScopeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete initial setup ähnelt.
+        /// </summary>
+        public static string InitialSetupTitle {
+            get {
+                return ResourceManager.GetString("InitialSetupTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die First user ähnelt.
+        /// </summary>
+        public static string InitialSetupUserStep {
+            get {
+                return ResourceManager.GetString("InitialSetupUserStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verification ähnelt.
+        /// </summary>
+        public static string InitialSetupVerificationStep {
+            get {
+                return ResourceManager.GetString("InitialSetupVerificationStep", resourceCulture);
+            }
+        }
     }
 }

@@ -6,11 +6,29 @@
 
 **Medical Observation & Projection Renderer**
 
-MOPR is an experimental Windows workbench for importing, organizing, validating, viewing, and preparing DICOM CT and MRI data. The repository focuses on a modular WPF workbench, local service architecture, protected machine configuration, persistent metadata management, repository integrity, and medical-image visualization.
+MOPR is an experimental Windows workbench for importing, organizing, validating, viewing, and preparing DICOM CT and MRI data. Its purpose is to provide a modular, locally operated foundation for medical-image workflows while keeping machine configuration, user identity, repository integrity, persistence, and imaging responsibilities clearly separated.
+
+The current solution combines a Prism-based WPF desktop shell with dedicated feature modules, reusable application and domain services, protected machine-wide configuration, local user provisioning and sign-in, persistent DICOM metadata, managed repository operations, and integrity assurance through MIRAS.
 
 > **Important**
 >
 > MOPR is intended for visualization, research, prototyping, and educational use. It is not intended for diagnostic use, treatment planning, clinical reporting, or medical decision-making.
+
+## Purpose and Context
+
+MOPR is designed as a local-first medical-imaging workbench for environments in which DICOM data, configuration, identities, and derived information must remain under the control of the local deployment.
+
+The architecture follows these principles:
+
+- local processing instead of cloud-dependent medical-image workflows
+- explicit separation between UI modules, application orchestration, persistence, repository storage, DICOM processing, and integrity assurance
+- guided setup and identity flows for users without specialist IT knowledge
+- protected machine-wide configuration and explicit administrative authorization
+- auditable operations with a resolved current user or setup identity
+- explicit verification and repair instead of silent data modification
+- reusable contracts across projects targeting different .NET platforms
+- English default resources and German localization owned by the responsible project
+- extensibility for later measurements, reconstruction, segmentation, and Unreal-based workflows without coupling them to current integrity or import operations
 
 ## Current Capabilities
 
@@ -26,7 +44,7 @@ The current implementation includes:
 - DICOM metadata extraction, image decoding, folder scanning, and series loading
 - a dedicated import module with source selection and result presentation
 - import-source resolution for local folders, removable media, optical media, virtual drives, ISO images, and network locations
-- application-level DICOM import coordination with audit identity resolution
+- application-level DICOM import coordination with current-user audit identity resolution
 - repository-level DICOM import with persistence integration and compensation
 - Entity Framework Core persistence with SQL Server and in-memory test support
 - persistence and repository integrity verification
@@ -35,14 +53,17 @@ The current implementation includes:
 - machine, database, repository, and security configuration contracts
 - guided repository, database, verification, and completion setup workflow
 - protected machine-configuration storage and setup audit identity handling
-- repository-location validation and setup completion coordination
+- repository-location validation and setup-completion coordination
 - Windows administrative authorization
-- startup diagnostics and startup-route selection
+- operating-system identity discovery
+- initial local user provisioning and validation
+- local user sign-in and current-user context management
+- startup routing for machine setup, user provisioning, blocked users, unavailable identity, and the regular workbench
 - application-wide single-instance protection and foreground activation
 - English and German localization
-- isolated test projects for desktop, application services, imaging, setup, Core, MIRAS, persistence, and repository functionality
+- isolated test projects for desktop, identity, imaging, setup, application services, Core, MIRAS, persistence, and repository functionality
 
-Extended configuration interfaces, advanced measurements, volumetric reconstruction, segmentation, and Unreal-related workflows remain separate work packages or areas for future development.
+Extended configuration interfaces, additional user-management workflows, advanced measurements, volumetric reconstruction, segmentation, and Unreal-related workflows remain separate work packages or areas for future development.
 
 ## Architecture
 
@@ -54,7 +75,8 @@ MOPR separates shared contracts, WPF infrastructure, desktop composition, featur
 
 The contract project includes:
 
-- application administration, configuration, lifetime, and security abstractions
+- application administration, configuration, identity, lifetime, and security abstractions
+- current-user, operating-system identity, provisioning, and sign-in models
 - imaging layouts, tools, viewport state, and study-loading models
 - geometry and measurement models
 - machine-configuration validation and setup-completion models
@@ -72,6 +94,7 @@ A small `IsExternalInit` compatibility type allows records and init-only propert
 - navigation confirmation support
 - shared navigation names
 - shared region names
+- application-wide Prism events for completed machine setup and initial user provisioning
 
 ### Desktop Application
 
@@ -83,11 +106,28 @@ The desktop project is the WPF and Prism composition root. It owns:
 - machine-wide application, database, repository, and security configuration
 - configuration loading, validation, path handling, DPAPI protection, and access control
 - Windows administrator-role evaluation and administrative authorization
-- runtime and setup audit identity resolution
-- startup diagnostics and startup-route selection
+- Windows identity access and operating-system identity mapping
+- setup audit identity resolution
+- startup diagnostics and machine-level startup-route selection
+- user-level startup-route selection
 - application lifetime coordination
 - single-instance coordination, request forwarding, and foreground activation
 - application assets and localized resources
+
+The desktop shell remains the composition root. Feature-specific UI and workflow behavior belongs to Prism modules rather than the desktop project.
+
+### Identity Module
+
+`MarcusRunge.Mopr.Workbench.Modules.Identity` provides the user-facing identity and initial provisioning flow. It includes:
+
+- initial user provisioning
+- presentation of blocked-user state
+- presentation of unavailable operating-system identity
+- Prism registration and navigation
+- shared identity control styles
+- localized English and German resources
+
+The module consumes identity services from `Services.Application`. It does not directly access Windows identity APIs or persistence repositories.
 
 ### Imaging Module
 
@@ -124,17 +164,22 @@ The module delegates operating-system integration and workflow coordination to `
 - shared setup control styles in `Themes/SetupControls.xaml`
 - localized English and German resources
 
+Machine setup and initial user provisioning are separate responsibilities. After machine setup has completed, startup routing can continue into initial user provisioning when no usable application user exists.
+
 ### Application Services
 
 `MarcusRunge.Mopr.Workbench.Services.Application` targets `.NET 10 for Windows` and contains reusable desktop-bound application services for:
 
 - dialogs and file dialogs
 - WPF image-source and media handling
+- current-user context management
+- user provisioning and validation
+- local user sign-in
+- mapping the current user to an audit identity
 - DICOM import orchestration
 - import-source detection and resolution
 - removable, optical, virtual, local, and network source discovery
 - mapping application requests to repository import operations
-- resolving the current audit identity before managed imports
 
 The assembly exposes its service groups through `ApplicationFactory` and `IApplication`.
 
@@ -191,6 +236,7 @@ MIRAS does not silently repair repository data and does not automatically create
 - Entity Framework Core migrations and model snapshots
 - DICOM import persistence
 - entity repositories
+- user persistence and activation state
 - persistence-integrity verification
 - database connection testing
 - serialization of measurement data
@@ -215,6 +261,8 @@ Repository verification and repair remain separate operations. A MIRAS check rep
 
 ## Project Structure
 
+The following tree shows the source-controlled solution areas. Build output, IDE state, generated compiler files, temporary files, local exports, and user-specific project settings are intentionally omitted.
+
 ```text
 Wpf/
 ├── Clean-BuildArtifacts.ps1
@@ -225,6 +273,9 @@ Wpf/
     │   ├── Application/
     │   │   ├── Administration/Services/
     │   │   ├── Configuration/
+    │   │   │   ├── Models/
+    │   │   │   └── Services/
+    │   │   ├── Identity/
     │   │   │   ├── Models/
     │   │   │   └── Services/
     │   │   ├── Lifetime/Services/
@@ -239,14 +290,15 @@ Wpf/
     │   │   └── Unreal/
     │   └── Properties/
     ├── Core/
+    │   ├── Events/
     │   └── Mvvm/
     ├── Desktop/
     │   ├── Application/
     │   │   ├── Administration/
     │   │   ├── Configuration/
     │   │   ├── Diagnostics/
+    │   │   ├── Identity/
     │   │   ├── Lifetime/
-    │   │   ├── Security/
     │   │   ├── SingleInstance/
     │   │   └── Startup/
     │   ├── Assets/
@@ -254,6 +306,11 @@ Wpf/
     │   ├── ViewModels/
     │   └── Views/
     ├── Modules/
+    │   ├── Identity/
+    │   │   ├── Properties/
+    │   │   ├── Themes/
+    │   │   ├── ViewModels/
+    │   │   └── Views/
     │   ├── Imaging/
     │   │   ├── Behaviors/
     │   │   ├── Infrastructure/Viewports/
@@ -275,11 +332,13 @@ Wpf/
     │   │   ├── Bases/
     │   │   ├── Contracts/
     │   │   │   ├── Dialog/
+    │   │   │   ├── Identity/
     │   │   │   ├── Import/
     │   │   │   └── Media/
     │   │   ├── Enums/
     │   │   ├── Implementations/
     │   │   │   ├── Dialog/
+    │   │   │   ├── Identity/
     │   │   │   ├── Import/
     │   │   │   └── Media/
     │   │   ├── Models/
@@ -324,17 +383,22 @@ Wpf/
         ├── Desktop.Test/Application/
         │   ├── Administration/
         │   ├── Configuration/
+        │   ├── Identity/
         │   └── Startup/
+        ├── Modules.Identity.Test/ViewModels/
         ├── Modules.Imaging.Test/ViewModels/
         ├── Modules.Setup.Test/ViewModels/
-        ├── Services.Application.Test/Import/
+        ├── Services.Application.Test/
+        │   ├── Identity/
+        │   └── Import/
         ├── Services.Core.Test/
         ├── Services.Miras.Test/
         ├── Services.Persistence.Test/
-        └── Services.Repository.Test/
+        ├── Services.Repository.Test/
+        └── Test.Shared/Application/
 ```
 
-The structure intentionally shows source-controlled project areas only. Build output, IDE state, generated compiler files, temporary backups, local exports, and user-specific project settings are omitted, including `bin`, `obj`, `.vs`, `TestResults`, `artifacts`, `ref`, `refint`, `*.g.cs`, `*.g.i.cs`, `*.cache`, `*.tmp`, `*.csproj.user`, and `MOPR-Backend-Source.txt`.
+Excluded content includes `bin`, `obj`, `.vs`, `TestResults`, `artifacts`, `ref`, `refint`, generated `*.g.cs` and `*.g.i.cs` files, caches, temporary files, `*.csproj.user`, and `MOPR-Backend-Source.txt`.
 
 ## Dependency Direction
 
@@ -344,6 +408,7 @@ The principal dependency direction is:
 Desktop (.NET 10 for Windows)
 ├── Contracts (.NET Standard 2.1)
 ├── Core (.NET 10 for Windows)
+├── Modules.Identity (.NET 10 for Windows)
 ├── Modules.Imaging (.NET 10 for Windows)
 ├── Modules.Import (.NET 10 for Windows)
 ├── Modules.Setup (.NET 10 for Windows)
@@ -354,6 +419,11 @@ Desktop (.NET 10 for Windows)
 ├── Services.Persistence (.NET 10)
 └── Services.Repository (.NET 10)
 
+Modules.Identity
+├── Contracts
+├── Core
+└── Services.Application
+
 Modules.Imaging
 ├── Core
 ├── Services.Application
@@ -362,6 +432,10 @@ Modules.Imaging
 Modules.Import
 ├── Core
 └── Services.Application
+
+Modules.Setup
+├── Contracts
+└── Core
 
 Services.Application
 ├── Contracts
@@ -407,6 +481,10 @@ Application services compose desktop-bound workflows:
 ```text
 IApplication
 ├── IDialogService
+├── IIdentityService
+│   ├── ICurrentUserContextManager
+│   ├── IUserProvisioningService
+│   └── IUserSignInService
 ├── IImportService
 └── IMediaService
 ```
@@ -433,6 +511,39 @@ IMiras
 └── IOperations
     └── CheckRepositoryAsync(...)
 ```
+
+## Startup, Setup, and Identity Flow
+
+Startup routing separates machine readiness from user readiness:
+
+```text
+Application start
+    ↓ machine configuration and startup diagnostics
+Machine setup required?
+    ├── yes → Modules.Setup
+    └── no  → resolve operating-system identity and application user
+                 ├── identity unavailable → IdentityUnavailableView
+                 ├── no application user  → UserProvisioningView
+                 ├── user blocked         → UserBlockedView
+                 └── active user          → regular workbench
+```
+
+The machine-setup flow configures and verifies the repository, database, security settings, and completion state. The identity flow then provisions the first application user when required, signs in a valid local user, and establishes the current-user context used by application services and audit identity resolution.
+
+`MachineSetupCompletedEvent` and `InitialUserProvisioningCompletedEvent` allow the relevant modules and the desktop shell to continue routing without coupling feature view models directly to one another.
+
+## Identity and Audit Semantics
+
+MOPR distinguishes between four related concepts:
+
+- the Windows identity reported by the operating system
+- the persisted MOPR user record
+- the current signed-in MOPR user context
+- the audit identity attached to application and repository operations
+
+`IOperatingSystemIdentityProvider` supplies normalized operating-system identity information. `IUserProvisioningService` validates and creates the corresponding MOPR user when permitted. `IUserSignInService` resolves sign-in state, while `ICurrentUserContextManager` owns the active application-user context. `CurrentUserAuditIdentityProvider` maps that context to `IAuditIdentityProvider` for auditable operations.
+
+Setup remains usable before a regular application user exists by using the separate setup audit identity provider.
 
 ## MIRAS Result and Flow Semantics
 
@@ -484,11 +595,11 @@ The import path is deliberately separated into distinct responsibilities:
 Modules.Import
     ↓ user interaction
 Services.Application
-    ↓ source resolution, audit identity, workflow mapping
+    ↓ source resolution, current-user audit identity, workflow mapping
 Services.Repository
     ↓ managed file placement, coordination, compensation
 Services.Persistence
-    ↓ studies, series, instances, and repository metadata
+    ↓ studies, series, instances, users, and repository metadata
 Services.Dicom
     ↓ parsing, validation, metadata, and image decoding
 ```
@@ -514,6 +625,8 @@ Configuration areas include:
 
 Administrative operations are protected through `IAdministrativeAuthorizationService`. The desktop implementation evaluates the current Windows administrator role through `IWindowsAdministratorRoleEvaluator`.
 
+Machine setup, initial user provisioning, regular sign-in, and later user administration are distinct concerns. The current identity module covers startup-related provisioning and user-state presentation; broader user management remains a separate application area.
+
 ## Localization
 
 MOPR uses English default resources and German satellite resources. Each project owns the resources for its user-facing responsibilities.
@@ -526,6 +639,9 @@ Contracts/Properties/Resources.de.resx
 
 Desktop/Properties/Resources.resx
 Desktop/Properties/Resources.de.resx
+
+Modules/Identity/Properties/Resources.resx
+Modules/Identity/Properties/Resources.de.resx
 
 Modules/Imaging/Properties/Resources.resx
 Modules/Imaging/Properties/Resources.de.resx
@@ -582,6 +698,7 @@ Run individual test projects:
 
 ```powershell
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Desktop.Test\MarcusRunge.Mopr.Workbench.Test.csproj --configuration Debug
+dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Identity.Test\MarcusRunge.Mopr.Workbench.Modules.Identity.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Imaging.Test\MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Setup.Test\MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Application.Test\MarcusRunge.Mopr.Workbench.Services.Application.Test.csproj --configuration Debug
@@ -597,8 +714,13 @@ The test suites cover:
 - Windows administrative authorization
 - application, machine, and repository-location configuration validation
 - protected machine-configuration storage
-- startup-route selection
+- operating-system identity resolution
+- machine-level and user-level startup-route selection
+- initial user provisioning and validation
+- local user sign-in and current-user context management
+- current-user audit identity resolution
 - guided setup workflow and setup view-model behavior
+- identity-module provisioning view-model behavior
 - imaging workbench view-model behavior
 - import-source resolution and integration
 - application-level DICOM import orchestration
@@ -613,9 +735,11 @@ Some integration tests may require local infrastructure or configuration that is
 
 MOPR is designed for local processing. Cloud-based AI or machine-learning services are not part of the intended architecture.
 
-DICOM data and derived medical-imaging information should remain under the control of the local deployment. Deployments must apply appropriate access controls, storage protection, backup policies, and applicable data-protection requirements.
+DICOM data, user identities, audit information, and derived medical-imaging information should remain under the control of the local deployment. Deployments must apply appropriate access controls, storage protection, backup policies, and applicable data-protection requirements.
 
 Repository repair is explicit and separate from integrity inspection. MIRAS reports findings and recommended actions but does not silently alter data during a check.
+
+User provisioning and sign-in establish application identity for authorization, routing, and auditing. They do not replace operating-system security, Windows access control, or deployment-specific administrative policies.
 
 ## License
 
