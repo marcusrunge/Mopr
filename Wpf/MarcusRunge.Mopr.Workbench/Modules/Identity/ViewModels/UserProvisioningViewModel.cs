@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
@@ -8,10 +7,6 @@ using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
-using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
-using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 {
@@ -27,15 +22,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
         private readonly IOperatingSystemIdentityProvider _operatingSystemIdentityProvider;
         private readonly IRegionManager _regionManager;
 
+        private string _academicTitle = string.Empty;
         private string _firstName = string.Empty;
         private bool _isBusy;
         private string _lastName = string.Empty;
         private string _loginName = string.Empty;
         private CancellationTokenSource? _navigationCancellation;
+        private string _personnelNumber = string.Empty;
         private string _shortName = string.Empty;
         private string _statusMessage = string.Empty;
         private string _validationMessage = string.Empty;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserProvisioningViewModel"/> class.
+        /// </summary>
         public UserProvisioningViewModel(IApplication application, IAdministrativeAuthorizationService administrativeAuthorizationService, IOperatingSystemIdentityProvider operatingSystemIdentityProvider, ILifetimeService lifetimeService, IRegionManager regionManager, IEventAggregator eventAggregator)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
@@ -44,9 +44,28 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+
             ProvisionCommand = new DelegateCommand(() => _ = ProvisionAsync(), CanProvision);
         }
 
+        /// <summary>
+        /// Gets or sets the optional academic title.
+        /// </summary>
+        public string AcademicTitle
+        {
+            get => _academicTitle;
+            set
+            {
+                if (SetProperty(ref _academicTitle, value ?? string.Empty))
+                {
+                    ClearValidationMessage();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the first name entered by the administrator.
+        /// </summary>
         public string FirstName
         {
             get => _firstName;
@@ -60,14 +79,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the current process may provision the first persistent MOPR user.
+        /// </summary>
         public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
 
+        /// <summary>
+        /// Gets a value indicating whether a status message is available.
+        /// </summary>
         public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
+        /// <summary>
+        /// Gets a value indicating whether a validation message is available.
+        /// </summary>
         public bool HasValidationMessage => !string.IsNullOrWhiteSpace(ValidationMessage);
 
+        /// <summary>
+        /// Gets a value indicating whether elevated administrative authorization is required.
+        /// </summary>
         public bool IsAdministrativeAuthorizationRequired => !HasAdministrativeAuthorization;
 
+        /// <summary>
+        /// Gets a value indicating whether an identity or provisioning operation is running.
+        /// </summary>
         public bool IsBusy
         {
             get => _isBusy;
@@ -80,6 +114,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the last name entered by the administrator.
+        /// </summary>
         public string LastName
         {
             get => _lastName;
@@ -93,6 +130,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the automatically resolved Windows login name.
+        /// </summary>
         public string LoginName
         {
             get => _loginName;
@@ -105,8 +145,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets or sets the optional organization-specific personnel number.
+        /// </summary>
+        public string PersonnelNumber
+        {
+            get => _personnelNumber;
+            set
+            {
+                if (SetProperty(ref _personnelNumber, value ?? string.Empty))
+                {
+                    ClearValidationMessage();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the command that provisions the first persistent MOPR user.
+        /// </summary>
         public DelegateCommand ProvisionCommand { get; }
 
+        /// <summary>
+        /// Gets or sets the short name entered by the administrator.
+        /// </summary>
         public string ShortName
         {
             get => _shortName;
@@ -120,6 +181,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the current user-facing operation status.
+        /// </summary>
         public string StatusMessage
         {
             get => _statusMessage;
@@ -132,6 +196,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
             }
         }
 
+        /// <summary>
+        /// Gets the current user-facing validation message.
+        /// </summary>
         public string ValidationMessage
         {
             get => _validationMessage;
@@ -172,6 +239,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
         private static string CreateValidationMessage(IReadOnlyList<UserProvisioningValidationIssue> issues)
         {
             var messages = issues.Select(GetValidationMessage).Distinct().ToArray();
+
             return messages.Length == 0
                 ? Resources.IdentityProvisioningValidationSummary
                 : $"{Resources.IdentityProvisioningValidationSummary}{Environment.NewLine}{string.Join(Environment.NewLine, messages.Select(message => $"• {message}"))}";
@@ -179,17 +247,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 
         private static string GetValidationMessage(UserProvisioningValidationIssue issue) => issue switch
         {
+            UserProvisioningValidationIssue.AcademicTitleTooLong => Resources.IdentityProvisioningAcademicTitleTooLong,
             UserProvisioningValidationIssue.FirstNameRequired => Resources.IdentityProvisioningFirstNameRequired,
             UserProvisioningValidationIssue.FirstNameTooLong => Resources.IdentityProvisioningFirstNameTooLong,
             UserProvisioningValidationIssue.LastNameRequired => Resources.IdentityProvisioningLastNameRequired,
             UserProvisioningValidationIssue.LastNameTooLong => Resources.IdentityProvisioningLastNameTooLong,
+            UserProvisioningValidationIssue.PersonnelNumberTooLong => Resources.IdentityProvisioningPersonnelNumberTooLong,
             UserProvisioningValidationIssue.ShortNameRequired => Resources.IdentityProvisioningShortNameRequired,
             UserProvisioningValidationIssue.ShortNameTooLong => Resources.IdentityProvisioningShortNameTooLong,
             UserProvisioningValidationIssue.ShortNameInvalid => Resources.IdentityProvisioningShortNameInvalid,
             _ => Resources.IdentityProvisioningValidationSummary
         };
 
-        private bool CanProvision() => HasAdministrativeAuthorization && !IsBusy && !string.IsNullOrWhiteSpace(LoginName) && !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(LastName) && !string.IsNullOrWhiteSpace(ShortName);
+        private bool CanProvision() =>
+            HasAdministrativeAuthorization &&
+            !IsBusy &&
+            !string.IsNullOrWhiteSpace(LoginName) &&
+            !string.IsNullOrWhiteSpace(FirstName) &&
+            !string.IsNullOrWhiteSpace(LastName) &&
+            !string.IsNullOrWhiteSpace(ShortName);
 
         private void ClearValidationMessage()
         {
@@ -257,7 +333,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
 
             try
             {
-                var request = new UserProvisioningRequest(FirstName, LastName, ShortName);
+                var request = new UserProvisioningRequest(
+                    FirstName,
+                    LastName,
+                    ShortName,
+                    AcademicTitle,
+                    PersonnelNumber);
+
                 var result = await provisioningService.ProvisionAsync(request, cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -265,8 +347,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.ViewModels
                 {
                     case UserProvisioningStatus.Completed:
                     case UserProvisioningStatus.UserAlreadyExists:
-                        // The current-user context has already been populated by
-                        // the product service. App now owns MIRAS and navigation.
+                        // The product service has already populated the current-user
+                        // context. The composition root owns MIRAS and final navigation.
                         _eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Publish();
                         break;
 

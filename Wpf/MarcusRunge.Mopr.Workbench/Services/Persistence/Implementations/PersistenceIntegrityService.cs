@@ -63,6 +63,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 
                 if (request.VerifyRequiredValues)
                 {
+                    /*
+                     * Repository availability is a set-level invariant. Checking
+                     * only individual rows would incorrectly classify an empty
+                     * RepositoryLocations table as structurally valid.
+                     */
+                    RegisterRepositoryLocationSetInvariants(repositoryLocations, result, cancellationToken);
                     RegisterMissingRequiredValues(users, studies, seriesItems, instances, repositoryLocations, result, cancellationToken);
                     RegisterInvalidRepositoryLocationValues(repositoryLocations, result, cancellationToken);
                 }
@@ -96,8 +102,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             return result;
         }
 
+        /// <inheritdoc/>
         protected override void OnCreate(IPersistenceBase @base) => _base = @base;
 
+        /// <inheritdoc/>
         protected override Task OnCreateAsync(IPersistenceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
 
         private static void RegisterDuplicateDefaultLocations(IReadOnlyList<RepositoryLocation> repositoryLocations, PersistenceIntegrityResult result, CancellationToken cancellationToken)
@@ -394,6 +402,56 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 
                 RegisterMissingRequiredValue(repositoryLocation.Id, PersistenceIntegrityEntityType.RepositoryLocation, nameof(RepositoryLocation.Name), repositoryLocation.Name, result);
                 RegisterMissingRequiredValue(repositoryLocation.Id, PersistenceIntegrityEntityType.RepositoryLocation, nameof(RepositoryLocation.RootPath), repositoryLocation.RootPath, result);
+            }
+        }
+
+        private static void RegisterRepositoryLocationSetInvariants(IReadOnlyList<RepositoryLocation> repositoryLocations, PersistenceIntegrityResult result, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (repositoryLocations.Count == 0)
+            {
+                /*
+                 * An empty collection cannot be detected by row-level validation.
+                 * MOPR cannot import, resolve or verify image files without at least
+                 * one enabled default repository location.
+                 */
+                result.Issues.Add(new PersistenceIntegrityIssue
+                {
+                    IssueType = PersistenceIntegrityIssueType.InvalidValue,
+                    EntityType = PersistenceIntegrityEntityType.RepositoryLocation,
+                    EntityId = null,
+                    PropertyName = nameof(RepositoryLocation.RootPath),
+                    TechnicalDetails = "No repository location is configured. MOPR requires at least one enabled default repository location. No repository configuration was changed."
+                });
+
+                return;
+            }
+
+            if (!repositoryLocations.Any(item => item.IsEnabled))
+            {
+                result.Issues.Add(new PersistenceIntegrityIssue
+                {
+                    IssueType = PersistenceIntegrityIssueType.InvalidValue,
+                    EntityType = PersistenceIntegrityEntityType.RepositoryLocation,
+                    EntityId = null,
+                    PropertyName = nameof(RepositoryLocation.IsEnabled),
+                    Value = bool.FalseString,
+                    TechnicalDetails = $"No enabled repository location exists among the {repositoryLocations.Count} configured locations. MOPR requires at least one enabled default repository location. No repository configuration was changed."
+                });
+            }
+
+            if (!repositoryLocations.Any(item => item.IsDefault))
+            {
+                result.Issues.Add(new PersistenceIntegrityIssue
+                {
+                    IssueType = PersistenceIntegrityIssueType.InvalidValue,
+                    EntityType = PersistenceIntegrityEntityType.RepositoryLocation,
+                    EntityId = null,
+                    PropertyName = nameof(RepositoryLocation.IsDefault),
+                    Value = bool.FalseString,
+                    TechnicalDetails = $"No default repository location exists among the {repositoryLocations.Count} configured locations. MOPR requires exactly one enabled default repository location. No repository configuration was changed."
+                });
             }
         }
     }

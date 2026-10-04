@@ -255,4 +255,37 @@
   <data name="InitialSetupFooter" xml:space="preserve">
     <value>Lokale Ersteinrichtung · Schritt 05 von 05 · Die Windows-Anmeldung kann in MOPR nicht geändert werden.</value>
   </data>
+	<data name="IdentityProvisioningAcademicTitleLabel" xml:space="preserve">
+  <value>Akademischer Titel</value>
+</data>
+	<data name="IdentityProvisioningAcademicTitleDescription" xml:space="preserve">
+  <value>Optional, beispielsweise Dr., Prof. oder Prof. Dr.</value>
+</data>
+	<data name="IdentityProvisioningAcademicTitleTooLong" xml:space="preserve">
+  <value>Der akademische Titel ist zu lang.</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberLabel" xml:space="preserve">
+  <value>Personalnummer</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberDescription" xml:space="preserve">
+  <value>Optionale organisationsinterne Kennung der beschäftigten Person.</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberTooLong" xml:space="preserve">
+  <value>Die Personalnummer ist zu lang.</value>
+</data>
+	<data name="MirasActionRequiredBadge" xml:space="preserve">
+  <value>MIRAS GESCHÜTZTER ZUSTAND</value>
+</data>
+	<data name="MirasActionRequiredTitle" xml:space="preserve">
+  <value>MIRAS Aktion erforderlich</value>
+</data>
+	<data name="MirasActionRequiredDescription" xml:space="preserve">
+  <value>MOPR konnte nicht bestätigen, dass die Bilddatenbank und der Bildspeicher sicher verwendet werden können. Die Bildanzeige bleibt gesperrt, bis die Konfiguration geprüft und wiederhergestellt wurde.</value>
+</data>
+	<data name="MirasActionRequiredSafetyNotice" xml:space="preserve">
+  <value>Es wurden keine Bilddaten verändert. MOPR hat den geschützten Startablauf beendet, damit nicht auf unvollständige oder inkonsistente Repository-Daten zugegriffen wird.</value>
+</data>
+	<data name="MirasActionRequiredFooter" xml:space="preserve">
+  <value>MOPR • MIRAS GESCHÜTZTER STARTZUSTAND • BILDANZEIGE NICHT VERFÜGBAR</value>
+</data>
 </root>

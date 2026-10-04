@@ -120,6 +120,12 @@
   <data name="MainWindowTitle" xml:space="preserve">
     <value>MOPR Workbench</value>
   </data>
+  <data name="MirasStartupActionRequiredMessage" xml:space="preserve">
+    <value>MOPR konnte nicht bestätigen, dass die Bilddatenbank und der Bildspeicher sicher verwendet werden können. Die Bildanzeige wurde nicht geöffnet. Starten Sie MOPR erneut mit Administratorrechten, um die erforderliche Konfiguration wiederherzustellen.</value>
+  </data>
+  <data name="MirasStartupActionRequiredTitle" xml:space="preserve">
+    <value>MIRAS Aktion erforderlich</value>
+  </data>
   <data name="SingleInstanceForwardingFailedMessage" xml:space="preserve">
     <value>MOPR wird bereits ausgeführt, das vorhandene Anwendungsfenster konnte jedoch nicht aktiviert werden. Bitte wählen Sie MOPR über die Windows-Taskleiste aus.</value>
   </data>

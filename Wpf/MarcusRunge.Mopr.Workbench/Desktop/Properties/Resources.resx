@@ -120,6 +120,12 @@
   <data name="MainWindowTitle" xml:space="preserve">
     <value>MOPR Workbench</value>
   </data>
+  <data name="MirasStartupActionRequiredMessage" xml:space="preserve">
+    <value>MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench was not opened. Start MOPR again with administrator rights to restore the required configuration.</value>
+  </data>
+  <data name="MirasStartupActionRequiredTitle" xml:space="preserve">
+    <value>MIRAS action required</value>
+  </data>
   <data name="SingleInstanceForwardingFailedMessage" xml:space="preserve">
     <value>MOPR is already running, but the existing application window could not be activated. Please select MOPR from the Windows taskbar.</value>
   </data>

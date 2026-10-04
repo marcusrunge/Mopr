@@ -24,6 +24,8 @@ using MarcusRunge.Mopr.Workbench.Services.Dicom;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository;
@@ -164,10 +166,13 @@ namespace MarcusRunge.Mopr.Workbench
 
             // Persistence must be registered before application services that resolve
             // persisted users, repository locations or audit identities.
-            containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+            containerRegistry.RegisterSingleton<IPersistenceFactory>(
+                provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
+
             containerRegistry.RegisterSingleton<ISetupAuditIdentityProvider, SetupAuditIdentityProvider>();
             containerRegistry.RegisterSingleton<ISetupCompletionService, SetupCompletionService>();
             containerRegistry.RegisterSingleton<IApplicationStartupRouteService, ApplicationStartupRouteService>();
@@ -175,7 +180,9 @@ namespace MarcusRunge.Mopr.Workbench
             // The repository module owns physical DICOM storage, atomic import,
             // compensation and repository-level integrity operations.
             containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
-            containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
+
+            containerRegistry.RegisterSingleton<RepositoryContract>(
+                provider => provider.Resolve<IRepositoryFactory>().Create());
 
             // Runtime security adapters resolve the current Windows identity against
             // an existing persistent MOPR user without implicit user provisioning.
@@ -183,17 +190,43 @@ namespace MarcusRunge.Mopr.Workbench
 
             // MIRAS depends on both Persistence and Repository.
             containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
+
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
+
             containerRegistry.RegisterSingleton<IOperations>(provider => provider.Resolve<IMiras>().Operations ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
 
             // Core exposes UI-facing workflows over the initialized technical services.
             containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<ILifetimeService>()));
+
             containerRegistry.RegisterSingleton<ICore>(provider => provider.Resolve<ICoreFactory>().Create());
 
             // WPF-specific services remain at the outermost application boundary.
             containerRegistry.RegisterSingleton<IApplicationFactory>(provider => new ApplicationFactory(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IOperatingSystemIdentityProvider>()));
+
             containerRegistry.RegisterSingleton<IApplication>(provider => provider.Resolve<IApplicationFactory>().Create());
+
             containerRegistry.RegisterSingleton<IUserStartupRouteService, UserStartupRouteService>();
+        }
+
+        private static string ResolveMirasNavigationTarget(MirasOperationResult result)
+        {
+            ArgumentNullException.ThrowIfNull(result);
+
+            /*
+             * Imaging is released only after MIRAS completed a technically complete
+             * assessment and found no condition requiring an explicit action.
+             * Unknown or internally inconsistent result states remain fail-closed.
+             */
+            return result.Status switch
+            {
+                MirasOperationStatus.Completed when !result.HasIssues && !result.HasTechnicalErrors => NavigationNames.Imaging,
+
+                MirasOperationStatus.CompletedWithIssues when !result.HasActionRequired && !result.HasTechnicalErrors => NavigationNames.Imaging,
+
+                MirasOperationStatus.Completed or MirasOperationStatus.CompletedWithIssues or MirasOperationStatus.Blocked or MirasOperationStatus.Incomplete or MirasOperationStatus.Failed => NavigationNames.MirasActionRequired,
+
+                _ => NavigationNames.MirasActionRequired
+            };
         }
 
         private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
@@ -286,6 +319,25 @@ namespace MarcusRunge.Mopr.Workbench
             }
         }
 
+        private async Task HandleApplicationInitializationFailureAsync(Exception exception, CancellationToken cancellationToken)
+        {
+            _startupDiagnostics!.WriteError("MOPR application initialization could not be completed.", exception);
+
+            try
+            {
+                var fallbackTarget = await ResolveStartupFailureTargetAsync(cancellationToken).ConfigureAwait(false);
+                await NavigateAsync(fallbackTarget, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                _startupDiagnostics.WriteInformation("Startup failure navigation was canceled because the application is stopping.");
+            }
+            catch (Exception navigationException)
+            {
+                _startupDiagnostics.WriteError("The protected startup failure state could not be displayed.", navigationException);
+            }
+        }
+
         private async Task HandleForwardedRequestAsync(SingleInstanceRequest request, CancellationToken cancellationToken)
         {
             await _shellReady.Task.WaitAsync(cancellationToken);
@@ -300,6 +352,7 @@ namespace MarcusRunge.Mopr.Workbench
                 }
 
                 var arguments = request.Arguments.Length == 0 ? "none" : string.Join(", ", request.Arguments);
+
                 _startupDiagnostics!.WriteInformation($"Forwarded startup arguments: {arguments}");
             });
         }
@@ -348,25 +401,6 @@ namespace MarcusRunge.Mopr.Workbench
             catch (Exception exception)
             {
                 await HandleApplicationInitializationFailureAsync(exception, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private async Task HandleApplicationInitializationFailureAsync(Exception exception, CancellationToken cancellationToken)
-        {
-            _startupDiagnostics!.WriteError("MOPR application initialization could not be completed.", exception);
-
-            try
-            {
-                var fallbackTarget = await ResolveStartupFailureTargetAsync(cancellationToken).ConfigureAwait(false);
-                await NavigateAsync(fallbackTarget, cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                _startupDiagnostics.WriteInformation("Startup failure navigation was canceled because the application is stopping.");
-            }
-            catch (Exception navigationException)
-            {
-                _startupDiagnostics.WriteError("The protected startup failure state could not be displayed.", navigationException);
             }
         }
 
@@ -456,6 +490,7 @@ namespace MarcusRunge.Mopr.Workbench
             {
                 var routeService = Container.Resolve<IApplicationStartupRouteService>();
                 var target = await routeService.GetInitialNavigationTargetAsync(cancellationToken).ConfigureAwait(false);
+
                 return target == NavigationNames.Setup ? NavigationNames.Setup : NavigationNames.IdentityUnavailable;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -505,23 +540,22 @@ namespace MarcusRunge.Mopr.Workbench
             var mirasFlow = Container.Resolve<IMiras>().Flow ?? throw new InvalidOperationException("The MIRAS flow has not been initialized.");
             var mirasResult = await mirasFlow.StartAsync(cancellationToken).ConfigureAwait(false);
 
-            _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{mirasResult.Status}' and inspected {mirasResult.ScannedItems} items.");
+            _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{mirasResult.Status}', inspected {mirasResult.ScannedItems} items, detected {mirasResult.Issues.Count} issues and reported {mirasResult.TechnicalErrors.Count} technical errors.");
 
-            await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(false);
-            _startupDiagnostics.WriteInformation("MOPR startup navigation completed with target 'Imaging'.");
+            var navigationTarget = ResolveMirasNavigationTarget(mirasResult);
+
+            await NavigateAsync(navigationTarget, cancellationToken).ConfigureAwait(false);
+
+            _startupDiagnostics.WriteInformation($"MOPR startup navigation completed with target '{navigationTarget}'.");
         }
 
         private void SubscribeProtectedStartupEvents()
         {
             var eventAggregator = Container.Resolve<IEventAggregator>();
 
-            _machineSetupCompletedSubscription = eventAggregator
-                .GetEvent<MachineSetupCompletedEvent>()
-                .Subscribe(HandleMachineSetupCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
+            _machineSetupCompletedSubscription = eventAggregator.GetEvent<MachineSetupCompletedEvent>().Subscribe(HandleMachineSetupCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
 
-            _initialUserProvisioningCompletedSubscription = eventAggregator
-                .GetEvent<InitialUserProvisioningCompletedEvent>()
-                .Subscribe(HandleInitialUserProvisioningCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
+            _initialUserProvisioningCompletedSubscription = eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Subscribe(HandleInitialUserProvisioningCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
         }
 
         private bool TryAcquireSingleInstance()
@@ -529,6 +563,7 @@ namespace MarcusRunge.Mopr.Workbench
             try
             {
                 _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics!, new ForegroundPermission());
+
                 return true;
             }
             catch (Exception exception)
@@ -551,12 +586,14 @@ namespace MarcusRunge.Mopr.Workbench
             if (_machineSetupCompletedSubscription is not null)
             {
                 eventAggregator.GetEvent<MachineSetupCompletedEvent>().Unsubscribe(_machineSetupCompletedSubscription);
+
                 _machineSetupCompletedSubscription = null;
             }
 
             if (_initialUserProvisioningCompletedSubscription is not null)
             {
                 eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Unsubscribe(_initialUserProvisioningCompletedSubscription);
+
                 _initialUserProvisioningCompletedSubscription = null;
             }
         }

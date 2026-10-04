@@ -26,6 +26,11 @@
         public const string Imaging = nameof(Imaging);
 
         /// <summary>
+        /// Navigation target for a protected startup state that requires a MIRAS action.
+        /// </summary>
+        public const string MirasActionRequired = nameof(MirasActionRequired);
+
+        /// <summary>
         /// Navigation target for the Setup view.
         /// </summary>
         public const string Setup = nameof(Setup);

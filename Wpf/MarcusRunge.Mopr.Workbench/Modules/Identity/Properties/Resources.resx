@@ -255,4 +255,37 @@
   <data name="InitialSetupFooter" xml:space="preserve">
     <value>Local setup · Step 05 of 05 · The Windows sign-in cannot be changed in MOPR.</value>
   </data>
+	<data name="IdentityProvisioningAcademicTitleLabel" xml:space="preserve">
+  <value>Academic title</value>
+</data>
+	<data name="IdentityProvisioningAcademicTitleDescription" xml:space="preserve">
+  <value>Optional, for example Dr., Prof. or Prof. Dr.</value>
+</data>
+	<data name="IdentityProvisioningAcademicTitleTooLong" xml:space="preserve">
+  <value>The academic title is too long.</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberLabel" xml:space="preserve">
+  <value>Personnel number</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberDescription" xml:space="preserve">
+  <value>Optional organization-specific employee identifier.</value>
+</data>
+	<data name="IdentityProvisioningPersonnelNumberTooLong" xml:space="preserve">
+  <value>The personnel number is too long.</value>
+</data>
+	<data name="MirasActionRequiredBadge" xml:space="preserve">
+  <value>MIRAS PROTECTED STATE</value>
+</data>
+	<data name="MirasActionRequiredTitle" xml:space="preserve">
+  <value>MIRAS action required</value>
+</data>
+	<data name="MirasActionRequiredDescription" xml:space="preserve">
+  <value>MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench remains unavailable until the configuration has been checked and restored.</value>
+</data>
+	<data name="MirasActionRequiredSafetyNotice" xml:space="preserve">
+  <value>No image data was changed. MOPR has stopped the protected startup sequence to prevent access to incomplete or inconsistent repository data.</value>
+</data>
+	<data name="MirasActionRequiredFooter" xml:space="preserve">
+  <value>MOPR • MIRAS PROTECTED STARTUP STATE • IMAGING UNAVAILABLE</value>
+</data>
 </root>

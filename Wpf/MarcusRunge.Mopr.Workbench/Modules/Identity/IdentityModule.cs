@@ -4,7 +4,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Identity.Views;
 namespace MarcusRunge.Mopr.Workbench.Modules.Identity
 {
     /// <summary>
-    /// Registers the MOPR user identity user interface.
+    /// Registers the MOPR user identity and protected startup user interface.
     /// </summary>
     public sealed class IdentityModule : IModule
     {
@@ -19,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity
             containerRegistry.RegisterForNavigation<UserProvisioningView>(NavigationNames.IdentityProvisioning);
             containerRegistry.RegisterForNavigation<UserBlockedView>(NavigationNames.IdentityBlocked);
             containerRegistry.RegisterForNavigation<IdentityUnavailableView>(NavigationNames.IdentityUnavailable);
+            containerRegistry.RegisterForNavigation<MirasActionRequiredView>(NavigationNames.MirasActionRequired);
         }
     }
 }

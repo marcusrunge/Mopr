@@ -70,6 +70,24 @@ namespace MarcusRunge.Mopr.Workbench.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench was not opened. Start MOPR again with administrator rights to restore the required configuration. ähnelt.
+        /// </summary>
+        public static string MirasStartupActionRequiredMessage {
+            get {
+                return ResourceManager.GetString("MirasStartupActionRequiredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
+        /// </summary>
+        public static string MirasStartupActionRequiredTitle {
+            get {
+                return ResourceManager.GetString("MirasStartupActionRequiredTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is already running, but the existing application window could not be activated. Please select MOPR from the Windows taskbar. ähnelt.
         /// </summary>
         public static string SingleInstanceForwardingFailedMessage {
