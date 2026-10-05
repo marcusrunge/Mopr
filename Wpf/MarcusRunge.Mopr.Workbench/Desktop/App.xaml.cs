@@ -10,6 +10,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity;
@@ -166,14 +167,13 @@ namespace MarcusRunge.Mopr.Workbench
 
             // Persistence must be registered before application services that resolve
             // persisted users, repository locations or audit identities.
-            containerRegistry.RegisterSingleton<IPersistenceFactory>(
-                provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+            containerRegistry.RegisterSingleton<IPersistenceFactory>(                provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
 
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
             containerRegistry.RegisterSingleton<IMachineConfigurationService>(provider => new MachineConfigurationService(provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IApplicationConfigurationStore>(), provider.Resolve<IPersistence>()));
 
-            containerRegistry.RegisterSingleton<ISetupAuditIdentityProvider, SetupAuditIdentityProvider>();
+            containerRegistry.RegisterSingleton<ISystemAuditIdentityProvider, SystemAuditIdentityProvider>();
             containerRegistry.RegisterSingleton<ISetupCompletionService, SetupCompletionService>();
             containerRegistry.RegisterSingleton<IApplicationStartupRouteService, ApplicationStartupRouteService>();
 
@@ -187,13 +187,13 @@ namespace MarcusRunge.Mopr.Workbench
             // Runtime security adapters resolve the current Windows identity against
             // an existing persistent MOPR user without implicit user provisioning.
             containerRegistry.RegisterSingleton<IOperatingSystemIdentityProvider, OperatingSystemIdentityProvider>();
-
-            // MIRAS depends on both Persistence and Repository.
-            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>()));
-
+                
+            // MIRAS depends on Persistence and Repository as well as the platform-neutral
+            // ports required for protected machine-wide repository recovery.
+            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IRepositoryLocationValidationService>(), provider.Resolve<ISystemAuditIdentityProvider>()));
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
-
             containerRegistry.RegisterSingleton<IOperations>(provider => provider.Resolve<IMiras>().Operations ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
+            containerRegistry.RegisterSingleton<IRepositoryInfrastructureRecoveryService>(provider => provider.Resolve<IMiras>().RepositoryInfrastructureRecovery ?? throw new InvalidOperationException("The MIRAS repository-infrastructure recovery service has not been initialized."));
 
             // Core exposes UI-facing workflows over the initialized technical services.
             containerRegistry.RegisterSingleton<ICoreFactory>(provider => new CoreFactory(provider.Resolve<IDicom>(), provider.Resolve<ILifetimeService>()));

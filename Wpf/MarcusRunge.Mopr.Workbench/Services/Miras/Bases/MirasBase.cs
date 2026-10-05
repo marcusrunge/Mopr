@@ -1,4 +1,7 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -10,10 +13,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
     /// <summary>
     /// Provides the dependencies and exception propagation shared by one MIRAS module instance.
     /// </summary>
-    internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository) : IMirasBase, IMiras
+    internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISystemAuditIdentityProvider systemAuditIdentityProvider) : IMirasBase, IMiras
     {
         protected IFlow? _flow;
         protected IOperations? _operations;
+        protected IRepositoryInfrastructureRecoveryService? _repositoryInfrastructureRecovery;
 
         private readonly Lock _exceptionThrownLock = new();
         private Action<Exception>? _exceptionThrown;
@@ -23,17 +27,27 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         {
             add
             {
-                lock (_exceptionThrownLock) _exceptionThrown += value;
+                lock (_exceptionThrownLock)
+                {
+                    _exceptionThrown += value;
+                }
             }
             remove
             {
-                lock (_exceptionThrownLock) _exceptionThrown -= value;
+                lock (_exceptionThrownLock)
+                {
+                    _exceptionThrown -= value;
+                }
             }
         }
 
         /// <inheritdoc/>
+        IAdministrativeAuthorizationService IMirasBase.AdministrativeAuthorizationService => administrativeAuthorizationService;
+
+        /// <inheritdoc/>
         ILifetimeService? IMirasBase.LifetimeService => applicationLifetime;
 
+        /// <inheritdoc/>
         public IFlow? Flow => _flow;
 
         /// <inheritdoc/>
@@ -43,26 +57,43 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
         public IOperations? Operations => _operations;
 
         /// <inheritdoc/>
-        IPersistence? IMirasBase.Persistence => persistence;
+        IPersistence IMirasBase.Persistence => persistence;
 
         /// <inheritdoc/>
-        IRepository? IMirasBase.Repository => repository;
+        IRepository IMirasBase.Repository => repository;
+
+        /// <inheritdoc/>
+        public IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery => _repositoryInfrastructureRecovery;
+
+        /// <inheritdoc/>
+        IRepositoryLocationValidationService IMirasBase.RepositoryLocationValidationService => repositoryLocationValidationService;
+
+        /// <inheritdoc/>
+        ISystemAuditIdentityProvider IMirasBase.SystemAuditIdentityProvider => systemAuditIdentityProvider;
 
         /// <inheritdoc/>
         void IMirasBase.OnExceptionThrown(Exception exception)
         {
+            ArgumentNullException.ThrowIfNull(exception);
+
             logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
-            // Capture the immutable invocation snapshot under the lock so handlers can be invoked without blocking event subscription changes.
             Action<Exception>? handlers;
-            lock (_exceptionThrownLock) handlers = _exceptionThrown;
+
+            // Capture an immutable invocation snapshot so subscriber changes do not
+            // block or modify the current diagnostic notification.
+            lock (_exceptionThrownLock)
+            {
+                handlers = _exceptionThrown;
+            }
 
             if (handlers is null)
             {
                 return;
             }
 
-            // Isolate event subscribers so one failing diagnostic callback cannot suppress notification of the remaining subscribers.
+            // A failing diagnostic subscriber must never suppress notification of
+            // the remaining subscribers or alter the MIRAS operation result.
             foreach (var handler in handlers.GetInvocationList().Cast<Action<Exception>>())
             {
                 try

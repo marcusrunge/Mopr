@@ -157,7 +157,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
             persistence.SetupGet(instance => instance.User).Returns((IUserRepository?)null);
 
-            var provider = new SetupAuditIdentityProvider(persistence.Object);
+            var provider = new SystemAuditIdentityProvider(persistence.Object);
 
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => provider.GetOrCreateUserIdAsync(cancellationToken));
 
@@ -214,12 +214,12 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             {
                 Persistence.SetupGet(instance => instance.User).Returns(UserRepository.Object);
 
-                Provider = new SetupAuditIdentityProvider(Persistence.Object);
+                Provider = new SystemAuditIdentityProvider(Persistence.Object);
             }
 
             public Mock<IPersistence> Persistence { get; } = new(MockBehavior.Strict);
 
-            public SetupAuditIdentityProvider Provider { get; }
+            public SystemAuditIdentityProvider Provider { get; }
 
             public Mock<IUserRepository> UserRepository { get; } = new(MockBehavior.Strict);
         }

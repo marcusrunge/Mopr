@@ -1,7 +1,7 @@
 ﻿namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
 {
     /// <summary>
-    /// Defines the public contract of the assembly.
+    /// Defines the public contract of the MIRAS assembly.
     /// </summary>
     public interface IMiras
     {
@@ -11,13 +11,18 @@
         event Action<Exception> ExceptionThrown;
 
         /// <summary>
-        /// Gets the IFlow instance exposed by the assembly, if available.
+        /// Gets the MIRAS flow, if available.
         /// </summary>
         IFlow? Flow { get; }
 
         /// <summary>
-        /// Gets the IOperations instance exposed by the assembly, if available.
+        /// Gets the MIRAS integrity operations, if available.
         /// </summary>
         IOperations? Operations { get; }
+
+        /// <summary>
+        /// Gets the repository-infrastructure recovery service, if available.
+        /// </summary>
+        IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery { get; }
     }
 }

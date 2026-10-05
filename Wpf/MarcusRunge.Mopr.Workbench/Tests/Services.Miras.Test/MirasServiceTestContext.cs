@@ -1,3 +1,6 @@
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
@@ -13,21 +16,28 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public MirasServiceTestContext()
         {
+            AdministrativeAuthorizationService = new Mock<IAdministrativeAuthorizationService>(MockBehavior.Strict);
             Persistence = new Mock<IPersistence>(MockBehavior.Strict);
             PersistenceIntegrityService = new Mock<IPersistenceIntegrityService>(MockBehavior.Strict);
             Repository = new Mock<IRepository>(MockBehavior.Strict);
+            RepositoryLocationValidationService = new Mock<IRepositoryLocationValidationService>(MockBehavior.Strict);
             RepositoryRepairService = new Mock<IDicomRepositoryRepairService>(MockBehavior.Strict);
+            SystemAuditIdentityProvider = new Mock<ISystemAuditIdentityProvider>(MockBehavior.Strict);
 
             Persistence.SetupGet(value => value.Integrity).Returns(PersistenceIntegrityService.Object);
             Repository.SetupGet(value => value.RepositoryRepairService).Returns(RepositoryRepairService.Object);
 
             ApplicationLifetime = new TestApplicationLifetime();
 
-            var factory = new MirasFactory(ApplicationLifetime, Persistence.Object, Repository.Object);
+            var factory = new MirasFactory(ApplicationLifetime, Persistence.Object, Repository.Object, AdministrativeAuthorizationService.Object, RepositoryLocationValidationService.Object, SystemAuditIdentityProvider.Object);
             Operations = factory.Create().Operations ?? throw new InvalidOperationException("The MIRAS service was not initialized.");
         }
 
+        public Mock<IAdministrativeAuthorizationService> AdministrativeAuthorizationService { get; }
+
         public TestApplicationLifetime ApplicationLifetime { get; }
+
+        public IOperations Operations { get; }
 
         public Mock<IPersistence> Persistence { get; }
 
@@ -35,13 +45,23 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         public Mock<IRepository> Repository { get; }
 
+        public Mock<IRepositoryLocationValidationService> RepositoryLocationValidationService { get; }
+
         public Mock<IDicomRepositoryRepairService> RepositoryRepairService { get; }
 
-        public IOperations Operations { get; }
+        public Mock<ISystemAuditIdentityProvider> SystemAuditIdentityProvider { get; }
 
-        public void ConfigurePersistenceResult(PersistenceIntegrityResult result) => PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        public void ConfigurePersistenceResult(PersistenceIntegrityResult result)
+        {
+            ArgumentNullException.ThrowIfNull(result);
+            PersistenceIntegrityService.Setup(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        }
 
-        public void ConfigureRepositoryResult(DicomRepositoryRepairResult result) => RepositoryRepairService.Setup(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        public void ConfigureRepositoryResult(DicomRepositoryRepairResult result)
+        {
+            ArgumentNullException.ThrowIfNull(result);
+            RepositoryRepairService.Setup(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        }
 
         public void Dispose()
         {
@@ -51,9 +71,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             }
 
             _disposed = true;
-
             ApplicationLifetime.Dispose();
-
             GC.SuppressFinalize(this);
         }
 

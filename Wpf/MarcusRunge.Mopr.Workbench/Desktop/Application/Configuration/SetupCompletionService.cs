@@ -1,6 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -14,13 +15,13 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
     /// <summary>
     /// Coordinates the technical completion of the machine-wide MOPR setup.
     /// </summary>
-    internal sealed class SetupCompletionService(IMachineConfigurationService machineConfigurationService, IRepositoryLocationValidationService repositoryLocationValidationService, IPersistence persistence, ISetupAuditIdentityProvider auditIdentityProvider, BehaviorSubject<PersistenceConfiguration> persistenceConfigurationSubject, BehaviorSubject<IApplicationConfiguration> applicationConfigurationSubject) : ISetupCompletionService
+    internal sealed class SetupCompletionService(IMachineConfigurationService machineConfigurationService, IRepositoryLocationValidationService repositoryLocationValidationService, IPersistence persistence, ISystemAuditIdentityProvider systemAuditIdentityProvider, BehaviorSubject<PersistenceConfiguration> persistenceConfigurationSubject, BehaviorSubject<IApplicationConfiguration> applicationConfigurationSubject) : ISetupCompletionService
     {
         private const string DefaultRepositoryName = "Default DICOM repository";
         private static readonly TimeSpan RollbackTimeout = TimeSpan.FromSeconds(30);
 
         private readonly BehaviorSubject<IApplicationConfiguration> _applicationConfigurationSubject = applicationConfigurationSubject ?? throw new ArgumentNullException(nameof(applicationConfigurationSubject));
-        private readonly ISetupAuditIdentityProvider _auditIdentityProvider = auditIdentityProvider ?? throw new ArgumentNullException(nameof(auditIdentityProvider));
+        private readonly ISystemAuditIdentityProvider _systemAuditIdentityProvider = systemAuditIdentityProvider ?? throw new ArgumentNullException(nameof(systemAuditIdentityProvider));
         private readonly IMachineConfigurationService _machineConfigurationService = machineConfigurationService ?? throw new ArgumentNullException(nameof(machineConfigurationService));
         private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
         private readonly BehaviorSubject<PersistenceConfiguration> _persistenceConfigurationSubject = persistenceConfigurationSubject ?? throw new ArgumentNullException(nameof(persistenceConfigurationSubject));
@@ -75,7 +76,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 
                 var repositoryLocationRepository = _persistence.RepositoryLocation ?? throw new InvalidOperationException("The Persistence repository-location contract is not available.");
 
-                var auditUserId = await _auditIdentityProvider.GetOrCreateUserIdAsync(cancellationToken).ConfigureAwait(false);
+                var auditUserId = await _systemAuditIdentityProvider.GetOrCreateUserIdAsync(cancellationToken).ConfigureAwait(false);
 
                 repositoryLocationChange = await EnsureDefaultRepositoryLocationAsync(repositoryLocationRepository, normalizedRepositoryPath, auditUserId, cancellationToken).ConfigureAwait(false);
 

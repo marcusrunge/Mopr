@@ -1,5 +1,8 @@
 ﻿using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -42,19 +45,27 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
         private sealed class TestMirasBase(ILifetimeService applicationLifetime, IOperations operations) : IMirasBase
         {
+            public IAdministrativeAuthorizationService AdministrativeAuthorizationService => throw CreateUnavailableDependencyException(nameof(AdministrativeAuthorizationService));
+
             public ILifetimeService? LifetimeService { get; } = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
 
             public ILogger? Logger => null;
 
             public IOperations? Operations { get; } = operations ?? throw new ArgumentNullException(nameof(operations));
 
-            public IPersistence Persistence => throw new InvalidOperationException("Persistence is not available in the isolated MIRAS flow test context.");
+            public IPersistence Persistence => throw CreateUnavailableDependencyException(nameof(Persistence));
 
-            public IRepository Repository => throw new InvalidOperationException("Repository is not available in the isolated MIRAS flow test context.");
+            public IRepository Repository => throw CreateUnavailableDependencyException(nameof(Repository));
 
-            public void OnExceptionThrown(Exception exception)
-            {
-            }
+            public IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery => null;
+
+            public IRepositoryLocationValidationService RepositoryLocationValidationService => throw CreateUnavailableDependencyException(nameof(RepositoryLocationValidationService));
+
+            public ISystemAuditIdentityProvider SystemAuditIdentityProvider => throw CreateUnavailableDependencyException(nameof(SystemAuditIdentityProvider));
+
+            public void OnExceptionThrown(Exception exception) => ArgumentNullException.ThrowIfNull(exception);
+
+            private static InvalidOperationException CreateUnavailableDependencyException(string dependencyName) => new($"'{dependencyName}' is not available in the isolated MIRAS flow test context.");
         }
     }
 }

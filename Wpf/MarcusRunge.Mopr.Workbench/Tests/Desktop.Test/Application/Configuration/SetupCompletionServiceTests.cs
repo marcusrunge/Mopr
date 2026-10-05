@@ -2,6 +2,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -56,7 +57,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
             context.RepositoryLocationValidationService.Verify(service => service.ValidateAsync(context.RepositoryPath, cancellationToken), Times.Once);
 
-            context.AuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(cancellationToken), Times.Once);
+            context.SystemAuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(cancellationToken), Times.Once);
         }
 
         [Fact]
@@ -79,7 +80,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
                 service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Never);
 
-            context.AuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
+            context.SystemAuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
 
             context.MachineConfigurationService.Verify(service => service.SaveAsync(It.IsAny<IApplicationConfiguration>(), It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -100,7 +101,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             Assert.Null(context.SavedConfiguration);
             Assert.False(context.ApplicationConfigurationSubject.Value.IsSetupComplete);
 
-            context.AuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
+            context.SystemAuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
 
             context.MachineConfigurationService.Verify(service => service.SaveAsync(It.IsAny<IApplicationConfiguration>(), It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -339,7 +340,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
             context.Persistence.VerifyGet(persistence => persistence.RepositoryLocation, Times.Never);
 
-            context.AuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
+            context.SystemAuditIdentityProvider.Verify(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         private sealed class SetupCompletionServiceTestContext
@@ -383,17 +384,17 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
                     NormalizedPath = repositoryValid ? NormalizedRepositoryPath : RepositoryPath
                 });
 
-                AuditIdentityProvider.Setup(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>())).ReturnsAsync(AuditUserId);
+                SystemAuditIdentityProvider.Setup(provider => provider.GetOrCreateUserIdAsync(It.IsAny<CancellationToken>())).ReturnsAsync(AuditUserId);
 
                 var initialApplicationConfiguration = CreateApplicationConfiguration(isSetupComplete: false);
 
                 ApplicationConfigurationSubject = new BehaviorSubject<IApplicationConfiguration>(initialApplicationConfiguration);
                 PersistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
 
-                Service = new SetupCompletionService(MachineConfigurationService.Object, RepositoryLocationValidationService.Object, Persistence.Object, AuditIdentityProvider.Object, PersistenceConfigurationSubject, ApplicationConfigurationSubject);
+                Service = new SetupCompletionService(MachineConfigurationService.Object, RepositoryLocationValidationService.Object, Persistence.Object, SystemAuditIdentityProvider.Object, PersistenceConfigurationSubject, ApplicationConfigurationSubject);
             }
 
-            public Mock<ISetupAuditIdentityProvider> AuditIdentityProvider { get; } = new(MockBehavior.Strict);
+            public Mock<ISystemAuditIdentityProvider> SystemAuditIdentityProvider { get; } = new(MockBehavior.Strict);
 
             public BehaviorSubject<IApplicationConfiguration> ApplicationConfigurationSubject { get; }
 

@@ -345,4 +345,25 @@
   <data name="MirasStatus_Detected" xml:space="preserve">
     <value>Condition detected</value>
   </data>
+	<data name="RepositoryInfrastructureRecoveryStatus_NotStarted" xml:space="preserve">
+  <value>Not started</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_Completed" xml:space="preserve">
+  <value>Completed</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_AdministrativeAuthorizationRequired" xml:space="preserve">
+  <value>Administrative authorization required</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_RepositoryValidationFailed" xml:space="preserve">
+  <value>Repository validation failed</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_RepositoryAlreadyConfigured" xml:space="preserve">
+  <value>Repository already configured</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_PersistenceUnavailable" xml:space="preserve">
+  <value>Persistence unavailable</value>
+</data>
+	<data name="RepositoryInfrastructureRecoveryStatus_Failed" xml:space="preserve">
+  <value>Failed</value>
+</data>
 </root>

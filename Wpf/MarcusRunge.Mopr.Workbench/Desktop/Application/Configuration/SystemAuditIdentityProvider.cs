@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using System;
@@ -11,7 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
     /// <summary>
     /// Resolves the persistent technical audit identity used for machine-wide setup changes.
     /// </summary>
-    internal sealed class SetupAuditIdentityProvider(IPersistence persistence) : ISetupAuditIdentityProvider
+    internal sealed class SystemAuditIdentityProvider(IPersistence persistence) : ISystemAuditIdentityProvider
     {
         private const string SystemFirstName = "MOPR";
         private const string SystemLastName = "System";

@@ -1,4 +1,7 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -20,35 +23,28 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
     /// <summary>
     /// Creates and retains one MIRAS module instance per factory.
     /// </summary>
-    public sealed class MirasFactory : IMirasFactory
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="MirasFactory"/> class.
+    /// </remarks>
+    public sealed class MirasFactory(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISystemAuditIdentityProvider systemAuditIdentityProvider) : IMirasFactory
     {
-        private readonly ILifetimeService? _applicationLifetime;
-        private readonly ILogger? _logger;
-        private readonly IPersistence _persistence;
-        private readonly IRepository _repository;
+        private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
+        private readonly ILifetimeService? _applicationLifetime = applicationLifetime;
+        private readonly ILogger? _logger = logger;
+        private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
+        private readonly IRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = repositoryLocationValidationService ?? throw new ArgumentNullException(nameof(repositoryLocationValidationService));
+        private readonly ISystemAuditIdentityProvider _systemAuditIdentityProvider = systemAuditIdentityProvider ?? throw new ArgumentNullException(nameof(systemAuditIdentityProvider));
         private IMiras? _moduleInstance;
 
-        public MirasFactory(ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MirasFactory"/> class.
+        /// </summary>
+        public MirasFactory(ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISystemAuditIdentityProvider systemAuditIdentityProvider) : this(logger: null, applicationLifetime, persistence, repository, administrativeAuthorizationService, repositoryLocationValidationService, systemAuditIdentityProvider)
         {
-            _applicationLifetime = applicationLifetime;
-            _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
-
-        public MirasFactory(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository)
-        {
-            _logger = logger;
-            _applicationLifetime = applicationLifetime;
-            _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         /// <inheritdoc/>
-        public IMiras Create()
-        {
-            // MIRAS remains stable within one factory. Separate composition roots receive
-            // independent module instances with their corresponding dependencies.
-            return _moduleInstance ??= new Implementations.Miras(_logger, _applicationLifetime, _persistence, _repository);
-        }
+        public IMiras Create() => _moduleInstance ??= new Implementations.Miras(_logger, _applicationLifetime, _persistence, _repository, _administrativeAuthorizationService, _repositoryLocationValidationService, _systemAuditIdentityProvider);
     }
 }

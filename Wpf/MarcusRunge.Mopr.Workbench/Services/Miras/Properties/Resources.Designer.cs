@@ -743,5 +743,68 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Properties {
                 return ResourceManager.GetString("MirasStatus_Detected", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrative authorization required ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_AdministrativeAuthorizationRequired {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_AdministrativeAuthorizationRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_Completed {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_Failed {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistence unavailable ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_PersistenceUnavailable {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository already configured ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_RepositoryAlreadyConfigured {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_RepositoryAlreadyConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository validation failed ähnelt.
+        /// </summary>
+        public static string RepositoryInfrastructureRecoveryStatus_RepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("RepositoryInfrastructureRecoveryStatus_RepositoryValidationFailed", resourceCulture);
+            }
+        }
     }
 }
