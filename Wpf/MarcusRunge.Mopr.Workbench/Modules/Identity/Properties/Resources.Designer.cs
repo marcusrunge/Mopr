@@ -527,50 +527,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Properties {
                 return ResourceManager.GetString("InitialSetupVerificationStep", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS PROTECTED STATE ähnelt.
-        /// </summary>
-        public static string MirasActionRequiredBadge {
-            get {
-                return ResourceManager.GetString("MirasActionRequiredBadge", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench remains unavailable until the configuration has been checked and restored. ähnelt.
-        /// </summary>
-        public static string MirasActionRequiredDescription {
-            get {
-                return ResourceManager.GetString("MirasActionRequiredDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR • MIRAS PROTECTED STARTUP STATE • IMAGING UNAVAILABLE ähnelt.
-        /// </summary>
-        public static string MirasActionRequiredFooter {
-            get {
-                return ResourceManager.GetString("MirasActionRequiredFooter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die No image data was changed. MOPR has stopped the protected startup sequence to prevent access to incomplete or inconsistent repository data. ähnelt.
-        /// </summary>
-        public static string MirasActionRequiredSafetyNotice {
-            get {
-                return ResourceManager.GetString("MirasActionRequiredSafetyNotice", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required ähnelt.
-        /// </summary>
-        public static string MirasActionRequiredTitle {
-            get {
-                return ResourceManager.GetString("MirasActionRequiredTitle", resourceCulture);
-            }
-        }
     }
 }

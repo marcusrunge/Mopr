@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace MarcusRunge.Mopr.Workbench.Modules.Identity.Views
+namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Views
 {
     /// <summary>
     /// Displays the protected startup state for a required MIRAS action.

@@ -16,6 +16,7 @@ using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Import;
+using MarcusRunge.Mopr.Workbench.Modules.Miras;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
 using MarcusRunge.Mopr.Workbench.Services.Application;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -60,6 +61,7 @@ namespace MarcusRunge.Mopr.Workbench
         {
             moduleCatalog.AddModule<IdentityModule>();
             moduleCatalog.AddModule<ImagingModule>();
+            moduleCatalog.AddModule<MirasModule>();
             moduleCatalog.AddModule<ImportModule>();
             moduleCatalog.AddModule<SetupModule>();
         }
@@ -208,26 +210,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IUserStartupRouteService, UserStartupRouteService>();
         }
 
-        private static string ResolveMirasNavigationTarget(MirasOperationResult result)
-        {
-            ArgumentNullException.ThrowIfNull(result);
-
-            /*
-             * Imaging is released only after MIRAS completed a technically complete
-             * assessment and found no condition requiring an explicit action.
-             * Unknown or internally inconsistent result states remain fail-closed.
-             */
-            return result.Status switch
-            {
-                MirasOperationStatus.Completed when !result.HasIssues && !result.HasTechnicalErrors => NavigationNames.Imaging,
-
-                MirasOperationStatus.CompletedWithIssues when !result.HasActionRequired && !result.HasTechnicalErrors => NavigationNames.Imaging,
-
-                MirasOperationStatus.Completed or MirasOperationStatus.CompletedWithIssues or MirasOperationStatus.Blocked or MirasOperationStatus.Incomplete or MirasOperationStatus.Failed => NavigationNames.MirasActionRequired,
-
-                _ => NavigationNames.MirasActionRequired
-            };
-        }
+        private static string ResolveMirasNavigationTarget(MirasOperationResult result) => MirasImagingReleasePolicy.CanOpenImaging(result) ? NavigationNames.Imaging : NavigationNames.MirasActionRequired;
 
         private static void ShowForwardingFailedMessage() => MessageBox.Show(WorkbenchResources.SingleInstanceForwardingFailedMessage, WorkbenchResources.SingleInstanceForwardingFailedTitle, MessageBoxButton.OK, MessageBoxImage.Information);
 

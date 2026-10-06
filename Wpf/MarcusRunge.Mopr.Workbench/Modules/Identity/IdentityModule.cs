@@ -18,8 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Identity
         {
             containerRegistry.RegisterForNavigation<UserProvisioningView>(NavigationNames.IdentityProvisioning);
             containerRegistry.RegisterForNavigation<UserBlockedView>(NavigationNames.IdentityBlocked);
-            containerRegistry.RegisterForNavigation<IdentityUnavailableView>(NavigationNames.IdentityUnavailable);
-            containerRegistry.RegisterForNavigation<MirasActionRequiredView>(NavigationNames.MirasActionRequired);
+            containerRegistry.RegisterForNavigation<IdentityUnavailableView>(NavigationNames.IdentityUnavailable);           
         }
     }
 }
