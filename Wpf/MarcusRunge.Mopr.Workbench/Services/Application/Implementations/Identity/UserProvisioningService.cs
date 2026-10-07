@@ -30,20 +30,25 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
 
             var contextManager = Base.CurrentUserContextManager ?? throw new InvalidOperationException("The current-user context manager is not available.");
-
-            // A previous identity must never remain active while the protected
-            // initial-user bootstrap is unresolved or unsuccessful.
-            await contextManager.ClearAsync(cancellationToken).ConfigureAwait(false);
-
             var applicationBase = ((IServiceBase)Base).ApplicationBase ?? throw new InvalidOperationException("The application-service context is not available.");
             var administrativeAuthorizationService = applicationBase.AdministrativeAuthorizationService;
 
-            // Initial user provisioning changes the persistent authorization
-            // boundary. A missing authorization service therefore means denied.
+            /*
+             * Initial user provisioning changes the persistent authorization
+             * boundary. Authorization must be checked before the active user
+             * context is cleared so a denied request cannot terminate a valid
+             * existing application session.
+             */
             if (administrativeAuthorizationService?.IsElevatedAdministrator != true)
             {
                 return UserProvisioningResult.AdministrativeAuthorizationRequired();
             }
+
+            /*
+             * After authorization has succeeded, a previous identity must not
+             * remain active while provisioning is unresolved or unsuccessful.
+             */
+            await contextManager.ClearAsync(cancellationToken).ConfigureAwait(false);
 
             var operatingSystemIdentityProvider = applicationBase.OperatingSystemIdentityProvider;
 
@@ -52,14 +57,19 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return UserProvisioningResult.OperatingSystemIdentityUnavailable();
             }
 
-            var operatingSystemIdentity = await operatingSystemIdentityProvider.GetCurrentIdentityAsync(cancellationToken).ConfigureAwait(false);
+            var resolvedIdentity = await operatingSystemIdentityProvider.GetCurrentIdentityAsync(cancellationToken).ConfigureAwait(false);
 
-            if (operatingSystemIdentity is null)
+            if (resolvedIdentity is null)
             {
                 return UserProvisioningResult.OperatingSystemIdentityUnavailable();
             }
 
-            operatingSystemIdentity = new OperatingSystemIdentity(IdentityValueNormalizer.NormalizeLoginName(operatingSystemIdentity.LoginName));
+            var operatingSystemIdentity = NormalizeOperatingSystemIdentity(resolvedIdentity);
+
+            if (operatingSystemIdentity.SecurityIdentifier is null)
+            {
+                return UserProvisioningResult.OperatingSystemIdentityUnavailable();
+            }
 
             var userRepository = applicationBase.Persistence?.User;
 
@@ -72,7 +82,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             try
             {
-                existingUser = await userRepository.GetByLoginNameAsync(operatingSystemIdentity.LoginName, cancellationToken).ConfigureAwait(false);
+                existingUser = await ResolvePersistentUserAsync(userRepository, operatingSystemIdentity, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -86,7 +96,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             if (existingUser is not null)
             {
-                return await HandleExistingUserAsync(existingUser, operatingSystemIdentity, contextManager, applicationBase, cancellationToken).ConfigureAwait(false);
+                return await HandleExistingUserAsync(userRepository, existingUser, operatingSystemIdentity, contextManager, applicationBase, cancellationToken).ConfigureAwait(false);
             }
 
             bool hasPersonalUsers;
@@ -107,8 +117,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
 
             if (hasPersonalUsers)
             {
-                // This service may create only the first personal user. Additional
-                // users require the dedicated administrative user management flow.
+                /*
+                 * This service may create only the first personal user. Additional
+                 * users require the dedicated administrative user-management flow.
+                 */
                 applicationBase.OnExceptionThrown(new InvalidOperationException("Initial user provisioning is unavailable because a personal MOPR user already exists."));
                 return UserProvisioningResult.Failed(operatingSystemIdentity);
             }
@@ -121,6 +133,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 LastName = validation.LastName,
                 LoginName = operatingSystemIdentity.LoginName,
                 PersonnelNumber = validation.PersonnelNumber,
+                SecurityIdentifier = operatingSystemIdentity.SecurityIdentifier,
                 ShortName = validation.ShortName
             };
 
@@ -134,13 +147,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
             catch (Exception creationException)
             {
-                // A competing MOPR instance may have provisioned this Windows
-                // identity after the initial lookup.
-                var concurrentlyCreatedUser = await TryGetExistingUserAsync(userRepository, operatingSystemIdentity.LoginName, cancellationToken).ConfigureAwait(false);
+                /*
+                 * A competing MOPR instance may have provisioned this Windows
+                 * account after the initial lookup. The SID remains authoritative
+                 * when the competing record is resolved.
+                 */
+                var concurrentlyCreatedUser = await TryGetExistingUserAsync(userRepository, operatingSystemIdentity, cancellationToken).ConfigureAwait(false);
 
                 if (concurrentlyCreatedUser is not null)
                 {
-                    return await HandleExistingUserAsync(concurrentlyCreatedUser, operatingSystemIdentity, contextManager, applicationBase, cancellationToken).ConfigureAwait(false);
+                    return await HandleExistingUserAsync(userRepository, concurrentlyCreatedUser, operatingSystemIdentity, contextManager, applicationBase, cancellationToken).ConfigureAwait(false);
                 }
 
                 applicationBase.OnExceptionThrown(creationException);
@@ -169,8 +185,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             return Task.CompletedTask;
         }
 
-        private static async Task<UserProvisioningResult> HandleExistingUserAsync(User user, OperatingSystemIdentity operatingSystemIdentity, ICurrentUserContextManager contextManager, IApplicationBase applicationBase, CancellationToken cancellationToken)
+        private static async Task<UserProvisioningResult> HandleExistingUserAsync(IUserRepository userRepository, User user, OperatingSystemIdentity operatingSystemIdentity, ICurrentUserContextManager contextManager, IApplicationBase applicationBase, CancellationToken cancellationToken)
         {
+            try
+            {
+                user = await SynchronizePersistentIdentityAsync(userRepository, user, operatingSystemIdentity, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                /*
+                 * Provisioning must not publish a user whose durable Windows
+                 * assignment could not be confirmed or persisted.
+                 */
+                applicationBase.OnExceptionThrown(exception);
+                return UserProvisioningResult.Failed(operatingSystemIdentity);
+            }
+
             CurrentUser currentUser;
 
             try
@@ -188,17 +222,98 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
                 return UserProvisioningResult.UserDisabled(operatingSystemIdentity, currentUser);
             }
 
-            // A matching active user created by a competing application instance
-            // can become the current user without repeating provisioning.
+            /*
+             * A matching active user created by a competing application instance
+             * can become the current user without repeating provisioning.
+             */
             await contextManager.SetCurrentUserAsync(currentUser, cancellationToken).ConfigureAwait(false);
+
             return UserProvisioningResult.UserAlreadyExists(operatingSystemIdentity, currentUser);
         }
 
-        private static async Task<User?> TryGetExistingUserAsync(IUserRepository userRepository, string loginName, CancellationToken cancellationToken)
+        private static OperatingSystemIdentity NormalizeOperatingSystemIdentity(OperatingSystemIdentity identity)
+        {
+            ArgumentNullException.ThrowIfNull(identity);
+
+            var loginName = IdentityValueNormalizer.NormalizeLoginName(identity.LoginName);
+            var securityIdentifier = NormalizeSecurityIdentifier(identity.SecurityIdentifier);
+
+            return new OperatingSystemIdentity(loginName, securityIdentifier);
+        }
+
+        private static string? NormalizeSecurityIdentifier(string? securityIdentifier) => string.IsNullOrWhiteSpace(securityIdentifier) ? null : securityIdentifier.Trim();
+
+        private static async Task<User?> ResolvePersistentUserAsync(IUserRepository userRepository, OperatingSystemIdentity operatingSystemIdentity, CancellationToken cancellationToken)
+        {
+            var securityIdentifier = operatingSystemIdentity.SecurityIdentifier ?? throw new InvalidOperationException("The operating-system identity does not contain a Windows security identifier.");
+            var userBySecurityIdentifier = await userRepository.GetBySecurityIdentifierAsync(securityIdentifier, cancellationToken).ConfigureAwait(false);
+
+            if (userBySecurityIdentifier is not null)
+            {
+                return userBySecurityIdentifier;
+            }
+
+            /*
+             * Login-name fallback exists only for migration of a user created
+             * before SID assignment was introduced. A record that already owns
+             * another SID must never be reassigned because Windows reused a name.
+             */
+            var userByLoginName = await userRepository.GetByLoginNameAsync(operatingSystemIdentity.LoginName, cancellationToken).ConfigureAwait(false);
+
+            return userByLoginName is null || !string.IsNullOrWhiteSpace(userByLoginName.SecurityIdentifier)
+                ? null
+                : userByLoginName;
+        }
+
+        private static async Task<User> SynchronizePersistentIdentityAsync(IUserRepository userRepository, User persistentUser, OperatingSystemIdentity operatingSystemIdentity, CancellationToken cancellationToken)
+        {
+            var securityIdentifier = operatingSystemIdentity.SecurityIdentifier ?? throw new InvalidOperationException("The operating-system identity does not contain a Windows security identifier.");
+            var persistentSecurityIdentifier = NormalizeSecurityIdentifier(persistentUser.SecurityIdentifier);
+
+            if (persistentSecurityIdentifier is not null && !string.Equals(persistentSecurityIdentifier, securityIdentifier, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException("The persistent MOPR user is assigned to a different Windows security identifier.");
+            }
+
+            var loginNameChanged = !string.Equals(persistentUser.LoginName, operatingSystemIdentity.LoginName, StringComparison.OrdinalIgnoreCase);
+            var securityIdentifierChanged = persistentSecurityIdentifier is null;
+
+            if (!loginNameChanged && !securityIdentifierChanged)
+            {
+                return persistentUser;
+            }
+
+            /*
+             * The SID is the durable assignment. Login-name synchronization is
+             * allowed only after a matching SID or a safe legacy fallback has
+             * confirmed ownership of the persistent user.
+             */
+            persistentUser.LoginName = operatingSystemIdentity.LoginName;
+            persistentUser.SecurityIdentifier = securityIdentifier;
+
+            await userRepository.UpdateAsync(persistentUser, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return persistentUser;
+        }
+
+        private static async Task<User?> TryGetExistingUserAsync(IUserRepository userRepository, OperatingSystemIdentity operatingSystemIdentity, CancellationToken cancellationToken)
         {
             try
             {
-                return await userRepository.GetByLoginNameAsync(loginName, cancellationToken).ConfigureAwait(false);
+                var securityIdentifier = operatingSystemIdentity.SecurityIdentifier ?? throw new InvalidOperationException("The operating-system identity does not contain a Windows security identifier.");
+                var userBySecurityIdentifier = await userRepository.GetBySecurityIdentifierAsync(securityIdentifier, cancellationToken).ConfigureAwait(false);
+
+                if (userBySecurityIdentifier is not null)
+                {
+                    return userBySecurityIdentifier;
+                }
+
+                var userByLoginName = await userRepository.GetByLoginNameAsync(operatingSystemIdentity.LoginName, cancellationToken).ConfigureAwait(false);
+
+                return userByLoginName is null || !string.IsNullOrWhiteSpace(userByLoginName.SecurityIdentifier)
+                    ? null
+                    : userByLoginName;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -206,8 +321,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             }
             catch
             {
-                // The original creation failure remains authoritative when the
-                // verification lookup cannot confirm a uniqueness race.
+                /*
+                 * The original creation failure remains authoritative when the
+                 * verification lookup cannot confirm a safe uniqueness race.
+                 */
                 return null;
             }
         }

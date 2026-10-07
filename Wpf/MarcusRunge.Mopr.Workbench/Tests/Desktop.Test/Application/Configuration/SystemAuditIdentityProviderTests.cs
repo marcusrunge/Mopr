@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 {
-    public sealed class SetupAuditIdentityProviderTests
+    public sealed class SystemAuditIdentityProviderTests
     {
         private const string SystemLoginName = @"MOPR\SYSTEM";
 

@@ -13,14 +13,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 {
     public sealed class CurrentUserAuditIdentityProviderTests
     {
+        private const int UserId = 73;
         private const string LoginName = @"DOMAIN\User";
+        private const string SecurityIdentifier = "S-1-5-21-1000000000-2000000000-3000000000-1001";
 
         [Fact]
         public async Task GetCurrentUserIdAsync_WhenNoUserIsSignedIn_ReturnsNull()
         {
             var context = CreateContext();
 
-            int? result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
+            var result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
 
             Assert.Null(result);
         }
@@ -28,58 +30,79 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         [Fact]
         public async Task GetCurrentUserIdAsync_WhenActiveUserIsSignedIn_ReturnsPersistentUserId()
         {
-            var context = CreateContext(new User { Id = 73, FirstName = "Marcus", IsActive = true, LastName = "Runge", LoginName = LoginName, ShortName = "MR" });
+            var context = CreateContext(CreatePersistentUser(isActive: true));
 
-            UserSignInResult signInResult = await context.UserSignInService.SignInAsync(TestContext.Current.CancellationToken);
-            int? result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
+            var signInResult = await context.UserSignInService.SignInAsync(TestContext.Current.CancellationToken);
+            var result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserSignInStatus.SignedIn, signInResult.Status);
-            Assert.Equal(73, result);
+            Assert.Equal(UserId, result);
+            context.UserRepository.Verify(repository => repository.GetBySecurityIdentifierAsync(SecurityIdentifier, TestContext.Current.CancellationToken), Times.Once);
+            context.UserRepository.Verify(repository => repository.GetByLoginNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task GetCurrentUserIdAsync_WhenUserIsDisabled_ReturnsNull()
         {
-            var context = CreateContext(new User { Id = 73, FirstName = "Marcus", IsActive = false, LastName = "Runge", LoginName = LoginName, ShortName = "MR" });
+            var context = CreateContext(CreatePersistentUser(isActive: false));
 
-            UserSignInResult signInResult = await context.UserSignInService.SignInAsync(TestContext.Current.CancellationToken);
-            int? result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
+            var signInResult = await context.UserSignInService.SignInAsync(TestContext.Current.CancellationToken);
+            var result = await context.AuditIdentityProvider.GetCurrentUserIdAsync(TestContext.Current.CancellationToken);
 
             Assert.Equal(UserSignInStatus.UserDisabled, signInResult.Status);
             Assert.Null(result);
+            context.UserRepository.Verify(repository => repository.GetBySecurityIdentifierAsync(SecurityIdentifier, TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
         public async Task GetCurrentUserIdAsync_WhenCanceled_PropagatesCancellation()
         {
             var context = CreateContext();
-            using var cancellation = new CancellationTokenSource();
-            await cancellation.CancelAsync();
+            using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.AuditIdentityProvider.GetCurrentUserIdAsync(cancellation.Token));
+            await cancellationSource.CancelAsync();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.AuditIdentityProvider.GetCurrentUserIdAsync(cancellationSource.Token));
         }
 
         private static TestContextData CreateContext(User? persistentUser = null)
         {
             var operatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
-            operatingSystemIdentityProvider.Setup(x => x.GetCurrentIdentityAsync(TestContext.Current.CancellationToken)).ReturnsAsync(new OperatingSystemIdentity(LoginName));
+
+            operatingSystemIdentityProvider
+                .Setup(provider => provider.GetCurrentIdentityAsync(TestContext.Current.CancellationToken))
+                .ReturnsAsync(new OperatingSystemIdentity(LoginName, SecurityIdentifier));
 
             var userRepository = new Mock<IUserRepository>(MockBehavior.Strict);
-            userRepository.Setup(x => x.GetByLoginNameAsync(LoginName, TestContext.Current.CancellationToken)).ReturnsAsync(persistentUser);
+
+            userRepository
+                .Setup(repository => repository.GetBySecurityIdentifierAsync(SecurityIdentifier, TestContext.Current.CancellationToken))
+                .ReturnsAsync(persistentUser);
 
             var persistence = new Mock<IPersistence>(MockBehavior.Strict);
-            persistence.SetupGet(x => x.User).Returns(userRepository.Object);
+            persistence.SetupGet(instance => instance.User).Returns(userRepository.Object);
 
             var factory = new ApplicationFactory(persistence: persistence.Object, repository: null, operatingSystemIdentityProvider: operatingSystemIdentityProvider.Object);
-            IApplication application = factory.Create();
+            var application = factory.Create();
             var identityService = application.IdentityService ?? throw new InvalidOperationException("The identity service is not available.");
             var identityServiceBase = identityService as IIdentityServiceBase ?? throw new InvalidOperationException("The internal identity-service contract is not available.");
             var auditIdentityProvider = identityServiceBase.AuditIdentityProvider ?? throw new InvalidOperationException("The current-user audit identity provider is not available.");
             var userSignInService = identityService.UserSignInService ?? throw new InvalidOperationException("The user sign-in service is not available.");
 
-            return new TestContextData(auditIdentityProvider, userSignInService);
+            return new TestContextData(auditIdentityProvider, userSignInService, userRepository);
         }
 
-        private sealed record TestContextData(IAuditIdentityProvider AuditIdentityProvider, IUserSignInService UserSignInService);
+        private static User CreatePersistentUser(bool isActive) => new()
+        {
+            Id = UserId,
+            FirstName = "Marcus",
+            IsActive = isActive,
+            LastName = "Runge",
+            LoginName = LoginName,
+            SecurityIdentifier = SecurityIdentifier,
+            ShortName = "MR"
+        };
+
+        private sealed record TestContextData(IAuditIdentityProvider AuditIdentityProvider, IUserSignInService UserSignInService, Mock<IUserRepository> UserRepository);
     }
 }

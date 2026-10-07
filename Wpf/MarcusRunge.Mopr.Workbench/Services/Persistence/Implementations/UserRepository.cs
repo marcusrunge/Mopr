@@ -47,7 +47,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         {
             if (id <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(id), "Id must be a positive integer.");
+                throw new ArgumentOutOfRangeException(nameof(id), id, "Id must be a positive integer.");
             }
 
             await using var context = Base.CreateDbContext();
@@ -69,13 +69,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         }
 
         /// <inheritdoc/>
+        public async Task<User?> GetBySecurityIdentifierAsync(string securityIdentifier, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(securityIdentifier))
+            {
+                throw new ArgumentException("The security identifier must not be empty.", nameof(securityIdentifier));
+            }
+
+            var normalizedSecurityIdentifier = securityIdentifier.Trim();
+
+            /*
+             * The SID is the durable Windows-account assignment. Existing users
+             * may temporarily have no SID during migration, but null values must
+             * never participate in assignment resolution.
+             */
+            await using var context = Base.CreateDbContext();
+            return await context.Users.AsNoTracking().FirstOrDefaultAsync(user => user.SecurityIdentifier != null && user.SecurityIdentifier == normalizedSecurityIdentifier, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> HasPersonalUsersAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             await using var context = Base.CreateDbContext();
 
-            // The technical setup identity audits protected machine-wide changes,
+            // The technical system identity audits protected machine-wide changes,
             // but it must never complete the personal-user bootstrap requirement.
             return await context.Users.AsNoTracking().AnyAsync(user => user.LoginName != WellKnownUserLoginNames.System, cancellationToken).ConfigureAwait(false);
         }

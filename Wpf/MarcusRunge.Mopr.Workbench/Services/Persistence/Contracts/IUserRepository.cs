@@ -3,25 +3,33 @@
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
 {
     /// <summary>
-    /// Defines the contract for a repository managing User entities.
+    /// Provides persistent access to MOPR users.
     /// </summary>
     public interface IUserRepository : IRepository<User>
     {
         /// <summary>
-        /// Gets a User entity by its login name.
+        /// Gets the user assigned to the supplied operating-system login name.
         /// </summary>
-        /// <param name="loginName">The login name of the user.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the User entity, or null if not found.</returns>
+        /// <param name="loginName">The operating-system login name.</param>
+        /// <param name="cancellationToken">Cancels the lookup.</param>
+        /// <returns>The assigned user, or <see langword="null"/> when no assignment exists.</returns>
         Task<User?> GetByLoginNameAsync(string loginName, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Gets the user assigned to the supplied Windows security identifier.
+        /// </summary>
+        /// <param name="securityIdentifier">The durable Windows security identifier.</param>
+        /// <param name="cancellationToken">Cancels the lookup.</param>
+        /// <returns>The assigned user, or <see langword="null"/> when no assignment exists.</returns>
+        Task<User?> GetBySecurityIdentifierAsync(string securityIdentifier, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Determines whether at least one personal MOPR user exists.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">Cancels the lookup.</param>
         /// <returns>
-        /// A task whose result is <see langword="true"/> when at least one
-        /// nontechnical persistent MOPR user exists; otherwise, <see langword="false"/>.
+        /// <see langword="true"/> when a user other than the reserved technical
+        /// MOPR system identity exists; otherwise, <see langword="false"/>.
         /// </returns>
         Task<bool> HasPersonalUsersAsync(CancellationToken cancellationToken = default);
     }

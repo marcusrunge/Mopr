@@ -5,6 +5,12 @@
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="PersistenceIntegrationTests.UserSecurityIdentifier.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="PersistenceIntegrationTests.UserSecurityIdentifier.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="coverlet.collector" Version="10.1.0">

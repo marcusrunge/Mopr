@@ -12,7 +12,6 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             Status = status;
             OperatingSystemIdentity = operatingSystemIdentity;
             User = user;
-
             Validate();
         }
 
@@ -35,6 +34,33 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         /// Gets the persistent MOPR user when one was resolved.
         /// </summary>
         public CurrentUser? User { get; }
+
+        /// <summary>
+        /// Creates a failed result without exposing technical diagnostic information.
+        /// </summary>
+        /// <param name="operatingSystemIdentity">The resolved operating-system identity when available.</param>
+        /// <returns>The failed sign-in result.</returns>
+        public static UserSignInResult Failed(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserSignInStatus.Failed, operatingSystemIdentity, null);
+
+        /// <summary>
+        /// Creates a result for an assigned user with an invalid persistent identifier.
+        /// </summary>
+        /// <param name="operatingSystemIdentity">The resolved operating-system identity.</param>
+        /// <returns>The invalid persistent identifier result.</returns>
+        public static UserSignInResult InvalidPersistentUserId(OperatingSystemIdentity operatingSystemIdentity) => CreateWithoutUser(UserSignInStatus.InvalidPersistentUserId, operatingSystemIdentity);
+
+        /// <summary>
+        /// Creates a result indicating that no usable operating-system identity is available.
+        /// </summary>
+        /// <returns>The unavailable operating-system identity result.</returns>
+        public static UserSignInResult OperatingSystemIdentityUnavailable() => new(UserSignInStatus.OperatingSystemIdentityUnavailable, null, null);
+
+        /// <summary>
+        /// Creates a result indicating that Persistence is unavailable.
+        /// </summary>
+        /// <param name="operatingSystemIdentity">The resolved operating-system identity when available.</param>
+        /// <returns>The unavailable Persistence result.</returns>
+        public static UserSignInResult PersistenceUnavailable(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserSignInStatus.PersistenceUnavailable, operatingSystemIdentity, null);
 
         /// <summary>
         /// Creates a result for a successful user sign-in.
@@ -63,19 +89,6 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         }
 
         /// <summary>
-        /// Creates a result indicating that no usable operating-system identity is available.
-        /// </summary>
-        /// <returns>The unavailable operating-system identity result.</returns>
-        public static UserSignInResult OperatingSystemIdentityUnavailable() => new(UserSignInStatus.OperatingSystemIdentityUnavailable, null, null);
-
-        /// <summary>
-        /// Creates a result indicating that no persistent MOPR user is assigned.
-        /// </summary>
-        /// <param name="operatingSystemIdentity">The resolved operating-system identity.</param>
-        /// <returns>The unknown-user result.</returns>
-        public static UserSignInResult UserUnknown(OperatingSystemIdentity operatingSystemIdentity) => CreateWithoutUser(UserSignInStatus.UserUnknown, operatingSystemIdentity);
-
-        /// <summary>
         /// Creates a result for a disabled persistent MOPR user.
         /// </summary>
         /// <param name="operatingSystemIdentity">The resolved operating-system identity.</param>
@@ -102,25 +115,11 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
         }
 
         /// <summary>
-        /// Creates a result for an assigned user with an invalid persistent identifier.
+        /// Creates a result indicating that no persistent MOPR user is assigned.
         /// </summary>
         /// <param name="operatingSystemIdentity">The resolved operating-system identity.</param>
-        /// <returns>The invalid persistent identifier result.</returns>
-        public static UserSignInResult InvalidPersistentUserId(OperatingSystemIdentity operatingSystemIdentity) => CreateWithoutUser(UserSignInStatus.InvalidPersistentUserId, operatingSystemIdentity);
-
-        /// <summary>
-        /// Creates a result indicating that Persistence is unavailable.
-        /// </summary>
-        /// <param name="operatingSystemIdentity">The resolved operating-system identity when available.</param>
-        /// <returns>The unavailable Persistence result.</returns>
-        public static UserSignInResult PersistenceUnavailable(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserSignInStatus.PersistenceUnavailable, operatingSystemIdentity, null);
-
-        /// <summary>
-        /// Creates a failed result without exposing technical diagnostic information.
-        /// </summary>
-        /// <param name="operatingSystemIdentity">The resolved operating-system identity when available.</param>
-        /// <returns>The failed sign-in result.</returns>
-        public static UserSignInResult Failed(OperatingSystemIdentity? operatingSystemIdentity = null) => new(UserSignInStatus.Failed, operatingSystemIdentity, null);
+        /// <returns>The unknown-user result.</returns>
+        public static UserSignInResult UserUnknown(OperatingSystemIdentity operatingSystemIdentity) => CreateWithoutUser(UserSignInStatus.UserUnknown, operatingSystemIdentity);
 
         private static UserSignInResult CreateWithoutUser(UserSignInStatus status, OperatingSystemIdentity operatingSystemIdentity)
         {
@@ -132,6 +131,8 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
             return new UserSignInResult(status, operatingSystemIdentity, null);
         }
 
+        private static string? NormalizeOptionalValue(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
         private void Validate()
         {
             if (Status == UserSignInStatus.SignedIn)
@@ -141,7 +142,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
                     throw new InvalidOperationException("A successful sign-in result requires an operating-system identity and an active persistent MOPR user.");
                 }
 
-                ValidateMatchingLoginNames();
+                ValidateMatchingIdentity();
                 return;
             }
 
@@ -152,7 +153,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
                     throw new InvalidOperationException("A disabled-user result requires an operating-system identity and an inactive persistent MOPR user.");
                 }
 
-                ValidateMatchingLoginNames();
+                ValidateMatchingIdentity();
                 return;
             }
 
@@ -161,15 +162,43 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models
                 throw new InvalidOperationException("The sign-in result must not contain a persistent MOPR user for the selected status.");
             }
 
-            if (Status is UserSignInStatus.UserUnknown or UserSignInStatus.InvalidPersistentUserId && OperatingSystemIdentity is null)
+            if ((Status == UserSignInStatus.UserUnknown || Status == UserSignInStatus.InvalidPersistentUserId) && OperatingSystemIdentity is null)
             {
                 throw new InvalidOperationException("The sign-in result requires an operating-system identity for the selected status.");
             }
         }
 
-        private void ValidateMatchingLoginNames()
+        private void ValidateMatchingIdentity()
         {
-            if (!string.Equals(OperatingSystemIdentity!.LoginName, User!.LoginName, StringComparison.OrdinalIgnoreCase))
+            var operatingSystemSecurityIdentifier = NormalizeOptionalValue(OperatingSystemIdentity!.SecurityIdentifier);
+            var persistentSecurityIdentifier = NormalizeOptionalValue(User!.SecurityIdentifier);
+
+            /*
+             * A one-sided SID indicates an incomplete identity migration. Successful
+             * and disabled-user results must not hide that inconsistent state behind
+             * a matching, potentially reusable login name.
+             */
+            if ((operatingSystemSecurityIdentifier is null) != (persistentSecurityIdentifier is null))
+            {
+                throw new InvalidOperationException("The operating-system identity and persistent MOPR user do not contain a consistent security-identifier assignment.");
+            }
+
+            if (operatingSystemSecurityIdentifier is not null)
+            {
+                if (!string.Equals(operatingSystemSecurityIdentifier, persistentSecurityIdentifier, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException("The operating-system identity does not match the assigned persistent MOPR user.");
+                }
+
+                return;
+            }
+
+            /*
+             * Login-name matching remains available only when both contracts are
+             * legacy identities without a SID. The sign-in service must migrate a
+             * persistent login-only assignment before constructing a SID-based result.
+             */
+            if (!string.Equals(OperatingSystemIdentity.LoginName, User.LoginName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("The operating-system identity does not match the assigned persistent MOPR user.");
             }

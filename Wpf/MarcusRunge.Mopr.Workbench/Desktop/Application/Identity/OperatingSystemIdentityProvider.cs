@@ -11,25 +11,39 @@ namespace MarcusRunge.Mopr.Workbench.Application.Identity
     /// </summary>
     internal sealed class OperatingSystemIdentityProvider : IOperatingSystemIdentityProvider
     {
-        private readonly IWindowsIdentityNameAccessor _identityNameAccessor;
+        private readonly IWindowsIdentityAccessor _identityAccessor;
 
-        public OperatingSystemIdentityProvider() : this(new WindowsIdentityNameAccessor())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatingSystemIdentityProvider"/> class.
+        /// </summary>
+        public OperatingSystemIdentityProvider() : this(new WindowsIdentityAccessor())
         {
         }
 
-        internal OperatingSystemIdentityProvider(IWindowsIdentityNameAccessor identityNameAccessor) => _identityNameAccessor = identityNameAccessor ?? throw new ArgumentNullException(nameof(identityNameAccessor));
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatingSystemIdentityProvider"/> class.
+        /// </summary>
+        /// <param name="identityAccessor">Provides the current Windows identity snapshot.</param>
+        internal OperatingSystemIdentityProvider(IWindowsIdentityAccessor identityAccessor) => _identityAccessor = identityAccessor ?? throw new ArgumentNullException(nameof(identityAccessor));
 
         /// <inheritdoc/>
         public Task<OperatingSystemIdentity?> GetCurrentIdentityAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var loginName = _identityNameAccessor.GetCurrentLoginName()?.Trim();
+            var identityInfo = _identityAccessor.GetCurrentIdentity();
+            var loginName = identityInfo?.LoginName?.Trim();
+            var securityIdentifier = identityInfo?.SecurityIdentifier?.Trim();
 
-            // Windows tokens, SIDs and principal objects remain inside this
-            // platform boundary. Only the login name required for the durable
-            // MOPR user assignment crosses the public contract.
-            OperatingSystemIdentity? identity = string.IsNullOrWhiteSpace(loginName) ? null : new OperatingSystemIdentity(loginName);
+            /*
+             * Login name and SID originate from the same Windows access-token
+             * snapshot. The public identity contract receives both values so
+             * downstream services can use the SID as the durable assignment.
+             */
+            OperatingSystemIdentity? identity = string.IsNullOrWhiteSpace(loginName) || string.IsNullOrWhiteSpace(securityIdentifier)
+                ? null
+                : new OperatingSystemIdentity(loginName, securityIdentifier);
+
             return Task.FromResult(identity);
         }
     }
