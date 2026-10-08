@@ -1,5 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Administration;
+using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Application.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
 using MarcusRunge.Mopr.Workbench.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
@@ -10,6 +11,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
@@ -151,6 +153,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
             containerRegistry.RegisterSingleton<IRepositoryLocationValidationService, RepositoryLocationValidationService>();
+            containerRegistry.RegisterSingleton<IRepositoryLocationAdministrationService>(provider => new RepositoryLocationAdministrationService(provider.Resolve<IPersistence>()));
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);

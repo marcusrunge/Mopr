@@ -19,437 +19,606 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties
         private static ResourceManager? resourceMan;
         private static CultureInfo? resourceCulture;
 
-        internal Resources()
-        {
-        }
+        internal Resources() { }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
         public static ResourceManager ResourceManager => resourceMan ??= new ResourceManager("MarcusRunge.Mopr.Workbench.Modules.Setup.Properties.Resources", typeof(Resources).Assembly);
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static CultureInfo? Culture
-        {
-            get => resourceCulture;
-            set => resourceCulture = value;
-        }
+        public static CultureInfo? Culture { get => resourceCulture; set => resourceCulture = value; }
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_AccessDeniedDescription.
+        /// Looks up the localized resource value for Administration_AccessDeniedDescription.
         /// </summary>
         public static string Administration_AccessDeniedDescription => ResourceManager.GetString(nameof(Administration_AccessDeniedDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_AccessDeniedTitle.
+        /// Looks up the localized resource value for Administration_AccessDeniedTitle.
         /// </summary>
         public static string Administration_AccessDeniedTitle => ResourceManager.GetString(nameof(Administration_AccessDeniedTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_AdministratorAccessActive.
+        /// Looks up the localized resource value for Administration_AdministratorAccessActive.
         /// </summary>
         public static string Administration_AdministratorAccessActive => ResourceManager.GetString(nameof(Administration_AdministratorAccessActive), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Database.
+        /// Looks up the localized resource value for Administration_Database.
         /// </summary>
         public static string Administration_Database => ResourceManager.GetString(nameof(Administration_Database), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_DatabaseDescription.
+        /// Looks up the localized resource value for Administration_DatabaseDescription.
         /// </summary>
         public static string Administration_DatabaseDescription => ResourceManager.GetString(nameof(Administration_DatabaseDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_NavigationDescription.
-        /// </summary>
-        public static string Administration_NavigationDescription => ResourceManager.GetString(nameof(Administration_NavigationDescription), resourceCulture) ?? string.Empty;
-
-        /// <summary>
-        /// Looks up a localized string similar to Administration_NavigationTitle.
-        /// </summary>
-        public static string Administration_NavigationTitle => ResourceManager.GetString(nameof(Administration_NavigationTitle), resourceCulture) ?? string.Empty;
-
-        /// <summary>
-        /// Looks up a localized string similar to Administration_Overview.
+        /// Looks up the localized resource value for Administration_Overview.
         /// </summary>
         public static string Administration_Overview => ResourceManager.GetString(nameof(Administration_Overview), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_OverviewDescription.
+        /// Looks up the localized resource value for Administration_OverviewDescription.
         /// </summary>
         public static string Administration_OverviewDescription => ResourceManager.GetString(nameof(Administration_OverviewDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_PrototypeNotice.
+        /// Looks up the localized resource value for Administration_PrototypeNotice.
         /// </summary>
         public static string Administration_PrototypeNotice => ResourceManager.GetString(nameof(Administration_PrototypeNotice), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Repository.
+        /// Looks up the localized resource value for Administration_Repository.
         /// </summary>
         public static string Administration_Repository => ResourceManager.GetString(nameof(Administration_Repository), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_RepositoryDescription.
+        /// Looks up the localized resource value for Administration_RepositoryDescription.
         /// </summary>
         public static string Administration_RepositoryDescription => ResourceManager.GetString(nameof(Administration_RepositoryDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_ReturnToImaging.
+        /// Looks up the localized resource value for Administration_ReturnToImaging.
         /// </summary>
         public static string Administration_ReturnToImaging => ResourceManager.GetString(nameof(Administration_ReturnToImaging), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Security.
+        /// Looks up the localized resource value for Administration_Security.
         /// </summary>
         public static string Administration_Security => ResourceManager.GetString(nameof(Administration_Security), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_SecurityDescription.
+        /// Looks up the localized resource value for Administration_SecurityDescription.
         /// </summary>
         public static string Administration_SecurityDescription => ResourceManager.GetString(nameof(Administration_SecurityDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Settings.
+        /// Looks up the localized resource value for Administration_Settings.
         /// </summary>
         public static string Administration_Settings => ResourceManager.GetString(nameof(Administration_Settings), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_SystemCheck.
+        /// Looks up the localized resource value for Administration_SystemCheck.
         /// </summary>
         public static string Administration_SystemCheck => ResourceManager.GetString(nameof(Administration_SystemCheck), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_SystemCheckDescription.
+        /// Looks up the localized resource value for Administration_SystemCheckDescription.
         /// </summary>
         public static string Administration_SystemCheckDescription => ResourceManager.GetString(nameof(Administration_SystemCheckDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Title.
+        /// Looks up the localized resource value for Administration_Title.
         /// </summary>
         public static string Administration_Title => ResourceManager.GetString(nameof(Administration_Title), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_Users.
+        /// Looks up the localized resource value for Administration_Users.
         /// </summary>
         public static string Administration_Users => ResourceManager.GetString(nameof(Administration_Users), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Administration_UsersDescription.
+        /// Looks up the localized resource value for Administration_UsersDescription.
         /// </summary>
         public static string Administration_UsersDescription => ResourceManager.GetString(nameof(Administration_UsersDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_AdministratorAccessActive.
+        /// Looks up the localized resource value for DatabaseAdministration_AccessDenied.
+        /// </summary>
+        public static string DatabaseAdministration_AccessDenied => ResourceManager.GetString(nameof(DatabaseAdministration_AccessDenied), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Canceled.
+        /// </summary>
+        public static string DatabaseAdministration_Canceled => ResourceManager.GetString(nameof(DatabaseAdministration_Canceled), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_ChangesDiscarded.
+        /// </summary>
+        public static string DatabaseAdministration_ChangesDiscarded => ResourceManager.GetString(nameof(DatabaseAdministration_ChangesDiscarded), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_ConnectionString.
+        /// </summary>
+        public static string DatabaseAdministration_ConnectionString => ResourceManager.GetString(nameof(DatabaseAdministration_ConnectionString), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Discard.
+        /// </summary>
+        public static string DatabaseAdministration_Discard => ResourceManager.GetString(nameof(DatabaseAdministration_Discard), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_LoadFailed.
+        /// </summary>
+        public static string DatabaseAdministration_LoadFailed => ResourceManager.GetString(nameof(DatabaseAdministration_LoadFailed), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Loading.
+        /// </summary>
+        public static string DatabaseAdministration_Loading => ResourceManager.GetString(nameof(DatabaseAdministration_Loading), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_RestartRequired.
+        /// </summary>
+        public static string DatabaseAdministration_RestartRequired => ResourceManager.GetString(nameof(DatabaseAdministration_RestartRequired), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Save.
+        /// </summary>
+        public static string DatabaseAdministration_Save => ResourceManager.GetString(nameof(DatabaseAdministration_Save), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_SaveFailed.
+        /// </summary>
+        public static string DatabaseAdministration_SaveFailed => ResourceManager.GetString(nameof(DatabaseAdministration_SaveFailed), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Saved.
+        /// </summary>
+        public static string DatabaseAdministration_Saved => ResourceManager.GetString(nameof(DatabaseAdministration_Saved), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Saving.
+        /// </summary>
+        public static string DatabaseAdministration_Saving => ResourceManager.GetString(nameof(DatabaseAdministration_Saving), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_SensitiveValueNotice.
+        /// </summary>
+        public static string DatabaseAdministration_SensitiveValueNotice => ResourceManager.GetString(nameof(DatabaseAdministration_SensitiveValueNotice), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_TestConnection.
+        /// </summary>
+        public static string DatabaseAdministration_TestConnection => ResourceManager.GetString(nameof(DatabaseAdministration_TestConnection), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_TestFailed.
+        /// </summary>
+        public static string DatabaseAdministration_TestFailed => ResourceManager.GetString(nameof(DatabaseAdministration_TestFailed), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_TestSucceeded.
+        /// </summary>
+        public static string DatabaseAdministration_TestSucceeded => ResourceManager.GetString(nameof(DatabaseAdministration_TestSucceeded), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for DatabaseAdministration_Testing.
+        /// </summary>
+        public static string DatabaseAdministration_Testing => ResourceManager.GetString(nameof(DatabaseAdministration_Testing), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Canceled.
+        /// </summary>
+        public static string RepositoryAdministration_Canceled => ResourceManager.GetString(nameof(RepositoryAdministration_Canceled), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_ConfiguredLocations.
+        /// </summary>
+        public static string RepositoryAdministration_ConfiguredLocations => ResourceManager.GetString(nameof(RepositoryAdministration_ConfiguredLocations), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Default.
+        /// </summary>
+        public static string RepositoryAdministration_Default => ResourceManager.GetString(nameof(RepositoryAdministration_Default), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Disabled.
+        /// </summary>
+        public static string RepositoryAdministration_Disabled => ResourceManager.GetString(nameof(RepositoryAdministration_Disabled), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Failed.
+        /// </summary>
+        public static string RepositoryAdministration_Failed => ResourceManager.GetString(nameof(RepositoryAdministration_Failed), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_FolderDialogTitle.
+        /// </summary>
+        public static string RepositoryAdministration_FolderDialogTitle => ResourceManager.GetString(nameof(RepositoryAdministration_FolderDialogTitle), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Invalid.
+        /// </summary>
+        public static string RepositoryAdministration_Invalid => ResourceManager.GetString(nameof(RepositoryAdministration_Invalid), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_LoadFailed.
+        /// </summary>
+        public static string RepositoryAdministration_LoadFailed => ResourceManager.GetString(nameof(RepositoryAdministration_LoadFailed), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Loading.
+        /// </summary>
+        public static string RepositoryAdministration_Loading => ResourceManager.GetString(nameof(RepositoryAdministration_Loading), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Missing.
+        /// </summary>
+        public static string RepositoryAdministration_Missing => ResourceManager.GetString(nameof(RepositoryAdministration_Missing), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_NoLocations.
+        /// </summary>
+        public static string RepositoryAdministration_NoLocations => ResourceManager.GetString(nameof(RepositoryAdministration_NoLocations), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_NotReadable.
+        /// </summary>
+        public static string RepositoryAdministration_NotReadable => ResourceManager.GetString(nameof(RepositoryAdministration_NotReadable), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_NotWritable.
+        /// </summary>
+        public static string RepositoryAdministration_NotWritable => ResourceManager.GetString(nameof(RepositoryAdministration_NotWritable), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Path.
+        /// </summary>
+        public static string RepositoryAdministration_Path => ResourceManager.GetString(nameof(RepositoryAdministration_Path), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_ScopeNotice.
+        /// </summary>
+        public static string RepositoryAdministration_ScopeNotice => ResourceManager.GetString(nameof(RepositoryAdministration_ScopeNotice), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_SelectFolder.
+        /// </summary>
+        public static string RepositoryAdministration_SelectFolder => ResourceManager.GetString(nameof(RepositoryAdministration_SelectFolder), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Valid.
+        /// </summary>
+        public static string RepositoryAdministration_Valid => ResourceManager.GetString(nameof(RepositoryAdministration_Valid), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Validate.
+        /// </summary>
+        public static string RepositoryAdministration_Validate => ResourceManager.GetString(nameof(RepositoryAdministration_Validate), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_Validating.
+        /// </summary>
+        public static string RepositoryAdministration_Validating => ResourceManager.GetString(nameof(RepositoryAdministration_Validating), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for RepositoryAdministration_ValidationNotice.
+        /// </summary>
+        public static string RepositoryAdministration_ValidationNotice => ResourceManager.GetString(nameof(RepositoryAdministration_ValidationNotice), resourceCulture) ?? string.Empty;
+
+        /// <summary>
+        /// Looks up the localized resource value for Setup_AdministratorAccessActive.
         /// </summary>
         public static string Setup_AdministratorAccessActive => ResourceManager.GetString(nameof(Setup_AdministratorAccessActive), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_AdministratorRequired.
+        /// Looks up the localized resource value for Setup_AdministratorRequired.
         /// </summary>
         public static string Setup_AdministratorRequired => ResourceManager.GetString(nameof(Setup_AdministratorRequired), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_Back.
+        /// Looks up the localized resource value for Setup_Back.
         /// </summary>
         public static string Setup_Back => ResourceManager.GetString(nameof(Setup_Back), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CancelSetupCompletion.
+        /// Looks up the localized resource value for Setup_CancelSetupCompletion.
         /// </summary>
         public static string Setup_CancelSetupCompletion => ResourceManager.GetString(nameof(Setup_CancelSetupCompletion), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompleteSetup.
+        /// Looks up the localized resource value for Setup_CompleteSetup.
         /// </summary>
         public static string Setup_CompleteSetup => ResourceManager.GetString(nameof(Setup_CompleteSetup), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletingSetup.
+        /// Looks up the localized resource value for Setup_CompletingSetup.
         /// </summary>
         public static string Setup_CompletingSetup => ResourceManager.GetString(nameof(Setup_CompletingSetup), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionCanceled.
+        /// Looks up the localized resource value for Setup_CompletionCanceled.
         /// </summary>
         public static string Setup_CompletionCanceled => ResourceManager.GetString(nameof(Setup_CompletionCanceled), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionCancellationRequested.
+        /// Looks up the localized resource value for Setup_CompletionCancellationRequested.
         /// </summary>
         public static string Setup_CompletionCancellationRequested => ResourceManager.GetString(nameof(Setup_CompletionCancellationRequested), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionDatabaseValidationFailed.
+        /// Looks up the localized resource value for Setup_CompletionDatabaseValidationFailed.
         /// </summary>
         public static string Setup_CompletionDatabaseValidationFailed => ResourceManager.GetString(nameof(Setup_CompletionDatabaseValidationFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionDescription.
+        /// Looks up the localized resource value for Setup_CompletionDescription.
         /// </summary>
         public static string Setup_CompletionDescription => ResourceManager.GetString(nameof(Setup_CompletionDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionFailed.
+        /// Looks up the localized resource value for Setup_CompletionFailed.
         /// </summary>
         public static string Setup_CompletionFailed => ResourceManager.GetString(nameof(Setup_CompletionFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionNoChangesNotice.
+        /// Looks up the localized resource value for Setup_CompletionNoChangesNotice.
         /// </summary>
         public static string Setup_CompletionNoChangesNotice => ResourceManager.GetString(nameof(Setup_CompletionNoChangesNotice), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionReadyDescription.
+        /// Looks up the localized resource value for Setup_CompletionReadyDescription.
         /// </summary>
         public static string Setup_CompletionReadyDescription => ResourceManager.GetString(nameof(Setup_CompletionReadyDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionReadyTitle.
+        /// Looks up the localized resource value for Setup_CompletionReadyTitle.
         /// </summary>
         public static string Setup_CompletionReadyTitle => ResourceManager.GetString(nameof(Setup_CompletionReadyTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionRepositoryValidationFailed.
+        /// Looks up the localized resource value for Setup_CompletionRepositoryValidationFailed.
         /// </summary>
         public static string Setup_CompletionRepositoryValidationFailed => ResourceManager.GetString(nameof(Setup_CompletionRepositoryValidationFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionRollbackFailed.
+        /// Looks up the localized resource value for Setup_CompletionRollbackFailed.
         /// </summary>
         public static string Setup_CompletionRollbackFailed => ResourceManager.GetString(nameof(Setup_CompletionRollbackFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionRunning.
+        /// Looks up the localized resource value for Setup_CompletionRunning.
         /// </summary>
         public static string Setup_CompletionRunning => ResourceManager.GetString(nameof(Setup_CompletionRunning), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionStep.
+        /// Looks up the localized resource value for Setup_CompletionStep.
         /// </summary>
         public static string Setup_CompletionStep => ResourceManager.GetString(nameof(Setup_CompletionStep), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionSuccessful.
+        /// Looks up the localized resource value for Setup_CompletionSuccessful.
         /// </summary>
         public static string Setup_CompletionSuccessful => ResourceManager.GetString(nameof(Setup_CompletionSuccessful), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CompletionTitle.
+        /// Looks up the localized resource value for Setup_CompletionTitle.
         /// </summary>
         public static string Setup_CompletionTitle => ResourceManager.GetString(nameof(Setup_CompletionTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ConfigurationLoadCanceled.
+        /// Looks up the localized resource value for Setup_ConfigurationLoadCanceled.
         /// </summary>
         public static string Setup_ConfigurationLoadCanceled => ResourceManager.GetString(nameof(Setup_ConfigurationLoadCanceled), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ConfigurationLoadFailed.
+        /// Looks up the localized resource value for Setup_ConfigurationLoadFailed.
         /// </summary>
         public static string Setup_ConfigurationLoadFailed => ResourceManager.GetString(nameof(Setup_ConfigurationLoadFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ConfigurationLoading.
+        /// Looks up the localized resource value for Setup_ConfigurationLoading.
         /// </summary>
         public static string Setup_ConfigurationLoading => ResourceManager.GetString(nameof(Setup_ConfigurationLoading), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ConfigurationScope.
+        /// Looks up the localized resource value for Setup_ConfigurationScope.
         /// </summary>
         public static string Setup_ConfigurationScope => ResourceManager.GetString(nameof(Setup_ConfigurationScope), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ConfigurationScopeDescription.
+        /// Looks up the localized resource value for Setup_ConfigurationScopeDescription.
         /// </summary>
         public static string Setup_ConfigurationScopeDescription => ResourceManager.GetString(nameof(Setup_ConfigurationScopeDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_Continue.
+        /// Looks up the localized resource value for Setup_Continue.
         /// </summary>
         public static string Setup_Continue => ResourceManager.GetString(nameof(Setup_Continue), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_CurrentStep.
+        /// Looks up the localized resource value for Setup_CurrentStep.
         /// </summary>
         public static string Setup_CurrentStep => ResourceManager.GetString(nameof(Setup_CurrentStep), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseConnectionCanceled.
+        /// Looks up the localized resource value for Setup_DatabaseConnectionCanceled.
         /// </summary>
         public static string Setup_DatabaseConnectionCanceled => ResourceManager.GetString(nameof(Setup_DatabaseConnectionCanceled), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseConnectionFailed.
+        /// Looks up the localized resource value for Setup_DatabaseConnectionFailed.
         /// </summary>
         public static string Setup_DatabaseConnectionFailed => ResourceManager.GetString(nameof(Setup_DatabaseConnectionFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseConnectionLabel.
+        /// Looks up the localized resource value for Setup_DatabaseConnectionLabel.
         /// </summary>
         public static string Setup_DatabaseConnectionLabel => ResourceManager.GetString(nameof(Setup_DatabaseConnectionLabel), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseConnectionSuccessful.
+        /// Looks up the localized resource value for Setup_DatabaseConnectionSuccessful.
         /// </summary>
         public static string Setup_DatabaseConnectionSuccessful => ResourceManager.GetString(nameof(Setup_DatabaseConnectionSuccessful), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseConnectionTesting.
+        /// Looks up the localized resource value for Setup_DatabaseConnectionTesting.
         /// </summary>
         public static string Setup_DatabaseConnectionTesting => ResourceManager.GetString(nameof(Setup_DatabaseConnectionTesting), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseDescription.
+        /// Looks up the localized resource value for Setup_DatabaseDescription.
         /// </summary>
         public static string Setup_DatabaseDescription => ResourceManager.GetString(nameof(Setup_DatabaseDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_DatabaseTitle.
+        /// Looks up the localized resource value for Setup_DatabaseTitle.
         /// </summary>
         public static string Setup_DatabaseTitle => ResourceManager.GetString(nameof(Setup_DatabaseTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_Description.
+        /// Looks up the localized resource value for Setup_Description.
         /// </summary>
         public static string Setup_Description => ResourceManager.GetString(nameof(Setup_Description), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_HeaderBadge.
+        /// Looks up the localized resource value for Setup_HeaderBadge.
         /// </summary>
         public static string Setup_HeaderBadge => ResourceManager.GetString(nameof(Setup_HeaderBadge), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_HeaderContext.
+        /// Looks up the localized resource value for Setup_HeaderContext.
         /// </summary>
         public static string Setup_HeaderContext => ResourceManager.GetString(nameof(Setup_HeaderContext), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_LocalDataStatus.
+        /// Looks up the localized resource value for Setup_LocalDataStatus.
         /// </summary>
         public static string Setup_LocalDataStatus => ResourceManager.GetString(nameof(Setup_LocalDataStatus), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryDescription.
+        /// Looks up the localized resource value for Setup_RepositoryDescription.
         /// </summary>
         public static string Setup_RepositoryDescription => ResourceManager.GetString(nameof(Setup_RepositoryDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryDirectoryMissing.
+        /// Looks up the localized resource value for Setup_RepositoryDirectoryMissing.
         /// </summary>
         public static string Setup_RepositoryDirectoryMissing => ResourceManager.GetString(nameof(Setup_RepositoryDirectoryMissing), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryDirectoryNotReadable.
+        /// Looks up the localized resource value for Setup_RepositoryDirectoryNotReadable.
         /// </summary>
         public static string Setup_RepositoryDirectoryNotReadable => ResourceManager.GetString(nameof(Setup_RepositoryDirectoryNotReadable), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryDirectoryNotWritable.
+        /// Looks up the localized resource value for Setup_RepositoryDirectoryNotWritable.
         /// </summary>
         public static string Setup_RepositoryDirectoryNotWritable => ResourceManager.GetString(nameof(Setup_RepositoryDirectoryNotWritable), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryFolderDialogTitle.
+        /// Looks up the localized resource value for Setup_RepositoryFolderDialogTitle.
         /// </summary>
         public static string Setup_RepositoryFolderDialogTitle => ResourceManager.GetString(nameof(Setup_RepositoryFolderDialogTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryNotSelected.
+        /// Looks up the localized resource value for Setup_RepositoryNotSelected.
         /// </summary>
         public static string Setup_RepositoryNotSelected => ResourceManager.GetString(nameof(Setup_RepositoryNotSelected), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryPathLabel.
+        /// Looks up the localized resource value for Setup_RepositoryPathLabel.
         /// </summary>
         public static string Setup_RepositoryPathLabel => ResourceManager.GetString(nameof(Setup_RepositoryPathLabel), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryStep.
+        /// Looks up the localized resource value for Setup_RepositoryStep.
         /// </summary>
         public static string Setup_RepositoryStep => ResourceManager.GetString(nameof(Setup_RepositoryStep), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryTemporaryNotice.
+        /// Looks up the localized resource value for Setup_RepositoryTemporaryNotice.
         /// </summary>
         public static string Setup_RepositoryTemporaryNotice => ResourceManager.GetString(nameof(Setup_RepositoryTemporaryNotice), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryTitle.
+        /// Looks up the localized resource value for Setup_RepositoryTitle.
         /// </summary>
         public static string Setup_RepositoryTitle => ResourceManager.GetString(nameof(Setup_RepositoryTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryValidationCanceled.
+        /// Looks up the localized resource value for Setup_RepositoryValidationCanceled.
         /// </summary>
         public static string Setup_RepositoryValidationCanceled => ResourceManager.GetString(nameof(Setup_RepositoryValidationCanceled), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryValidationFailed.
+        /// Looks up the localized resource value for Setup_RepositoryValidationFailed.
         /// </summary>
         public static string Setup_RepositoryValidationFailed => ResourceManager.GetString(nameof(Setup_RepositoryValidationFailed), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryValidationRunning.
+        /// Looks up the localized resource value for Setup_RepositoryValidationRunning.
         /// </summary>
         public static string Setup_RepositoryValidationRunning => ResourceManager.GetString(nameof(Setup_RepositoryValidationRunning), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_RepositoryValidationSuccessful.
+        /// Looks up the localized resource value for Setup_RepositoryValidationSuccessful.
         /// </summary>
         public static string Setup_RepositoryValidationSuccessful => ResourceManager.GetString(nameof(Setup_RepositoryValidationSuccessful), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_SelectRepositoryLocation.
+        /// Looks up the localized resource value for Setup_SelectRepositoryLocation.
         /// </summary>
         public static string Setup_SelectRepositoryLocation => ResourceManager.GetString(nameof(Setup_SelectRepositoryLocation), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_TestDatabaseConnection.
+        /// Looks up the localized resource value for Setup_TestDatabaseConnection.
         /// </summary>
         public static string Setup_TestDatabaseConnection => ResourceManager.GetString(nameof(Setup_TestDatabaseConnection), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_Title.
+        /// Looks up the localized resource value for Setup_Title.
         /// </summary>
         public static string Setup_Title => ResourceManager.GetString(nameof(Setup_Title), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_UseLocalDatabase.
+        /// Looks up the localized resource value for Setup_UseLocalDatabase.
         /// </summary>
         public static string Setup_UseLocalDatabase => ResourceManager.GetString(nameof(Setup_UseLocalDatabase), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_UseLocalDatabaseDescription.
+        /// Looks up the localized resource value for Setup_UseLocalDatabaseDescription.
         /// </summary>
         public static string Setup_UseLocalDatabaseDescription => ResourceManager.GetString(nameof(Setup_UseLocalDatabaseDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_ValidateRepositoryLocation.
+        /// Looks up the localized resource value for Setup_ValidateRepositoryLocation.
         /// </summary>
         public static string Setup_ValidateRepositoryLocation => ResourceManager.GetString(nameof(Setup_ValidateRepositoryLocation), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_VerificationDescription.
+        /// Looks up the localized resource value for Setup_VerificationDescription.
         /// </summary>
         public static string Setup_VerificationDescription => ResourceManager.GetString(nameof(Setup_VerificationDescription), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_VerificationNoChangesNotice.
+        /// Looks up the localized resource value for Setup_VerificationNoChangesNotice.
         /// </summary>
         public static string Setup_VerificationNoChangesNotice => ResourceManager.GetString(nameof(Setup_VerificationNoChangesNotice), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_VerificationStep.
+        /// Looks up the localized resource value for Setup_VerificationStep.
         /// </summary>
         public static string Setup_VerificationStep => ResourceManager.GetString(nameof(Setup_VerificationStep), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_VerificationTitle.
+        /// Looks up the localized resource value for Setup_VerificationTitle.
         /// </summary>
         public static string Setup_VerificationTitle => ResourceManager.GetString(nameof(Setup_VerificationTitle), resourceCulture) ?? string.Empty;
 
         /// <summary>
-        /// Looks up a localized string similar to Setup_Verified.
+        /// Looks up the localized resource value for Setup_Verified.
         /// </summary>
         public static string Setup_Verified => ResourceManager.GetString(nameof(Setup_Verified), resourceCulture) ?? string.Empty;
     }

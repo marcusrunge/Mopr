@@ -25,7 +25,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     {
         private const int CompletionStep = 4;
         private const int DatabaseStep = 1;
-        private const string DefaultLocalDbConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=Mopr;Integrated Security=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+        private const string DefaultLocalDbConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
         private const int RepositoryStep = 2;
         private const int VerificationStep = 3;
 

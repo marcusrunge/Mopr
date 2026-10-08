@@ -1,0 +1,64 @@
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.RepositoryAdministrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="30">
+            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Repository}" />
+            <TextBlock Margin="0,8,0,22" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_RepositoryDescription}" />
+            <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.RepositoryAdministration_ConfiguredLocations}" />
+            <ListBox Margin="0,10,0,22" ItemsSource="{Binding Locations}" SelectedItem="{Binding SelectedLocation}" Background="Transparent" BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,0,8" Padding="14" Background="{StaticResource SetupCardSecondaryBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="1" CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Foreground="{StaticResource SetupTextBrush}" FontWeight="SemiBold" Text="{Binding Name}" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="{StaticResource SetupSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding RootPath}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                                    <TextBlock Foreground="{StaticResource SetupAccentBrush}" Text="{x:Static properties:Resources.RepositoryAdministration_Default}" Visibility="{Binding IsDefault, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="{StaticResource SetupMutedTextBrush}" Text="{x:Static properties:Resources.RepositoryAdministration_Disabled}"  >
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Border Padding="22" Background="{StaticResource SetupCardBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.RepositoryAdministration_Path}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <TextBox Style="{StaticResource SetupTextBoxStyle}" Text="{Binding RepositoryPath, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsInteractionEnabled}" />
+                        <Button Grid.Column="1" Margin="10,0,0,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding SelectFolderCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_SelectFolder}" />
+                    </Grid>
+                    <TextBlock Margin="0,10,0,0" Foreground="{StaticResource SetupMutedTextBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.RepositoryAdministration_ValidationNotice}" />
+                    <TextBlock Margin="0,16,0,0" Foreground="{StaticResource SetupSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding StatusText}" />
+                    <Button Margin="0,22,0,0" HorizontalAlignment="Right" Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding ValidateCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_Validate}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
