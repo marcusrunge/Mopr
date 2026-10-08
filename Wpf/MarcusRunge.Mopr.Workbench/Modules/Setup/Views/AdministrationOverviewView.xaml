@@ -13,50 +13,97 @@
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="AdministrationNavigationButtonStyle"
-                   TargetType="Button">
+               TargetType="Button">
                 <Setter Property="Height"
-                        Value="46" />
+                    Value="46" />
                 <Setter Property="Margin"
-                        Value="0,0,0,5" />
+                    Value="0,0,0,5" />
                 <Setter Property="Padding"
-                        Value="14,0" />
+                    Value="14,0" />
                 <Setter Property="HorizontalContentAlignment"
-                        Value="Left" />
+                    Value="Left" />
+                <Setter Property="VerticalContentAlignment"
+                    Value="Center" />
                 <Setter Property="Foreground"
-                        Value="{StaticResource SetupSecondaryTextBrush}" />
+                    Value="{StaticResource SetupSecondaryTextBrush}" />
                 <Setter Property="Background"
-                        Value="Transparent" />
+                    Value="Transparent" />
                 <Setter Property="BorderBrush"
-                        Value="Transparent" />
+                    Value="Transparent" />
                 <Setter Property="BorderThickness"
-                        Value="1" />
+                    Value="1" />
                 <Setter Property="FontSize"
-                        Value="14" />
+                    Value="14" />
+                <Setter Property="FontWeight"
+                    Value="Normal" />
                 <Setter Property="Cursor"
-                        Value="Hand" />
+                    Value="Hand" />
+                <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}" />
 
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver"
-                             Value="True">
-                        <Setter Property="Foreground"
-                                Value="{StaticResource SetupTextBrush}" />
-                        <Setter Property="Background"
-                                Value="{StaticResource SetupCardSecondaryBackgroundBrush}" />
-                    </Trigger>
-                </Style.Triggers>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="NavigationButtonBorder"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="2"
+                                SnapsToDevicePixels="True">
+
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </Border>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                    <Setter TargetName="NavigationButtonBorder"
+                                        Property="Background"
+                                        Value="#192A32" />
+
+                                    <Setter TargetName="NavigationButtonBorder"
+                                        Property="BorderBrush"
+                                        Value="#284650" />
+                                </Trigger>
+
+                                <Trigger Property="IsPressed"
+                                     Value="True">
+                                    <Setter TargetName="NavigationButtonBorder"
+                                        Property="Background"
+                                        Value="#1C343D" />
+
+                                    <Setter TargetName="NavigationButtonBorder"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource SetupAccentBrush}" />
+                                </Trigger>
+
+                                <Trigger Property="IsEnabled"
+                                     Value="False">
+                                    <Setter TargetName="NavigationButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.55" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <Style x:Key="AdministrationSelectedNavigationButtonStyle"
-                   BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                   TargetType="Button">
+               BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
+               TargetType="Button">
                 <Setter Property="Foreground"
-                        Value="{StaticResource SetupAccentBrush}" />
+                    Value="{StaticResource SetupAccentBrush}" />
                 <Setter Property="Background"
-                        Value="{StaticResource SetupAccentBackgroundBrush}" />
+                    Value="{StaticResource SetupAccentBackgroundBrush}" />
                 <Setter Property="BorderBrush"
-                        Value="#2A5963" />
+                    Value="#2A5963" />
                 <Setter Property="FontWeight"
-                        Value="SemiBold" />
+                    Value="SemiBold" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
