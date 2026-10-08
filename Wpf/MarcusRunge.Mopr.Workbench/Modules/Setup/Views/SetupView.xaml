@@ -7,6 +7,7 @@
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
              xmlns:steps="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Views.Steps"
              xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels"
+             xmlns:views="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Views"
              d:DataContext="{d:DesignInstance Type=viewModels:SetupViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1280"
@@ -22,6 +23,20 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource SetupBackgroundBrush}">
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsAdministrationMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsAdministrationAccessDenied}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
         <Grid.RowDefinitions>
             <RowDefinition Height="112" />
             <RowDefinition Height="*" />
@@ -691,5 +706,47 @@
                            Text="{x:Static properties:Resources.Setup_ConfigurationLoading}" />
             </StackPanel>
         </Border>
+    
+        </Grid>
+
+        <views:AdministrationOverviewView>
+            <views:AdministrationOverviewView.Style>
+                <Style TargetType="views:AdministrationOverviewView">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.IsAdministrationMode, RelativeSource={RelativeSource AncestorType={x:Type views:SetupView}}}" Value="True" />
+                                <Condition Binding="{Binding DataContext.IsAdministrationAccessDenied, RelativeSource={RelativeSource AncestorType={x:Type views:SetupView}}}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </views:AdministrationOverviewView.Style>
+        </views:AdministrationOverviewView>
+
+        <Border Margin="80" Padding="32" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Background="{StaticResource SetupCardBackgroundBrush}" BorderBrush="{StaticResource SetupErrorBrush}"
+                BorderThickness="1" CornerRadius="8">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsAdministrationAccessDenied}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel MaxWidth="560">
+                <TextBlock Foreground="{StaticResource SetupErrorBrush}" FontSize="20" FontWeight="SemiBold"
+                           Text="{x:Static properties:Resources.Administration_AccessDeniedTitle}" />
+                <TextBlock Margin="0,12,0,0" Style="{StaticResource SetupDescriptionStyle}"
+                           Text="{x:Static properties:Resources.Administration_AccessDeniedDescription}" />
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
+
+

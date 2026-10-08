@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImagingWorkbenchView"
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImagingWorkbenchView"
              xmlns:core="clr-namespace:MarcusRunge.Mopr.Workbench.Core;assembly=MarcusRunge.Mopr.Workbench.Core"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -55,7 +55,17 @@
                             VerticalAlignment="Center">
                     <Button Content="{x:Static properties:Resources.Workbench_Search}"
                             Margin="0,0,8,0" />
-                    <Button Content="☰" />
+                    <Button x:Name="ApplicationMenuButton"
+                            Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Click="OpenApplicationMenu"
+                            Content="☰">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{x:Static properties:Resources.Workbench_SettingsAndAdministration}"
+                                          Command="{Binding PlacementTarget.Tag.OpenAdministrationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

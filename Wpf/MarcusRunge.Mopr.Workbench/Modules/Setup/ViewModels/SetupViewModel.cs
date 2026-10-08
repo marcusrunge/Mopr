@@ -2,6 +2,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
+using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -20,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     /// <remarks>
     /// Initializes a new instance of the <see cref="SetupViewModel"/> class.
     /// </remarks>
-    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISetupCompletionService setupCompletionService, IApplication application, IEventAggregator eventAggregator) : BindableBase, INavigationAware, IConfirmNavigationRequest
+    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISetupCompletionService setupCompletionService, IApplication application, IEventAggregator eventAggregator, IRegionManager regionManager) : BindableBase, INavigationAware, IConfirmNavigationRequest
     {
         private const int CompletionStep = 4;
         private const int DatabaseStep = 1;
@@ -31,6 +32,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private readonly IApplication _application = application ?? throw new ArgumentNullException(nameof(application));
         private readonly IMachineConfigurationService _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         private readonly IEventAggregator _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+        private readonly IRegionManager _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
         private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = repositoryLocationValidationService ?? throw new ArgumentNullException(nameof(repositoryLocationValidationService));
         private readonly ISetupCompletionService _setupCompletionService = setupCompletionService ?? throw new ArgumentNullException(nameof(setupCompletionService));
 
@@ -44,6 +46,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private int _currentStep = DatabaseStep;
         private string _databaseStatusText = string.Empty;
         private CancellationTokenSource? _databaseTestCancellation;
+        private bool _isAdministrationMode;
+        private bool _isAdministrationAccessDenied;
         private bool _isCompletingSetup;
         private bool? _isDatabaseConnectionSuccessful;
         private bool _isLoading;
@@ -54,6 +58,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private string _repositoryLocationPath = string.Empty;
         private string _repositoryStatusText = string.Empty;
         private CancellationTokenSource? _repositoryValidationCancellation;
+        private DelegateCommand? _returnToImagingCommand;
         private DelegateCommand? _selectRepositoryLocationCommand;
         private CancellationTokenSource? _setupCompletionCancellation;
         private DelegateCommand? _testDatabaseConnectionCommand;
@@ -120,6 +125,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             private set => SetProperty(ref _databaseStatusText, value);
         }
 
+        public bool IsAdministrationAccessDenied
+        {
+            get => _isAdministrationAccessDenied;
+            private set => SetProperty(ref _isAdministrationAccessDenied, value);
+        }
+        public bool IsAdministrationMode
+        {
+            get => _isAdministrationMode;
+            private set
+            {
+                if (!SetProperty(ref _isAdministrationMode, value))
+                {
+                    return;
+                }
+                RaisePropertyChanged(nameof(IsInitialSetupMode));
+                _returnToImagingCommand?.RaiseCanExecuteChanged();
+            }
+        }
+        public bool IsInitialSetupMode => !IsAdministrationMode;
         public bool IsCompletingSetup
         {
             get => _isCompletingSetup;
@@ -237,6 +261,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             private set => SetProperty(ref _repositoryStatusText, value);
         }
 
+        public DelegateCommand ReturnToImagingCommand => _returnToImagingCommand ??= new DelegateCommand(ExecuteReturnToImaging, () => IsAdministrationMode && !IsCompletingSetup);
         public DelegateCommand SelectRepositoryLocationCommand => _selectRepositoryLocationCommand ??= new DelegateCommand(ExecuteSelectRepositoryLocation, CanSelectRepositoryLocation);
 
         public DelegateCommand TestDatabaseConnectionCommand => _testDatabaseConnectionCommand ??= new DelegateCommand(ExecuteTestDatabaseConnection, CanTestDatabaseConnection);
@@ -269,6 +294,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         /// <inheritdoc/>
         public async void OnNavigatedTo(NavigationContext navigationContext)
         {
+            var requestedMode = navigationContext?.Parameters.GetValue<string>(SetupNavigation.OperatingModeParameter);
+            var hasExplicitMode = !string.IsNullOrWhiteSpace(requestedMode);
+            var operatingMode = SetupOperatingMode.InitialSetup;
+            var isValidMode = !hasExplicitMode || Enum.TryParse(requestedMode, ignoreCase: false, out operatingMode);
+            IsAdministrationMode = isValidMode && hasExplicitMode && operatingMode == SetupOperatingMode.Administration;
+            IsAdministrationAccessDenied = !isValidMode || IsAdministrationMode && !CanModify;
+
+            // A direct route request must not expose administrative state when the
+            // effective Windows token is not authorized by the existing service.
+            if (IsAdministrationAccessDenied)
+            {
+                _applicationConfiguration = null;
+                IsLoading = false;
+                return;
+            }
+
             try
             {
                 IsLoading = true;
@@ -485,6 +526,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             }
         }
 
+        private void ExecuteReturnToImaging()
+        {
+            // Region navigation belongs to the Setup coordinator. The embedded view
+            // does not own an attached RegionManager and must not resolve one itself.
+            _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Imaging);
+        }
         private void ExecuteSelectRepositoryLocation()
         {
             var fileDialogService = _application.DialogService?.FileDialogService ?? throw new InvalidOperationException("The WPF file dialog service has not been initialized.");
@@ -574,6 +621,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             _backCommand?.RaiseCanExecuteChanged();
             _cancelSetupCompletionCommand?.RaiseCanExecuteChanged();
             _completeSetupCommand?.RaiseCanExecuteChanged();
+            _returnToImagingCommand?.RaiseCanExecuteChanged();
             _continueCommand?.RaiseCanExecuteChanged();
             _selectRepositoryLocationCommand?.RaiseCanExecuteChanged();
             _testDatabaseConnectionCommand?.RaiseCanExecuteChanged();

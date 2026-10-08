@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -305,5 +305,68 @@
   </data>
   <data name="Setup_Verified" xml:space="preserve">
     <value>Geprüft</value>
+  </data>
+  <data name="Administration_AccessDeniedTitle" xml:space="preserve">
+    <value>Verwaltungszugriff abgewiesen</value>
+  </data>
+  <data name="Administration_AccessDeniedDescription" xml:space="preserve">
+    <value>Dieser Bereich erfordert einen aktiven MOPR-Benutzer und wirksame erhöhte Windows-Administratorrechte.</value>
+  </data>
+  <data name="Administration_NavigationTitle" xml:space="preserve">
+    <value>Verwaltung</value>
+  </data>
+  <data name="Administration_NavigationDescription" xml:space="preserve">
+    <value>Wählen Sie einen Bereich aus, um dessen Aufbau zu beurteilen. Produktive Änderungen sind in diesem visuellen Prototyp noch nicht freigeschaltet.</value>
+  </data>
+  <data name="Administration_Overview" xml:space="preserve">
+    <value>Übersicht</value>
+  </data>
+  <data name="Administration_OverviewDescription" xml:space="preserve">
+    <value>Zentraler Zugriff auf Gerätekonfiguration, Speicherorte, Sicherheit, Benutzer und Systemprüfungen.</value>
+  </data>
+  <data name="Administration_Database" xml:space="preserve">
+    <value>Datenbank</value>
+  </data>
+  <data name="Administration_DatabaseDescription" xml:space="preserve">
+    <value>Verbindung, Erreichbarkeit und kontrollierte Übernahme der Datenbankeinstellungen.</value>
+  </data>
+  <data name="Administration_Repository" xml:space="preserve">
+    <value>DICOM-Repository</value>
+  </data>
+  <data name="Administration_RepositoryDescription" xml:space="preserve">
+    <value>Speicherziele, Verfügbarkeit, Standardziel und MIRAS-Prüfungen.</value>
+  </data>
+  <data name="Administration_Security" xml:space="preserve">
+    <value>Sicherheit</value>
+  </data>
+  <data name="Administration_SecurityDescription" xml:space="preserve">
+    <value>Geschützte Geräteeinstellungen und sicherheitsrelevantes Verhalten.</value>
+  </data>
+  <data name="Administration_Users" xml:space="preserve">
+    <value>Benutzer</value>
+  </data>
+  <data name="Administration_UsersDescription" xml:space="preserve">
+    <value>Persistente MOPR-Benutzer und ihre Windows-SID-Zuordnungen.</value>
+  </data>
+  <data name="Administration_SystemCheck" xml:space="preserve">
+    <value>Systemprüfung</value>
+  </data>
+  <data name="Administration_SystemCheckDescription" xml:space="preserve">
+    <value>Datenbank-, Repository- und MIRAS-Statusprüfungen ohne automatische Reparatur.</value>
+  </data>
+  <data name="Administration_Title" xml:space="preserve">
+    <value>Einstellungen und Verwaltung</value>
+  </data>
+  <data name="Administration_ReturnToImaging" xml:space="preserve">
+    <value>Zurück zur Bildanzeige</value>
+  </data>
+  <data name="Administration_AdministratorAccessActive" xml:space="preserve">
+    <value>ADMINISTRATORZUGRIFF AKTIV</value>
+  </data>
+  <data name="Administration_PrototypeNotice" xml:space="preserve">
+    <value>Strukturvorschau. Es werden noch keine produktiven Einstellungen geändert.</value>
+  </data>
+  <data name="Administration_Settings" xml:space="preserve">
+    <value>Einstellungen</value>
   </data>
 </root>

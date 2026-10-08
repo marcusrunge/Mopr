@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -173,5 +173,14 @@
   </data>
   <data name="SingleInstanceStartupFailedTitle" xml:space="preserve">
     <value>MOPR konnte nicht gestartet werden</value>
+  </data>
+  <data name="ShellNavigationMenu" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ShellNavigationAdministration" xml:space="preserve">
+    <value>Einstellungen und Verwaltung</value>
+  </data>
+  <data name="ShellNavigationClose" xml:space="preserve">
+    <value>Navigation schließen</value>
   </data>
 </root>

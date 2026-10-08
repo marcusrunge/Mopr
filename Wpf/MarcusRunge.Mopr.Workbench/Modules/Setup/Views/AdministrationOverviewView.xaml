@@ -1,0 +1,57 @@
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.AdministrationOverviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="#080B0E">
+        <Grid.RowDefinitions><RowDefinition Height="56"/><RowDefinition Height="52"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Border Background="#12171C" BorderBrush="#28313A" BorderThickness="0,0,0,1">
+            <Grid Margin="16,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="32"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center" Foreground="#F0F4F7" FontSize="24" FontWeight="SemiBold" Text="MOPR"/>
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="#E6EDF2" FontSize="18" Text="{x:Static properties:Resources.Administration_Title}"/>
+                <Button Grid.Column="3" MinWidth="170" Height="34" Padding="14,0" Command="{Binding ReturnToImagingCommand}" Content="{Binding ReturnToImagingText}"/>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Background="#1A2026" BorderBrush="#29313A" BorderThickness="0,0,0,1">
+            <StackPanel Margin="12,0" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" Foreground="#7FDDE8" FontSize="12" FontWeight="SemiBold" Text="{x:Static properties:Resources.Administration_AdministratorAccessActive}"/>
+                <Border Width="1" Height="24" Margin="18,0" Background="#36434E"/>
+                <TextBlock VerticalAlignment="Center" Foreground="#95A4AF" FontSize="12" Text="{x:Static properties:Resources.Administration_PrototypeNotice}"/>
+            </StackPanel>
+        </Border>
+        <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="280"/><ColumnDefinition Width="4"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Background="#10161C" BorderBrush="#28313A" BorderThickness="0,0,1,0">
+                <DockPanel Margin="12,16"><TextBlock DockPanel.Dock="Top" Margin="0,0,0,14" Foreground="#E6EDF2" FontSize="20" FontWeight="SemiBold" Text="{x:Static properties:Resources.Administration_Settings}"/>
+                    <ListBox SelectedIndex="0" Background="Transparent" BorderThickness="0" Foreground="#DDE5EC">
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_Overview}"/>
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_Database}"/>
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_Repository}"/>
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_Security}"/>
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_Users}"/>
+                        <ListBoxItem Padding="14,12" Content="{x:Static properties:Resources.Administration_SystemCheck}"/>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#080B0E"/>
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto"><StackPanel Margin="28">
+                <TextBlock Foreground="#E6EDF2" FontSize="22" FontWeight="SemiBold" Text="{x:Static properties:Resources.Administration_Overview}"/>
+                <TextBlock Margin="0,7,0,22" Foreground="#95A4AF" FontSize="14" TextWrapping="Wrap" Text="{x:Static properties:Resources.Administration_OverviewDescription}"/>
+                <UniformGrid Columns="2">
+                    <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Database}"/><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_DatabaseDescription}"/></StackPanel></Border>
+                    <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Repository}"/><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_RepositoryDescription}"/></StackPanel></Border>
+                    <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Security}"/><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SecurityDescription}"/></StackPanel></Border>
+                    <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Users}"/><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_UsersDescription}"/></StackPanel></Border>
+                    <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_SystemCheck}"/><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SystemCheckDescription}"/></StackPanel></Border>
+                </UniformGrid>
+            </StackPanel></ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

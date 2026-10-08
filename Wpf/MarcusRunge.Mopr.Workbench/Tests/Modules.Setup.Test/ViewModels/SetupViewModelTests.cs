@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
@@ -9,6 +9,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
 using Prism.Events;
+using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 {
@@ -458,7 +459,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                     RepositoryLocationValidationService.Object,
                     SetupCompletionService.Object,
                     Application.Object,
-                    EventAggregator);
+                    EventAggregator,
+                    RegionManager.Object);
             }
 
             public Mock<IApplication> Application { get; } = new(MockBehavior.Strict);
@@ -467,6 +469,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 
             public IEventAggregator EventAggregator { get; }
 
+            public Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Strict);
             public Mock<IRepositoryLocationValidationService> RepositoryLocationValidationService { get; } = new(MockBehavior.Strict);
 
             public Mock<ISetupCompletionService> SetupCompletionService { get; } = new(MockBehavior.Strict);
@@ -539,3 +542,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
         }
     }
 }
+
+

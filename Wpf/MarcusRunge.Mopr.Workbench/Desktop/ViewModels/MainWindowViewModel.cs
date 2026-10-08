@@ -1,9 +1,14 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using Prism.Commands;
+using Prism.Navigation;
+using Prism.Navigation.Regions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,29 +17,37 @@ using WpfApplication = System.Windows.Application;
 namespace MarcusRunge.Mopr.Workbench.ViewModels
 {
     /// <summary>
-    /// Provides application-wide shell state.
+    /// Provides application-wide shell state and navigation.
     /// </summary>
     public sealed class MainWindowViewModel : ViewModelBase
     {
+        private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService;
         private readonly CancellationToken _applicationStopping;
         private readonly ICurrentUserContext? _currentUserContext;
+        private readonly IRegionManager _regionManager;
+        private DelegateCommand? _closeNavigationMenuCommand;
         private string _currentUserDetails = string.Empty;
         private string _currentUserDisplayName = string.Empty;
         private bool _hasCurrentUser;
+        private bool _isNavigationMenuOpen;
+        private DelegateCommand? _openAdministrationCommand;
         private string _title = Resources.MainWindowTitle;
+        private DelegateCommand? _toggleNavigationMenuCommand;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
-        /// <param name="application">The application-service facade.</param>
-        /// <param name="lifetimeService">The application lifetime service.</param>
-        public MainWindowViewModel(IApplication application, ILifetimeService lifetimeService)
+        public MainWindowViewModel(IApplication application, ILifetimeService lifetimeService, IAdministrativeAuthorizationService administrativeAuthorizationService, IRegionManager regionManager)
         {
             ArgumentNullException.ThrowIfNull(application);
             ArgumentNullException.ThrowIfNull(lifetimeService);
+            ArgumentNullException.ThrowIfNull(administrativeAuthorizationService);
+            ArgumentNullException.ThrowIfNull(regionManager);
 
+            _administrativeAuthorizationService = administrativeAuthorizationService;
             _applicationStopping = lifetimeService.ApplicationStopping;
             _currentUserContext = application.IdentityService?.CurrentUserContext;
+            _regionManager = regionManager;
 
             if (_currentUserContext is null)
             {
@@ -47,63 +60,39 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
             _ = LoadCurrentUserAsync(_applicationStopping);
         }
 
-        /// <summary>
-        /// Gets the details of the current persistent MOPR user.
-        /// </summary>
-        public string CurrentUserDetails
-        {
-            get => _currentUserDetails;
-            private set => SetProperty(ref _currentUserDetails, value);
-        }
-
-        /// <summary>
-        /// Gets the display name of the current persistent MOPR user.
-        /// </summary>
-        public string CurrentUserDisplayName
-        {
-            get => _currentUserDisplayName;
-            private set => SetProperty(ref _currentUserDisplayName, value);
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether an active persistent MOPR user is available.
-        /// </summary>
-        public bool HasCurrentUser
-        {
-            get => _hasCurrentUser;
-            private set => SetProperty(ref _hasCurrentUser, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the window title.
-        /// </summary>
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+        public bool CanOpenAdministration => HasCurrentUser && _administrativeAuthorizationService.IsElevatedAdministrator;
+        public DelegateCommand CloseNavigationMenuCommand => _closeNavigationMenuCommand ??= new DelegateCommand(() => IsNavigationMenuOpen = false);
+        public string CurrentUserDetails { get => _currentUserDetails; private set => SetProperty(ref _currentUserDetails, value); }
+        public string CurrentUserDisplayName { get => _currentUserDisplayName; private set => SetProperty(ref _currentUserDisplayName, value); }
+        public bool HasCurrentUser { get => _hasCurrentUser; private set => SetProperty(ref _hasCurrentUser, value); }
+        public bool IsNavigationMenuOpen { get => _isNavigationMenuOpen; set => SetProperty(ref _isNavigationMenuOpen, value); }
+        public string NavigationAdministrationText => Resources.ShellNavigationAdministration;
+        public string NavigationCloseText => Resources.ShellNavigationClose;
+        public string NavigationMenuText => Resources.ShellNavigationMenu;
+        public DelegateCommand OpenAdministrationCommand => _openAdministrationCommand ??= new DelegateCommand(ExecuteOpenAdministration, () => CanOpenAdministration);
+        public DelegateCommand ToggleNavigationMenuCommand => _toggleNavigationMenuCommand ??= new DelegateCommand(() => IsNavigationMenuOpen = !IsNavigationMenuOpen);
+        public string Title { get => _title; set => SetProperty(ref _title, value); }
 
         /// <inheritdoc/>
         public override void Destroy()
         {
             _currentUserContext?.CurrentUserChanged -= OnCurrentUserChanged;
-
             base.Destroy();
         }
 
         private void ApplyCurrentUser(CurrentUser? currentUser)
         {
             var activeUser = currentUser is { Id: > 0, IsActive: true } ? currentUser : null;
-
             CurrentUserDisplayName = activeUser?.DisplayName ?? string.Empty;
             CurrentUserDetails = activeUser is null ? string.Empty : $"{activeUser.ShortName} · {activeUser.LoginName}";
             HasCurrentUser = activeUser is not null;
+            RaisePropertyChanged(nameof(CanOpenAdministration));
+            _openAdministrationCommand?.RaiseCanExecuteChanged();
         }
 
         private void DispatchCurrentUser(CurrentUser? currentUser)
         {
             var dispatcher = WpfApplication.Current?.Dispatcher;
-
             if (dispatcher is null || dispatcher.CheckAccess())
             {
                 ApplyCurrentUser(currentUser);
@@ -111,6 +100,16 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
             }
 
             _ = dispatcher.InvokeAsync(() => ApplyCurrentUser(currentUser));
+        }
+
+        private void ExecuteOpenAdministration()
+        {
+            // Menu visibility is only a usability feature. The Setup target performs
+            // an independent authorization check for every Administration request.
+            _administrativeAuthorizationService.DemandElevatedAdministrator();
+            var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration.ToString() } };
+            IsNavigationMenuOpen = false;
+            _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Setup, parameters);
         }
 
         private async Task LoadCurrentUserAsync(CancellationToken cancellationToken)

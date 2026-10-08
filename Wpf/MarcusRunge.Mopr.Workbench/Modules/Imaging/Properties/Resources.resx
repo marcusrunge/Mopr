@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -491,5 +491,8 @@
   </data>
   <data name="CommandBar_Import" xml:space="preserve">
     <value>Import</value>
+  </data>
+  <data name="Workbench_SettingsAndAdministration" xml:space="preserve">
+    <value>Settings and administration</value>
   </data>
 </root>

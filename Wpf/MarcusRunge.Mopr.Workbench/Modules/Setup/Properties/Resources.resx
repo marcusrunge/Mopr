@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -305,5 +305,68 @@
   </data>
   <data name="Setup_Verified" xml:space="preserve">
     <value>Verified</value>
+  </data>
+  <data name="Administration_AccessDeniedTitle" xml:space="preserve">
+    <value>Administrative access denied</value>
+  </data>
+  <data name="Administration_AccessDeniedDescription" xml:space="preserve">
+    <value>This area requires an active MOPR user and effective elevated Windows administrator rights.</value>
+  </data>
+  <data name="Administration_NavigationTitle" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="Administration_NavigationDescription" xml:space="preserve">
+    <value>Select an area to review its structure. Productive changes are not enabled in this visual prototype.</value>
+  </data>
+  <data name="Administration_Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Administration_OverviewDescription" xml:space="preserve">
+    <value>Central access to workstation configuration, storage, security, users and system checks.</value>
+  </data>
+  <data name="Administration_Database" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Administration_DatabaseDescription" xml:space="preserve">
+    <value>Connection, reachability and controlled application of database settings.</value>
+  </data>
+  <data name="Administration_Repository" xml:space="preserve">
+    <value>DICOM repositories</value>
+  </data>
+  <data name="Administration_RepositoryDescription" xml:space="preserve">
+    <value>Storage targets, availability, default location and MIRAS checks.</value>
+  </data>
+  <data name="Administration_Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="Administration_SecurityDescription" xml:space="preserve">
+    <value>Protected workstation settings and security-related behavior.</value>
+  </data>
+  <data name="Administration_Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Administration_UsersDescription" xml:space="preserve">
+    <value>Persistent MOPR users and their Windows SID assignments.</value>
+  </data>
+  <data name="Administration_SystemCheck" xml:space="preserve">
+    <value>System check</value>
+  </data>
+  <data name="Administration_SystemCheckDescription" xml:space="preserve">
+    <value>Database, repository and MIRAS status checks without automatic repair.</value>
+  </data>
+  <data name="Administration_Title" xml:space="preserve">
+    <value>Settings and administration</value>
+  </data>
+  <data name="Administration_ReturnToImaging" xml:space="preserve">
+    <value>Return to imaging</value>
+  </data>
+  <data name="Administration_AdministratorAccessActive" xml:space="preserve">
+    <value>ADMINISTRATOR ACCESS ACTIVE</value>
+  </data>
+  <data name="Administration_PrototypeNotice" xml:space="preserve">
+    <value>Structure preview. No productive settings are changed.</value>
+  </data>
+  <data name="Administration_Settings" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>
