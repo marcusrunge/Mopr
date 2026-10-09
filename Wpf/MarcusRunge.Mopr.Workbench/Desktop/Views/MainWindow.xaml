@@ -11,19 +11,10 @@
         Height="800"
         MinWidth="1024"
         MinHeight="680"
-        Background="{DynamicResource WorkbenchPanelBackgroundBrush}"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}"
-        WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Core;component/Themes/WorkbenchTheme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        </ResourceDictionary>
-    </Window.Resources>
+        WindowStartupLocation="CenterScreen">   
 
     <Grid Background="{StaticResource WorkbenchPanelBackgroundBrush}">
         <Grid.RowDefinitions>

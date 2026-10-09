@@ -9,11 +9,7 @@
              xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewModels:ImagingWorkbenchViewModel}"
              mc:Ignorable="d" prism:ViewModelLocator.AutoWireViewModel="True">
-    <UserControl.Resources>
-        <ResourceDictionary><ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Core;component/Themes/WorkbenchPalette.xaml" />
-        </ResourceDictionary.MergedDictionaries></ResourceDictionary>
-    </UserControl.Resources>
+    
     <Grid Background="{StaticResource WorkbenchBackgroundBrush}">
         <Grid.RowDefinitions><RowDefinition Height="56" /><RowDefinition Height="52" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <Border Grid.Row="0" Background="{StaticResource WorkbenchHeaderBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="0,0,0,1">
