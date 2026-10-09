@@ -1,9 +1,14 @@
 <UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.AdministrationOverviewView"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels" 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
-             xmlns:views="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Views"
+             xmlns:views="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Views" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:AdministrationOverviewViewModel}"
+             mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
 
     <UserControl.Resources>
@@ -12,80 +17,46 @@
                 <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="AdministrationNavigationButtonStyle"
-               TargetType="Button">
-                <Setter Property="Height"
-                    Value="46" />
-                <Setter Property="Margin"
-                    Value="0,0,0,5" />
-                <Setter Property="Padding"
-                    Value="14,0" />
-                <Setter Property="HorizontalContentAlignment"
-                    Value="Left" />
-                <Setter Property="VerticalContentAlignment"
-                    Value="Center" />
-                <Setter Property="Foreground"
-                    Value="{StaticResource SetupSecondaryTextBrush}" />
-                <Setter Property="Background"
-                    Value="Transparent" />
-                <Setter Property="BorderBrush"
-                    Value="Transparent" />
-                <Setter Property="BorderThickness"
-                    Value="1" />
-                <Setter Property="FontSize"
-                    Value="14" />
-                <Setter Property="FontWeight"
-                    Value="Normal" />
-                <Setter Property="Cursor"
-                    Value="Hand" />
-                <Setter Property="FocusVisualStyle"
-                    Value="{x:Null}" />
-
+            <Style x:Key="AdministrationNavigationButtonStyle" TargetType="Button">
+                <Setter Property="Height" Value="46" />
+                <Setter Property="Margin" Value="0,0,0,5" />
+                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{StaticResource SetupSecondaryTextBrush}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="NavigationButtonBorder"
-                                Padding="{TemplateBinding Padding}"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="2"
-                                SnapsToDevicePixels="True">
-
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="2"
+                                    SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              RecognizesAccessKey="True"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  RecognizesAccessKey="True"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
                             </Border>
-
                             <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                    <Setter TargetName="NavigationButtonBorder"
-                                        Property="Background"
-                                        Value="#192A32" />
-
-                                    <Setter TargetName="NavigationButtonBorder"
-                                        Property="BorderBrush"
-                                        Value="#284650" />
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="NavigationButtonBorder" Property="Background" Value="#192A32" />
+                                    <Setter TargetName="NavigationButtonBorder" Property="BorderBrush" Value="#284650" />
                                 </Trigger>
-
-                                <Trigger Property="IsPressed"
-                                     Value="True">
-                                    <Setter TargetName="NavigationButtonBorder"
-                                        Property="Background"
-                                        Value="#1C343D" />
-
-                                    <Setter TargetName="NavigationButtonBorder"
-                                        Property="BorderBrush"
-                                        Value="{StaticResource SetupAccentBrush}" />
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="NavigationButtonBorder" Property="Background" Value="#1C343D" />
+                                    <Setter TargetName="NavigationButtonBorder" Property="BorderBrush" Value="{StaticResource SetupAccentBrush}" />
                                 </Trigger>
-
-                                <Trigger Property="IsEnabled"
-                                     Value="False">
-                                    <Setter TargetName="NavigationButtonBorder"
-                                        Property="Opacity"
-                                        Value="0.55" />
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="NavigationButtonBorder" Property="Opacity" Value="0.55" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -94,16 +65,12 @@
             </Style>
 
             <Style x:Key="AdministrationSelectedNavigationButtonStyle"
-               BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-               TargetType="Button">
-                <Setter Property="Foreground"
-                    Value="{StaticResource SetupAccentBrush}" />
-                <Setter Property="Background"
-                    Value="{StaticResource SetupAccentBackgroundBrush}" />
-                <Setter Property="BorderBrush"
-                    Value="#2A5963" />
-                <Setter Property="FontWeight"
-                    Value="SemiBold" />
+                   BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
+                   TargetType="Button">
+                <Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" />
+                <Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="#2A5963" />
+                <Setter Property="FontWeight" Value="SemiBold" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -115,357 +82,85 @@
             <RowDefinition Height="44" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0"
-                Background="{StaticResource SetupHeaderBackgroundBrush}"
-                BorderBrush="{StaticResource SetupCardBorderBrush}"
-                BorderThickness="0,0,0,1">
-
+        <Border Grid.Row="0" Background="{StaticResource SetupHeaderBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="0,0,0,1">
             <Grid Margin="48,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                               FontSize="22"
-                               FontWeight="SemiBold"
-                               Text="{x:Static properties:Resources.Administration_Title}" />
-
-                    <TextBlock Margin="0,4,0,0"
-                               Foreground="{StaticResource SetupSecondaryTextBrush}"
-                               FontSize="12"
-                               Text="{x:Static properties:Resources.Administration_PrototypeNotice}" />
+                    <TextBlock Foreground="{StaticResource SetupTextBrush}" FontSize="22" FontWeight="SemiBold" Text="{x:Static properties:Resources.Administration_Title}" />
+                    <TextBlock Margin="0,4,0,0" Foreground="{StaticResource SetupSecondaryTextBrush}" FontSize="12" Text="{x:Static properties:Resources.Administration_PrototypeNotice}" />
                 </StackPanel>
-
-                <Button Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource SetupSecondaryButtonStyle}"
-                        Command="{Binding ReturnToImagingCommand}"
-                        Content="{Binding ReturnToImagingText}" />
+                <Button Grid.Column="1" VerticalAlignment="Center" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ReturnToImagingCommand}" Content="{Binding ReturnToImagingText}" />
             </Grid>
         </Border>
 
-        <!-- Administration content -->
-        <Grid Grid.Row="1"
-              Width="1184"
-              Margin="48,28,48,32"
-              HorizontalAlignment="Center">
-
+        <Grid Grid.Row="1"  Margin="48,28,48,32" HorizontalAlignment="Left">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="252" />
                 <ColumnDefinition Width="28" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Section navigation -->
-            <Border Grid.Column="0"
-                    Padding="12"
-                    Background="{StaticResource SetupCardSecondaryBackgroundBrush}"
-                    BorderBrush="{StaticResource SetupCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-
+            <Border Grid.Column="0" Padding="12" Background="{StaticResource SetupCardSecondaryBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="1" CornerRadius="8">
                 <StackPanel>
-                    <TextBlock Margin="8,5,8,16"
-                               Foreground="{StaticResource SetupMutedTextBrush}"
-                               FontSize="11"
-                               FontWeight="Bold"
-                               Text="{x:Static properties:Resources.Administration_Settings}" />
+                    <TextBlock Margin="8,5,8,16" Foreground="{StaticResource SetupMutedTextBrush}" FontSize="11" FontWeight="Bold" Text="{x:Static properties:Resources.Administration_Settings}" />
 
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="Overview"
-                            Content="{x:Static properties:Resources.Administration_Overview}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsOverviewSelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="Overview" Content="{x:Static properties:Resources.Administration_Overview}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsOverviewSelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
-
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="Database"
-                            Content="{x:Static properties:Resources.Administration_Database}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDatabaseSelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="Database" Content="{x:Static properties:Resources.Administration_Database}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsDatabaseSelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
-
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="Repository"
-                            Content="{x:Static properties:Resources.Administration_Repository}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsRepositorySelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="Repository" Content="{x:Static properties:Resources.Administration_Repository}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsRepositorySelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
-
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="Security"
-                            Content="{x:Static properties:Resources.Administration_Security}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSecuritySelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="Security" Content="{x:Static properties:Resources.Administration_Security}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsSecuritySelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
-
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="Users"
-                            Content="{x:Static properties:Resources.Administration_Users}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsUsersSelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="Users" Content="{x:Static properties:Resources.Administration_Users}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsUsersSelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
-
-                    <Button Command="{Binding SelectSectionCommand}"
-                            CommandParameter="SystemCheck"
-                            Content="{x:Static properties:Resources.Administration_SystemCheck}">
-
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}"
-                                   TargetType="Button">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSystemCheckSelected}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupAccentBrush}" />
-                                        <Setter Property="Background"
-                                                Value="{StaticResource SetupAccentBackgroundBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="#2A5963" />
-                                        <Setter Property="FontWeight"
-                                                Value="SemiBold" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
+                    <Button Command="{Binding SelectSectionCommand}" CommandParameter="SystemCheck" Content="{x:Static properties:Resources.Administration_SystemCheck}">
+                        <Button.Style><Style BasedOn="{StaticResource AdministrationNavigationButtonStyle}" TargetType="Button"><Style.Triggers><DataTrigger Binding="{Binding IsSystemCheckSelected}" Value="True"><Setter Property="Foreground" Value="{StaticResource SetupAccentBrush}" /><Setter Property="Background" Value="{StaticResource SetupAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="#2A5963" /><Setter Property="FontWeight" Value="SemiBold" /></DataTrigger></Style.Triggers></Style></Button.Style>
                     </Button>
                 </StackPanel>
             </Border>
 
-            <!-- Selected section content -->
-            <Border Grid.Column="2"
-                    Background="{StaticResource SetupCardBackgroundBrush}"
-                    BorderBrush="{StaticResource SetupCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    ClipToBounds="True">
-
+            <Border Grid.Column="2" Background="{StaticResource SetupCardBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
                 <Grid>
-                    <!-- Overview -->
-                    <ScrollViewer Visibility="{Binding OverviewVisibility}"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-
+                    <ScrollViewer Visibility="{Binding OverviewVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
-                                       Text="{x:Static properties:Resources.Administration_Overview}" />
-
-                            <TextBlock Margin="0,9,0,26"
-                                       Style="{StaticResource SetupDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.Administration_OverviewDescription}" />
-
+                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Overview}" />
+                            <TextBlock Margin="0,9,0,26" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_OverviewDescription}" />
                             <UniformGrid Columns="2">
-                                <Border Style="{StaticResource AdministrationCardStyle}">
-                                    <StackPanel>
-                                        <TextBlock Style="{StaticResource AdministrationCardTitleStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_Database}" />
-
-                                        <TextBlock Margin="0,8,0,0"
-                                                   Style="{StaticResource SetupDescriptionStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_DatabaseDescription}" />
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Style="{StaticResource AdministrationCardStyle}">
-                                    <StackPanel>
-                                        <TextBlock Style="{StaticResource AdministrationCardTitleStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_Repository}" />
-
-                                        <TextBlock Margin="0,8,0,0"
-                                                   Style="{StaticResource SetupDescriptionStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_RepositoryDescription}" />
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Style="{StaticResource AdministrationCardStyle}">
-                                    <StackPanel>
-                                        <TextBlock Style="{StaticResource AdministrationCardTitleStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_Security}" />
-
-                                        <TextBlock Margin="0,8,0,0"
-                                                   Style="{StaticResource SetupDescriptionStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_SecurityDescription}" />
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Style="{StaticResource AdministrationCardStyle}">
-                                    <StackPanel>
-                                        <TextBlock Style="{StaticResource AdministrationCardTitleStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_Users}" />
-
-                                        <TextBlock Margin="0,8,0,0"
-                                                   Style="{StaticResource SetupDescriptionStyle}"
-                                                   Text="{x:Static properties:Resources.Administration_UsersDescription}" />
-                                    </StackPanel>
-                                </Border>
+                                <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Database}" /><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_DatabaseDescription}" /></StackPanel></Border>
+                                <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Repository}" /><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_RepositoryDescription}" /></StackPanel></Border>
+                                <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Security}" /><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SecurityDescription}" /></StackPanel></Border>
+                                <Border Style="{StaticResource AdministrationCardStyle}"><StackPanel><TextBlock Style="{StaticResource AdministrationCardTitleStyle}" Text="{x:Static properties:Resources.Administration_Users}" /><TextBlock Margin="0,8,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_UsersDescription}" /></StackPanel></Border>
                             </UniformGrid>
                         </StackPanel>
                     </ScrollViewer>
 
-                    <!--
-                        Visibility remains on this host Grid. The child view receives
-                        its own Prism ViewModel without losing the section state from
-                        AdministrationOverviewViewModel.
-                    -->
-                    <Grid Visibility="{Binding DatabaseVisibility}">
-                        <views:DatabaseAdministrationView />
-                    </Grid>
+                    <Grid Visibility="{Binding DatabaseVisibility}"><views:DatabaseAdministrationView /></Grid>
+                    <Grid Visibility="{Binding RepositoryVisibility}"><views:RepositoryAdministrationView /></Grid>
 
-                    <!--
-                        RepositoryAdministrationView also receives its own Prism
-                        ViewModel. The host remains bound to the parent section state.
-                    -->
-                    <Grid Visibility="{Binding RepositoryVisibility}">
-                        <views:RepositoryAdministrationView />
-                    </Grid>
-
-                    <!-- Security -->
-                    <ScrollViewer Visibility="{Binding SecurityVisibility}"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-
-                        <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
-                                       Text="{x:Static properties:Resources.Administration_Security}" />
-
-                            <TextBlock Margin="0,9,0,0"
-                                       Style="{StaticResource SetupDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.Administration_SecurityDescription}" />
-                        </StackPanel>
+                    <ScrollViewer Visibility="{Binding SecurityVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="30"><TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Security}" /><TextBlock Margin="0,9,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SecurityDescription}" /></StackPanel>
                     </ScrollViewer>
-
-                    <!-- Users -->
-                    <ScrollViewer Visibility="{Binding UsersVisibility}"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-
-                        <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
-                                       Text="{x:Static properties:Resources.Administration_Users}" />
-
-                            <TextBlock Margin="0,9,0,0"
-                                       Style="{StaticResource SetupDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.Administration_UsersDescription}" />
-                        </StackPanel>
+                    <ScrollViewer Visibility="{Binding UsersVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="30"><TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Users}" /><TextBlock Margin="0,9,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_UsersDescription}" /></StackPanel>
                     </ScrollViewer>
-
-                    <!-- System check -->
-                    <ScrollViewer Visibility="{Binding SystemCheckVisibility}"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-
-                        <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
-                                       Text="{x:Static properties:Resources.Administration_SystemCheck}" />
-
-                            <TextBlock Margin="0,9,0,0"
-                                       Style="{StaticResource SetupDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.Administration_SystemCheckDescription}" />
-                        </StackPanel>
+                    <ScrollViewer Visibility="{Binding SystemCheckVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="30"><TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_SystemCheck}" /><TextBlock Margin="0,9,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SystemCheckDescription}" /></StackPanel>
                     </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- Administration status -->
-        <Border Grid.Row="2"
-                Background="#0D1318"
-                BorderBrush="{StaticResource SetupCardBorderBrush}"
-                BorderThickness="0,1,0,0">
-
-            <TextBlock Margin="48,0"
-                       VerticalAlignment="Center"
-                       Foreground="{StaticResource SetupMutedTextBrush}"
-                       FontSize="11"
-                       Text="{x:Static properties:Resources.Administration_AdministratorAccessActive}" />
+        <Border Grid.Row="2" Background="#0D1318" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Margin="48,0" VerticalAlignment="Center" Foreground="{StaticResource SetupMutedTextBrush}" FontSize="11" Text="{x:Static properties:Resources.Administration_AdministratorAccessActive}" />
         </Border>
     </Grid>
 </UserControl>

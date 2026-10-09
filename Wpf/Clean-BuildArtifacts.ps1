@@ -1,13 +1,14 @@
 param(
     [string]$RootPath = ".",
     [int]$RetryCount = 3,
-    [int]$RetryDelayMilliseconds = 300
+    [int]$RetryDelayMilliseconds = 500
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $root = (Resolve-Path -LiteralPath $RootPath).Path
+
 $buildDirectoryNames = @(
     "bin"
     "obj"
@@ -16,57 +17,98 @@ $buildDirectoryNames = @(
     "artifacts"
 )
 
-Write-Host "Bereinige $root" -ForegroundColor Cyan
-
-# Materialize all paths before deleting anything. This prevents recursive
-# enumeration from changing while parent and child directories are removed.
-$buildDirectories = @(
-    Get-ChildItem -LiteralPath $root -Directory -Recurse -Force -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -in $buildDirectoryNames } |
-    Sort-Object { $_.FullName.Length } -Descending |
-    Select-Object -ExpandProperty FullName
+$blockingProcessNames = @(
+    "devenv"
+    "MSBuild"
+    "dotnet"
+    "vstest.console"
+    "testhost"
 )
 
-foreach ($directoryPath in $buildDirectories)
+$blockingProcesses = @(
+    Get-Process -ErrorAction SilentlyContinue |
+        Where-Object { $_.ProcessName -in $blockingProcessNames } |
+        Sort-Object ProcessName, Id
+)
+
+if ($blockingProcesses.Count -gt 0)
 {
-    if (-not (Test-Path -LiteralPath $directoryPath -PathType Container))
+    Write-Warning "Eine vollstaendige Bereinigung ist nicht moeglich, solange Visual Studio, Build- oder Testprozesse laufen."
+    Write-Host ""
+    Write-Host "Gefundene blockierende Prozesse:" -ForegroundColor Yellow
+
+    foreach ($blockingProcess in $blockingProcesses)
     {
-        continue
+        Write-Host "  $($blockingProcess.ProcessName) (PID $($blockingProcess.Id))" -ForegroundColor Yellow
     }
 
-    Write-Host "Lösche $directoryPath" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Warning "Schliesse Visual Studio und beende laufende Builds oder Tests. Fuehre das Skript anschliessend erneut aus."
+    exit 1
+}
 
-    for ($attempt = 1; $attempt -le $RetryCount; $attempt++)
+Write-Host "Bereinige $root" -ForegroundColor Cyan
+
+# Repeat discovery after every deletion pass because external processes may
+# create build directories while the previous deletion pass is running.
+for ($pass = 1; $pass -le 3; $pass++)
+{
+    $buildDirectories = @(
+        Get-ChildItem -LiteralPath $root -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -in $buildDirectoryNames } |
+            Sort-Object { $_.FullName.Length } -Descending |
+            Select-Object -ExpandProperty FullName
+    )
+
+    if ($buildDirectories.Count -eq 0)
     {
-        try
+        break
+    }
+
+    Write-Host ""
+    Write-Host "Bereinigungsdurchlauf $pass" -ForegroundColor Cyan
+
+    foreach ($directoryPath in $buildDirectories)
+    {
+        if (-not (Test-Path -LiteralPath $directoryPath -PathType Container))
         {
-            Remove-Item -LiteralPath $directoryPath -Recurse -Force -ErrorAction Stop
-
-            if (-not (Test-Path -LiteralPath $directoryPath))
-            {
-                break
-            }
-
-            throw "Das Verzeichnis ist nach Remove-Item weiterhin vorhanden."
+            continue
         }
-        catch
-        {
-            if ($attempt -eq $RetryCount)
-            {
-                Write-Warning "Konnte '$directoryPath' nach $RetryCount Versuchen nicht löschen: $($_.Exception.Message)"
-                break
-            }
 
-            Start-Sleep -Milliseconds $RetryDelayMilliseconds
+        Write-Host "Loesche $directoryPath" -ForegroundColor Yellow
+
+        for ($attempt = 1; $attempt -le $RetryCount; $attempt++)
+        {
+            try
+            {
+                Remove-Item -LiteralPath $directoryPath -Recurse -Force -ErrorAction Stop
+
+                if (-not (Test-Path -LiteralPath $directoryPath))
+                {
+                    break
+                }
+
+                throw "Das Verzeichnis ist nach Remove-Item weiterhin vorhanden."
+            }
+            catch
+            {
+                if ($attempt -eq $RetryCount)
+                {
+                    Write-Warning "Konnte '$directoryPath' nach $RetryCount Versuchen nicht loeschen: $($_.Exception.Message)"
+                    break
+                }
+
+                Start-Sleep -Milliseconds $RetryDelayMilliseconds
+            }
         }
     }
 }
 
 $remainingDirectories = @(
     Get-ChildItem -LiteralPath $root -Directory -Recurse -Force -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -in $buildDirectoryNames } |
-    Sort-Object FullName |
-    Select-Object -ExpandProperty FullName
+        Where-Object { $_.Name -in $buildDirectoryNames } |
+        Sort-Object FullName |
+        Select-Object -ExpandProperty FullName
 )
 
 Write-Host ""
@@ -80,8 +122,11 @@ if ($remainingDirectories.Count -eq 0)
     exit 0
 }
 
-$remainingDirectories | ForEach-Object { Write-Warning $_ }
+foreach ($remainingDirectory in $remainingDirectories)
+{
+    Write-Warning $remainingDirectory
+}
 
 Write-Host ""
-Write-Warning "Die Bereinigung ist unvollständig. Schließe Visual Studio sowie laufende Build- und Testprozesse und führe das Skript erneut aus."
+Write-Warning "Die Bereinigung ist unvollstaendig. Ein Hintergrundprozess hat Ordner gesperrt oder erneut erstellt."
 exit 1
