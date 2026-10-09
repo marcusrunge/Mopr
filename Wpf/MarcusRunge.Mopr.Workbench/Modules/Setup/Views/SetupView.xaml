@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource SetupBackgroundBrush}">
+    <Grid Background="{StaticResource WorkbenchBackgroundBrush}">
         <Grid>
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -37,676 +37,280 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="112" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="44" />
-        </Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
-                Background="{StaticResource SetupHeaderBackgroundBrush}"
-                BorderBrush="{StaticResource SetupCardBorderBrush}"
-                BorderThickness="0,0,0,1">
-
-            <Grid Margin="48,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel VerticalAlignment="Center">
-                    <Border Width="Auto"
-                            Padding="9,4"
-                            HorizontalAlignment="Left"
-                            Background="{StaticResource SetupAccentBackgroundBrush}"
-                            BorderBrush="#2A5963"
-                            BorderThickness="1"
-                            CornerRadius="4">
-
-                        <TextBlock Foreground="{StaticResource SetupAccentBrush}"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   Text="{x:Static properties:Resources.Setup_HeaderBadge}" />
-                    </Border>
-
-                    <TextBlock Margin="0,10,0,0"
-                               Foreground="{StaticResource SetupTextBrush}"
-                               FontSize="27"
-                               FontWeight="SemiBold"
-                               Text="{x:Static properties:Resources.Setup_Title}" />
-                </StackPanel>
-
-                <Border Grid.Column="1"
-                        Padding="14,9"
-                        VerticalAlignment="Center"
-                        Background="#162129"
-                        BorderBrush="{StaticResource SetupCardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6">
-
-                    <StackPanel Orientation="Horizontal">
-                        <Ellipse Width="9"
-                                 Height="9"
-                                 Margin="0,0,9,0"
-                                 VerticalAlignment="Center">
-
-                            <Ellipse.Style>
-                                <Style TargetType="Ellipse">
-                                    <Setter Property="Fill"
-                                            Value="{StaticResource SetupWarningBrush}" />
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanModify}"
-                                                     Value="True">
-
-                                            <Setter Property="Fill"
-                                                    Value="{StaticResource SetupSuccessBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Ellipse.Style>
-                        </Ellipse>
-
-                        <TextBlock VerticalAlignment="Center"
-                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
-                                   FontSize="13">
-
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Text"
-                                            Value="{x:Static properties:Resources.Setup_AdministratorRequired}" />
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanModify}"
-                                                     Value="True">
-
-                                            <Setter Property="Text"
-                                                    Value="{x:Static properties:Resources.Setup_AdministratorAccessActive}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
-
-        <ScrollViewer Grid.Row="1"
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-
-            <Grid Width="1120"
-                  Margin="48,36,48,48"
-                  HorizontalAlignment="Center">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300" />
-                    <ColumnDefinition Width="32" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
-
-                    <TextBlock Margin="0,10,0,28"
-                               Style="{StaticResource SetupDescriptionStyle}"
-                               Text="{x:Static properties:Resources.Setup_Description}" />
-
-                    <!-- Database step -->
-                    <Grid>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Opacity"
-                                        Value="0.48" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDatabaseStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Opacity"
-                                                Value="1" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border>
-                            <Border.Style>
-                                <Style BasedOn="{StaticResource SetupStepNumberStyle}"
-                                       TargetType="Border">
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsDatabaseStep}"
-                                                     Value="True">
-
-                                            <Setter Property="Background"
-                                                    Value="{StaticResource SetupAccentBackgroundBrush}" />
-
-                                            <Setter Property="BorderBrush"
-                                                    Value="#2A5963" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Text="01">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupSecondaryTextBrush}" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsDatabaseStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource SetupAccentBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Border>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="14,0,0,0">
-
-                            <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
-
-                            <TextBlock Margin="0,3,0,0"
-                                       Foreground="{StaticResource SetupAccentBrush}"
-                                       FontSize="12"
-                                       Text="{x:Static properties:Resources.Setup_CurrentStep}">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsDatabaseStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Visibility"
-                                                        Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Width="1"
-                            Height="24"
-                            Margin="17,5,0,5"
-                            HorizontalAlignment="Left"
-                            Background="{StaticResource SetupCardBorderBrush}" />
-
-                    <!-- Repository step -->
-                    <Grid>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Opacity"
-                                        Value="0.48" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsRepositoryStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Opacity"
-                                                Value="1" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border>
-                            <Border.Style>
-                                <Style BasedOn="{StaticResource SetupStepNumberStyle}"
-                                       TargetType="Border">
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRepositoryStep}"
-                                                     Value="True">
-
-                                            <Setter Property="Background"
-                                                    Value="{StaticResource SetupAccentBackgroundBrush}" />
-
-                                            <Setter Property="BorderBrush"
-                                                    Value="#2A5963" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Text="02">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupSecondaryTextBrush}" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsRepositoryStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource SetupAccentBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Border>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="14,0,0,0">
-
-                            <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       Text="{x:Static properties:Resources.Setup_RepositoryStep}" />
-
-                            <TextBlock Margin="0,3,0,0"
-                                       Foreground="{StaticResource SetupAccentBrush}"
-                                       FontSize="12"
-                                       Text="{x:Static properties:Resources.Setup_CurrentStep}">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsRepositoryStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Visibility"
-                                                        Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Width="1"
-                            Height="24"
-                            Margin="17,5,0,5"
-                            HorizontalAlignment="Left"
-                            Background="{StaticResource SetupCardBorderBrush}" />
-
-                    <!-- Verification step -->
-                    <Grid>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Opacity"
-                                        Value="0.48" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsVerificationStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Opacity"
-                                                Value="1" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border>
-                            <Border.Style>
-                                <Style BasedOn="{StaticResource SetupStepNumberStyle}"
-                                       TargetType="Border">
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsVerificationStep}"
-                                                     Value="True">
-
-                                            <Setter Property="Background"
-                                                    Value="{StaticResource SetupAccentBackgroundBrush}" />
-
-                                            <Setter Property="BorderBrush"
-                                                    Value="#2A5963" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Text="03">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupSecondaryTextBrush}" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsVerificationStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource SetupAccentBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Border>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="14,0,0,0">
-
-                            <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       Text="{x:Static properties:Resources.Setup_VerificationStep}" />
-
-                            <TextBlock Margin="0,3,0,0"
-                                       Foreground="{StaticResource SetupAccentBrush}"
-                                       FontSize="12"
-                                       Text="{x:Static properties:Resources.Setup_CurrentStep}">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsVerificationStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Visibility"
-                                                        Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Width="1"
-                            Height="24"
-                            Margin="17,5,0,5"
-                            HorizontalAlignment="Left"
-                            Background="{StaticResource SetupCardBorderBrush}" />
-
-                    <!-- Completion step -->
-                    <Grid>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Opacity"
-                                        Value="0.48" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCompletionStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Opacity"
-                                                Value="1" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border>
-                            <Border.Style>
-                                <Style BasedOn="{StaticResource SetupStepNumberStyle}"
-                                       TargetType="Border">
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCompletionStep}"
-                                                     Value="True">
-
-                                            <Setter Property="Background"
-                                                    Value="{StaticResource SetupAccentBackgroundBrush}" />
-
-                                            <Setter Property="BorderBrush"
-                                                    Value="#2A5963" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Text="04">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SetupSecondaryTextBrush}" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsCompletionStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Foreground"
-                                                        Value="{StaticResource SetupAccentBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Border>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="14,0,0,0">
-
-                            <TextBlock Foreground="{StaticResource SetupTextBrush}"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       Text="{x:Static properties:Resources.Setup_CompletionStep}" />
-
-                            <TextBlock Margin="0,3,0,0"
-                                       Foreground="{StaticResource SetupAccentBrush}"
-                                       FontSize="12"
-                                       Text="{x:Static properties:Resources.Setup_CurrentStep}">
-
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsCompletionStep}"
-                                                         Value="True">
-
-                                                <Setter Property="Visibility"
-                                                        Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Margin="0,32,0,0"
-                            Padding="18"
-                            Background="{StaticResource SetupCardSecondaryBackgroundBrush}"
-                            BorderBrush="{StaticResource SetupCardBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="7">
-
-                        <StackPanel>
-                            <TextBlock Foreground="{StaticResource SetupAccentBrush}"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="112" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="44" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="{StaticResource WorkbenchHeaderBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                <Grid Margin="48,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <Border Width="Auto"
+                                Padding="9,4"
+                                HorizontalAlignment="Left"
+                                Background="{StaticResource WorkbenchAccentBackgroundBrush}"
+                                BorderBrush="{StaticResource WorkbenchAccentBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}"
                                        FontSize="11"
                                        FontWeight="Bold"
-                                       Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
+                                       Text="{x:Static properties:Resources.Setup_HeaderBadge}" />
+                        </Border>
 
-                            <TextBlock Margin="0,10,0,0"
-                                       Style="{StaticResource SetupDescriptionStyle}"
-                                       Text="{x:Static properties:Resources.Setup_ConfigurationScopeDescription}" />
+                        <TextBlock Margin="0,10,0,0"
+                                   Foreground="{StaticResource WorkbenchTextBrush}"
+                                   FontSize="27"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.Setup_Title}" />
+                    </StackPanel>
+
+                    <Border Grid.Column="1"
+                            Padding="14,9"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource WorkbenchCommandBarBackgroundBrush}"
+                            BorderBrush="{StaticResource WorkbenchBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="9"
+                                     Height="9"
+                                     Margin="0,0,9,0"
+                                     VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource WorkbenchWarningBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CanModify}" Value="True">
+                                                <Setter Property="Fill" Value="{StaticResource WorkbenchSuccessBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+
+                            <TextBlock VerticalAlignment="Center"
+                                       Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
+                                       FontSize="13">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{x:Static properties:Resources.Setup_AdministratorRequired}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CanModify}" Value="True">
+                                                <Setter Property="Text" Value="{x:Static properties:Resources.Setup_AdministratorAccessActive}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
-                </StackPanel>
-
-                <Grid Grid.Column="2">
-                    <steps:DatabaseSetupStepView>
-                        <steps:DatabaseSetupStepView.Style>
-                            <Style TargetType="{x:Type steps:DatabaseSetupStepView}">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDatabaseStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </steps:DatabaseSetupStepView.Style>
-                    </steps:DatabaseSetupStepView>
-
-                    <steps:RepositorySetupStepView>
-                        <steps:RepositorySetupStepView.Style>
-                            <Style TargetType="{x:Type steps:RepositorySetupStepView}">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsRepositoryStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </steps:RepositorySetupStepView.Style>
-                    </steps:RepositorySetupStepView>
-
-                    <steps:VerificationSetupStepView>
-                        <steps:VerificationSetupStepView.Style>
-                            <Style TargetType="{x:Type steps:VerificationSetupStepView}">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsVerificationStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </steps:VerificationSetupStepView.Style>
-                    </steps:VerificationSetupStepView>
-
-                    <steps:CompletionSetupStepView>
-                        <steps:CompletionSetupStepView.Style>
-                            <Style TargetType="{x:Type steps:CompletionSetupStepView}">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCompletionStep}"
-                                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </steps:CompletionSetupStepView.Style>
-                    </steps:CompletionSetupStepView>
                 </Grid>
-            </Grid>
-        </ScrollViewer>
+            </Border>
 
-        <Border Grid.Row="2"
-                Background="#0D1318"
-                BorderBrush="{StaticResource SetupCardBorderBrush}"
-                BorderThickness="0,1,0,0">
+            <ScrollViewer Grid.Row="1"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <Grid Width="1120"
+                      Margin="48,36,48,48"
+                      HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300" />
+                        <ColumnDefinition Width="32" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock Margin="48,0"
-                       VerticalAlignment="Center"
-                       Foreground="{StaticResource SetupMutedTextBrush}"
-                       FontSize="11"
-                       Text="{x:Static properties:Resources.Setup_LocalDataStatus}" />
-        </Border>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Foreground="{StaticResource WorkbenchTextBrush}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
 
-        <Border Grid.RowSpan="3"
-                Background="#B010171D">
+                        <TextBlock Margin="0,10,0,28"
+                                   Style="{StaticResource SetupDescriptionStyle}"
+                                   Text="{x:Static properties:Resources.Setup_Description}" />
 
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility"
-                            Value="Collapsed" />
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Opacity" Value="0.48" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDatabaseStep}" Value="True">
+                                            <Setter Property="Opacity" Value="1" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="36" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border>
+                                <Border.Style>
+                                    <Style BasedOn="{StaticResource SetupStepNumberStyle}" TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDatabaseStep}" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" />
+                                                <Setter Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Text="01">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{StaticResource WorkbenchSecondaryTextBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDatabaseStep}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource WorkbenchAccentBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontSize="15" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
+                                <TextBlock Margin="0,3,0,0" Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" Text="{x:Static properties:Resources.Setup_CurrentStep}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers><DataTrigger Binding="{Binding IsDatabaseStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
 
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsLoading}"
-                                     Value="True">
+                        <Border Width="1" Height="24" Margin="17,5,0,5" HorizontalAlignment="Left" Background="{StaticResource WorkbenchBorderBrush}" />
 
-                            <Setter Property="Visibility"
-                                    Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Opacity" Value="0.48" />
+                                    <Style.Triggers><DataTrigger Binding="{Binding IsRepositoryStep}" Value="True"><Setter Property="Opacity" Value="1" /></DataTrigger></Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Border>
+                                <Border.Style>
+                                    <Style BasedOn="{StaticResource SetupStepNumberStyle}" TargetType="Border">
+                                        <Style.Triggers><DataTrigger Binding="{Binding IsRepositoryStep}" Value="True"><Setter Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Text="02">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{StaticResource WorkbenchSecondaryTextBrush}" />
+                                            <Style.Triggers><DataTrigger Binding="{Binding IsRepositoryStep}" Value="True"><Setter Property="Foreground" Value="{StaticResource WorkbenchAccentBrush}" /></DataTrigger></Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontSize="15" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_RepositoryStep}" />
+                                <TextBlock Margin="0,3,0,0" Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" Text="{x:Static properties:Resources.Setup_CurrentStep}">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsRepositoryStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
 
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                        <Border Width="1" Height="24" Margin="17,5,0,5" HorizontalAlignment="Left" Background="{StaticResource WorkbenchBorderBrush}" />
 
-                <ProgressBar Width="220"
-                             Height="5"
-                             IsIndeterminate="True" />
+                        <Grid>
+                            <Grid.Style><Style TargetType="Grid"><Setter Property="Opacity" Value="0.48" /><Style.Triggers><DataTrigger Binding="{Binding IsVerificationStep}" Value="True"><Setter Property="Opacity" Value="1" /></DataTrigger></Style.Triggers></Style></Grid.Style>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Border>
+                                <Border.Style><Style BasedOn="{StaticResource SetupStepNumberStyle}" TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsVerificationStep}" Value="True"><Setter Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" /></DataTrigger></Style.Triggers></Style></Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Text="03">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource WorkbenchSecondaryTextBrush}" /><Style.Triggers><DataTrigger Binding="{Binding IsVerificationStep}" Value="True"><Setter Property="Foreground" Value="{StaticResource WorkbenchAccentBrush}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontSize="15" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_VerificationStep}" />
+                                <TextBlock Margin="0,3,0,0" Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" Text="{x:Static properties:Resources.Setup_CurrentStep}">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsVerificationStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
 
-                <TextBlock Margin="0,16,0,0"
-                           Foreground="{StaticResource SetupTextBrush}"
-                           FontSize="14"
-                           Text="{x:Static properties:Resources.Setup_ConfigurationLoading}" />
-            </StackPanel>
-        </Border>
-    
+                        <Border Width="1" Height="24" Margin="17,5,0,5" HorizontalAlignment="Left" Background="{StaticResource WorkbenchBorderBrush}" />
+
+                        <Grid>
+                            <Grid.Style><Style TargetType="Grid"><Setter Property="Opacity" Value="0.48" /><Style.Triggers><DataTrigger Binding="{Binding IsCompletionStep}" Value="True"><Setter Property="Opacity" Value="1" /></DataTrigger></Style.Triggers></Style></Grid.Style>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Border>
+                                <Border.Style><Style BasedOn="{StaticResource SetupStepNumberStyle}" TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsCompletionStep}" Value="True"><Setter Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" /></DataTrigger></Style.Triggers></Style></Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Text="04">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource WorkbenchSecondaryTextBrush}" /><Style.Triggers><DataTrigger Binding="{Binding IsCompletionStep}" Value="True"><Setter Property="Foreground" Value="{StaticResource WorkbenchAccentBrush}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontSize="15" FontWeight="SemiBold" Text="{x:Static properties:Resources.Setup_CompletionStep}" />
+                                <TextBlock Margin="0,3,0,0" Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" Text="{x:Static properties:Resources.Setup_CurrentStep}">
+                                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsCompletionStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Margin="0,32,0,0" Padding="18" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="7">
+                            <StackPanel>
+                                <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="11" FontWeight="Bold" Text="{x:Static properties:Resources.Setup_ConfigurationScope}" />
+                                <TextBlock Margin="0,10,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Setup_ConfigurationScopeDescription}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <Grid Grid.Column="2">
+                        <steps:DatabaseSetupStepView>
+                            <steps:DatabaseSetupStepView.Style><Style TargetType="{x:Type steps:DatabaseSetupStepView}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsDatabaseStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></steps:DatabaseSetupStepView.Style>
+                        </steps:DatabaseSetupStepView>
+                        <steps:RepositorySetupStepView>
+                            <steps:RepositorySetupStepView.Style><Style TargetType="{x:Type steps:RepositorySetupStepView}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsRepositoryStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></steps:RepositorySetupStepView.Style>
+                        </steps:RepositorySetupStepView>
+                        <steps:VerificationSetupStepView>
+                            <steps:VerificationSetupStepView.Style><Style TargetType="{x:Type steps:VerificationSetupStepView}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsVerificationStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></steps:VerificationSetupStepView.Style>
+                        </steps:VerificationSetupStepView>
+                        <steps:CompletionSetupStepView>
+                            <steps:CompletionSetupStepView.Style><Style TargetType="{x:Type steps:CompletionSetupStepView}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsCompletionStep}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></steps:CompletionSetupStepView.Style>
+                        </steps:CompletionSetupStepView>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+
+            <Border Grid.Row="2"
+                    Background="{StaticResource WorkbenchFooterBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
+                    BorderThickness="0,1,0,0">
+                <TextBlock Margin="48,0"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource WorkbenchMutedTextBrush}"
+                           FontSize="11"
+                           Text="{x:Static properties:Resources.Setup_LocalDataStatus}" />
+            </Border>
+
+            <Border Grid.RowSpan="3" Background="#B010171D">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers><DataTrigger Binding="{Binding IsLoading}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="220" Height="5" IsIndeterminate="True" />
+                    <TextBlock Margin="0,16,0,0" Foreground="{StaticResource WorkbenchTextBrush}" FontSize="14" Text="{x:Static properties:Resources.Setup_ConfigurationLoading}" />
+                </StackPanel>
+            </Border>
         </Grid>
 
         <views:AdministrationOverviewView>
@@ -726,27 +330,24 @@
             </views:AdministrationOverviewView.Style>
         </views:AdministrationOverviewView>
 
-        <Border Margin="80" Padding="32" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Background="{StaticResource SetupCardBackgroundBrush}" BorderBrush="{StaticResource SetupErrorBrush}"
-                BorderThickness="1" CornerRadius="8">
+        <Border Margin="80"
+                Padding="32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="{StaticResource WorkbenchPanelBackgroundBrush}"
+                BorderBrush="{StaticResource WorkbenchErrorBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsAdministrationAccessDenied}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
+                    <Style.Triggers><DataTrigger Binding="{Binding IsAdministrationAccessDenied}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
                 </Style>
             </Border.Style>
             <StackPanel MaxWidth="560">
-                <TextBlock Foreground="{StaticResource SetupErrorBrush}" FontSize="20" FontWeight="SemiBold"
-                           Text="{x:Static properties:Resources.Administration_AccessDeniedTitle}" />
-                <TextBlock Margin="0,12,0,0" Style="{StaticResource SetupDescriptionStyle}"
-                           Text="{x:Static properties:Resources.Administration_AccessDeniedDescription}" />
+                <TextBlock Foreground="{StaticResource WorkbenchErrorBrush}" FontSize="20" FontWeight="SemiBold" Text="{x:Static properties:Resources.Administration_AccessDeniedTitle}" />
+                <TextBlock Margin="0,12,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_AccessDeniedDescription}" />
             </StackPanel>
         </Border>
     </Grid>
 </UserControl>
-
-

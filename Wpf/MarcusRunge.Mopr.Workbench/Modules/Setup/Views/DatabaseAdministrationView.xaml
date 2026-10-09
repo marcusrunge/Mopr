@@ -1,42 +1,10 @@
-<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.DatabaseAdministrationView"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:prism="http://prismlibrary.com/"
-             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties" 
-             xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             d:DataContext="{d:DesignInstance Type=viewmodels:DatabaseAdministrationViewModel}"
-             mc:Ignorable="d"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        </ResourceDictionary>
-    </UserControl.Resources>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="34" MaxWidth="780" HorizontalAlignment="Left">
-            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Database}" />
-            <TextBlock Margin="0,8,0,24" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_DatabaseDescription}" />
-            <Border Padding="24" Background="{StaticResource SetupCardBackgroundBrush}" BorderBrush="{StaticResource SetupCardBorderBrush}" BorderThickness="1" CornerRadius="8">
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.DatabaseAdministration_ConnectionString}" />
-                    <TextBox Margin="0,8,0,0" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsInteractionEnabled}" />
-                    <TextBlock Margin="0,8,0,0" Foreground="{StaticResource SetupMutedTextBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.DatabaseAdministration_SensitiveValueNotice}" />
-                    <TextBlock Margin="0,16,0,0" Foreground="{StaticResource SetupSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding StatusText}" />
-                    <Border Margin="0,16,0,0" Padding="14" Background="#302A1B" BorderBrush="{StaticResource SetupWarningBrush}" BorderThickness="1" CornerRadius="6" Visibility="{Binding IsRestartRequired, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Foreground="{StaticResource SetupWarningBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.DatabaseAdministration_RestartRequired}" />
-                    </Border>
-                    <StackPanel Margin="0,22,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ResetCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_Discard}" />
-                        <Button Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding TestConnectionCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_TestConnection}" />
-                        <Button Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding SaveCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_Save}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-    </ScrollViewer>
-</UserControl>
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.DatabaseAdministrationView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:prism="http://prismlibrary.com/" xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties" xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:DatabaseAdministrationViewModel}" mc:Ignorable="d" prism:ViewModelLocator.AutoWireViewModel="True">
+<UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" /></ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"><StackPanel Margin="34" MaxWidth="780" HorizontalAlignment="Left">
+<TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Database}" /><TextBlock Margin="0,8,0,24" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_DatabaseDescription}" />
+<Border Padding="24" Background="{StaticResource WorkbenchPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="8"><StackPanel>
+<TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.DatabaseAdministration_ConnectionString}" /><TextBox Margin="0,8,0,0" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding ConnectionString, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsInteractionEnabled}" />
+<TextBlock Margin="0,8,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.DatabaseAdministration_SensitiveValueNotice}" /><TextBlock Margin="0,16,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding StatusText}" />
+<Border Margin="0,16,0,0" Padding="14" Background="{StaticResource WorkbenchWarningBackgroundBrush}" BorderBrush="{StaticResource WorkbenchWarningBrush}" BorderThickness="1" CornerRadius="6" Visibility="{Binding IsRestartRequired, Converter={StaticResource BooleanToVisibilityConverter}}"><TextBlock Foreground="{StaticResource WorkbenchWarningBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.DatabaseAdministration_RestartRequired}" /></Border>
+<StackPanel Margin="0,22,0,0" Orientation="Horizontal" HorizontalAlignment="Right"><Button Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ResetCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_Discard}" /><Button Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding TestConnectionCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_TestConnection}" /><Button Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding SaveCommand}" Content="{x:Static properties:Resources.DatabaseAdministration_Save}" /></StackPanel>
+</StackPanel></Border></StackPanel></ScrollViewer></UserControl>

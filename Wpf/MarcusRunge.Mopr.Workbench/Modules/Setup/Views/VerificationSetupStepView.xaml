@@ -18,11 +18,10 @@
 
     <Border Padding="32"
             VerticalAlignment="Top"
-            Background="{StaticResource SetupCardBackgroundBrush}"
-            BorderBrush="{StaticResource SetupCardBorderBrush}"
+            Background="{StaticResource WorkbenchPanelBackgroundBrush}"
+            BorderBrush="{StaticResource WorkbenchBorderBrush}"
             BorderThickness="1"
             CornerRadius="9">
-
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -36,7 +35,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid>
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="48" />
                     <ColumnDefinition Width="18" />
@@ -45,14 +44,13 @@
 
                 <Border Width="48"
                         Height="48"
-                        Background="{StaticResource SetupAccentBackgroundBrush}"
-                        BorderBrush="#2A5963"
+                        Background="{StaticResource WorkbenchAccentBackgroundBrush}"
+                        BorderBrush="{StaticResource WorkbenchAccentBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="7">
-
                     <TextBlock HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Foreground="{StaticResource SetupAccentBrush}"
+                               Foreground="{StaticResource WorkbenchAccentBrush}"
                                FontSize="15"
                                FontWeight="Bold"
                                Text="CHK" />
@@ -60,7 +58,6 @@
 
                 <StackPanel Grid.Column="2"
                             VerticalAlignment="Center">
-
                     <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
                                Text="{x:Static properties:Resources.Setup_VerificationTitle}" />
 
@@ -71,15 +68,14 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="{StaticResource SetupCardBorderBrush}" />
+                    Background="{StaticResource WorkbenchBorderBrush}" />
 
             <Border Grid.Row="4"
                     Padding="16"
-                    Background="#14232B"
-                    BorderBrush="{StaticResource SetupCardBorderBrush}"
+                    Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6">
-
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -92,7 +88,7 @@
                                    Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
 
                         <TextBlock Margin="0,6,0,0"
-                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
                                    FontSize="13"
                                    Text="{Binding ConnectionString}"
                                    TextTrimming="CharacterEllipsis"
@@ -100,17 +96,16 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="2"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
                         <Ellipse Width="8"
                                  Height="8"
                                  Margin="0,0,8,0"
                                  VerticalAlignment="Center"
-                                 Fill="{StaticResource SetupSuccessBrush}" />
+                                 Fill="{StaticResource WorkbenchSuccessBrush}" />
 
                         <TextBlock VerticalAlignment="Center"
-                                   Foreground="{StaticResource SetupSuccessBrush}"
+                                   Foreground="{StaticResource WorkbenchSuccessBrush}"
                                    FontSize="13"
                                    FontWeight="SemiBold"
                                    Text="{x:Static properties:Resources.Setup_Verified}" />
@@ -120,11 +115,10 @@
 
             <Border Grid.Row="6"
                     Padding="16"
-                    Background="#14232B"
-                    BorderBrush="{StaticResource SetupCardBorderBrush}"
+                    Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6">
-
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -137,7 +131,7 @@
                                    Text="{x:Static properties:Resources.Setup_RepositoryTitle}" />
 
                         <TextBlock Margin="0,6,0,0"
-                                   Foreground="{StaticResource SetupSecondaryTextBrush}"
+                                   Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
                                    FontSize="13"
                                    Text="{Binding RepositoryLocationPath}"
                                    TextTrimming="CharacterEllipsis"
@@ -145,17 +139,16 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="2"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
                         <Ellipse Width="8"
                                  Height="8"
                                  Margin="0,0,8,0"
                                  VerticalAlignment="Center"
-                                 Fill="{StaticResource SetupSuccessBrush}" />
+                                 Fill="{StaticResource WorkbenchSuccessBrush}" />
 
                         <TextBlock VerticalAlignment="Center"
-                                   Foreground="{StaticResource SetupSuccessBrush}"
+                                   Foreground="{StaticResource WorkbenchSuccessBrush}"
                                    FontSize="13"
                                    FontWeight="SemiBold"
                                    Text="{x:Static properties:Resources.Setup_Verified}" />
@@ -170,7 +163,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock VerticalAlignment="Center"
-                           Foreground="{StaticResource SetupSecondaryTextBrush}"
+                           Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
                            FontSize="12"
                            Text="{x:Static properties:Resources.Setup_VerificationNoChangesNotice}"
                            TextWrapping="Wrap" />
@@ -178,7 +171,6 @@
                 <StackPanel Grid.Column="1"
                             Margin="24,0,0,0"
                             Orientation="Horizontal">
-
                     <Button Margin="0,0,12,0"
                             Style="{StaticResource SetupSecondaryButtonStyle}"
                             Command="{Binding BackCommand}"

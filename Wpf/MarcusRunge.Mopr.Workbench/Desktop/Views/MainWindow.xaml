@@ -11,52 +11,21 @@
         Height="800"
         MinWidth="1024"
         MinHeight="680"
-        Background="#111B22"
+        Background="{DynamicResource WorkbenchPanelBackgroundBrush}"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{Binding Title}"
         WindowStartupLocation="CenterScreen">
-
     <Window.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Core;component/Themes/WorkbenchTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
-            <SolidColorBrush x:Key="WorkbenchBackgroundBrush" Color="#0D151B" />
-            <SolidColorBrush x:Key="WorkbenchHeaderBackgroundBrush" Color="#121B22" />
-            <SolidColorBrush x:Key="WorkbenchCommandBarBackgroundBrush" Color="#172129" />
-            <SolidColorBrush x:Key="WorkbenchPanelBackgroundBrush" Color="#111B22" />
-            <SolidColorBrush x:Key="WorkbenchSecondaryPanelBackgroundBrush" Color="#17242D" />
-            <SolidColorBrush x:Key="WorkbenchFooterBackgroundBrush" Color="#0B1116" />
-            <SolidColorBrush x:Key="WorkbenchViewerBackgroundBrush" Color="#030607" />
-            <SolidColorBrush x:Key="WorkbenchBorderBrush" Color="#263944" />
-            <SolidColorBrush x:Key="WorkbenchStrongBorderBrush" Color="#31515D" />
-            <SolidColorBrush x:Key="WorkbenchSplitterBrush" Color="#25343D" />
-            <SolidColorBrush x:Key="WorkbenchTextBrush" Color="#E6EDF2" />
-            <SolidColorBrush x:Key="WorkbenchSecondaryTextBrush" Color="#9AACB8" />
-            <SolidColorBrush x:Key="WorkbenchMutedTextBrush" Color="#71838F" />
-            <SolidColorBrush x:Key="WorkbenchControlBackgroundBrush" Color="#222D35" />
-            <SolidColorBrush x:Key="WorkbenchControlHoverBackgroundBrush" Color="#29434B" />
-            <SolidColorBrush x:Key="WorkbenchControlPressedBackgroundBrush" Color="#20383F" />
-            <SolidColorBrush x:Key="WorkbenchAccentBrush" Color="#62D4DF" />
-            <SolidColorBrush x:Key="WorkbenchAccentBackgroundBrush" Color="#173A43" />
-            <SolidColorBrush x:Key="WorkbenchAccentBorderBrush" Color="#2A5963" />
-            <SolidColorBrush x:Key="WorkbenchSuccessBrush" Color="#61D6A2" />
-
-            <!-- Concrete compatibility brushes. No StaticResourceExtension aliases. -->
-            <SolidColorBrush x:Key="SetupBackgroundBrush" Color="#0D151B" />
-            <SolidColorBrush x:Key="SetupHeaderBackgroundBrush" Color="#121B22" />
-            <SolidColorBrush x:Key="SetupCardBackgroundBrush" Color="#111B22" />
-            <SolidColorBrush x:Key="SetupCardSecondaryBackgroundBrush" Color="#17242D" />
-            <SolidColorBrush x:Key="SetupCardBorderBrush" Color="#263944" />
-            <SolidColorBrush x:Key="SetupTextBrush" Color="#E6EDF2" />
-            <SolidColorBrush x:Key="SetupSecondaryTextBrush" Color="#9AACB8" />
-            <SolidColorBrush x:Key="SetupMutedTextBrush" Color="#71838F" />
-            <SolidColorBrush x:Key="SetupAccentBrush" Color="#62D4DF" />
-            <SolidColorBrush x:Key="SetupAccentBackgroundBrush" Color="#173A43" />
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Background="#111B22">
+    <Grid Background="{StaticResource WorkbenchPanelBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -68,8 +37,8 @@
         <Border Grid.Row="1"
                 MinHeight="44"
                 Padding="18,6"
-                Background="#0B1116"
-                BorderBrush="#263944"
+                Background="{StaticResource WorkbenchFooterBackgroundBrush}"
+                BorderBrush="{StaticResource WorkbenchBorderBrush}"
                 BorderThickness="0,1,0,0"
                 Visibility="{Binding HasCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid>
@@ -86,19 +55,19 @@
                             Height="9"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            Background="#61D6A2"
+                            Background="{StaticResource WorkbenchSuccessBrush}"
                             CornerRadius="5" />
 
                     <StackPanel>
                         <TextBlock HorizontalAlignment="Right"
-                                   Foreground="#E6EDF2"
+                                   Foreground="{StaticResource WorkbenchTextBrush}"
                                    FontSize="13"
                                    FontWeight="SemiBold"
                                    Text="{Binding CurrentUserDisplayName}" />
 
                         <TextBlock Margin="0,2,0,0"
                                    HorizontalAlignment="Right"
-                                   Foreground="#71838F"
+                                   Foreground="{StaticResource WorkbenchMutedTextBrush}"
                                    FontSize="11"
                                    Text="{Binding CurrentUserDetails}" />
                     </StackPanel>

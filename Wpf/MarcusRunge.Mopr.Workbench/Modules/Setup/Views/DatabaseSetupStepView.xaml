@@ -18,8 +18,8 @@
 
     <Border Padding="32"
             VerticalAlignment="Top"
-            Background="{StaticResource SetupCardBackgroundBrush}"
-            BorderBrush="{StaticResource SetupCardBorderBrush}"
+            Background="{StaticResource WorkbenchPanelBackgroundBrush}"
+            BorderBrush="{StaticResource WorkbenchBorderBrush}"
             BorderThickness="1"
             CornerRadius="9">
 
@@ -47,20 +47,22 @@
 
                 <Border Width="48"
                         Height="48"
-                        Background="{StaticResource SetupAccentBackgroundBrush}"
-                        BorderBrush="#2A5963"
+                        Background="{StaticResource WorkbenchAccentBackgroundBrush}"
+                        BorderBrush="{StaticResource WorkbenchAccentBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="7">
 
                     <TextBlock HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Foreground="{StaticResource SetupAccentBrush}"
+                               Foreground="{StaticResource WorkbenchAccentBrush}"
                                FontSize="17"
                                FontWeight="Bold"
                                Text="DB" />
                 </Border>
 
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center">
+
                     <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
                                Text="{x:Static properties:Resources.Setup_DatabaseTitle}" />
 
@@ -70,7 +72,8 @@
                 </StackPanel>
             </Grid>
 
-            <Border Grid.Row="2" Background="{StaticResource SetupCardBorderBrush}" />
+            <Border Grid.Row="2"
+                    Background="{StaticResource WorkbenchBorderBrush}" />
 
             <StackPanel Grid.Row="4">
                 <TextBlock Margin="0,0,0,8"
@@ -84,8 +87,8 @@
 
             <Border Grid.Row="6"
                     Padding="14"
-                    Background="#111C22"
-                    BorderBrush="{StaticResource SetupCardBorderBrush}"
+                    Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6">
 
@@ -103,7 +106,7 @@
 
                     <TextBlock Grid.Column="2"
                                VerticalAlignment="Center"
-                               Foreground="{StaticResource SetupSecondaryTextBrush}"
+                               Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
                                FontSize="12"
                                LineHeight="18"
                                Text="{x:Static properties:Resources.Setup_UseLocalDatabaseDescription}"
@@ -122,15 +125,21 @@
                         Command="{Binding TestDatabaseConnectionCommand}"
                         Content="{x:Static properties:Resources.Setup_TestDatabaseConnection}" />
 
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <ProgressBar Height="4" IsIndeterminate="True">
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center">
+
+                    <ProgressBar Height="4"
+                                 IsIndeterminate="True">
                         <ProgressBar.Style>
                             <Style TargetType="ProgressBar">
-                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
 
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsTestingDatabase}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
+                                    <DataTrigger Binding="{Binding IsTestingDatabase}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -143,15 +152,20 @@
 
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{StaticResource SetupSecondaryTextBrush}" />
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource WorkbenchSecondaryTextBrush}" />
 
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}" Value="True">
-                                        <Setter Property="Foreground" Value="{StaticResource SetupSuccessBrush}" />
+                                    <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}"
+                                                 Value="True">
+                                        <Setter Property="Foreground"
+                                                Value="{StaticResource WorkbenchSuccessBrush}" />
                                     </DataTrigger>
 
-                                    <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}" Value="False">
-                                        <Setter Property="Foreground" Value="{StaticResource SetupErrorBrush}" />
+                                    <DataTrigger Binding="{Binding IsDatabaseConnectionSuccessful}"
+                                                 Value="False">
+                                        <Setter Property="Foreground"
+                                                Value="{StaticResource WorkbenchErrorBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
