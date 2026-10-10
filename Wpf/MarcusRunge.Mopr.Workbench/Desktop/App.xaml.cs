@@ -153,7 +153,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
             containerRegistry.RegisterSingleton<IRepositoryLocationValidationService, RepositoryLocationValidationService>();
-            containerRegistry.RegisterSingleton<IRepositoryLocationAdministrationService>(provider => new RepositoryLocationAdministrationService(provider.Resolve<IPersistence>()));
+            containerRegistry.RegisterSingleton<IRepositoryLocationAdministrationService>(provider => new RepositoryLocationAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);
@@ -172,7 +172,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // Persistence must be registered before application services that resolve
             // persisted users, repository locations or audit identities.
-            containerRegistry.RegisterSingleton<IPersistenceFactory>(                provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
+            containerRegistry.RegisterSingleton<IPersistenceFactory>(provider => new PersistenceFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<PersistenceConfiguration>>()));
 
             containerRegistry.RegisterSingleton<IPersistence>(provider => provider.Resolve<IPersistenceFactory>().Create());
 
@@ -192,7 +192,7 @@ namespace MarcusRunge.Mopr.Workbench
             // Runtime security adapters resolve the current Windows identity against
             // an existing persistent MOPR user without implicit user provisioning.
             containerRegistry.RegisterSingleton<IOperatingSystemIdentityProvider, OperatingSystemIdentityProvider>();
-                
+
             // MIRAS depends on Persistence and Repository as well as the platform-neutral
             // ports required for protected machine-wide repository recovery.
             containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IRepositoryLocationValidationService>(), provider.Resolve<ISystemAuditIdentityProvider>()));
