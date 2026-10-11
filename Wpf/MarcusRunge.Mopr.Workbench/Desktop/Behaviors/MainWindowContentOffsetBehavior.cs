@@ -52,7 +52,7 @@ public static partial class MainWindowContentOffsetBehavior
             element.Margin = state.OriginalMargin;
             return;
         }
-
+        
         var originalMargin = state.OriginalMargin;
         element.Margin = new Thickness(originalMargin.Left, originalMargin.Top + topMargin, originalMargin.Right, originalMargin.Bottom);
     }
@@ -64,13 +64,17 @@ public static partial class MainWindowContentOffsetBehavior
             return;
         }
 
-        var state = new ContentOffsetState(element.Margin);
+        var state = new ContentOffsetState(element.Margin)
+        {
+            IsLoaded = element.IsLoaded
+        };
+
         States.Add(element, state);
 
         element.Loaded += OnElementLoaded;
         element.Unloaded += OnElementUnloaded;
 
-        if (element.IsLoaded)
+        if (state.IsLoaded)
         {
             ConnectToWindow(element, state);
         }
@@ -78,6 +82,11 @@ public static partial class MainWindowContentOffsetBehavior
 
     private static void ConnectToWindow(FrameworkElement element, ContentOffsetState state)
     {
+        if (!state.IsLoaded)
+        {
+            return;
+        }
+
         var window = Window.GetWindow(element);
         if (window is null)
         {
@@ -93,7 +102,14 @@ public static partial class MainWindowContentOffsetBehavior
         DisconnectFromWindow(state);
 
         var windowHandle = new WindowInteropHelper(window).Handle;
-        if (windowHandle == nint.Zero || HwndSource.FromHwnd(windowHandle) is not HwndSource hwndSource)
+        if (windowHandle == nint.Zero)
+        {
+            window.SourceInitialized += OnWindowSourceInitialized;
+            state.Window = window;
+            return;
+        }
+
+        if (HwndSource.FromHwnd(windowHandle) is not HwndSource hwndSource)
         {
             return;
         }
@@ -124,7 +140,11 @@ public static partial class MainWindowContentOffsetBehavior
 
     private static void DisconnectFromWindow(ContentOffsetState state)
     {
-        state.Window?.StateChanged -= OnWindowStateChanged;
+        if (state.Window is not null)
+        {
+            state.Window.SourceInitialized -= OnWindowSourceInitialized;
+            state.Window.StateChanged -= OnWindowStateChanged;
+        }
 
         state.HwndSource?.RemoveHook(WindowProcedure);
 
@@ -145,19 +165,27 @@ public static partial class MainWindowContentOffsetBehavior
 
     private static void OnElementLoaded(object sender, RoutedEventArgs eventArgs)
     {
-        if (sender is FrameworkElement element && States.TryGetValue(element, out var state))
+        if (sender is not FrameworkElement element || !States.TryGetValue(element, out var state))
         {
-            ConnectToWindow(element, state);
+            return;
         }
+
+        state.IsLoaded = true;
+        ConnectToWindow(element, state);
     }
 
     private static void OnElementUnloaded(object sender, RoutedEventArgs eventArgs)
     {
-        if (sender is FrameworkElement element && States.TryGetValue(element, out var state))
+        if (sender is not FrameworkElement element || !States.TryGetValue(element, out var state))
         {
-            DisconnectFromWindow(state);
-            element.Margin = state.OriginalMargin;
+            return;
         }
+
+        state.IsLoaded = false;
+        state.UpdatePending = false;
+
+        DisconnectFromWindow(state);
+        element.Margin = state.OriginalMargin;
     }
 
     private static void OnIsEnabledChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs eventArgs)
@@ -174,6 +202,24 @@ public static partial class MainWindowContentOffsetBehavior
         }
 
         Detach(element);
+    }
+
+    private static void OnWindowSourceInitialized(object? sender, EventArgs eventArgs)
+    {
+        if (sender is not Window window)
+        {
+            return;
+        }
+
+        window.SourceInitialized -= OnWindowSourceInitialized;
+
+        foreach (var entry in States)
+        {
+            if (entry.Value.IsLoaded && ReferenceEquals(entry.Value.Window, window))
+            {
+                ConnectToWindow(entry.Key, entry.Value);
+            }
+        }
     }
 
     private static void OnWindowStateChanged(object? sender, EventArgs eventArgs)
@@ -194,20 +240,26 @@ public static partial class MainWindowContentOffsetBehavior
 
     private static void QueueMarginUpdate(FrameworkElement element, ContentOffsetState state)
     {
-        if (state.UpdatePending)
+        if (!state.IsLoaded || state.UpdatePending)
         {
             return;
         }
 
         state.UpdatePending = true;
 
-        // The native frame bounds are queried only after Windows and WPF have completed
-        // the current state, position, or per-monitor DPI transition.
+        // Query native frame bounds only after Windows and WPF have completed the
+        // current window-state, position, or per-monitor DPI transition.
         _ = element.Dispatcher.BeginInvoke(
             DispatcherPriority.Loaded,
             () =>
             {
                 state.UpdatePending = false;
+
+                if (!state.IsLoaded || !ReferenceEquals(Window.GetWindow(element), state.Window))
+                {
+                    return;
+                }
+
                 ApplyCurrentMargin(element, state);
             });
     }
@@ -272,9 +324,13 @@ public static partial class MainWindowContentOffsetBehavior
     private sealed class ContentOffsetState(Thickness originalMargin)
     {
         public HwndSource? HwndSource { get; set; }
+
+        public bool IsLoaded { get; set; }
+
         public Thickness OriginalMargin { get; } = originalMargin;
 
         public bool UpdatePending { get; set; }
+
         public Window? Window { get; set; }
 
         public nint WindowHandle { get; set; }

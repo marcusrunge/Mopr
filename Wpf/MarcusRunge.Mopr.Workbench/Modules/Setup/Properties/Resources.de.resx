@@ -516,4 +516,28 @@
   <data name="RepositoryAdministration_DuplicatePath" xml:space="preserve">
     <value>Ein anderes Repository verwendet diesen Speicherpfad bereits.</value>
   </data>
+	<data name="RepositoryAdministration_New" xml:space="preserve">
+    <value>Neues Repository</value>
+  </data>
+	<data name="RepositoryAdministration_Create" xml:space="preserve">
+    <value>Repository anlegen</value>
+  </data>
+	<data name="RepositoryAdministration_CancelCreate" xml:space="preserve">
+    <value>Neuanlage abbrechen</value>
+  </data>
+	<data name="RepositoryAdministration_Creating" xml:space="preserve">
+    <value>Repository wird angelegt...</value>
+  </data>
+	<data name="RepositoryAdministration_Created" xml:space="preserve">
+    <value>Das Repository wurde angelegt.</value>
+  </data>
+	<data name="RepositoryAdministration_CreationCanceled" xml:space="preserve">
+    <value>Die Repository-Neuanlage wurde abgebrochen.</value>
+  </data>
+	<data name="RepositoryAdministration_NewInstructions" xml:space="preserve">
+    <value>Geben Sie einen Namen und Speicherpfad ein und prüfen Sie den Speicherort, bevor Sie das Repository anlegen.</value>
+  </data>
+	<data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
+    <value>Das Repository konnte nicht angelegt werden.</value>
+  </data>
 </root>

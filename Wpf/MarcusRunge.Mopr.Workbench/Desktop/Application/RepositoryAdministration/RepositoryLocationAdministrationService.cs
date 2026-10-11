@@ -21,6 +21,54 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
     private readonly IApplication _application = application ?? throw new ArgumentNullException(nameof(application));
     private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
 
+
+    /// <inheritdoc/>
+    /// <inheritdoc/>
+    public async Task<RepositoryLocationCreateResult> CreateAsync(RepositoryLocationCreateRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.Name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.RootPath);
+
+        var currentUser = await (_application.IdentityService?.CurrentUserContext?.GetCurrentUserAsync(cancellationToken) ?? Task.FromResult<CurrentUser?>(null)).ConfigureAwait(false);
+        if (currentUser is not { Id: > 0, IsActive: true })
+        {
+            return RepositoryLocationCreateResult.Unauthorized();
+        }
+
+        var repository = GetRepository();
+        var normalizedName = request.Name.Trim();
+        var normalizedRootPath = request.RootPath.Trim();
+
+        if (await repository.GetByRootPathAsync(normalizedRootPath, cancellationToken).ConfigureAwait(false) is not null)
+        {
+            return RepositoryLocationCreateResult.DuplicatePath();
+        }
+
+        var location = new RepositoryLocation
+        {
+            Name = normalizedName,
+            RootPath = normalizedRootPath,
+            IsEnabled = request.IsDefault || request.IsEnabled,
+            IsDefault = request.IsDefault,
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedByUserId = currentUser.Id
+        };
+
+        /*
+         * AddAsync persists the entity but does not return it. Reloading the
+         * location provides the database-generated identifier and RowVersion
+         * required by the administration UI for subsequent updates.
+         */
+        await repository.AddAsync(location, cancellationToken).ConfigureAwait(false);
+
+        var createdLocation = await repository.GetByRootPathAsync(normalizedRootPath, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Repository location '{normalizedRootPath}' was not available after successful creation.");
+
+        return RepositoryLocationCreateResult.Success(Map(createdLocation));
+    }
+
     /// <inheritdoc/>
     public async Task<IReadOnlyList<RepositoryLocationSummary>> GetAllAsync(CancellationToken cancellationToken = default)
     {

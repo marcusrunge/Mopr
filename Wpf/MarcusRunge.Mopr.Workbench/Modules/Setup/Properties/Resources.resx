@@ -516,4 +516,29 @@
   <data name="RepositoryAdministration_DuplicatePath" xml:space="preserve">
     <value>Another repository already uses this storage path.</value>
   </data>
+	<data name="RepositoryAdministration_New" xml:space="preserve">
+    <value>New repository</value>
+  </data>
+	<data name="RepositoryAdministration_Create" xml:space="preserve">
+    <value>Create repository</value>
+  </data>
+	<data name="RepositoryAdministration_CancelCreate" xml:space="preserve">
+    <value>Cancel creation</value>
+  </data>
+	<data name="RepositoryAdministration_Creating" xml:space="preserve">
+    <value>Creating repository...</value>
+  </data>
+	<data name="RepositoryAdministration_Created" xml:space="preserve">
+    <value>The repository was created.</value>
+  </data>
+	<data name="RepositoryAdministration_CreationCanceled" xml:space="preserve">
+    <value>Repository creation was canceled.</value>
+  </data>
+	<data name="RepositoryAdministration_NewInstructions" xml:space="preserve">
+    <value>Enter a name and storage path, then validate the location before creating the repository.</value>
+  </data>
+	<data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
+    <value>The repository could not be created.</value>
+  </data>
+
 </root>

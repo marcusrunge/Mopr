@@ -385,6 +385,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel creation ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CancelCreate {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CancelCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The repository operation was canceled. ähnelt.
         /// </summary>
         public static string RepositoryAdministration_Canceled {
@@ -417,6 +426,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string RepositoryAdministration_Conflict {
             get {
                 return ResourceManager.GetString("RepositoryAdministration_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Create {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was created. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Created {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository could not be created. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CreateFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Creating repository... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Creating {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Creating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository creation was canceled. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CreationCanceled {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CreationCanceled", resourceCulture);
             }
         }
         
@@ -534,6 +588,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string RepositoryAdministration_Name {
             get {
                 return ResourceManager.GetString("RepositoryAdministration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_New {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_New", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter a name and storage path, then validate the location before creating the repository. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NewInstructions {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NewInstructions", resourceCulture);
             }
         }
         
