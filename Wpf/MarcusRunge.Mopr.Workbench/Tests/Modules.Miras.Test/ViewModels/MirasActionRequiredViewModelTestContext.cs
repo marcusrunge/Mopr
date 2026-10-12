@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
@@ -6,7 +7,6 @@ using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Test.Shared.Application;
 using Moq;
-using Prism.Navigation.Regions;
 using IDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
@@ -36,27 +36,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
 
-            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
+            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object, RepositoryLocationAdministrationService.Object);
         }
 
         internal Mock<IAdministrativeAuthorizationService> AdministrativeAuthorizationService { get; }
-
         internal Mock<IApplication> Application { get; }
-
         internal Mock<IDialogService> DialogService { get; }
-
         internal Mock<IFileDialogService> FileDialogService { get; }
-
         internal Mock<IFlow> Flow { get; }
-
         internal TestApplicationLifetime LifetimeService { get; }
-
         internal Mock<IMiras> Miras { get; }
-
         internal Mock<IRepositoryInfrastructureRecoveryService> RecoveryService { get; }
-
         internal Mock<IRegionManager> RegionManager { get; }
-
+        internal Mock<IRepositoryLocationAdministrationService> RepositoryLocationAdministrationService { get; } = new(MockBehavior.Strict);
         internal MirasActionRequiredViewModel ViewModel { get; }
 
         public void Dispose()
@@ -69,6 +61,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             _disposed = true;
             LifetimeService.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        internal static async Task WaitUntilAsync(Func<bool> condition, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(condition);
+
+            while (!condition())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Delay(10, cancellationToken);
+            }
         }
 
         internal void ConfigureCanceledFolderSelection() => FileDialogService.Setup(service => service.SelectFolder(It.IsAny<string>(), It.IsAny<string?>())).Returns((string?)null);
@@ -92,16 +95,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         internal void VerifyRecoveryNotCalled() => RecoveryService.Verify(service => service.RecoverAsync(It.IsAny<RepositoryInfrastructureRecoveryRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
         internal void VerifyVerificationNotStarted() => Flow.Verify(flow => flow.StartAsync(It.IsAny<CancellationToken>()), Times.Never);
-
-        internal static async Task WaitUntilAsync(Func<bool> condition, CancellationToken cancellationToken)
-        {
-            ArgumentNullException.ThrowIfNull(condition);
-
-            while (!condition())
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                await Task.Delay(10, cancellationToken);
-            }
-        }
     }
 }

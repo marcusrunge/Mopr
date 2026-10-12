@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Miras.Views.MirasActionRequiredView"
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Miras.Views.MirasActionRequiredView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,12 +19,10 @@
             <RowDefinition Height="44" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <Border Grid.Row="0"
                 Background="#151E26"
                 BorderBrush="#2B3B47"
                 BorderThickness="0,0,0,1">
-
             <Grid Margin="48,0">
                 <StackPanel VerticalAlignment="Center">
                     <Border Padding="9,4"
@@ -33,7 +31,6 @@
                             BorderBrush="#665329"
                             BorderThickness="1"
                             CornerRadius="4">
-
                         <TextBlock Foreground="#F2C14E"
                                    FontSize="11"
                                    FontWeight="Bold"
@@ -44,238 +41,350 @@
                                Foreground="#E6EDF2"
                                FontSize="27"
                                FontWeight="SemiBold"
-                               Text="{Binding Title}"
-                               TextWrapping="Wrap" />
+                               Text="{Binding Title}" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Protected recovery area -->
         <ScrollViewer Grid.Row="1"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
-
-            <Grid Width="820"
+            <Grid Width="1080"
                   Margin="48"
                   HorizontalAlignment="Center">
 
-                <Border Padding="36"
-                        VerticalAlignment="Center"
-                        Background="#18232D"
-                        BorderBrush="#665329"
-                        BorderThickness="1"
-                        CornerRadius="8">
+                <Grid Visibility="{Binding HasIssues, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="370" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="56" />
-                            <ColumnDefinition Width="24" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Foreground="#E6EDF2"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.MirasActionRequiredAffectedAreas}" />
 
-                        <!-- Warning indicator -->
-                        <Border Width="56"
-                                Height="56"
-                                VerticalAlignment="Top"
-                                Background="#3A2F18"
-                                BorderBrush="#665329"
-                                BorderThickness="1"
-                                CornerRadius="28">
+                        <TextBlock Margin="0,8,0,18"
+                                   Foreground="#A6B4BF"
+                                   Text="{x:Static properties:Resources.MirasActionRequiredAffectedAreasDescription}"
+                                   TextWrapping="Wrap" />
 
-                            <TextBlock HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#F2C14E"
-                                       FontSize="28"
+                        <ListBox ItemsSource="{Binding Issues}"
+                                 SelectedItem="{Binding SelectedIssue}"
+                                 Background="Transparent"
+                                 BorderThickness="0">
+
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0,0,0,8" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="14"
+                                            Background="#18232D"
+                                            BorderBrush="#665329"
+                                            BorderThickness="1"
+                                            CornerRadius="6">
+                                        <StackPanel>
+                                            <TextBlock Foreground="#F2C14E"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding Title}"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Margin="0,6,0,0"
+                                                       Foreground="#E6EDF2"
+                                                       Text="{Binding RepositoryName}"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Margin="0,4,0,0"
+                                                       Foreground="#738490"
+                                                       Text="{Binding RepositoryPath}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <Border Grid.Column="2"
+                            Padding="28"
+                            Background="#18232D"
+                            BorderBrush="#665329"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <StackPanel>
+                            <TextBlock Foreground="#F2C14E"
+                                       FontSize="12"
                                        FontWeight="Bold"
-                                       Text="!" />
-                        </Border>
+                                       Text="{x:Static properties:Resources.MirasActionRequiredDetectedProblem}" />
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Foreground="#E6EDF2"
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="#E6EDF2"
                                        FontSize="22"
                                        FontWeight="SemiBold"
-                                       Text="{Binding Title}"
+                                       Text="{Binding SelectedIssue.Title}"
                                        TextWrapping="Wrap" />
 
                             <TextBlock Margin="0,14,0,0"
                                        Foreground="#A6B4BF"
                                        FontSize="14"
                                        LineHeight="22"
-                                       Text="{Binding Description}"
+                                       Text="{Binding SelectedIssue.Description}"
                                        TextWrapping="Wrap" />
 
-                            <!-- Safety notice -->
                             <Border Margin="0,24,0,0"
-                                    Padding="16"
+                                    Padding="18"
                                     Background="#141E26"
                                     BorderBrush="#2B3B47"
                                     BorderThickness="1"
                                     CornerRadius="6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                <TextBlock Foreground="#A6B4BF"
-                                           FontSize="13"
-                                           LineHeight="20"
-                                           Text="{x:Static properties:Resources.MirasActionRequiredSafetyNotice}"
-                                           TextWrapping="Wrap" />
+                                    <StackPanel>
+                                        <TextBlock Foreground="#738490"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Text="{x:Static properties:Resources.MirasActionRequiredRepositoryName}" />
+
+                                        <TextBlock Margin="0,6,0,18"
+                                                   Foreground="#E6EDF2"
+                                                   Text="{Binding SelectedIssue.RepositoryName}"
+                                                   TextWrapping="Wrap" />
+
+                                        <TextBlock Foreground="#738490"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Text="{x:Static properties:Resources.MirasActionRequiredRepositoryStatus}" />
+
+                                        <TextBlock Margin="0,6,0,0"
+                                                   Foreground="#A6B4BF">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text"
+                                                            Value="{x:Static properties:Resources.MirasActionRequiredRepositoryEnabled}" />
+
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedIssue.IsRepositoryEnabled}"
+                                                                     Value="False">
+                                                            <Setter Property="Text"
+                                                                    Value="{x:Static properties:Resources.MirasActionRequiredRepositoryDisabled}" />
+                                                        </DataTrigger>
+
+                                                        <DataTrigger Binding="{Binding SelectedIssue.IsRepositoryEnabled}"
+                                                                     Value="{x:Null}">
+                                                            <Setter Property="Text"
+                                                                    Value="{x:Static properties:Resources.MirasActionRequiredRepositoryStatusUnknown}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Foreground="#738490"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Text="{x:Static properties:Resources.MirasActionRequiredConfiguredPath}" />
+
+                                        <TextBlock Margin="0,6,0,18"
+                                                   Foreground="#E6EDF2"
+                                                   Text="{Binding SelectedIssue.RepositoryPath}"
+                                                   TextWrapping="Wrap" />
+
+                                        <TextBlock Foreground="#738490"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Text="{x:Static properties:Resources.MirasActionRequiredRepositoryRole}" />
+
+                                        <TextBlock Margin="0,6,0,0"
+                                                   Foreground="#A6B4BF">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text"
+                                                            Value="{x:Static properties:Resources.MirasActionRequiredAdditionalRepository}" />
+
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedIssue.IsRepositoryDefault}"
+                                                                     Value="True">
+                                                            <Setter Property="Text"
+                                                                    Value="{x:Static properties:Resources.MirasActionRequiredDefaultRepository}" />
+                                                        </DataTrigger>
+
+                                                        <DataTrigger Binding="{Binding SelectedIssue.IsRepositoryDefault}"
+                                                                     Value="{x:Null}">
+                                                            <Setter Property="Text"
+                                                                    Value="{x:Static properties:Resources.MirasActionRequiredRepositoryRoleUnknown}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
 
-                            <!-- Administrative authorization warning -->
                             <Border Margin="0,20,0,0"
                                     Padding="16"
                                     Background="#3A2F18"
                                     BorderBrush="#665329"
                                     BorderThickness="1"
                                     CornerRadius="6">
-
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility"
-                                                Value="Collapsed" />
-
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasAdministrativeAuthorization}"
-                                                         Value="False">
-
-                                                <Setter Property="Visibility"
-                                                        Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-
                                 <TextBlock Foreground="#F2C14E"
-                                           FontSize="13"
-                                           FontWeight="SemiBold"
-                                           LineHeight="20"
-                                           Text="{x:Static properties:Resources.MirasActionRequiredAdministratorRequired}"
+                                           Text="{x:Static properties:Resources.MirasActionRequiredIssueActionNotice}"
                                            TextWrapping="Wrap" />
                             </Border>
 
-                            <!-- Recovery controls -->
-                            <Border Margin="0,24,0,0"
-                                    Padding="20"
-                                    Background="#141E26"
-                                    BorderBrush="#2B3B47"
-                                    BorderThickness="1"
-                                    CornerRadius="6">
+                            <StackPanel Margin="0,20,0,0">
+                                <TextBlock Foreground="#E6EDF2"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Text="{x:Static properties:Resources.MirasActionRequiredAvailableActions}" />
 
-                                <StackPanel IsEnabled="{Binding HasAdministrativeAuthorization}">
-                                    <TextBlock Foreground="#E6EDF2"
-                                               FontSize="16"
-                                               FontWeight="SemiBold"
-                                               Text="{x:Static properties:Resources.MirasActionRequiredRepositoryPathLabel}" />
+                                <TextBlock Margin="0,7,0,14"
+                                           Foreground="#A6B4BF"
+                                           Text="{x:Static properties:Resources.MirasActionRequiredAvailableActionsDescription}"
+                                           TextWrapping="Wrap" />
 
-                                    <TextBlock Margin="0,7,0,0"
-                                               Foreground="#A6B4BF"
-                                               FontSize="13"
-                                               LineHeight="20"
-                                               Text="{x:Static properties:Resources.MirasActionRequiredSelectRepositoryNotice}"
-                                               TextWrapping="Wrap" />
+                                <WrapPanel>
+                                    <Button MinWidth="190"
+                                            Height="42"
+                                            Margin="0,0,10,10"
+                                            Command="{Binding RecreateDirectoryCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRecreateDirectory}" />
 
-                                    <Grid Margin="0,16,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="12" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
+                                    <Button MinWidth="190"
+                                            Height="42"
+                                            Margin="0,0,10,10"
+                                            Command="{Binding RelocateCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRelocate}" />
 
-                                        <TextBox Grid.Column="0"
-                                                 Height="44"
-                                                 Padding="12,8"
-                                                 VerticalContentAlignment="Center"
-                                                 Foreground="#A6B4BF"
-                                                 Background="#111A21"
-                                                 BorderBrush="#2B3B47"
-                                                 BorderThickness="1"
-                                                 IsReadOnly="True"
-                                                 Text="{Binding RepositoryPath, Mode=OneWay}" />
+                                    <Button MinWidth="190"
+                                            Height="42"
+                                            Margin="0,0,10,10"
+                                            Command="{Binding RemoveRepositoryCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRemoveRepository}" />
 
-                                        <Button Grid.Column="2"
-                                                MinWidth="120"
-                                                Height="44"
-                                                Padding="18,7"
-                                                Command="{Binding SelectRepositoryCommand}"
-                                                Content="{x:Static properties:Resources.MirasActionRequiredSelectRepository}"
-                                                Cursor="Hand"
-                                                FontSize="13"
-                                                FontWeight="SemiBold" />
-                                    </Grid>
+                                    <Button MinWidth="150"
+                                            Height="42"
+                                            Margin="0,0,0,10"
+                                            Command="{Binding RetryCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRetry}" />
+                                </WrapPanel>
 
-                                    <!-- Current recovery status -->
-                                    <Border Margin="0,18,0,0"
-                                            Padding="14"
-                                            Background="#111A21"
-                                            BorderBrush="#2B3B47"
-                                            BorderThickness="1"
-                                            CornerRadius="5">
-
-                                        <TextBlock Foreground="#A6B4BF"
-                                                   FontSize="13"
-                                                   LineHeight="20"
-                                                   Text="{Binding StatusMessage}"
-                                                   TextWrapping="Wrap" />
-                                    </Border>
-
-                                    <Grid Margin="0,20,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <ProgressBar Grid.Column="0"
-                                                     Width="220"
-                                                     Height="5"
-                                                     Margin="0,0,20,0"
-                                                     HorizontalAlignment="Left"
-                                                     VerticalAlignment="Center"
-                                                     IsIndeterminate="True">
-
-                                            <ProgressBar.Style>
-                                                <Style TargetType="ProgressBar">
-                                                    <Setter Property="Visibility"
-                                                            Value="Collapsed" />
-
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsBusy}"
-                                                                     Value="True">
-
-                                                            <Setter Property="Visibility"
-                                                                    Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </ProgressBar.Style>
-                                        </ProgressBar>
-
-                                        <Button Grid.Column="1"
-                                                MinWidth="220"
-                                                Height="44"
-                                                Padding="18,7"
-                                                Command="{Binding RecoverCommand}"
-                                                Content="{x:Static properties:Resources.MirasActionRequiredRecover}"
-                                                Foreground="#071317"
-                                                Background="#57CCD9"
-                                                BorderBrush="#57CCD9"
-                                                BorderThickness="1"
-                                                Cursor="Hand"
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                IsDefault="True" />
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
+                                <TextBlock Margin="0,8,0,0"
+                                           Foreground="#A6B4BF"
+                                           Text="{Binding StatusMessage}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
                         </StackPanel>
-                    </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Padding="36"
+                        Background="#18232D"
+                        BorderBrush="#665329"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsInfrastructureRecoveryVisible}"
+                                             Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <StackPanel>
+                        <TextBlock Foreground="#E6EDF2"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Text="{Binding Title}" />
+
+                        <TextBlock Margin="0,14,0,0"
+                                   Foreground="#A6B4BF"
+                                   Text="{Binding Description}"
+                                   TextWrapping="Wrap" />
+
+                        <Border Margin="0,24,0,0"
+                                Padding="20"
+                                Background="#141E26"
+                                BorderBrush="#2B3B47"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <StackPanel IsEnabled="{Binding HasAdministrativeAuthorization}">
+                                <TextBlock Foreground="#E6EDF2"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Text="{x:Static properties:Resources.MirasActionRequiredRepositoryPathLabel}" />
+
+                                <TextBlock Margin="0,7,0,0"
+                                           Foreground="#A6B4BF"
+                                           Text="{x:Static properties:Resources.MirasActionRequiredSelectRepositoryNotice}"
+                                           TextWrapping="Wrap" />
+
+                                <Grid Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Height="44"
+                                             Padding="12,8"
+                                             Foreground="#A6B4BF"
+                                             Background="#111A21"
+                                             BorderBrush="#2B3B47"
+                                             IsReadOnly="True"
+                                             Text="{Binding RepositoryPath, Mode=OneWay}" />
+
+                                    <Button Grid.Column="2"
+                                            MinWidth="120"
+                                            Height="44"
+                                            Command="{Binding SelectRepositoryCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredSelectRepository}" />
+                                </Grid>
+
+                                <TextBlock Margin="0,18,0,0"
+                                           Foreground="#A6B4BF"
+                                           Text="{Binding StatusMessage}"
+                                           TextWrapping="Wrap" />
+
+                                <Button Margin="0,20,0,0"
+                                        MinWidth="220"
+                                        Height="44"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding RecoverCommand}"
+                                        Content="{x:Static properties:Resources.MirasActionRequiredRecover}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </Border>
             </Grid>
         </ScrollViewer>
 
-        <!-- Footer -->
         <Border Grid.Row="2"
                 Background="#0D1318"
                 BorderBrush="#2B3B47"
                 BorderThickness="0,1,0,0">
-
             <TextBlock Margin="48,0"
                        VerticalAlignment="Center"
                        Foreground="#738490"
@@ -283,21 +392,16 @@
                        Text="{x:Static properties:Resources.MirasActionRequiredFooter}" />
         </Border>
 
-        <!-- Busy protection -->
         <Border Grid.RowSpan="3"
                 Background="#B010171D">
-
             <Border.Style>
                 <Style TargetType="Border">
-                    <Setter Property="Visibility"
-                            Value="Collapsed" />
+                    <Setter Property="Visibility" Value="Collapsed" />
 
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsBusy}"
                                      Value="True">
-
-                            <Setter Property="Visibility"
-                                    Value="Visible" />
+                            <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -305,18 +409,13 @@
 
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-
                 <ProgressBar Width="240"
                              Height="5"
                              IsIndeterminate="True" />
 
                 <TextBlock Margin="0,16,0,0"
-                           MaxWidth="520"
-                           HorizontalAlignment="Center"
                            Foreground="#E6EDF2"
-                           FontSize="14"
                            Text="{Binding StatusMessage}"
-                           TextAlignment="Center"
                            TextWrapping="Wrap" />
             </StackPanel>
         </Border>

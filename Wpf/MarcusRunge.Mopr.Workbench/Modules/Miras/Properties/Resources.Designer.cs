@@ -61,11 +61,56 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Additional repository ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAdditionalRepository {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAdditionalRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Start MOPR with administrator rights to restore the image repository. ähnelt.
         /// </summary>
         public static string MirasActionRequiredAdministratorRequired {
             get {
                 return ResourceManager.GetString("MirasActionRequiredAdministratorRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Affected areas ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAffectedAreas {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAffectedAreas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select a finding to see the affected repository and the condition detected by MIRAS. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAffectedAreasDescription {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAffectedAreasDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Available actions ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAvailableActions {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAvailableActions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the correction that matches what happened to this repository. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAvailableActionsDescription {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAvailableActionsDescription", resourceCulture);
             }
         }
         
@@ -79,11 +124,74 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configured storage location ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredConfiguredPath {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredConfiguredPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was changed by another operation. Run the check again. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredCorrectionConflict {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredCorrectionConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository correction could not be completed. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredCorrectionFailed {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredCorrectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Applying the selected repository correction... ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredCorrectionRunning {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredCorrectionRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Default repository ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDefaultRepository {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDefaultRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench remains unavailable until the configuration has been checked and restored. ähnelt.
         /// </summary>
         public static string MirasActionRequiredDescription {
             get {
                 return ResourceManager.GetString("MirasActionRequiredDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DETECTED CONDITION ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDetectedProblem {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDetectedProblem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another repository already uses the selected storage location. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDuplicatePath {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDuplicatePath", resourceCulture);
             }
         }
         
@@ -102,6 +210,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         public static string MirasActionRequiredFooter {
             get {
                 return ResourceManager.GetString("MirasActionRequiredFooter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS has not changed this repository. A matching corrective action must be selected explicitly. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredIssueActionNotice {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredIssueActionNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No additional user-oriented description is available for this finding. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredIssueDescriptionUnavailable {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredIssueDescriptionUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MIRAS findings could not be prepared for display. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredIssueLoadFailed {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredIssueLoadFailed", resourceCulture);
             }
         }
         
@@ -160,11 +295,101 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Recreate folder ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRecreateDirectory {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRecreateDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select new location ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRelocate {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRelocate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the moved repository folder ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRelocateFolderDialogTitle {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRelocateFolderDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The default repository cannot be removed. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRemoveDefaultRepository {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRemoveDefaultRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository is still assigned to stored image data and cannot be removed. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRemoveInUse {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRemoveInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove repository ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRemoveRepository {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRemoveRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die A repository configuration already exists. MIRAS did not overwrite it. ähnelt.
         /// </summary>
         public static string MirasActionRequiredRepositoryAlreadyConfigured {
             get {
                 return ResourceManager.GetString("MirasActionRequiredRepositoryAlreadyConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Disabled ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryDisabled {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enabled ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryEnabled {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryName {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration no longer exists. Run the check again. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryNotFound {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryNotFound", resourceCulture);
             }
         }
         
@@ -178,11 +403,65 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository role ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryRole {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryRole", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository role unavailable ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryRoleUnknown {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryRoleUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Status ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryStatus {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Status unavailable ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRepositoryStatusUnknown {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRepositoryStatusUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The selected folder could not be confirmed as a readable and writable repository. ähnelt.
         /// </summary>
         public static string MirasActionRequiredRepositoryValidationFailed {
             get {
                 return ResourceManager.GetString("MirasActionRequiredRepositoryValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The completed MIRAS assessment is not available. Restart MOPR to run the protected check again. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredResultUnavailable {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredResultUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Check again ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredRetry {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredRetry", resourceCulture);
             }
         }
         
@@ -219,6 +498,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         public static string MirasActionRequiredTitle {
             get {
                 return ResourceManager.GetString("MirasActionRequiredTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository information unavailable ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredUnknownRepository {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredUnknownRepository", resourceCulture);
             }
         }
         

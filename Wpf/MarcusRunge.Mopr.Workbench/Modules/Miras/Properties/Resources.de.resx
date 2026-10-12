@@ -132,49 +132,146 @@
   <data name="MirasActionRequiredTitle" xml:space="preserve">
     <value>MIRAS Aktion erforderlich</value>
   </data>
-	<data name="MirasActionRequiredAdministratorRequired" xml:space="preserve">
-  <value>Starten Sie MOPR mit Administratorrechten, um den Bildspeicher wiederherzustellen.</value>
-</data>
-	<data name="MirasActionRequiredFolderDialogTitle" xml:space="preserve">
-  <value>MOPR-DICOM-Bildspeicher auswählen</value>
-</data>
-	<data name="MirasActionRequiredRepositoryPathLabel" xml:space="preserve">
-  <value>Ordner des Bildspeichers</value>
-</data>
-	<data name="MirasActionRequiredSelectRepository" xml:space="preserve">
-  <value>Auswählen…</value>
-</data>
-	<data name="MirasActionRequiredRecover" xml:space="preserve">
-  <value>Bildspeicher wiederherstellen</value>
-</data>
-	<data name="MirasActionRequiredSelectRepositoryNotice" xml:space="preserve">
-  <value>Wählen Sie den vorhandenen DICOM-Bildspeicher aus, um die fehlende Konfiguration wiederherzustellen.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryRunning" xml:space="preserve">
-  <value>Die Infrastruktur des Bildspeichers wird wiederhergestellt…</value>
-</data>
-	<data name="MirasActionRequiredRecoveryCompleted" xml:space="preserve">
-  <value>Die Infrastruktur des Bildspeichers wurde erfolgreich wiederhergestellt.</value>
-</data>
-	<data name="MirasActionRequiredVerificationRunning" xml:space="preserve">
-  <value>Der wiederhergestellte Bildspeicher wird geprüft…</value>
-</data>
-	<data name="MirasActionRequiredRepositoryValidationFailed" xml:space="preserve">
-  <value>Der ausgewählte Ordner konnte nicht als lesbarer und beschreibbarer Bildspeicher bestätigt werden.</value>
-</data>
-	<data name="MirasActionRequiredRepositoryAlreadyConfigured" xml:space="preserve">
-  <value>Es ist bereits ein Bildspeicher konfiguriert. MIRAS hat die vorhandene Konfiguration nicht überschrieben.</value>
-</data>
-	<data name="MirasActionRequiredPersistenceUnavailable" xml:space="preserve">
-  <value>Die Bilddatenbank ist für die Wiederherstellung des Bildspeichers nicht verfügbar.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryUnavailable" xml:space="preserve">
-  <value>Die Wiederherstellung des Bildspeichers ist derzeit nicht verfügbar.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryFailed" xml:space="preserve">
-  <value>Der Bildspeicher konnte nicht wiederhergestellt werden. Eine vorhandene Konfiguration wurde nicht überschrieben.</value>
-</data>
-	<data name="MirasActionRequiredVerificationFailed" xml:space="preserve">
-  <value>Der Bildspeicher wurde wiederhergestellt, MIRAS konnte die Bildanzeige jedoch noch nicht freigeben.</value>
-</data>
+  <data name="MirasActionRequiredAdministratorRequired" xml:space="preserve">
+    <value>Starten Sie MOPR mit Administratorrechten, um den Bildspeicher wiederherzustellen.</value>
+  </data>
+  <data name="MirasActionRequiredFolderDialogTitle" xml:space="preserve">
+    <value>MOPR-DICOM-Bildspeicher auswählen</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryPathLabel" xml:space="preserve">
+    <value>Ordner des Bildspeichers</value>
+  </data>
+  <data name="MirasActionRequiredSelectRepository" xml:space="preserve">
+    <value>Auswählen…</value>
+  </data>
+  <data name="MirasActionRequiredRecover" xml:space="preserve">
+    <value>Bildspeicher wiederherstellen</value>
+  </data>
+  <data name="MirasActionRequiredSelectRepositoryNotice" xml:space="preserve">
+    <value>Wählen Sie den vorhandenen DICOM-Bildspeicher aus, um die fehlende Konfiguration wiederherzustellen.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryRunning" xml:space="preserve">
+    <value>Die Infrastruktur des Bildspeichers wird wiederhergestellt…</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryCompleted" xml:space="preserve">
+    <value>Die Infrastruktur des Bildspeichers wurde erfolgreich wiederhergestellt.</value>
+  </data>
+  <data name="MirasActionRequiredVerificationRunning" xml:space="preserve">
+    <value>Der wiederhergestellte Bildspeicher wird geprüft…</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryValidationFailed" xml:space="preserve">
+    <value>Der ausgewählte Ordner konnte nicht als lesbarer und beschreibbarer Bildspeicher bestätigt werden.</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryAlreadyConfigured" xml:space="preserve">
+    <value>Es ist bereits ein Bildspeicher konfiguriert. MIRAS hat die vorhandene Konfiguration nicht überschrieben.</value>
+  </data>
+  <data name="MirasActionRequiredPersistenceUnavailable" xml:space="preserve">
+    <value>Die Bilddatenbank ist für die Wiederherstellung des Bildspeichers nicht verfügbar.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryUnavailable" xml:space="preserve">
+    <value>Die Wiederherstellung des Bildspeichers ist derzeit nicht verfügbar.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryFailed" xml:space="preserve">
+    <value>Der Bildspeicher konnte nicht wiederhergestellt werden. Eine vorhandene Konfiguration wurde nicht überschrieben.</value>
+  </data>
+  <data name="MirasActionRequiredVerificationFailed" xml:space="preserve">
+    <value>Der Bildspeicher wurde wiederhergestellt, MIRAS konnte die Bildanzeige jedoch noch nicht freigeben.</value>
+  </data>
+  <data name="MirasActionRequiredAffectedAreas" xml:space="preserve">
+    <value>Betroffene Bereiche</value>
+  </data>
+  <data name="MirasActionRequiredAffectedAreasDescription" xml:space="preserve">
+    <value>Wählen Sie einen Befund aus, um das betroffene Repository und den von MIRAS erkannten Zustand anzuzeigen.</value>
+  </data>
+  <data name="MirasActionRequiredDetectedProblem" xml:space="preserve">
+    <value>ERKANNTER ZUSTAND</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryName" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="MirasActionRequiredConfiguredPath" xml:space="preserve">
+    <value>Konfigurierter Speicherort</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryEnabled" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryDisabled" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryStatusUnknown" xml:space="preserve">
+    <value>Status nicht verfügbar</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryRole" xml:space="preserve">
+    <value>Repository-Rolle</value>
+  </data>
+  <data name="MirasActionRequiredDefaultRepository" xml:space="preserve">
+    <value>Standard-Repository</value>
+  </data>
+  <data name="MirasActionRequiredAdditionalRepository" xml:space="preserve">
+    <value>Weiteres Repository</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryRoleUnknown" xml:space="preserve">
+    <value>Repository-Rolle nicht verfügbar</value>
+  </data>
+  <data name="MirasActionRequiredIssueActionNotice" xml:space="preserve">
+    <value>MIRAS hat dieses Repository nicht verändert. Eine passende Korrekturmaßnahme muss ausdrücklich ausgewählt werden.</value>
+  </data>
+  <data name="MirasActionRequiredUnknownRepository" xml:space="preserve">
+    <value>Repository-Informationen nicht verfügbar</value>
+  </data>
+  <data name="MirasActionRequiredIssueDescriptionUnavailable" xml:space="preserve">
+    <value>Für diesen Befund ist keine zusätzliche verständliche Beschreibung verfügbar.</value>
+  </data>
+  <data name="MirasActionRequiredResultUnavailable" xml:space="preserve">
+    <value>Die abgeschlossene MIRAS-Prüfung ist nicht verfügbar. Starten Sie MOPR neu, um die geschützte Prüfung erneut auszuführen.</value>
+  </data>
+  <data name="MirasActionRequiredIssueLoadFailed" xml:space="preserve">
+    <value>Die MIRAS-Befunde konnten nicht für die Anzeige aufbereitet werden.</value>
+  </data>
+  <data name="MirasActionRequiredAvailableActions" xml:space="preserve">
+    <value>Verfügbare Maßnahmen</value>
+  </data>
+  <data name="MirasActionRequiredAvailableActionsDescription" xml:space="preserve">
+    <value>Wählen Sie die Korrektur aus, die zum tatsächlichen Zustand dieses Repositorys passt.</value>
+  </data>
+  <data name="MirasActionRequiredRecreateDirectory" xml:space="preserve">
+    <value>Ordner neu anlegen</value>
+  </data>
+  <data name="MirasActionRequiredRelocate" xml:space="preserve">
+    <value>Neuen Speicherort auswählen</value>
+  </data>
+  <data name="MirasActionRequiredRemoveRepository" xml:space="preserve">
+    <value>Repository entfernen</value>
+  </data>
+  <data name="MirasActionRequiredRetry" xml:space="preserve">
+    <value>Erneut prüfen</value>
+  </data>
+  <data name="MirasActionRequiredRelocateFolderDialogTitle" xml:space="preserve">
+    <value>Verschobenen Repository-Ordner auswählen</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionRunning" xml:space="preserve">
+    <value>Die ausgewählte Repository-Korrektur wird ausgeführt...</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionFailed" xml:space="preserve">
+    <value>Die ausgewählte Repository-Korrektur konnte nicht abgeschlossen werden.
+MirasActionRequiredCorrectionConflict = The repository was changed by another operation. Run the check again. / Das Repository wurde durch einen anderen Vorgang geändert. Führen Sie die Prüfung erneut aus.</value>
+  </data>
+  <data name="MirasActionRequiredRemoveDefaultRepository" xml:space="preserve">
+    <value>Das Standard-Repository kann nicht entfernt werden.</value>
+  </data>
+  <data name="MirasActionRequiredRemoveInUse" xml:space="preserve">
+    <value>Das Repository ist noch gespeicherten Bilddaten zugeordnet und kann nicht entfernt werden.</value>
+  </data>
+  <data name="MirasActionRequiredDuplicatePath" xml:space="preserve">
+    <value>Ein anderes Repository verwendet bereits den ausgewählten Speicherort.</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryNotFound" xml:space="preserve">
+    <value>Die Repository-Konfiguration ist nicht mehr vorhanden. Führen Sie die Prüfung erneut aus.</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionConflict" xml:space="preserve">
+    <value>Das Repository wurde durch einen anderen Vorgang geändert. Führen Sie die Prüfung erneut aus.</value>
+  </data>
 </root>

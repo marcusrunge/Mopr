@@ -1,5 +1,7 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -7,13 +9,15 @@ using MarcusRunge.Mopr.Workbench.Services.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
+using System.Collections.ObjectModel;
+using System.Linq;
 using WpfApplication = System.Windows.Application;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 {
     /// <summary>
-    /// Provides the protected MIRAS startup state and controls the explicit
-    /// administrative recovery of missing repository infrastructure.
+    /// Provides the protected MIRAS startup state, exposes structured integrity findings,
+    /// and controls explicit repository recovery actions.
     /// </summary>
     public sealed class MirasActionRequiredViewModel : BindableBase, INavigationAware
     {
@@ -22,95 +26,104 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         private readonly ILifetimeService _lifetimeService;
         private readonly IMiras _miras;
         private readonly IRegionManager _regionManager;
+        private readonly IRepositoryLocationAdministrationService _repositoryLocationAdministrationService;
+        private readonly IRepositoryRecoveryActionService _repositoryRecoveryActionService;
+        private readonly Dictionary<int, byte[]> _repositoryRowVersions = [];
 
         private bool _isBusy;
         private CancellationTokenSource? _navigationCancellation;
+        private DelegateCommand? _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _retryCommand;
         private string _repositoryPath = string.Empty;
+        private MirasIssueItemViewModel? _selectedIssue;
         private string _statusMessage = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MirasActionRequiredViewModel"/> class.
         /// </summary>
-        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, ILifetimeService lifetimeService, IRegionManager regionManager)
+        public MirasActionRequiredViewModel(
+            IApplication application,
+            IMiras miras,
+            IAdministrativeAuthorizationService administrativeAuthorizationService,
+            ILifetimeService lifetimeService,
+            IRegionManager regionManager,
+            IRepositoryLocationAdministrationService repositoryLocationAdministrationService,
+            IRepositoryRecoveryActionService repositoryRecoveryActionService)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
             _miras = miras ?? throw new ArgumentNullException(nameof(miras));
             _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            _repositoryLocationAdministrationService = repositoryLocationAdministrationService ?? throw new ArgumentNullException(nameof(repositoryLocationAdministrationService));
+            _repositoryRecoveryActionService = repositoryRecoveryActionService ?? throw new ArgumentNullException(nameof(repositoryRecoveryActionService));
 
             SelectRepositoryCommand = new DelegateCommand(SelectRepository, CanSelectRepository);
             RecoverCommand = new DelegateCommand(() => _ = RecoverAsync(), CanRecover);
         }
 
-        /// <summary>
-        /// Gets the user-oriented explanation of the protected state.
-        /// </summary>
+        public bool CanCorrectSelectedRepository => HasAdministrativeAuthorization && !IsBusy && SelectedIssue is { IssueType: MirasIssueType.RepositoryUnavailable, RepositoryLocationId: not null };
         public static string Description => Resources.MirasActionRequiredDescription;
-
-        /// <summary>
-        /// Gets a value indicating whether the current process may perform the protected recovery.
-        /// </summary>
         public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
+        public bool HasIssues => Issues.Count > 0;
+        public bool HasSelectedIssue => SelectedIssue is not null;
+        public bool IsInfrastructureRecoveryVisible => !HasIssues;
+        public ObservableCollection<MirasIssueItemViewModel> Issues { get; } = [];
 
-        /// <summary>
-        /// Gets a value indicating whether an operation is currently running.
-        /// </summary>
         public bool IsBusy
         {
             get => _isBusy;
             private set
             {
-                if (!SetProperty(ref _isBusy, value))
-                {
-                    return;
-                }
+                if (!SetProperty(ref _isBusy, value)) return;
 
                 SelectRepositoryCommand.RaiseCanExecuteChanged();
                 RecoverCommand.RaiseCanExecuteChanged();
+                RaiseRepositoryActionStates();
             }
         }
 
-        /// <summary>
-        /// Gets the command that restores the missing repository infrastructure.
-        /// </summary>
+        public DelegateCommand RecreateDirectoryCommand => _recreateDirectoryCommand ??= new DelegateCommand(() => _ = ExecuteRepositoryActionAsync((issue, token) => _repositoryRecoveryActionService.RecreateDirectoryAsync(issue.RepositoryLocationId!.Value, issue.RepositoryPath, token)), () => CanCorrectSelectedRepository);
+
         public DelegateCommand RecoverCommand { get; }
 
-        /// <summary>
-        /// Gets or sets the administrator-selected repository root path.
-        /// </summary>
+        public DelegateCommand RelocateCommand => _relocateCommand ??= new DelegateCommand(() => _ = RelocateAsync(), () => CanCorrectSelectedRepository && _application.DialogService?.FileDialogService is not null);
+
+        public DelegateCommand RemoveRepositoryCommand => _removeRepositoryCommand ??= new DelegateCommand(() => _ = RemoveRepositoryAsync(), () => CanCorrectSelectedRepository && SelectedIssue?.IsRepositoryDefault == false);
+
         public string RepositoryPath
         {
             get => _repositoryPath;
             set
             {
-                if (!SetProperty(ref _repositoryPath, value ?? string.Empty))
-                {
-                    return;
-                }
+                if (!SetProperty(ref _repositoryPath, value ?? string.Empty)) return;
 
                 StatusMessage = string.Empty;
                 RecoverCommand.RaiseCanExecuteChanged();
             }
         }
 
-        /// <summary>
-        /// Gets the command that opens the platform folder-selection dialog.
-        /// </summary>
+        public DelegateCommand RetryCommand => _retryCommand ??= new DelegateCommand(() => _ = RetryAsync(), () => !IsBusy && _miras.Flow is not null);
+
+        public MirasIssueItemViewModel? SelectedIssue
+        {
+            get => _selectedIssue;
+            set
+            {
+                if (!SetProperty(ref _selectedIssue, value)) return;
+
+                RaisePropertyChanged(nameof(HasSelectedIssue));
+                RaiseRepositoryActionStates();
+            }
+        }
+
         public DelegateCommand SelectRepositoryCommand { get; }
 
-        /// <summary>
-        /// Gets the current user-facing operation status.
-        /// </summary>
         public string StatusMessage
         {
             get => _statusMessage;
             private set => SetProperty(ref _statusMessage, value);
         }
 
-        /// <summary>
-        /// Gets the user-oriented title.
-        /// </summary>
         public static string Title => Resources.MirasActionRequiredTitle;
 
         /// <inheritdoc/>
@@ -134,13 +147,55 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             RaisePropertyChanged(nameof(HasAdministrativeAuthorization));
             SelectRepositoryCommand.RaiseCanExecuteChanged();
             RecoverCommand.RaiseCanExecuteChanged();
+            RaiseRepositoryActionStates();
 
-            StatusMessage = HasAdministrativeAuthorization ? Resources.MirasActionRequiredSelectRepositoryNotice : Resources.MirasActionRequiredAdministratorRequired;
+            _ = LoadIssuesAsync(_navigationCancellation.Token);
         }
 
-        private bool CanRecover() => HasAdministrativeAuthorization && !IsBusy && !string.IsNullOrWhiteSpace(RepositoryPath) && _miras.RepositoryInfrastructureRecovery is not null && _miras.Flow is not null;
+        private bool CanRecover() => HasAdministrativeAuthorization && IsInfrastructureRecoveryVisible && !IsBusy && !string.IsNullOrWhiteSpace(RepositoryPath) && _miras.RepositoryInfrastructureRecovery is not null && _miras.Flow is not null;
 
-        private bool CanSelectRepository() => HasAdministrativeAuthorization && !IsBusy && _application.DialogService?.FileDialogService is not null;
+        private bool CanSelectRepository() => HasAdministrativeAuthorization && IsInfrastructureRecoveryVisible && !IsBusy && _application.DialogService?.FileDialogService is not null;
+
+        private async Task ExecuteRepositoryActionAsync(Func<MirasIssueItemViewModel, CancellationToken, Task<RepositoryRecoveryActionResult>> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+
+            var issue = SelectedIssue;
+
+            if (issue is null)
+            {
+                return;
+            }
+
+            var cancellationToken = _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping;
+
+            try
+            {
+                IsBusy = true;
+                StatusMessage = Resources.MirasActionRequiredCorrectionRunning;
+
+                var result = await action(issue, cancellationToken).ConfigureAwait(true);
+
+                if (!result.IsSuccess)
+                {
+                    StatusMessage = GetRepositoryActionStatusMessage(result.Status);
+                    return;
+                }
+
+                await RetryCoreAsync(cancellationToken).ConfigureAwait(true);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch
+            {
+                StatusMessage = Resources.MirasActionRequiredCorrectionFailed;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
         private static string GetRecoveryStatusMessage(RepositoryInfrastructureRecoveryStatus status) => status switch
         {
@@ -151,6 +206,102 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             RepositoryInfrastructureRecoveryStatus.Failed => Resources.MirasActionRequiredRecoveryFailed,
             RepositoryInfrastructureRecoveryStatus.NotStarted or RepositoryInfrastructureRecoveryStatus.Completed or _ => Resources.MirasActionRequiredRecoveryFailed
         };
+
+        private static string GetRepositoryActionStatusMessage(RepositoryRecoveryActionStatus status) => status switch
+        {
+            RepositoryRecoveryActionStatus.Conflict => Resources.MirasActionRequiredCorrectionConflict,
+            RepositoryRecoveryActionStatus.DefaultRepository => Resources.MirasActionRequiredRemoveDefaultRepository,
+            RepositoryRecoveryActionStatus.InUse => Resources.MirasActionRequiredRemoveInUse,
+            RepositoryRecoveryActionStatus.DuplicatePath => Resources.MirasActionRequiredDuplicatePath,
+            RepositoryRecoveryActionStatus.ValidationFailed => Resources.MirasActionRequiredRepositoryValidationFailed,
+            RepositoryRecoveryActionStatus.NotFound => Resources.MirasActionRequiredRepositoryNotFound,
+            RepositoryRecoveryActionStatus.Unauthorized => Resources.MirasActionRequiredAdministratorRequired,
+            RepositoryRecoveryActionStatus.Failed or _ => Resources.MirasActionRequiredCorrectionFailed
+        };
+
+        private byte[] GetRepositoryRowVersion(int repositoryLocationId)
+        {
+            if (!_repositoryRowVersions.TryGetValue(repositoryLocationId, out var rowVersion) || rowVersion.Length == 0)
+            {
+                throw new InvalidOperationException($"Repository location '{repositoryLocationId}' does not have an available concurrency token.");
+            }
+
+            return [.. rowVersion];
+        }
+
+        private async Task LoadIssuesAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                IsBusy = true;
+                Issues.Clear();
+                SelectedIssue = null;
+                _repositoryRowVersions.Clear();
+
+                var result = _miras.Flow?.LastResult;
+
+                if (result is null)
+                {
+                    StatusMessage = Resources.MirasActionRequiredResultUnavailable;
+                    RaiseIssueState();
+                    return;
+                }
+
+                var repositories = await _repositoryLocationAdministrationService.GetAllAsync(cancellationToken).ConfigureAwait(true);
+                var repositoriesById = repositories.ToDictionary(repository => repository.Id);
+                var messagesByIssueId = result.Messages.GroupBy(message => message.IssueId).ToDictionary(group => group.Key, group => group.First());
+
+                foreach (var repository in repositories)
+                {
+                    _repositoryRowVersions[repository.Id] = [.. repository.RowVersion];
+                }
+
+                foreach (var issue in result.Issues)
+                {
+                    repositoriesById.TryGetValue(issue.RepositoryLocationId ?? 0, out var repository);
+                    messagesByIssueId.TryGetValue(issue.Id, out var message);
+
+                    var repositoryPath = repository?.RootPath
+                        ?? (!string.IsNullOrWhiteSpace(issue.ExpectedFilePath)
+                            ? issue.ExpectedFilePath
+                            : issue.ActualFilePath);
+
+                    Issues.Add(new MirasIssueItemViewModel(
+                        issue.Id,
+                        issue.IssueType,
+                        issue.IssueState,
+                        issue.RecommendedAction,
+                        message?.Title ?? issue.IssueType.ToString(),
+                        message?.Description ?? Resources.MirasActionRequiredIssueDescriptionUnavailable,
+                        issue.RepositoryLocationId,
+                        repository?.Name ?? Resources.MirasActionRequiredUnknownRepository,
+                        repositoryPath ?? string.Empty,
+                        repository?.IsEnabled,
+                        repository?.IsDefault));
+                }
+
+                SelectedIssue = Issues.FirstOrDefault();
+                StatusMessage = HasIssues
+                    ? string.Empty
+                    : HasAdministrativeAuthorization
+                        ? Resources.MirasActionRequiredSelectRepositoryNotice
+                        : Resources.MirasActionRequiredAdministratorRequired;
+
+                RaiseIssueState();
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch
+            {
+                StatusMessage = Resources.MirasActionRequiredIssueLoadFailed;
+                RaiseIssueState();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
         private async Task NavigateAsync(string navigationTarget, CancellationToken cancellationToken)
         {
@@ -180,6 +331,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             await completion.Task.ConfigureAwait(false);
         }
 
+        private void RaiseIssueState()
+        {
+            RaisePropertyChanged(nameof(HasIssues));
+            RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
+            SelectRepositoryCommand.RaiseCanExecuteChanged();
+            RecoverCommand.RaiseCanExecuteChanged();
+            RaiseRepositoryActionStates();
+        }
+
+        private void RaiseRepositoryActionStates()
+        {
+            RaisePropertyChanged(nameof(CanCorrectSelectedRepository));
+            _recreateDirectoryCommand?.RaiseCanExecuteChanged();
+            _relocateCommand?.RaiseCanExecuteChanged();
+            _removeRepositoryCommand?.RaiseCanExecuteChanged();
+            _retryCommand?.RaiseCanExecuteChanged();
+        }
+
         private async Task RecoverAsync()
         {
             var cancellationToken = _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping;
@@ -198,6 +367,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             try
             {
                 var recoveryResult = await recoveryService.RecoverAsync(new RepositoryInfrastructureRecoveryRequest(RepositoryPath), cancellationToken).ConfigureAwait(false);
+
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (!recoveryResult.IsSuccessful)
@@ -213,11 +383,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                  * assessment remains authoritative for releasing the imaging workbench.
                  */
                 var verificationResult = await flow.StartAsync(cancellationToken).ConfigureAwait(false);
+
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (!MirasImagingReleasePolicy.CanOpenImaging(verificationResult))
                 {
                     StatusMessage = Resources.MirasActionRequiredVerificationFailed;
+                    await LoadIssuesAsync(cancellationToken).ConfigureAwait(true);
                     return;
                 }
 
@@ -229,16 +401,98 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             }
             catch
             {
-                /*
-                 * Technical details remain within MIRAS diagnostics. The protected
-                 * user interface never exposes database paths or exception details.
-                 */
                 StatusMessage = Resources.MirasActionRequiredRecoveryFailed;
             }
             finally
             {
                 IsBusy = false;
             }
+        }
+
+        private async Task RelocateAsync()
+        {
+            var issue = SelectedIssue;
+            var fileDialogService = _application.DialogService?.FileDialogService;
+
+            if (issue?.RepositoryLocationId is not int repositoryLocationId || fileDialogService is null)
+            {
+                return;
+            }
+
+            var selectedPath = fileDialogService.SelectFolder(Resources.MirasActionRequiredRelocateFolderDialogTitle, null);
+
+            if (string.IsNullOrWhiteSpace(selectedPath))
+            {
+                return;
+            }
+
+            var rowVersion = GetRepositoryRowVersion(repositoryLocationId);
+
+            await ExecuteRepositoryActionAsync((selectedIssue, token) =>
+                _repositoryRecoveryActionService.RelocateAsync(
+                    repositoryLocationId,
+                    selectedIssue.RepositoryName,
+                    selectedPath,
+                    selectedIssue.IsRepositoryEnabled == true,
+                    selectedIssue.IsRepositoryDefault == true,
+                    rowVersion,
+                    token)).ConfigureAwait(true);
+        }
+
+        private async Task RemoveRepositoryAsync()
+        {
+            var issue = SelectedIssue;
+
+            if (issue?.RepositoryLocationId is not int repositoryLocationId)
+            {
+                return;
+            }
+
+            var rowVersion = GetRepositoryRowVersion(repositoryLocationId);
+
+            await ExecuteRepositoryActionAsync((_, token) => _repositoryRecoveryActionService.RemoveAsync(repositoryLocationId, rowVersion, token)).ConfigureAwait(true);
+        }
+
+        private async Task RetryAsync()
+        {
+            var cancellationToken = _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping;
+
+            try
+            {
+                IsBusy = true;
+                await RetryCoreAsync(cancellationToken).ConfigureAwait(true);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch
+            {
+                StatusMessage = Resources.MirasActionRequiredVerificationFailed;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task RetryCoreAsync(CancellationToken cancellationToken)
+        {
+            var flow = _miras.Flow ?? throw new InvalidOperationException("The MIRAS flow is unavailable.");
+
+            StatusMessage = Resources.MirasActionRequiredVerificationRunning;
+
+            var result = await flow.StartAsync(cancellationToken).ConfigureAwait(true);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (MirasImagingReleasePolicy.CanOpenImaging(result))
+            {
+                await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
+                return;
+            }
+
+            await LoadIssuesAsync(cancellationToken).ConfigureAwait(true);
+            StatusMessage = Resources.MirasActionRequiredVerificationFailed;
         }
 
         private void SelectRepository()

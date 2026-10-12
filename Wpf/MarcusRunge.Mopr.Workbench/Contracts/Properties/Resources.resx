@@ -300,4 +300,31 @@
   <data name="UserProvisioningValidationIssue_PersonnelNumberTooLong" xml:space="preserve">
     <value>The personnel number is too long</value>
   </data>
+  <data name="RepositoryRecoveryActionStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_NotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_Conflict" xml:space="preserve">
+    <value>Conflict</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_DefaultRepository" xml:space="preserve">
+    <value>Default repository</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_InUse" xml:space="preserve">
+    <value>In use</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_DuplicatePath" xml:space="preserve">
+    <value>Duplicate path</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_ValidationFailed" xml:space="preserve">
+    <value>Validation failed</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_Unauthorized" xml:space="preserve">
+    <value>Unauthorized</value>
+  </data>
+  <data name="RepositoryRecoveryActionStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
 </root>

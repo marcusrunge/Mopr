@@ -132,49 +132,145 @@
   <data name="MirasActionRequiredTitle" xml:space="preserve">
     <value>MIRAS action required</value>
   </data>
-	<data name="MirasActionRequiredAdministratorRequired" xml:space="preserve">
-  <value>Start MOPR with administrator rights to restore the image repository.</value>
-</data>
-	<data name="MirasActionRequiredFolderDialogTitle" xml:space="preserve">
-  <value>Select the MOPR DICOM repository</value>
-</data>
-	<data name="MirasActionRequiredRepositoryPathLabel" xml:space="preserve">
-  <value>Repository folder</value>
-</data>
-	<data name="MirasActionRequiredSelectRepository" xml:space="preserve">
-  <value>Select…</value>
-</data>
-	<data name="MirasActionRequiredRecover" xml:space="preserve">
-  <value>Restore repository</value>
-</data>
-	<data name="MirasActionRequiredSelectRepositoryNotice" xml:space="preserve">
-  <value>Select the existing DICOM repository folder to restore the missing configuration.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryRunning" xml:space="preserve">
-  <value>Restoring the repository infrastructure…</value>
-</data>
-	<data name="MirasActionRequiredRecoveryCompleted" xml:space="preserve">
-  <value>The repository infrastructure was restored successfully.</value>
-</data>
-	<data name="MirasActionRequiredVerificationRunning" xml:space="preserve">
-  <value>Verifying the restored repository…</value>
-</data>
-	<data name="MirasActionRequiredRepositoryValidationFailed" xml:space="preserve">
-  <value>The selected folder could not be confirmed as a readable and writable repository.</value>
-</data>
-	<data name="MirasActionRequiredRepositoryAlreadyConfigured" xml:space="preserve">
-  <value>A repository configuration already exists. MIRAS did not overwrite it.</value>
-</data>
-	<data name="MirasActionRequiredPersistenceUnavailable" xml:space="preserve">
-  <value>The image database is not available for repository recovery.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryUnavailable" xml:space="preserve">
-  <value>Repository recovery is currently unavailable.</value>
-</data>
-	<data name="MirasActionRequiredRecoveryFailed" xml:space="preserve">
-  <value>The repository could not be restored. No existing repository configuration was overwritten.</value>
-</data>
-	<data name="MirasActionRequiredVerificationFailed" xml:space="preserve">
-  <value>The repository was restored, but MIRAS could not yet release the imaging workbench.</value>
-</data>
+  <data name="MirasActionRequiredAdministratorRequired" xml:space="preserve">
+    <value>Start MOPR with administrator rights to restore the image repository.</value>
+  </data>
+  <data name="MirasActionRequiredFolderDialogTitle" xml:space="preserve">
+    <value>Select the MOPR DICOM repository</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryPathLabel" xml:space="preserve">
+    <value>Repository folder</value>
+  </data>
+  <data name="MirasActionRequiredSelectRepository" xml:space="preserve">
+    <value>Select…</value>
+  </data>
+  <data name="MirasActionRequiredRecover" xml:space="preserve">
+    <value>Restore repository</value>
+  </data>
+  <data name="MirasActionRequiredSelectRepositoryNotice" xml:space="preserve">
+    <value>Select the existing DICOM repository folder to restore the missing configuration.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryRunning" xml:space="preserve">
+    <value>Restoring the repository infrastructure…</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryCompleted" xml:space="preserve">
+    <value>The repository infrastructure was restored successfully.</value>
+  </data>
+  <data name="MirasActionRequiredVerificationRunning" xml:space="preserve">
+    <value>Verifying the restored repository…</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryValidationFailed" xml:space="preserve">
+    <value>The selected folder could not be confirmed as a readable and writable repository.</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryAlreadyConfigured" xml:space="preserve">
+    <value>A repository configuration already exists. MIRAS did not overwrite it.</value>
+  </data>
+  <data name="MirasActionRequiredPersistenceUnavailable" xml:space="preserve">
+    <value>The image database is not available for repository recovery.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryUnavailable" xml:space="preserve">
+    <value>Repository recovery is currently unavailable.</value>
+  </data>
+  <data name="MirasActionRequiredRecoveryFailed" xml:space="preserve">
+    <value>The repository could not be restored. No existing repository configuration was overwritten.</value>
+  </data>
+  <data name="MirasActionRequiredVerificationFailed" xml:space="preserve">
+    <value>The repository was restored, but MIRAS could not yet release the imaging workbench.</value>
+  </data>
+  <data name="MirasActionRequiredAffectedAreas" xml:space="preserve">
+    <value>Affected areas</value>
+  </data>
+  <data name="MirasActionRequiredAffectedAreasDescription" xml:space="preserve">
+    <value>Select a finding to see the affected repository and the condition detected by MIRAS.</value>
+  </data>
+  <data name="MirasActionRequiredDetectedProblem" xml:space="preserve">
+    <value>DETECTED CONDITION</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryName" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="MirasActionRequiredConfiguredPath" xml:space="preserve">
+    <value>Configured storage location</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryEnabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryStatusUnknown" xml:space="preserve">
+    <value>Status unavailable</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryRole" xml:space="preserve">
+    <value>Repository role</value>
+  </data>
+  <data name="MirasActionRequiredDefaultRepository" xml:space="preserve">
+    <value>Default repository</value>
+  </data>
+  <data name="MirasActionRequiredAdditionalRepository" xml:space="preserve">
+    <value>Additional repository</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryRoleUnknown" xml:space="preserve">
+    <value>Repository role unavailable</value>
+  </data>
+  <data name="MirasActionRequiredIssueActionNotice" xml:space="preserve">
+    <value>MIRAS has not changed this repository. A matching corrective action must be selected explicitly.</value>
+  </data>
+  <data name="MirasActionRequiredUnknownRepository" xml:space="preserve">
+    <value>Repository information unavailable</value>
+  </data>
+  <data name="MirasActionRequiredIssueDescriptionUnavailable" xml:space="preserve">
+    <value>No additional user-oriented description is available for this finding.</value>
+  </data>
+  <data name="MirasActionRequiredResultUnavailable" xml:space="preserve">
+    <value>The completed MIRAS assessment is not available. Restart MOPR to run the protected check again.</value>
+  </data>
+  <data name="MirasActionRequiredIssueLoadFailed" xml:space="preserve">
+    <value>The MIRAS findings could not be prepared for display.</value>
+  </data>
+  <data name="MirasActionRequiredAvailableActions" xml:space="preserve">
+    <value>Available actions</value>
+  </data>
+  <data name="MirasActionRequiredAvailableActionsDescription" xml:space="preserve">
+    <value>Select the correction that matches what happened to this repository.</value>
+  </data>
+  <data name="MirasActionRequiredRecreateDirectory" xml:space="preserve">
+    <value>Recreate folder</value>
+  </data>
+  <data name="MirasActionRequiredRelocate" xml:space="preserve">
+    <value>Select new location</value>
+  </data>
+  <data name="MirasActionRequiredRemoveRepository" xml:space="preserve">
+    <value>Remove repository</value>
+  </data>
+  <data name="MirasActionRequiredRetry" xml:space="preserve">
+    <value>Check again</value>
+  </data>
+  <data name="MirasActionRequiredRelocateFolderDialogTitle" xml:space="preserve">
+    <value>Select the moved repository folder</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionRunning" xml:space="preserve">
+    <value>Applying the selected repository correction...</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionFailed" xml:space="preserve">
+    <value>The selected repository correction could not be completed.</value>
+  </data>
+  <data name="MirasActionRequiredRemoveDefaultRepository" xml:space="preserve">
+    <value>The default repository cannot be removed.</value>
+  </data>
+  <data name="MirasActionRequiredRemoveInUse" xml:space="preserve">
+    <value>The repository is still assigned to stored image data and cannot be removed.</value>
+  </data>
+  <data name="MirasActionRequiredDuplicatePath" xml:space="preserve">
+    <value>Another repository already uses the selected storage location.</value>
+  </data>
+  <data name="MirasActionRequiredRepositoryNotFound" xml:space="preserve">
+    <value>The repository configuration no longer exists. Run the check again.</value>
+  </data>
+  <data name="MirasActionRequiredCorrectionConflict" xml:space="preserve">
+    <value>The repository was changed by another operation. Run the check again.</value>
+  </data>
 </root>
