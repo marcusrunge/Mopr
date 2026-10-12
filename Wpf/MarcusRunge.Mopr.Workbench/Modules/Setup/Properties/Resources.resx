@@ -516,64 +516,103 @@
   <data name="RepositoryAdministration_DuplicatePath" xml:space="preserve">
     <value>Another repository already uses this storage path.</value>
   </data>
-	<data name="RepositoryAdministration_New" xml:space="preserve">
+  <data name="RepositoryAdministration_New" xml:space="preserve">
     <value>New repository</value>
   </data>
-	<data name="RepositoryAdministration_Create" xml:space="preserve">
+  <data name="RepositoryAdministration_Create" xml:space="preserve">
     <value>Create repository</value>
   </data>
-	<data name="RepositoryAdministration_CancelCreate" xml:space="preserve">
+  <data name="RepositoryAdministration_CancelCreate" xml:space="preserve">
     <value>Cancel creation</value>
   </data>
-	<data name="RepositoryAdministration_Creating" xml:space="preserve">
+  <data name="RepositoryAdministration_Creating" xml:space="preserve">
     <value>Creating repository...</value>
   </data>
-	<data name="RepositoryAdministration_Created" xml:space="preserve">
+  <data name="RepositoryAdministration_Created" xml:space="preserve">
     <value>The repository was created.</value>
   </data>
-	<data name="RepositoryAdministration_CreationCanceled" xml:space="preserve">
+  <data name="RepositoryAdministration_CreationCanceled" xml:space="preserve">
     <value>Repository creation was canceled.</value>
   </data>
-	<data name="RepositoryAdministration_NewInstructions" xml:space="preserve">
+  <data name="RepositoryAdministration_NewInstructions" xml:space="preserve">
     <value>Enter a name and storage path, then validate the location before creating the repository.</value>
   </data>
-	<data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
+  <data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
     <value>The repository could not be created.</value>
   </data>
-	<data name="RepositoryAdministration_Delete" xml:space="preserve">
-  <value>Remove repository</value>
-</data>
-	<data name="RepositoryAdministration_DeleteConfirmationTitle" xml:space="preserve">
-  <value>Remove repository configuration?</value>
-</data>
-	<data name="RepositoryAdministration_DeleteConfirmationPrefix" xml:space="preserve">
-  <value>The repository configuration “</value>
-</data>
-	<data name="RepositoryAdministration_DeleteConfirmationSuffix" xml:space="preserve">
-  <value>” will be removed from MOPR. Existing files in the storage folder will not be deleted.</value>
-</data>
-	<data name="RepositoryAdministration_CancelDelete" xml:space="preserve">
-  <value>Cancel</value>
-</data>
-	<data name="RepositoryAdministration_ConfirmDelete" xml:space="preserve">
-  <value>Remove configuration</value>
-</data>
-	<data name="RepositoryAdministration_Deleting" xml:space="preserve">
-  <value>Removing repository configuration...</value>
-</data>
-	<data name="RepositoryAdministration_Deleted" xml:space="preserve">
-  <value>The repository configuration was removed. Existing files were not deleted.</value>
-</data>
-	<data name="RepositoryAdministration_DeleteConflict" xml:space="preserve">
-  <value>The repository was changed elsewhere and was not removed. Reload the current values before trying again.</value>
-</data>
-	<data name="RepositoryAdministration_DeleteDefaultRepository" xml:space="preserve">
-  <value>The default repository cannot be removed. Select another enabled repository as the default first.</value>
-</data>
-	<data name="RepositoryAdministration_DeleteInUse" xml:space="preserve">
-  <value>The repository cannot be removed because persisted DICOM data still references it.</value>
-</data>
-	<data name="RepositoryAdministration_DeleteFailed" xml:space="preserve">
-  <value>The repository configuration could not be removed.</value>
-</data>
+  <data name="RepositoryAdministration_Delete" xml:space="preserve">
+    <value>Remove repository</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationTitle" xml:space="preserve">
+    <value>Remove repository configuration?</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationPrefix" xml:space="preserve">
+    <value>The repository configuration “</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationSuffix" xml:space="preserve">
+    <value>” will be removed from MOPR. Existing files in the storage folder will not be deleted.</value>
+  </data>
+  <data name="RepositoryAdministration_CancelDelete" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RepositoryAdministration_ConfirmDelete" xml:space="preserve">
+    <value>Remove configuration</value>
+  </data>
+  <data name="RepositoryAdministration_Deleting" xml:space="preserve">
+    <value>Removing repository configuration...</value>
+  </data>
+  <data name="RepositoryAdministration_Deleted" xml:space="preserve">
+    <value>The repository configuration was removed. Existing files were not deleted.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConflict" xml:space="preserve">
+    <value>The repository was changed elsewhere and was not removed. Reload the current values before trying again.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteDefaultRepository" xml:space="preserve">
+    <value>The default repository cannot be removed. Select another enabled repository as the default first.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteInUse" xml:space="preserve">
+    <value>The repository cannot be removed because persisted DICOM data still references it.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteFailed" xml:space="preserve">
+    <value>The repository configuration could not be removed.</value>
+  </data>
+  <data name="UserAdministration_Loading" xml:space="preserve">
+    <value>Loading MOPR users...</value>
+  </data>
+  <data name="UserAdministration_NoUsers" xml:space="preserve">
+    <value>No personal MOPR users are stored in the active database.</value>
+  </data>
+  <data name="UserAdministration_LoadFailed" xml:space="preserve">
+    <value>The MOPR users could not be loaded.</value>
+  </data>
+  <data name="UserAdministration_Canceled" xml:space="preserve">
+    <value>Loading MOPR users was canceled.</value>
+  </data>
+  <data name="UserAdministration_CurrentUser" xml:space="preserve">
+    <value>Current user</value>
+  </data>
+  <data name="UserAdministration_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="UserAdministration_Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="UserAdministration_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="UserAdministration_ShortName" xml:space="preserve">
+    <value>Short name</value>
+  </data>
+  <data name="UserAdministration_PersonnelNumber" xml:space="preserve">
+    <value>Personnel number</value>
+  </data>
+  <data name="UserAdministration_LoginName" xml:space="preserve">
+    <value>Windows login name</value>
+  </data>
+  <data name="UserAdministration_SecurityIdentifier" xml:space="preserve">
+    <value>Windows security identifier</value>
+  </data>
+  <data name="UserAdministration_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
 </root>

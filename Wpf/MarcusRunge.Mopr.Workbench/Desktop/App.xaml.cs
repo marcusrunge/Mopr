@@ -1,11 +1,12 @@
 using MarcusRunge.Mopr.Workbench.Application.Administration;
 using MarcusRunge.Mopr.Workbench.Application.Configuration;
-using MarcusRunge.Mopr.Workbench.Application.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Application.Diagnostics;
 using MarcusRunge.Mopr.Workbench.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Application.Lifetime;
+using MarcusRunge.Mopr.Workbench.Application.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
 using MarcusRunge.Mopr.Workbench.Application.Startup;
+using MarcusRunge.Mopr.Workbench.Application.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
@@ -13,6 +14,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.UserAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity;
@@ -154,6 +156,7 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
             containerRegistry.RegisterSingleton<IRepositoryLocationValidationService, RepositoryLocationValidationService>();
             containerRegistry.RegisterSingleton<IRepositoryLocationAdministrationService>(provider => new RepositoryLocationAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
+            containerRegistry.RegisterSingleton<IUserAdministrationService>(provider => new UserAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);
@@ -186,8 +189,7 @@ namespace MarcusRunge.Mopr.Workbench
             // compensation and repository-level integrity operations.
             containerRegistry.RegisterSingleton<IRepositoryFactory>(provider => new RepositoryFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IObservable<IApplicationConfiguration>>(), provider.Resolve<IPersistence>()));
 
-            containerRegistry.RegisterSingleton<RepositoryContract>(
-                provider => provider.Resolve<IRepositoryFactory>().Create());
+            containerRegistry.RegisterSingleton<RepositoryContract>(provider => provider.Resolve<IRepositoryFactory>().Create());
 
             // Runtime security adapters resolve the current Windows identity against
             // an existing persistent MOPR user without implicit user provisioning.

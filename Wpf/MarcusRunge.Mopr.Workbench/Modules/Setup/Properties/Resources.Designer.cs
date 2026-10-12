@@ -1436,5 +1436,122 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
                 return ResourceManager.GetString("Setup_Verified", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Active ähnelt.
+        /// </summary>
+        public static string UserAdministration_Active {
+            get {
+                return ResourceManager.GetString("UserAdministration_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading MOPR users was canceled. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Canceled {
+            get {
+                return ResourceManager.GetString("UserAdministration_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current user ähnelt.
+        /// </summary>
+        public static string UserAdministration_CurrentUser {
+            get {
+                return ResourceManager.GetString("UserAdministration_CurrentUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Inactive ähnelt.
+        /// </summary>
+        public static string UserAdministration_Inactive {
+            get {
+                return ResourceManager.GetString("UserAdministration_Inactive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MOPR users could not be loaded. ähnelt.
+        /// </summary>
+        public static string UserAdministration_LoadFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading MOPR users... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Loading {
+            get {
+                return ResourceManager.GetString("UserAdministration_Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Windows login name ähnelt.
+        /// </summary>
+        public static string UserAdministration_LoginName {
+            get {
+                return ResourceManager.GetString("UserAdministration_LoginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
+        /// </summary>
+        public static string UserAdministration_Name {
+            get {
+                return ResourceManager.GetString("UserAdministration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No personal MOPR users are stored in the active database. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NoUsers {
+            get {
+                return ResourceManager.GetString("UserAdministration_NoUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Personnel number ähnelt.
+        /// </summary>
+        public static string UserAdministration_PersonnelNumber {
+            get {
+                return ResourceManager.GetString("UserAdministration_PersonnelNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Windows security identifier ähnelt.
+        /// </summary>
+        public static string UserAdministration_SecurityIdentifier {
+            get {
+                return ResourceManager.GetString("UserAdministration_SecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Short name ähnelt.
+        /// </summary>
+        public static string UserAdministration_ShortName {
+            get {
+                return ResourceManager.GetString("UserAdministration_ShortName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Status ähnelt.
+        /// </summary>
+        public static string UserAdministration_Status {
+            get {
+                return ResourceManager.GetString("UserAdministration_Status", resourceCulture);
+            }
+        }
     }
 }
