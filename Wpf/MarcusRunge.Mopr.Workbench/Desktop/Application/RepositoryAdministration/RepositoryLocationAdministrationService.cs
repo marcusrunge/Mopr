@@ -21,7 +21,6 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
     private readonly IApplication _application = application ?? throw new ArgumentNullException(nameof(application));
     private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
 
-
     /// <inheritdoc/>
     /// <inheritdoc/>
     public async Task<RepositoryLocationCreateResult> CreateAsync(RepositoryLocationCreateRequest request, CancellationToken cancellationToken = default)
@@ -70,11 +69,65 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
     }
 
     /// <inheritdoc/>
+    public async Task<RepositoryLocationDeleteResult> DeleteAsync(RepositoryLocationDeleteRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
+        ValidateDeleteRequest(request);
+
+        var currentUser = await (_application.IdentityService?.CurrentUserContext?.GetCurrentUserAsync(cancellationToken) ?? Task.FromResult<CurrentUser?>(null)).ConfigureAwait(false);
+        if (currentUser is not { Id: > 0, IsActive: true })
+        {
+            return RepositoryLocationDeleteResult.Unauthorized();
+        }
+
+        var repository = GetRepository();
+        var location = await repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        if (location is null)
+        {
+            return RepositoryLocationDeleteResult.NotFound();
+        }
+
+        if (!location.RowVersion.SequenceEqual(request.RowVersion))
+        {
+            return RepositoryLocationDeleteResult.Conflict();
+        }
+
+        /*
+         * The default repository is an application invariant and must be replaced
+         * explicitly before its configuration can be removed.
+         */
+        if (location.IsDefault)
+        {
+            return RepositoryLocationDeleteResult.DefaultRepository();
+        }
+
+        try
+        {
+            /*
+             * Persistence owns the referential-integrity check. The repository-location
+             * relationship uses restricted deletion, so referenced DICOM instances prevent
+             * removal without exposing Persistence entities to the administration module.
+             */
+            await repository.DeleteAsync(location, cancellationToken).ConfigureAwait(false);
+            return RepositoryLocationDeleteResult.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return RepositoryLocationDeleteResult.Conflict();
+        }
+        catch (DbUpdateException)
+        {
+            return RepositoryLocationDeleteResult.InUse();
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<RepositoryLocationSummary>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var repository = GetRepository();
         var locations = await repository.GetAllAsync(cancellationToken).ConfigureAwait(false);
-        return locations.OrderByDescending(location => location.IsDefault).ThenBy(location => location.Name, StringComparer.CurrentCultureIgnoreCase).ThenBy(location => location.RootPath, StringComparer.CurrentCultureIgnoreCase).Select(Map).ToArray();
+        return [.. locations.OrderByDescending(location => location.IsDefault).ThenBy(location => location.Name, StringComparer.CurrentCultureIgnoreCase).ThenBy(location => location.RootPath, StringComparer.CurrentCultureIgnoreCase).Select(Map)];
     }
 
     /// <inheritdoc/>
@@ -136,9 +189,30 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
         return RepositoryLocationUpdateResult.Success(Map(updatedLocation));
     }
 
-    private IRepositoryLocationRepository GetRepository() => _persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location persistence service is unavailable.");
+    private static RepositoryLocationSummary Map(RepositoryLocation location)
+    {
+        ArgumentNullException.ThrowIfNull(location);
 
-    private static RepositoryLocationSummary Map(RepositoryLocation location) => new(location.Id, location.Name ?? string.Empty, location.RootPath ?? string.Empty, location.IsEnabled, location.IsDefault, [.. location.RowVersion]);
+        if (location.RowVersion is not { Length: > 0 })
+        {
+            throw new InvalidOperationException($"Repository location '{location.Id}' does not have a valid concurrency token.");
+        }
+
+        return new RepositoryLocationSummary(location.Id, location.Name ?? string.Empty, location.RootPath ?? string.Empty, location.IsEnabled, location.IsDefault, [.. location.RowVersion]);
+    }
+
+    private static void ValidateDeleteRequest(RepositoryLocationDeleteRequest request)
+    {
+        if (request.Id <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(request), "The repository-location ID must be positive.");
+        }
+
+        if (request.RowVersion is not { Length: > 0 })
+        {
+            throw new ArgumentException("The repository-location concurrency token is required.", nameof(request));
+        }
+    }
 
     private static void ValidateRequest(RepositoryLocationUpdateRequest request)
     {
@@ -155,4 +229,6 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
             throw new ArgumentException("The repository-location concurrency token is required.", nameof(request));
         }
     }
+
+    private IRepositoryLocationRepository GetRepository() => _persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location persistence service is unavailable.");
 }

@@ -8,17 +8,15 @@ using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
-using Prism.Events;
-using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 {
     public sealed class SetupViewModelTests
     {
-        private const string DefaultLocalDbConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=Mopr;Integrated Security=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
-        private const string OriginalConnectionString = @"Server=original;Database=Mopr;";
+        private const string DefaultLocalDbConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=MoprDb;Integrated Security=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+        private const string OriginalConnectionString = @"Server=original;Database=MoprDb;";
         private const string RepositoryPath = @"C:\MOPR\Repository";
-        private const string UpdatedConnectionString = @"Server=updated;Database=Mopr;Integrated Security=True;";
+        private const string UpdatedConnectionString = @"Server=updated;Database=MoprDb;Integrated Security=True;";
 
         [Fact]
         public void UseLocalDatabaseCommand_WhenExecuted_InsertsRecommendedConnectionString()
