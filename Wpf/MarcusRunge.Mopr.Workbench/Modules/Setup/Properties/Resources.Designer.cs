@@ -394,6 +394,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CancelDelete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CancelDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The repository operation was canceled. ähnelt.
         /// </summary>
         public static string RepositoryAdministration_Canceled {
@@ -417,6 +426,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string RepositoryAdministration_ConfiguredLocations {
             get {
                 return ResourceManager.GetString("RepositoryAdministration_ConfiguredLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove configuration ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ConfirmDelete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ConfirmDelete", resourceCulture);
             }
         }
         
@@ -489,6 +507,96 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string RepositoryAdministration_DefaultInvariant {
             get {
                 return ResourceManager.GetString("RepositoryAdministration_DefaultInvariant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Delete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration “ ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationPrefix {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ” will be removed from MOPR. Existing files in the storage folder will not be deleted. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationSuffix {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove repository configuration? ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationTitle {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was changed elsewhere and was not removed. Reload the current values before trying again. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConflict {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration was removed. Existing files were not deleted. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Deleted {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The default repository cannot be removed. Select another enabled repository as the default first. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteDefaultRepository {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteDefaultRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration could not be removed. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository cannot be removed because persisted DICOM data still references it. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteInUse {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removing repository configuration... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Deleting {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Deleting", resourceCulture);
             }
         }
         

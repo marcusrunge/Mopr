@@ -540,4 +540,40 @@
 	<data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
     <value>Das Repository konnte nicht angelegt werden.</value>
   </data>
+	<data name="RepositoryAdministration_Delete" xml:space="preserve">
+  <value>Repository entfernen</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationTitle" xml:space="preserve">
+  <value>Repository-Konfiguration entfernen?</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationPrefix" xml:space="preserve">
+  <value>Die Repository-Konfiguration „</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationSuffix" xml:space="preserve">
+  <value>“ wird aus MOPR entfernt. Vorhandene Dateien im Speicherordner werden nicht gelöscht.</value>
+</data>
+	<data name="RepositoryAdministration_CancelDelete" xml:space="preserve">
+  <value>Abbrechen</value>
+</data>
+	<data name="RepositoryAdministration_ConfirmDelete" xml:space="preserve">
+  <value>Konfiguration entfernen</value>
+</data>
+	<data name="RepositoryAdministration_Deleting" xml:space="preserve">
+  <value>Repository-Konfiguration wird entfernt...</value>
+</data>
+	<data name="RepositoryAdministration_Deleted" xml:space="preserve">
+  <value>Die Repository-Konfiguration wurde entfernt. Vorhandene Dateien wurden nicht gelöscht.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConflict" xml:space="preserve">
+  <value>Das Repository wurde zwischenzeitlich geändert und nicht entfernt. Laden Sie die aktuellen Werte neu, bevor Sie es erneut versuchen.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteDefaultRepository" xml:space="preserve">
+  <value>Das Standard-Repository kann nicht entfernt werden. Legen Sie zuerst ein anderes aktiviertes Repository als Standard fest.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteInUse" xml:space="preserve">
+  <value>Das Repository kann nicht entfernt werden, weil gespeicherte DICOM-Daten noch darauf verweisen.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteFailed" xml:space="preserve">
+  <value>Die Repository-Konfiguration konnte nicht entfernt werden.</value>
+</data>
 </root>

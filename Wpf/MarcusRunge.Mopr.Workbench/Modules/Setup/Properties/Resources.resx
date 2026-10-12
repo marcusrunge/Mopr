@@ -540,5 +540,40 @@
 	<data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
     <value>The repository could not be created.</value>
   </data>
-
+	<data name="RepositoryAdministration_Delete" xml:space="preserve">
+  <value>Remove repository</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationTitle" xml:space="preserve">
+  <value>Remove repository configuration?</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationPrefix" xml:space="preserve">
+  <value>The repository configuration “</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConfirmationSuffix" xml:space="preserve">
+  <value>” will be removed from MOPR. Existing files in the storage folder will not be deleted.</value>
+</data>
+	<data name="RepositoryAdministration_CancelDelete" xml:space="preserve">
+  <value>Cancel</value>
+</data>
+	<data name="RepositoryAdministration_ConfirmDelete" xml:space="preserve">
+  <value>Remove configuration</value>
+</data>
+	<data name="RepositoryAdministration_Deleting" xml:space="preserve">
+  <value>Removing repository configuration...</value>
+</data>
+	<data name="RepositoryAdministration_Deleted" xml:space="preserve">
+  <value>The repository configuration was removed. Existing files were not deleted.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteConflict" xml:space="preserve">
+  <value>The repository was changed elsewhere and was not removed. Reload the current values before trying again.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteDefaultRepository" xml:space="preserve">
+  <value>The default repository cannot be removed. Select another enabled repository as the default first.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteInUse" xml:space="preserve">
+  <value>The repository cannot be removed because persisted DICOM data still references it.</value>
+</data>
+	<data name="RepositoryAdministration_DeleteFailed" xml:space="preserve">
+  <value>The repository configuration could not be removed.</value>
+</data>
 </root>

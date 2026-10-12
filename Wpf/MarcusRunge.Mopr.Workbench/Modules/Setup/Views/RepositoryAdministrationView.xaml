@@ -18,98 +18,399 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="30">
-            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Repository}" />
-            <TextBlock Margin="0,8,0,22" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_RepositoryDescription}" />
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock VerticalAlignment="Center" Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.RepositoryAdministration_ConfiguredLocations}" /><Button Grid.Column="1" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding NewCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_New}" /></Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
 
-            <ListBox Margin="0,10,0,22" ItemsSource="{Binding Locations}" SelectedItem="{Binding SelectedLocation}" IsEnabled="{Binding CanSelectLocation}" Background="Transparent" BorderThickness="0">
+        <StackPanel Margin="30">
+            <TextBlock Style="{StaticResource SetupSectionTitleStyle}"
+                       Text="{x:Static properties:Resources.Administration_Repository}" />
+
+            <TextBlock Margin="0,8,0,22"
+                       Style="{StaticResource SetupDescriptionStyle}"
+                       Text="{x:Static properties:Resources.Administration_RepositoryDescription}" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Style="{StaticResource SetupLabelStyle}"
+                           Text="{x:Static properties:Resources.RepositoryAdministration_ConfiguredLocations}" />
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource SetupSecondaryButtonStyle}"
+                        Command="{Binding NewCommand}"
+                        Content="{x:Static properties:Resources.RepositoryAdministration_New}" />
+            </Grid>
+
+            <ListBox Margin="0,10,0,22"
+                     ItemsSource="{Binding Locations}"
+                     SelectedItem="{Binding SelectedLocation}"
+                     IsEnabled="{Binding CanSelectLocation}"
+                     Background="Transparent"
+                     BorderThickness="0">
+
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0,0,0,8" />
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderBrush" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="1" />
-                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        <Setter Property="Padding"
+                                Value="0" />
+
+                        <Setter Property="Margin"
+                                Value="0,0,0,8" />
+
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+
+                        <Setter Property="Background"
+                                Value="Transparent" />
+
+                        <Setter Property="BorderBrush"
+                                Value="Transparent" />
+
+                        <Setter Property="BorderThickness"
+                                Value="1" />
+
+                        <Setter Property="FocusVisualStyle"
+                                Value="{x:Null}" />
+
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="ItemBorder" Padding="14" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
-                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                    <Border x:Name="ItemBorder"
+                                            Padding="14"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6">
+
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                     </Border>
+
                                     <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" /><Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" /></Trigger>
-                                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" /><Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource WorkbenchAccentBorderBrush}" /></Trigger>
-                                        <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsSelected" Value="True" /><Condition Property="IsMouseOver" Value="True" /></MultiTrigger.Conditions><Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource WorkbenchAccentBackgroundBrush}" /><Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource WorkbenchAccentBrush}" /></MultiTrigger>
-                                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ItemBorder" Property="Opacity" Value="0.55" /></Trigger>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="Background"
+                                                    Value="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" />
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="BorderBrush"
+                                                    Value="{StaticResource WorkbenchAccentBorderBrush}" />
+                                        </Trigger>
+
+                                        <Trigger Property="IsSelected"
+                                                 Value="True">
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="Background"
+                                                    Value="{StaticResource WorkbenchAccentBackgroundBrush}" />
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="BorderBrush"
+                                                    Value="{StaticResource WorkbenchAccentBorderBrush}" />
+                                        </Trigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+
+                                                <Condition Property="IsMouseOver"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="Background"
+                                                    Value="{StaticResource WorkbenchAccentBackgroundBrush}" />
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="BorderBrush"
+                                                    Value="{StaticResource WorkbenchAccentBrush}" />
+                                        </MultiTrigger>
+
+                                        <Trigger Property="IsEnabled"
+                                                 Value="False">
+
+                                            <Setter TargetName="ItemBorder"
+                                                    Property="Opacity"
+                                                    Value="0.55" />
+                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontWeight="SemiBold" Text="{Binding Name}" /><TextBlock Margin="0,5,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding RootPath}" /></StackPanel>
-                            <StackPanel Grid.Column="1" Margin="16,0,0,0"><TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" Text="{x:Static properties:Resources.RepositoryAdministration_Default}" Visibility="{Binding IsDefault, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Margin="0,5,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" Text="{x:Static properties:Resources.RepositoryAdministration_Disabled}"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsEnabled}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Foreground="{StaticResource WorkbenchTextBrush}"
+                                           FontWeight="SemiBold"
+                                           Text="{Binding Name}" />
+
+                                <TextBlock Margin="0,5,0,0"
+                                           Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
+                                           Text="{Binding RootPath}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Margin="16,0,0,0">
+
+                                <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}"
+                                           Text="{x:Static properties:Resources.RepositoryAdministration_Default}"
+                                           Visibility="{Binding IsDefault, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                <TextBlock Margin="0,5,0,0"
+                                           Foreground="{StaticResource WorkbenchMutedTextBrush}"
+                                           Text="{x:Static properties:Resources.RepositoryAdministration_Disabled}">
+
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnabled}"
+                                                             Value="False">
+
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <Border Padding="22" Background="{StaticResource WorkbenchPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="8">
-                <StackPanel>
-                    <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.RepositoryAdministration_Name}" />
-                    <TextBox Margin="0,8,0,16" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding RepositoryName, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsInteractionEnabled}" />
+            <Border Padding="22"
+                    Background="{StaticResource WorkbenchPanelBackgroundBrush}"
+                    BorderBrush="{StaticResource WorkbenchBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
 
-                    <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.RepositoryAdministration_Path}" />
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SetupLabelStyle}"
+                               Text="{x:Static properties:Resources.RepositoryAdministration_Name}" />
+
+                    <TextBox Margin="0,8,0,16"
+                             Style="{StaticResource SetupTextBoxStyle}"
+                             IsEnabled="{Binding IsInteractionEnabled}"
+                             Text="{Binding RepositoryName, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Style="{StaticResource SetupLabelStyle}"
+                               Text="{x:Static properties:Resources.RepositoryAdministration_Path}" />
+
                     <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBox Style="{StaticResource SetupTextBoxStyle}" Text="{Binding RepositoryPath, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsInteractionEnabled}" />
-                        <Button Grid.Column="1" Margin="10,0,0,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding SelectFolderCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_SelectFolder}" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Style="{StaticResource SetupTextBoxStyle}"
+                                 IsEnabled="{Binding IsInteractionEnabled}"
+                                 Text="{Binding RepositoryPath, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <Button Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource SetupSecondaryButtonStyle}"
+                                Command="{Binding SelectFolderCommand}"
+                                Content="{x:Static properties:Resources.RepositoryAdministration_SelectFolder}" />
                     </Grid>
 
-                    <TextBlock Margin="0,10,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" TextWrapping="Wrap" Text="{x:Static properties:Resources.RepositoryAdministration_ValidationNotice}" />
+                    <TextBlock Margin="0,10,0,0"
+                               Foreground="{StaticResource WorkbenchMutedTextBrush}"
+                               Text="{x:Static properties:Resources.RepositoryAdministration_ValidationNotice}"
+                               TextWrapping="Wrap" />
 
-                    <StackPanel Margin="0,18,0,0" Orientation="Horizontal">
-                        <CheckBox VerticalAlignment="Center" Content="{x:Static properties:Resources.RepositoryAdministration_Enabled}" IsChecked="{Binding IsRepositoryEnabled}" IsEnabled="{Binding CanChangeRepositoryEnabled}" />
-                        <CheckBox Margin="24,0,0,0" VerticalAlignment="Center" Content="{x:Static properties:Resources.RepositoryAdministration_UseAsDefault}" IsChecked="{Binding IsDefaultRepository}" IsEnabled="{Binding IsInteractionEnabled}" />
+                    <StackPanel Margin="0,18,0,0"
+                                Orientation="Horizontal">
+
+                        <CheckBox VerticalAlignment="Center"
+                                  Content="{x:Static properties:Resources.RepositoryAdministration_Enabled}"
+                                  IsChecked="{Binding IsRepositoryEnabled}"
+                                  IsEnabled="{Binding CanChangeRepositoryEnabled}" />
+
+                        <CheckBox Margin="24,0,0,0"
+                                  VerticalAlignment="Center"
+                                  Content="{x:Static properties:Resources.RepositoryAdministration_UseAsDefault}"
+                                  IsChecked="{Binding IsDefaultRepository}"
+                                  IsEnabled="{Binding IsInteractionEnabled}" />
                     </StackPanel>
 
-                    <TextBlock Margin="0,16,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" TextWrapping="Wrap" Text="{Binding StatusText}" />
+                    <TextBlock Margin="0,16,0,0"
+                               Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
+                               Text="{Binding StatusText}"
+                               TextWrapping="Wrap" />
 
+                    <!-- Normal editor actions -->
                     <Grid Margin="0,22,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <Button Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ValidateCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_Validate}" />
-                        <Button Grid.Column="2" Margin="0,0,10,0" Command="{Binding DiscardCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_Discard}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Style="{StaticResource SetupSecondaryButtonStyle}"
+                                Command="{Binding ValidateCommand}"
+                                Content="{x:Static properties:Resources.RepositoryAdministration_Validate}" />
+
+                        <Button Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Style="{StaticResource SetupSecondaryButtonStyle}"
+                                Command="{Binding RequestDeleteCommand}"
+                                Content="{x:Static properties:Resources.RepositoryAdministration_Delete}" />
+
+                        <Button Grid.Column="3"
+                                Margin="0,0,10,0"
+                                Command="{Binding DiscardCommand}"
+                                Content="{x:Static properties:Resources.RepositoryAdministration_Discard}">
+
                             <Button.Style>
-                                <Style BasedOn="{StaticResource SetupSecondaryButtonStyle}" TargetType="Button">
-                                    <Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers>
+                                <Style BasedOn="{StaticResource SetupSecondaryButtonStyle}"
+                                       TargetType="Button">
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCreating}"
+                                                     Value="True">
+
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Grid.Column="2" Margin="0,0,10,0" Command="{Binding CancelCreateCommand}" Content="{x:Static properties:Resources.RepositoryAdministration_CancelCreate}">
+
+                        <Button Grid.Column="3"
+                                Margin="0,0,10,0"
+                                Command="{Binding CancelCreateCommand}"
+                                Content="{x:Static properties:Resources.RepositoryAdministration_CancelCreate}">
+
                             <Button.Style>
-                                <Style BasedOn="{StaticResource SetupSecondaryButtonStyle}" TargetType="Button">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                    <Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                <Style BasedOn="{StaticResource SetupSecondaryButtonStyle}"
+                                       TargetType="Button">
+
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCreating}"
+                                                     Value="True">
+
+                                            <Setter Property="Visibility"
+                                                    Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Grid.Column="3" Command="{Binding SaveCommand}">
+
+                        <Button Grid.Column="4"
+                                Command="{Binding SaveCommand}">
+
                             <Button.Style>
-                                <Style BasedOn="{StaticResource SetupPrimaryButtonStyle}" TargetType="Button">
-                                    <Setter Property="Content" Value="{x:Static properties:Resources.RepositoryAdministration_Save}" />
-                                    <Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Content" Value="{x:Static properties:Resources.RepositoryAdministration_Create}" /></DataTrigger></Style.Triggers>
+                                <Style BasedOn="{StaticResource SetupPrimaryButtonStyle}"
+                                       TargetType="Button">
+
+                                    <Setter Property="Content"
+                                            Value="{x:Static properties:Resources.RepositoryAdministration_Save}" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCreating}"
+                                                     Value="True">
+
+                                            <Setter Property="Content"
+                                                    Value="{x:Static properties:Resources.RepositoryAdministration_Create}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
                             </Button.Style>
                         </Button>
                     </Grid>
+
+                    <!-- Explicit two-step deletion confirmation -->
+                    <Border Margin="0,22,0,0"
+                            Padding="18"
+                            Background="{StaticResource WorkbenchWarningBackgroundBrush}"
+                            BorderBrush="{StaticResource WorkbenchWarningBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6">
+
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDeleteConfirmationVisible}"
+                                                 Value="True">
+
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Foreground="{StaticResource WorkbenchWarningTextBrush}"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Text="{x:Static properties:Resources.RepositoryAdministration_DeleteConfirmationTitle}" />
+
+                            <TextBlock Grid.Row="1"
+                                       Margin="0,10,0,0"
+                                       Foreground="{StaticResource WorkbenchSecondaryTextBrush}"
+                                       FontSize="13"
+                                       LineHeight="20"
+                                       TextWrapping="Wrap">
+
+                                <Run Text="{x:Static properties:Resources.RepositoryAdministration_DeleteConfirmationPrefix}" />
+                                <Run FontWeight="SemiBold" Text="{Binding DeleteConfirmationRepositoryName, Mode=OneWay}" />
+                                <Run Text="{x:Static properties:Resources.RepositoryAdministration_DeleteConfirmationSuffix}" />
+                            </TextBlock>
+
+                            <StackPanel Grid.Row="2"
+                                        Margin="0,18,0,0"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal">
+
+                                <Button Margin="0,0,10,0"
+                                        Style="{StaticResource SetupSecondaryButtonStyle}"
+                                        Command="{Binding CancelDeleteCommand}"
+                                        Content="{x:Static properties:Resources.RepositoryAdministration_CancelDelete}" />
+
+                                <Button Style="{StaticResource SetupPrimaryButtonStyle}"
+                                        Command="{Binding ConfirmDeleteCommand}"
+                                        Content="{x:Static properties:Resources.RepositoryAdministration_ConfirmDelete}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Border>
         </StackPanel>

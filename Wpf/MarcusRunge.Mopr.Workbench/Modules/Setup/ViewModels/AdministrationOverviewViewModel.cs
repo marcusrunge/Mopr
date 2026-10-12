@@ -11,7 +11,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     /// <summary>
     /// Provides local section selection and navigation for the administrative Setup overview.
     /// </summary>
-    public sealed class AdministrationOverviewViewModel : BindableBase
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="AdministrationOverviewViewModel"/> class.
+    /// </remarks>
+    /// <param name="regionManager">The application region manager.</param>
+    public sealed class AdministrationOverviewViewModel(IRegionManager regionManager) : BindableBase
     {
         private const string DatabaseSection = "Database";
         private const string OverviewSection = "Overview";
@@ -19,16 +23,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private const string SecuritySection = "Security";
         private const string SystemCheckSection = "SystemCheck";
         private const string UsersSection = "Users";
-        private readonly IRegionManager _regionManager;
+        private readonly IRegionManager _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
         private DelegateCommand? _returnToImagingCommand;
         private DelegateCommand<string>? _selectSectionCommand;
         private string _selectedSection = OverviewSection;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AdministrationOverviewViewModel"/> class.
-        /// </summary>
-        /// <param name="regionManager">The application region manager.</param>
-        public AdministrationOverviewViewModel(IRegionManager regionManager) => _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
 
         public Visibility DatabaseVisibility => GetVisibility(DatabaseSection);
         public bool IsDatabaseSelected => IsSelected(DatabaseSection);
@@ -40,7 +38,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         public Visibility OverviewVisibility => GetVisibility(OverviewSection);
         public Visibility RepositoryVisibility => GetVisibility(RepositorySection);
         public DelegateCommand ReturnToImagingCommand => _returnToImagingCommand ??= new DelegateCommand(ExecuteReturnToImaging);
-        public string ReturnToImagingText => Resources.Administration_ReturnToImaging;
+        public static string ReturnToImagingText => Resources.Administration_ReturnToImaging;
         public Visibility SecurityVisibility => GetVisibility(SecuritySection);
         public DelegateCommand<string> SelectSectionCommand => _selectSectionCommand ??= new DelegateCommand<string>(ExecuteSelectSection, CanSelectSection);
         public Visibility SystemCheckVisibility => GetVisibility(SystemCheckSection);
