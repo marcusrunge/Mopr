@@ -22,7 +22,6 @@ internal sealed class RepositoryLocationAdministrationService(IPersistence persi
     private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
 
     /// <inheritdoc/>
-    /// <inheritdoc/>
     public async Task<RepositoryLocationCreateResult> CreateAsync(RepositoryLocationCreateRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);

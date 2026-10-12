@@ -32,11 +32,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom
         }
 
         /// <inheritdoc/>
-        public IDicom Create()
-        {
+        public IDicom Create() =>
             // The factory retains one stable DICOM instance. The composition root controls
             // the overall lifetime through the factory registration.
-            return _moduleInstance ??= new Implementations.Dicom(_logger);
-        }
+            _moduleInstance ??= new Implementations.Dicom(_logger);
     }
 }

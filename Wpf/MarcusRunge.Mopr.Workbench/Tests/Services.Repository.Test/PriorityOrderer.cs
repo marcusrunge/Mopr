@@ -21,13 +21,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             return [.. testMethods.OrderBy(testMethod => GetPriorityOrDefault(GetXunitTestMethod(testMethod))).ThenBy(testMethod => testMethod?.MethodName ?? string.Empty, StringComparer.Ordinal).ThenBy(testMethod => testMethod?.UniqueID ?? string.Empty, StringComparer.Ordinal)];
         }
 
-        private static IXunitTestMethod GetXunitTestMethod(ITestMethod? testMethod)
-        {
+        private static IXunitTestMethod GetXunitTestMethod(ITestMethod? testMethod) =>
             // Ein stiller Rückfall auf eine alphabetische Ausführung könnte abhängige
             // Repository-Szenarien vor ihren Voraussetzungen starten. Eine inkompatible
             // Repräsentation soll den Testlauf deshalb sichtbar abbrechen.
-            return testMethod as IXunitTestMethod ?? throw new InvalidOperationException($"The test method '{testMethod?.MethodName}' is not represented by {nameof(IXunitTestMethod)}.");
-        }
+            testMethod as IXunitTestMethod ?? throw new InvalidOperationException($"The test method '{testMethod?.MethodName}' is not represented by {nameof(IXunitTestMethod)}.");
 
         private static int GetPriorityOrDefault(IXunitTestMethod testMethod)
         {

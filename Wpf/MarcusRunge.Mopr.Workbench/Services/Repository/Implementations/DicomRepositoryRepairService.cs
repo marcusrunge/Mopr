@@ -201,27 +201,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return exception.InnerException is not null && IsFileReadException(exception.InnerException);
         }
 
-        private static async Task<DicomRepositoryFileIdentity> ReadDicomIdentityAsync(string filePath, CancellationToken cancellationToken)
-        {
-            return await Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+        private static async Task<DicomRepositoryFileIdentity> ReadDicomIdentityAsync(string filePath, CancellationToken cancellationToken) => await Task.Run(() =>
+                                                                                                                                                        {
+                                                                                                                                                            cancellationToken.ThrowIfCancellationRequested();
 
-                /*
-                 * All hierarchy identifiers are read during the same physical file
-                 * operation. This allows the repository to compare the DICOM file with
-                 * the persisted Study-Series-Instance hierarchy without reopening it.
-                 */
-                DicomFile dicomFile = DicomFile.Open(filePath);
+                                                                                                                                                            /*
+                                                                                                                                                             * All hierarchy identifiers are read during the same physical file
+                                                                                                                                                             * operation. This allows the repository to compare the DICOM file with
+                                                                                                                                                             * the persisted Study-Series-Instance hierarchy without reopening it.
+                                                                                                                                                             */
+                                                                                                                                                            DicomFile dicomFile = DicomFile.Open(filePath);
 
-                return new DicomRepositoryFileIdentity
-                {
-                    StudyInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty),
-                    SeriesInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty),
-                    SopInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty)
-                };
-            }, cancellationToken);
-        }
+                                                                                                                                                            return new DicomRepositoryFileIdentity
+                                                                                                                                                            {
+                                                                                                                                                                StudyInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty),
+                                                                                                                                                                SeriesInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty),
+                                                                                                                                                                SopInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty)
+                                                                                                                                                            };
+                                                                                                                                                        }, cancellationToken);
 
         private static void RegisterDicomHierarchyConflict(Study study, Series series, Instance instance, string filePath, DicomRepositoryFileIdentity actualIdentity, DicomRepositoryRepairResult result)
         {

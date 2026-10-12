@@ -526,12 +526,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             }
         }
 
-        private void ExecuteReturnToImaging()
-        {
+        private void ExecuteReturnToImaging() =>
             // Region navigation belongs to the Setup coordinator. The embedded view
             // does not own an attached RegionManager and must not resolve one itself.
             _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Imaging);
-        }
         private void ExecuteSelectRepositoryLocation()
         {
             var fileDialogService = _application.DialogService?.FileDialogService ?? throw new InvalidOperationException("The WPF file dialog service has not been initialized.");

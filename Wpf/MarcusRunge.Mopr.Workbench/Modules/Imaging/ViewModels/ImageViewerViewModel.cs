@@ -400,18 +400,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             base.Destroy();
         }
 
-        private static string GetToolDisplayText(ImagingTool tool)
+        private static string GetToolDisplayText(ImagingTool tool) => tool switch
         {
-            return tool switch
-            {
-                ImagingTool.WindowLevel => Resources.Viewer_Tool_WindowLevel,
-                ImagingTool.Zoom => Resources.Viewer_Tool_Zoom,
-                ImagingTool.Pan => Resources.Viewer_Tool_Pan,
-                ImagingTool.Crosshair => Resources.Viewer_Tool_Crosshair,
-                ImagingTool.Measure => Resources.Viewer_Tool_Measure,
-                _ => Resources.Viewer_Tool_None
-            };
-        }
+            ImagingTool.WindowLevel => Resources.Viewer_Tool_WindowLevel,
+            ImagingTool.Zoom => Resources.Viewer_Tool_Zoom,
+            ImagingTool.Pan => Resources.Viewer_Tool_Pan,
+            ImagingTool.Crosshair => Resources.Viewer_Tool_Crosshair,
+            ImagingTool.Measure => Resources.Viewer_Tool_Measure,
+            _ => Resources.Viewer_Tool_None
+        };
 
         private void ApplySelectedSeries(SeriesInfo? series)
         {

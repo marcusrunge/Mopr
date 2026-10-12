@@ -44,11 +44,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository
         }
 
         /// <inheritdoc/>
-        public IRepository Create()
-        {
+        public IRepository Create() =>
             // The factory retains one repository instance. The composition root controls
             // the lifetime of the factory and therefore the lifetime of the module.
-            return _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable, _persistence);
-        }
+            _moduleInstance ??= new Implementations.Repository(_logger, _applicationLifetime, _applicationConfigurationObservable, _persistence);
     }
 }

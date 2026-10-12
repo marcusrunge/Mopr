@@ -52,7 +52,7 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
     public DelegateCommand CancelDeleteCommand => _cancelDeleteCommand ??= new DelegateCommand(ExecuteCancelDelete, () => !IsBusy && IsDeleteConfirmationVisible);
 
     /// <summary>Gets a value indicating whether the enabled state may be changed.</summary>
-    public bool CanChangeRepositoryEnabled => IsInteractionEnabled && (IsCreating || !IsDefaultRepository);
+    public bool CanChangeRepositoryEnabled => IsInteractionEnabled && !IsDefaultRepository;
 
     /// <summary>
     /// Gets a value indicating whether the selected repository location may be removed.
@@ -219,7 +219,16 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
     }
 
     private void ExecuteCancelCreate()
-    { IsCreating = false; ApplySelection(Locations.FirstOrDefault(location => location.IsDefault) ?? Locations.FirstOrDefault()); StatusText = Resources.RepositoryAdministration_CreationCanceled; }
+    {
+        var selectedLocation = Locations.FirstOrDefault(location => location.IsDefault) ?? Locations.FirstOrDefault();
+
+        _selectedLocation = selectedLocation;
+        RaisePropertyChanged(nameof(SelectedLocation));
+
+        IsCreating = false;
+        ApplySelection(selectedLocation);
+        StatusText = Resources.RepositoryAdministration_CreationCanceled;
+    }
 
     private void ExecuteCancelDelete()
     {

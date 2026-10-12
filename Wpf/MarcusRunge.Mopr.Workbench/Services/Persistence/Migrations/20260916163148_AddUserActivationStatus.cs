@@ -8,22 +8,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
     public partial class AddUserActivationStatus : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<bool>(
+        protected override void Up(MigrationBuilder migrationBuilder) => migrationBuilder.AddColumn<bool>(
                 name: "IsActive",
                 table: "Users",
                 type: "bit",
                 nullable: false,
                 defaultValue: true);
-        }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
+        protected override void Down(MigrationBuilder migrationBuilder) => migrationBuilder.DropColumn(
                 name: "IsActive",
                 table: "Users");
-        }
     }
 }

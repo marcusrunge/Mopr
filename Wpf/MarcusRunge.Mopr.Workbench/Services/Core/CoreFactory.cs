@@ -42,11 +42,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core
         }
 
         /// <inheritdoc/>
-        public ICore Create()
-        {
+        public ICore Create() =>
             // The factory retains one stable Core instance with all dependencies
             // supplied by the composition root.
-            return _moduleInstance ??= new Implementations.Core(_logger, _dicom, _applicationLifetime);
-        }
+            _moduleInstance ??= new Implementations.Core(_logger, _dicom, _applicationLifetime);
     }
 }
