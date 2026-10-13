@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
 {
     /// <summary>
     /// Represents the structured result of a machine-wide setup-completion operation.

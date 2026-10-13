@@ -16,6 +16,11 @@
         IDicomImportService? ImportService { get; }
 
         /// <summary>
+        /// Gets the repository-location validation service.
+        /// </summary>
+        IRepositoryLocationValidationService? LocationValidation { get; }
+
+        /// <summary>
         /// Gets the repository repair service.
         /// </summary>
         IDicomRepositoryRepairService? RepositoryRepairService { get; }

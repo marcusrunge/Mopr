@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
 {
     /// <summary>
     /// Represents an attempt to save an invalid machine-wide MOPR configuration.

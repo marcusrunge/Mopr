@@ -1,5 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -47,11 +46,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Contracts
         /// Gets the repository-infrastructure recovery service.
         /// </summary>
         internal IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery { get; }
-
-        /// <summary>
-        /// Gets the repository-location validation service.
-        /// </summary>
-        internal IRepositoryLocationValidationService RepositoryLocationValidationService { get; }
 
         /// <summary>
         /// Gets the technical audit-identity provider used for machine-wide infrastructure operations.

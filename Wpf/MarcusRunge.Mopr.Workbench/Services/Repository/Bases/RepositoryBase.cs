@@ -11,6 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
     internal abstract class RepositoryBase : IRepositoryBase, IRepository
     {
         protected IDicomImportService? _importService;
+        protected IRepositoryLocationValidationService? _locationValidation;
         protected IRepositoryOperationsCoordinator? _operationsCoordinator;
         protected IDicomRepositoryRepairService? _repositoryRepairService;
         protected IDicomRepositoryService? _repositoryService;
@@ -21,7 +22,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         private readonly ILogger? _logger;
         private readonly IPersistence? _persistence;
         private readonly CancellationTokenRegistration _shutdownRegistration;
-
         private IApplicationConfiguration? _applicationConfiguration;
         private Action<Exception>? _exceptionThrown;
 
@@ -83,6 +83,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         public IDicomImportService? ImportService => _importService;
 
         /// <inheritdoc/>
+        public IRepositoryLocationValidationService? LocationValidation => _locationValidation;
+
+        /// <inheritdoc/>
         ILogger? IRepositoryBase.Logger => _logger;
 
         /// <inheritdoc/>
@@ -100,6 +103,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Bases
         /// <inheritdoc/>
         void IRepositoryBase.OnExceptionThrown(Exception exception)
         {
+            ArgumentNullException.ThrowIfNull(exception);
+
             _logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
             Action<Exception>? handlers;

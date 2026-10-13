@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 

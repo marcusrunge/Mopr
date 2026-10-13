@@ -2,7 +2,6 @@
 using MarcusRunge.Mopr.Workbench.Application.Startup;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Core;
 using Moq;
 using System;

@@ -1,12 +1,12 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 using Moq;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
@@ -32,10 +32,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             AdministrativeAuthorizationService.SetupGet(service => service.IsElevatedAdministrator).Returns(isElevatedAdministrator);
             Persistence.SetupGet(persistence => persistence.RepositoryLocation).Returns(RepositoryLocationRepository.Object);
+            Repository.SetupGet(repository => repository.LocationValidation).Returns(RepositoryLocationValidationService.Object);
 
             ApplicationLifetime = new TestApplicationLifetime();
 
-            var factory = new MirasFactory(ApplicationLifetime, Persistence.Object, Repository.Object, AdministrativeAuthorizationService.Object, RepositoryLocationValidationService.Object, SystemAuditIdentityProvider.Object);
+            var factory = new MirasFactory(ApplicationLifetime, Persistence.Object, Repository.Object, AdministrativeAuthorizationService.Object, SystemAuditIdentityProvider.Object);
             Miras = factory.Create();
             RecoveryService = Miras.RepositoryInfrastructureRecovery ?? throw new InvalidOperationException("The MIRAS repository-infrastructure recovery service was not initialized.");
             Miras.ExceptionThrown += OnExceptionThrown;

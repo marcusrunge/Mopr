@@ -4,6 +4,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -33,10 +34,10 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
     private RepositoryLocationItemViewModel? _selectedLocation;
 
     /// <summary>Initializes a new instance of the <see cref="RepositoryAdministrationViewModel"/> class.</summary>
-    public RepositoryAdministrationViewModel(IRepositoryLocationAdministrationService administrationService, IRepositoryLocationValidationService validationService, IApplication application, ILifetimeService lifetimeService)
+    public RepositoryAdministrationViewModel(IRepositoryLocationAdministrationService administrationService, IRepository repository, IApplication application, ILifetimeService lifetimeService)
     {
         _administrationService = administrationService ?? throw new ArgumentNullException(nameof(administrationService));
-        _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+        _validationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
         _application = application ?? throw new ArgumentNullException(nameof(application));
         ArgumentNullException.ThrowIfNull(lifetimeService);
         _applicationStopping = lifetimeService.ApplicationStopping;

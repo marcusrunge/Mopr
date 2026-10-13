@@ -1,12 +1,12 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels;
 
@@ -257,14 +257,16 @@ public sealed class RepositoryAdministrationViewModelTests
             if (reloadedLocations is null) AdministrationService.Setup(service => service.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Locations);
             else AdministrationService.SetupSequence(service => service.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Locations).ReturnsAsync(reloadedLocations);
 
+            Repository.SetupGet(repository => repository.LocationValidation).Returns(ValidationService.Object);
             ValidationService.Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((string path, CancellationToken _) => new RepositoryLocationValidationResult { Exists = true, IsReadable = true, IsWritable = true, NormalizedPath = path });
-            ViewModel = new RepositoryAdministrationViewModel(AdministrationService.Object, ValidationService.Object, Application.Object, LifetimeService.Object);
+            ViewModel = new RepositoryAdministrationViewModel(AdministrationService.Object, Repository.Object, Application.Object, LifetimeService.Object);
         }
 
         public Mock<IRepositoryLocationAdministrationService> AdministrationService { get; } = new(MockBehavior.Strict);
         public Mock<IApplication> Application { get; } = new(MockBehavior.Strict);
         public Mock<ILifetimeService> LifetimeService { get; } = new(MockBehavior.Strict);
         public IReadOnlyList<RepositoryLocationSummary> Locations { get; }
+        public Mock<IRepository> Repository { get; } = new(MockBehavior.Strict);
         public Mock<IRepositoryLocationValidationService> ValidationService { get; } = new(MockBehavior.Strict);
         public RepositoryAdministrationViewModel ViewModel { get; }
         public async Task WaitUntilLoadedAsync(CancellationToken cancellationToken, int? expectedCount = null) => await WaitUntilAsync(() => !ViewModel.IsBusy && ViewModel.Locations.Count == (expectedCount ?? Locations.Count), cancellationToken);

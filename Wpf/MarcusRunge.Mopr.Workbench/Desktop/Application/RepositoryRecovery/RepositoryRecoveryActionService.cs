@@ -1,4 +1,3 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
@@ -7,16 +6,17 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench.Application.RepositoryRecovery;
 
 /// <summary>
 /// Performs explicitly requested repository-location recovery actions through validated application contracts.
 /// </summary>
-internal sealed class RepositoryRecoveryActionService(IRepositoryLocationAdministrationService administrationService, IRepositoryLocationValidationService validationService, IAdministrativeAuthorizationService administrativeAuthorizationService) : IRepositoryRecoveryActionService
+internal sealed class RepositoryRecoveryActionService(IRepositoryLocationAdministrationService administrationService, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService) : IRepositoryRecoveryActionService
 {
     private readonly IRepositoryLocationAdministrationService _administrationService = administrationService ?? throw new ArgumentNullException(nameof(administrationService));
-    private readonly IRepositoryLocationValidationService _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+    private readonly IRepositoryLocationValidationService _validationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
     private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
 
     /// <inheritdoc/>

@@ -2,11 +2,12 @@ using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 using Moq;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
@@ -436,6 +437,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                 ConfigurationService.Setup(service => service.LoadAsync(It.IsAny<CancellationToken>())).ReturnsAsync(CreateApplicationConfiguration());
                 ConfigurationService.Setup(service => service.TestDatabaseConnectionAsync(It.IsAny<IDatabaseConfiguration>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
+                Repository.SetupGet(repository => repository.LocationValidation).Returns(RepositoryLocationValidationService.Object);
                 RepositoryLocationValidationService
                     .Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync((string path, CancellationToken _) => new RepositoryLocationValidationResult
@@ -454,7 +456,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 
                 ViewModel = new SetupViewModel(
                     ConfigurationService.Object,
-                    RepositoryLocationValidationService.Object,
+                    Repository.Object,
                     SetupCompletionService.Object,
                     Application.Object,
                     EventAggregator,
@@ -468,6 +470,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
             public IEventAggregator EventAggregator { get; }
 
             public Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Strict);
+            public Mock<IRepository> Repository { get; } = new(MockBehavior.Strict);
             public Mock<IRepositoryLocationValidationService> RepositoryLocationValidationService { get; } = new(MockBehavior.Strict);
 
             public Mock<ISetupCompletionService> SetupCompletionService { get; } = new(MockBehavior.Strict);
@@ -540,5 +543,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
         }
     }
 }
-
-

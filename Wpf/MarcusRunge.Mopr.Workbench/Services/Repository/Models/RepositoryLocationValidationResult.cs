@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
     /// <summary>
     /// Represents the validation result of a potential DICOM repository location.
@@ -16,14 +16,14 @@
         public bool IsReadable { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether a temporary file can be written and removed.
-        /// </summary>
-        public bool IsWritable { get; init; }
-
-        /// <summary>
         /// Gets a value indicating whether the location satisfies all requirements.
         /// </summary>
         public bool IsValid => Exists && IsReadable && IsWritable;
+
+        /// <summary>
+        /// Gets a value indicating whether a temporary file can be written and removed.
+        /// </summary>
+        public bool IsWritable { get; init; }
 
         /// <summary>
         /// Gets the normalized absolute repository path when normalization succeeded.

@@ -1,9 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Moq;
@@ -15,6 +14,8 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 {
@@ -283,7 +284,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             var context = new SetupCompletionServiceTestContext();
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
 
-            cancellationSource.Cancel();
+            await cancellationSource.CancelAsync();
 
             var result = await context.Service.CompleteAsync(context.CreateRequest(), cancellationSource.Token);
 
@@ -376,6 +377,8 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
                     return Task.CompletedTask;
                 });
 
+                Repository.SetupGet(repository => repository.LocationValidation).Returns(RepositoryLocationValidationService.Object);
+
                 RepositoryLocationValidationService.Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(new RepositoryLocationValidationResult
                 {
                     Exists = repositoryValid,
@@ -391,7 +394,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
                 ApplicationConfigurationSubject = new BehaviorSubject<IApplicationConfiguration>(initialApplicationConfiguration);
                 PersistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
 
-                Service = new SetupCompletionService(MachineConfigurationService.Object, RepositoryLocationValidationService.Object, Persistence.Object, SystemAuditIdentityProvider.Object, PersistenceConfigurationSubject, ApplicationConfigurationSubject);
+                Service = new SetupCompletionService(MachineConfigurationService.Object, Repository.Object, Persistence.Object, SystemAuditIdentityProvider.Object, PersistenceConfigurationSubject, ApplicationConfigurationSubject);
             }
 
             public Mock<ISystemAuditIdentityProvider> SystemAuditIdentityProvider { get; } = new(MockBehavior.Strict);
@@ -411,6 +414,8 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             public BehaviorSubject<PersistenceConfiguration> PersistenceConfigurationSubject { get; }
 
             public string RepositoryPath { get; } = DefaultNormalizedRepositoryPath + Path.DirectorySeparatorChar;
+
+            public Mock<IRepository> Repository { get; } = new(MockBehavior.Strict);
 
             public TestRepositoryLocationRepository RepositoryLocationRepository { get; }
 

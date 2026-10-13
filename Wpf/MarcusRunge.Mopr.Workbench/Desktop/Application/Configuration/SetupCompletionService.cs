@@ -1,21 +1,21 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using System;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 
 namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 {
     /// <summary>
     /// Coordinates the technical completion of the machine-wide MOPR setup.
     /// </summary>
-    internal sealed class SetupCompletionService(IMachineConfigurationService machineConfigurationService, IRepositoryLocationValidationService repositoryLocationValidationService, IPersistence persistence, ISystemAuditIdentityProvider systemAuditIdentityProvider, BehaviorSubject<PersistenceConfiguration> persistenceConfigurationSubject, BehaviorSubject<IApplicationConfiguration> applicationConfigurationSubject) : ISetupCompletionService
+    internal sealed class SetupCompletionService(IMachineConfigurationService machineConfigurationService, IRepository repository, IPersistence persistence, ISystemAuditIdentityProvider systemAuditIdentityProvider, BehaviorSubject<PersistenceConfiguration> persistenceConfigurationSubject, BehaviorSubject<IApplicationConfiguration> applicationConfigurationSubject) : ISetupCompletionService
     {
         private const string DefaultRepositoryName = "Default DICOM repository";
         private static readonly TimeSpan RollbackTimeout = TimeSpan.FromSeconds(30);
@@ -25,7 +25,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
         private readonly IMachineConfigurationService _machineConfigurationService = machineConfigurationService ?? throw new ArgumentNullException(nameof(machineConfigurationService));
         private readonly IPersistence _persistence = persistence ?? throw new ArgumentNullException(nameof(persistence));
         private readonly BehaviorSubject<PersistenceConfiguration> _persistenceConfigurationSubject = persistenceConfigurationSubject ?? throw new ArgumentNullException(nameof(persistenceConfigurationSubject));
-        private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = repositoryLocationValidationService ?? throw new ArgumentNullException(nameof(repositoryLocationValidationService));
+        private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
         private readonly SemaphoreSlim _synchronization = new(1, 1);
 
         /// <inheritdoc/>

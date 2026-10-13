@@ -1,7 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
-using System;
+﻿using System;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
 {
     /// <summary>
     /// Contains the input required to complete the machine-wide MOPR setup.

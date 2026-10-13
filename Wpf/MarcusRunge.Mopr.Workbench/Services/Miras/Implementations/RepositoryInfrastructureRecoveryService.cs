@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -30,7 +30,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                 return RepositoryInfrastructureRecoveryResult.AdministrativeAuthorizationRequired();
             }
 
-            var validationResult = await Base.RepositoryLocationValidationService.ValidateAsync(request.RepositoryPath ?? string.Empty, cancellationToken).ConfigureAwait(false);
+            var locationValidation = Base.Repository.LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
+            var validationResult = await locationValidation.ValidateAsync(request.RepositoryPath ?? string.Empty, cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
 
             if (!validationResult.IsValid || string.IsNullOrWhiteSpace(validationResult.NormalizedPath))

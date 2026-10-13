@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration
+namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
 {
     /// <summary>
     /// Represents the structural validation result of a machine-wide MOPR configuration.

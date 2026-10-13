@@ -155,7 +155,6 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IMachineConfigurationPathProvider, MachineConfigurationPathProvider>();
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
-            containerRegistry.RegisterSingleton<IRepositoryLocationValidationService, RepositoryLocationValidationService>();
             containerRegistry.RegisterSingleton<IRepositoryLocationAdministrationService>(provider => new RepositoryLocationAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
             containerRegistry.RegisterSingleton<IRepositoryRecoveryActionService, RepositoryRecoveryActionService>();
             containerRegistry.RegisterSingleton<IUserAdministrationService>(provider => new UserAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
@@ -199,7 +198,7 @@ namespace MarcusRunge.Mopr.Workbench
 
             // MIRAS depends on Persistence and Repository as well as the platform-neutral
             // ports required for protected machine-wide repository recovery.
-            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<IRepositoryLocationValidationService>(), provider.Resolve<ISystemAuditIdentityProvider>()));
+            containerRegistry.RegisterSingleton<IMirasFactory>(provider => new MirasFactory(provider.Resolve<ILifetimeService>(), provider.Resolve<IPersistence>(), provider.Resolve<RepositoryContract>(), provider.Resolve<IAdministrativeAuthorizationService>(), provider.Resolve<ISystemAuditIdentityProvider>()));
             containerRegistry.RegisterSingleton<IMiras>(provider => provider.Resolve<IMirasFactory>().Create());
             containerRegistry.RegisterSingleton<IOperations>(provider => provider.Resolve<IMiras>().Operations ?? throw new InvalidOperationException("The MIRAS check service has not been initialized."));
             containerRegistry.RegisterSingleton<IRepositoryInfrastructureRecoveryService>(provider => provider.Resolve<IMiras>().RepositoryInfrastructureRecovery ?? throw new InvalidOperationException("The MIRAS repository-infrastructure recovery service has not been initialized."));

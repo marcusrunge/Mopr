@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
@@ -13,7 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
     /// <summary>
     /// Provides the dependencies and exception propagation shared by one MIRAS module instance.
     /// </summary>
-    internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISystemAuditIdentityProvider systemAuditIdentityProvider) : IMirasBase, IMiras
+    internal abstract class MirasBase(ILogger? logger, ILifetimeService? applicationLifetime, IPersistence persistence, IRepository repository, IAdministrativeAuthorizationService administrativeAuthorizationService, ISystemAuditIdentityProvider systemAuditIdentityProvider) : IMirasBase, IMiras
     {
         protected IFlow? _flow;
         protected IOperations? _operations;
@@ -64,9 +64,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Bases
 
         /// <inheritdoc/>
         public IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery => _repositoryInfrastructureRecovery;
-
-        /// <inheritdoc/>
-        IRepositoryLocationValidationService IMirasBase.RepositoryLocationValidationService => repositoryLocationValidationService;
 
         /// <inheritdoc/>
         ISystemAuditIdentityProvider IMirasBase.SystemAuditIdentityProvider => systemAuditIdentityProvider;

@@ -1,11 +1,12 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -21,7 +22,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     /// <remarks>
     /// Initializes a new instance of the <see cref="SetupViewModel"/> class.
     /// </remarks>
-    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepositoryLocationValidationService repositoryLocationValidationService, ISetupCompletionService setupCompletionService, IApplication application, IEventAggregator eventAggregator, IRegionManager regionManager) : BindableBase, INavigationAware, IConfirmNavigationRequest
+    public sealed class SetupViewModel(IMachineConfigurationService configurationService, IRepository repository, ISetupCompletionService setupCompletionService, IApplication application, IEventAggregator eventAggregator, IRegionManager regionManager) : BindableBase, INavigationAware, IConfirmNavigationRequest
     {
         private const int CompletionStep = 4;
         private const int DatabaseStep = 1;
@@ -33,7 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private readonly IMachineConfigurationService _configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
         private readonly IEventAggregator _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
         private readonly IRegionManager _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
-        private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = repositoryLocationValidationService ?? throw new ArgumentNullException(nameof(repositoryLocationValidationService));
+        private readonly IRepositoryLocationValidationService _repositoryLocationValidationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
         private readonly ISetupCompletionService _setupCompletionService = setupCompletionService ?? throw new ArgumentNullException(nameof(setupCompletionService));
 
         private IApplicationConfiguration? _applicationConfiguration;
