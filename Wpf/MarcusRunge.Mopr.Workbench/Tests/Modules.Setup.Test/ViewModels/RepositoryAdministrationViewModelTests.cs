@@ -1,6 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -257,9 +257,10 @@ public sealed class RepositoryAdministrationViewModelTests
             if (reloadedLocations is null) AdministrationService.Setup(service => service.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Locations);
             else AdministrationService.SetupSequence(service => service.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Locations).ReturnsAsync(reloadedLocations);
 
+            Application.SetupGet(application => application.RepositoryAdministration).Returns(AdministrationService.Object);
             Repository.SetupGet(repository => repository.LocationValidation).Returns(ValidationService.Object);
             ValidationService.Setup(service => service.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((string path, CancellationToken _) => new RepositoryLocationValidationResult { Exists = true, IsReadable = true, IsWritable = true, NormalizedPath = path });
-            ViewModel = new RepositoryAdministrationViewModel(AdministrationService.Object, Repository.Object, Application.Object, LifetimeService.Object);
+            ViewModel = new RepositoryAdministrationViewModel(Repository.Object, Application.Object, LifetimeService.Object);
         }
 
         public Mock<IRepositoryLocationAdministrationService> AdministrationService { get; } = new(MockBehavior.Strict);

@@ -1,9 +1,9 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Models;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -34,11 +34,11 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
     private RepositoryLocationItemViewModel? _selectedLocation;
 
     /// <summary>Initializes a new instance of the <see cref="RepositoryAdministrationViewModel"/> class.</summary>
-    public RepositoryAdministrationViewModel(IRepositoryLocationAdministrationService administrationService, IRepository repository, IApplication application, ILifetimeService lifetimeService)
+    public RepositoryAdministrationViewModel(IRepository repository, IApplication application, ILifetimeService lifetimeService)
     {
-        _administrationService = administrationService ?? throw new ArgumentNullException(nameof(administrationService));
+        _administrationService = (application ?? throw new ArgumentNullException(nameof(application))).RepositoryAdministration ?? throw new InvalidOperationException("The repository-location administration service has not been initialized.");
         _validationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
-        _application = application ?? throw new ArgumentNullException(nameof(application));
+        _application = application;
         ArgumentNullException.ThrowIfNull(lifetimeService);
         _applicationStopping = lifetimeService.ApplicationStopping;
         _ = LoadLocationsAsync(_applicationStopping);

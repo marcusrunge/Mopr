@@ -1,16 +1,15 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using System.Collections.ObjectModel;
-using System.Linq;
 using WpfApplication = System.Windows.Application;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
@@ -40,21 +39,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         /// <summary>
         /// Initializes a new instance of the <see cref="MirasActionRequiredViewModel"/> class.
         /// </summary>
-        public MirasActionRequiredViewModel(
-            IApplication application,
-            IMiras miras,
-            IAdministrativeAuthorizationService administrativeAuthorizationService,
-            ILifetimeService lifetimeService,
-            IRegionManager regionManager,
-            IRepositoryLocationAdministrationService repositoryLocationAdministrationService,
-            IRepositoryRecoveryActionService repositoryRecoveryActionService)
+        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, ILifetimeService lifetimeService, IRegionManager regionManager, IRepositoryRecoveryActionService repositoryRecoveryActionService)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
             _miras = miras ?? throw new ArgumentNullException(nameof(miras));
             _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
-            _repositoryLocationAdministrationService = repositoryLocationAdministrationService ?? throw new ArgumentNullException(nameof(repositoryLocationAdministrationService));
+            _repositoryLocationAdministrationService = _application.RepositoryAdministration ?? throw new InvalidOperationException("The repository-location administration service has not been initialized.");
             _repositoryRecoveryActionService = repositoryRecoveryActionService ?? throw new ArgumentNullException(nameof(repositoryRecoveryActionService));
 
             SelectRepositoryCommand = new DelegateCommand(SelectRepository, CanSelectRepository);
