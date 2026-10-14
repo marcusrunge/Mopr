@@ -9,9 +9,9 @@
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Application</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Application</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.7" />
-	<PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.0.8" />
+	<PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
