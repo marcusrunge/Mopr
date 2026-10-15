@@ -1,9 +1,6 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.UserAdministration.Models;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.UserAdministration;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.UserAdministration.Services;
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 
 /// <summary>
 /// Provides administrative read access to persisted MOPR users.

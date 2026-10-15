@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -19,11 +20,11 @@ internal sealed class Application : ApplicationBase
         _dialogService = Dialog.DialogService.Create(this);
         _mediaService = Media.MediaService.Create(this);
 
-        // Identity must be created before repository administration because
-        // administrative repository changes require the current audit identity.
+        // Identity must be created before user-facing administration services because
+        // they use the current persistent user as their audit or selection context.
         _identityService = Identity.IdentityService.Create(this);
-
         _repositoryAdministration = RepositoryLocationAdministrationService.Create(this, CreationLifetime.Scoped);
+        _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
         _importService = Import.ImportService.Create(this);
     }
 }

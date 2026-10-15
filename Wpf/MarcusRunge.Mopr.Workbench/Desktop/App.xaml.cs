@@ -6,7 +6,6 @@ using MarcusRunge.Mopr.Workbench.Application.Lifetime;
 using MarcusRunge.Mopr.Workbench.Application.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Application.SingleInstance;
 using MarcusRunge.Mopr.Workbench.Application.Startup;
-using MarcusRunge.Mopr.Workbench.Application.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
@@ -14,7 +13,6 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.UserAdministration.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Identity;
@@ -154,7 +152,6 @@ namespace MarcusRunge.Mopr.Workbench
             containerRegistry.RegisterSingleton<IMachineConfigurationProtectionService, MachineConfigurationProtectionService>();
             containerRegistry.RegisterSingleton<IApplicationConfigurationStore, ApplicationConfigurationStore>();
             containerRegistry.RegisterSingleton<IRepositoryRecoveryActionService, RepositoryRecoveryActionService>();
-            containerRegistry.RegisterSingleton<IUserAdministrationService>(provider => new UserAdministrationService(provider.Resolve<IPersistence>(), provider.Resolve<IApplication>()));
 
             var persistenceConfigurationSubject = new BehaviorSubject<PersistenceConfiguration>(new PersistenceConfiguration());
             containerRegistry.RegisterInstance(persistenceConfigurationSubject);

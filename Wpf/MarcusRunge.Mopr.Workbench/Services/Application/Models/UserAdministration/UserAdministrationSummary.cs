@@ -1,4 +1,4 @@
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.UserAdministration.Models;
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.UserAdministration;
 
 /// <summary>
 /// Describes one persisted MOPR user for administrative display.
