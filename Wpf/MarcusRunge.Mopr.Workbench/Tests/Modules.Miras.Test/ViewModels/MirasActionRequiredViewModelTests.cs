@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using Moq;
 using Xunit;

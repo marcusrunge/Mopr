@@ -1,6 +1,7 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
@@ -47,6 +48,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         /// Reports an exception raised within the application-service graph.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
+        internal IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
+
         internal void OnExceptionThrown(Exception exception);
     }
 }

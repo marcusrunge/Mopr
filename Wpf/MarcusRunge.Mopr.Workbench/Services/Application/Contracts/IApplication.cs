@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -23,6 +24,8 @@ public interface IApplication
     IMediaService? MediaService { get; }
 
     IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
+
+    IRepositoryRecoveryActionService? RepositoryRecovery { get; }
 
     IUserAdministrationService? UserAdministration { get; }
 }

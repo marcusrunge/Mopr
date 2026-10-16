@@ -1,7 +1,8 @@
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 
 /// <summary>
 /// Performs explicit corrective actions for one configured repository location.

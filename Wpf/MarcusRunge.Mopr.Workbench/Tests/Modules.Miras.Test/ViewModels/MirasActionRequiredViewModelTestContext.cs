@@ -1,5 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
@@ -24,10 +25,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             AdministrativeAuthorizationService.SetupGet(service => service.IsElevatedAdministrator).Returns(isElevatedAdministrator);
             Application.SetupGet(application => application.DialogService).Returns(DialogService.Object);
             Application.SetupGet(application => application.RepositoryAdministration).Returns(RepositoryLocationAdministrationService.Object);
+            Application.SetupGet(application => application.RepositoryRecovery).Returns(RepositoryRecoveryActionService.Object);
             DialogService.SetupGet(service => service.FileDialogService).Returns(fileDialogAvailable ? FileDialogService.Object : null);
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
-            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object, RepositoryRecoveryActionService.Object);
+            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
         }
 
         internal Mock<IAdministrativeAuthorizationService> AdministrativeAuthorizationService { get; } = new(MockBehavior.Strict);

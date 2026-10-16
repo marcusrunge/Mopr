@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -39,7 +40,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         /// <summary>
         /// Initializes a new instance of the <see cref="MirasActionRequiredViewModel"/> class.
         /// </summary>
-        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, ILifetimeService lifetimeService, IRegionManager regionManager, IRepositoryRecoveryActionService repositoryRecoveryActionService)
+        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, ILifetimeService lifetimeService, IRegionManager regionManager)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
             _miras = miras ?? throw new ArgumentNullException(nameof(miras));
@@ -47,7 +48,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
             _repositoryLocationAdministrationService = _application.RepositoryAdministration ?? throw new InvalidOperationException("The repository-location administration service has not been initialized.");
-            _repositoryRecoveryActionService = repositoryRecoveryActionService ?? throw new ArgumentNullException(nameof(repositoryRecoveryActionService));
+            _repositoryRecoveryActionService = _application.RepositoryRecovery ?? throw new InvalidOperationException("The repository-recovery action service has not been initialized.");
 
             SelectRepositoryCommand = new DelegateCommand(SelectRepository, CanSelectRepository);
             RecoverCommand = new DelegateCommand(() => _ = RecoverAsync(), CanRecover);

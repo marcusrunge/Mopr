@@ -1,8 +1,8 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Properties;
+using MarcusRunge.Mopr.Workbench.Services.Application.Properties;
 using MarcusRunge.Toolbox.Localization.Core;
 using System.ComponentModel;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 
 /// <summary>
 /// Defines the result of an explicit repository-location recovery action.

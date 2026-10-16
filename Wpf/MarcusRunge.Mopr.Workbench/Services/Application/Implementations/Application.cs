@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ internal sealed class Application : ApplicationBase
         // they use the current persistent user as their audit or selection context.
         _identityService = Identity.IdentityService.Create(this);
         _repositoryAdministration = RepositoryLocationAdministrationService.Create(this, CreationLifetime.Scoped);
+        _repositoryRecovery = RepositoryRecoveryActionService.Create(this, CreationLifetime.Scoped);
         _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
         _importService = Import.ImportService.Create(this);
     }

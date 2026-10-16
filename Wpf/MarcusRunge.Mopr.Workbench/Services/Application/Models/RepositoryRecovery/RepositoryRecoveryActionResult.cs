@@ -1,4 +1,4 @@
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.RepositoryRecovery;
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 
 /// <summary>
 /// Represents the structured outcome of an explicit repository-location recovery action.

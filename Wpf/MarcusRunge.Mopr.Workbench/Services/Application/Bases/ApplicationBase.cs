@@ -7,6 +7,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -22,6 +23,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
+        protected IRepositoryRecoveryActionService? _repositoryRecovery;
         protected IUserAdministrationService? _userAdministration;
 
         private readonly Lock _exceptionThrownLock = new();
@@ -66,6 +68,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         IRepository? IApplicationBase.Repository => repository;
 
         public IRepositoryLocationAdministrationService? RepositoryAdministration => _repositoryAdministration;
+
+        IRepositoryLocationAdministrationService? IApplicationBase.RepositoryAdministration => _repositoryAdministration;
+
+        public IRepositoryRecoveryActionService? RepositoryRecovery => _repositoryRecovery;
 
         public IUserAdministrationService? UserAdministration => _userAdministration;
 
