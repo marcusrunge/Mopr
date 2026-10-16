@@ -300,31 +300,4 @@
   <data name="UserProvisioningValidationIssue_PersonnelNumberTooLong" xml:space="preserve">
     <value>Die Personalnummer ist zu lang</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_Completed" xml:space="preserve">
-    <value>Abgeschlossen</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_NotFound" xml:space="preserve">
-    <value>Nicht gefunden</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_Conflict" xml:space="preserve">
-    <value>Konflikt</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_DefaultRepository" xml:space="preserve">
-    <value>Standard-Repository</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_InUse" xml:space="preserve">
-    <value>In Verwendung</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_DuplicatePath" xml:space="preserve">
-    <value>Doppelter Pfad</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_ValidationFailed" xml:space="preserve">
-    <value>Validierung fehlgeschlagen</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_Unauthorized" xml:space="preserve">
-    <value>Nicht autorisiert</value>
-  </data>
-  <data name="RepositoryRecoveryActionStatus_Failed" xml:space="preserve">
-    <value>Fehlgeschlagen</value>
-  </data>
 </root>
