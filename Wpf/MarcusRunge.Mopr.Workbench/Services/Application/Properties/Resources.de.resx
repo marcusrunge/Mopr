@@ -157,4 +157,73 @@
   <data name="RepositoryRecoveryActionStatus_Failed" xml:space="preserve">
     <value>Fehlgeschlagen</value>
   </data>
+  <data name="UserAdministrationUpdateStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_NotFound" xml:space="preserve">
+    <value>Benutzer nicht gefunden</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Conflict" xml:space="preserve">
+    <value>Der Benutzer wurde zwischenzeitlich geändert</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SystemUserProtected" xml:space="preserve">
+    <value>Der technische MOPR-Systembenutzer ist geschützt</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SelfDeactivationNotAllowed" xml:space="preserve">
+    <value>Der aktuell angemeldete Benutzer kann nicht deaktiviert werden</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SelfModificationNotAllowed" xml:space="preserve">
+    <value>Der aktuell angemeldete Benutzer darf das eigene Benutzerkonto nicht ändern</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicateLoginName" xml:space="preserve">
+    <value>Der Windows-Anmeldename ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>Der Windows Security Identifier ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>Die Personalnummer ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Unauthorized" xml:space="preserve">
+    <value>Für die Protokollierung dieser Änderung ist kein gültiger persistenter MOPR-Benutzer verfügbar</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_ValidationFailed" xml:space="preserve">
+    <value>Die eingegebenen Benutzerdaten sind ungültig</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Failed" xml:space="preserve">
+    <value>Der Benutzer konnte nicht aktualisiert werden</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_ValidationFailed" xml:space="preserve">
+    <value>Die eingegebenen Benutzerdaten sind ungültig</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_SystemUserReserved" xml:space="preserve">
+    <value>Die technische MOPR-Systemidentität ist reserviert</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicateLoginName" xml:space="preserve">
+    <value>Der Windows-Anmeldename ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>Der Windows Security Identifier ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>Die Personalnummer ist bereits einem anderen Benutzer zugeordnet</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Unauthorized" xml:space="preserve">
+    <value>Für die Protokollierung dieser Erstellung ist kein gültiger persistenter MOPR-Benutzer verfügbar</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Conflict" xml:space="preserve">
+    <value>Der Benutzer konnte nicht angelegt werden, weil ein eindeutiger Identitätswert zwischenzeitlich geändert wurde</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Failed" xml:space="preserve">
+    <value>Der Benutzer konnte nicht angelegt werden</value>
+  </data>
 </root>

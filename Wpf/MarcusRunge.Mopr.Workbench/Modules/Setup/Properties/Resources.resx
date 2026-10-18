@@ -615,4 +615,106 @@
   <data name="UserAdministration_Status" xml:space="preserve">
     <value>Status</value>
   </data>
+  <data name="UserAdministration_AcademicTitle" xml:space="preserve">
+    <value>Academic title</value>
+  </data>
+  <data name="UserAdministration_FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="UserAdministration_MiddleName" xml:space="preserve">
+    <value>Middle name</value>
+  </data>
+  <data name="UserAdministration_LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="UserAdministration_Suffix" xml:space="preserve">
+    <value>Name suffix</value>
+  </data>
+  <data name="UserAdministration_Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="UserAdministration_Discard" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="UserAdministration_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="UserAdministration_Saving" xml:space="preserve">
+    <value>Saving user changes...</value>
+  </data>
+  <data name="UserAdministration_Saved" xml:space="preserve">
+    <value>The user changes were saved.</value>
+  </data>
+  <data name="UserAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Unsaved user changes were discarded.</value>
+  </data>
+  <data name="UserAdministration_NotFound" xml:space="preserve">
+    <value>The selected user no longer exists.</value>
+  </data>
+  <data name="UserAdministration_Conflict" xml:space="preserve">
+    <value>The user was changed elsewhere. Reload the current values before editing again.</value>
+  </data>
+  <data name="UserAdministration_SystemUserProtected" xml:space="preserve">
+    <value>The technical MOPR system user is protected and cannot be modified.</value>
+  </data>
+  <data name="UserAdministration_SelfDeactivationNotAllowed" xml:space="preserve">
+    <value>The currently signed-in user cannot be deactivated.</value>
+  </data>
+  <data name="UserAdministration_SelfModificationNotAllowed" xml:space="preserve">
+    <value>The current workstation security settings do not permit users to modify their own account.</value>
+  </data>
+  <data name="UserAdministration_DuplicateLoginName" xml:space="preserve">
+    <value>Another user already uses this Windows login name.</value>
+  </data>
+  <data name="UserAdministration_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>Another user is already assigned to this Windows security identifier.</value>
+  </data>
+  <data name="UserAdministration_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>Another user already uses this personnel number.</value>
+  </data>
+  <data name="UserAdministration_Unauthorized" xml:space="preserve">
+    <value>No valid signed-in MOPR user is available to audit this change.</value>
+  </data>
+  <data name="UserAdministration_ValidationFailed" xml:space="preserve">
+    <value>Complete all required user information and verify the entered values.</value>
+  </data>
+  <data name="UserAdministration_SaveFailed" xml:space="preserve">
+    <value>The user changes could not be saved.</value>
+  </data>
+  <data name="UserAdministration_New" xml:space="preserve">
+    <value>New user</value>
+  </data>
+  <data name="UserAdministration_NewTitle" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="UserAdministration_EditTitle" xml:space="preserve">
+    <value>Edit user</value>
+  </data>
+  <data name="UserAdministration_Create" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="UserAdministration_CancelCreate" xml:space="preserve">
+    <value>Cancel creation</value>
+  </data>
+  <data name="UserAdministration_NewInstructions" xml:space="preserve">
+    <value>Enter the user information. The new user is active by default.</value>
+  </data>
+  <data name="UserAdministration_Creating" xml:space="preserve">
+    <value>Creating user...</value>
+  </data>
+  <data name="UserAdministration_Created" xml:space="preserve">
+    <value>The user was created.</value>
+  </data>
+  <data name="UserAdministration_CreationCanceled" xml:space="preserve">
+    <value>User creation was canceled.</value>
+  </data>
+  <data name="UserAdministration_SystemUserReserved" xml:space="preserve">
+    <value>The technical MOPR system identity is reserved and cannot be created as a personal user.</value>
+  </data>
+  <data name="UserAdministration_CreateConflict" xml:space="preserve">
+    <value>The user could not be created because an identity value was assigned concurrently. Reload the user list and try again.</value>
+  </data>
+  <data name="UserAdministration_CreateFailed" xml:space="preserve">
+    <value>The user could not be created.</value>
+  </data>
 </root>

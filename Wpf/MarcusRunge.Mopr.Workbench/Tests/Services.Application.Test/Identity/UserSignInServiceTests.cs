@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -478,6 +479,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
         {
             public UserSignInTestContext(User? persistentUser, bool userRepositoryAvailable, bool setupDefaultLookup)
             {
+                MachineConfigurationService = new Mock<IMachineConfigurationService>(MockBehavior.Strict);
                 OperatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
 
                 OperatingSystemIdentityProvider
@@ -494,7 +496,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 Persistence = new Mock<IPersistence>(MockBehavior.Strict);
                 Persistence.SetupGet(instance => instance.User).Returns(userRepositoryAvailable ? UserRepository.Object : null);
 
-                Factory = new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
+                Factory = new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object);
                 Application = Factory.Create();
                 UserSignInService = Application.IdentityService?.UserSignInService ?? throw new InvalidOperationException("The user sign-in service is not available.");
                 CurrentUserContext = Application.IdentityService.CurrentUserContext ?? throw new InvalidOperationException("The current-user context is not available.");
@@ -510,6 +512,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
             public ApplicationFactory Factory { get; }
 
+            public Mock<IMachineConfigurationService> MachineConfigurationService { get; }
             public Mock<IOperatingSystemIdentityProvider> OperatingSystemIdentityProvider { get; }
 
             public Mock<IPersistence> Persistence { get; }

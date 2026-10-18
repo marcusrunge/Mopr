@@ -275,5 +275,203 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
                 return ResourceManager.GetString("DicomImportStatus_SourceUnavailable", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_Completed {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Conflict ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_Conflict {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Default repository ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_DefaultRepository {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_DefaultRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Duplicate path ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_DuplicatePath {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_DuplicatePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_Failed {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die In use ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_InUse {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_InUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not found ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_NotFound {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unauthorized ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_Unauthorized {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validation failed ähnelt.
+        /// </summary>
+        public static string RepositoryRecoveryActionStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("RepositoryRecoveryActionStatus_ValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_Completed {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_Conflict {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Windows login name is already assigned to another user ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_DuplicateLoginName {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicateLoginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The personnel number is already assigned to another user ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_DuplicatePersonnelNumber {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicatePersonnelNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Windows security identifier is already assigned to another user ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_DuplicateSecurityIdentifier {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicateSecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be updated ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_Failed {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User not found ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_NotFound {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current user cannot be deactivated ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_SelfDeactivationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_SelfDeactivationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current user is not permitted to modify their own user account ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_SelfModificationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_SelfModificationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system user is protected ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_SystemUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_SystemUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid persistent MOPR user is available to audit this change ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_Unauthorized {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The supplied user information is invalid ähnelt.
+        /// </summary>
+        public static string UserAdministrationUpdateStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("UserAdministrationUpdateStatus_ValidationFailed", resourceCulture);
+            }
+        }
     }
 }

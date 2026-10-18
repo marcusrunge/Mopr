@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -16,7 +17,7 @@ using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
-    internal abstract class ApplicationBase(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository) : IApplicationBase, IApplication
+    internal abstract class ApplicationBase(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository, IMachineConfigurationService? machineConfigurationService) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
@@ -59,6 +60,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         ILogger? IApplicationBase.Logger => logger;
 
+        IMachineConfigurationService? IApplicationBase.MachineConfigurationService => machineConfigurationService;
+
         public IMediaService? MediaService => _mediaService;
 
         IOperatingSystemIdentityProvider? IApplicationBase.OperatingSystemIdentityProvider => operatingSystemIdentityProvider;
@@ -78,6 +81,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         void IApplicationBase.OnExceptionThrown(Exception exception)
         {
             ArgumentNullException.ThrowIfNull(exception);
+
             logger?.LogError(exception, "Exception thrown in {AssemblyName}", Assembly.GetCallingAssembly().GetName().Name);
 
             Action<Exception>? handlers;
@@ -87,10 +91,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
                 handlers = _exceptionThrown;
             }
 
-            if (handlers is null)
-            {
-                return;
-            }
+            if (handlers is null) return;
 
             foreach (var handler in handlers.GetInvocationList().Cast<Action<Exception>>())
             {

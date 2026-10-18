@@ -1,3 +1,5 @@
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+using System;
 using System.Linq;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
@@ -13,6 +15,7 @@ public sealed class UserAdministrationItemViewModel(int id, string loginName, st
     public int Id { get; } = id;
     public bool IsActive { get; } = isActive;
     public bool IsCurrentUser { get; } = isCurrentUser;
+    public bool IsSystemUser => string.Equals(LoginName, WellKnownUserLoginNames.System, StringComparison.OrdinalIgnoreCase);
     public string LastName { get; } = lastName;
     public string LoginName { get; } = loginName;
     public string MiddleName { get; } = middleName;

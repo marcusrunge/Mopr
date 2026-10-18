@@ -157,4 +157,73 @@
   <data name="RepositoryRecoveryActionStatus_Failed" xml:space="preserve">
     <value>Failed</value>
   </data>
+  <data name="UserAdministrationUpdateStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_NotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Conflict" xml:space="preserve">
+    <value>The user was changed elsewhere</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SystemUserProtected" xml:space="preserve">
+    <value>The technical MOPR system user is protected</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SelfDeactivationNotAllowed" xml:space="preserve">
+    <value>The current user cannot be deactivated</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_SelfModificationNotAllowed" xml:space="preserve">
+    <value>The current user is not permitted to modify their own user account</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicateLoginName" xml:space="preserve">
+    <value>The Windows login name is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>The Windows security identifier is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>The personnel number is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Unauthorized" xml:space="preserve">
+    <value>No valid persistent MOPR user is available to audit this change</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_ValidationFailed" xml:space="preserve">
+    <value>The supplied user information is invalid</value>
+  </data>
+  <data name="UserAdministrationUpdateStatus_Failed" xml:space="preserve">
+    <value>The user could not be updated</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_ValidationFailed" xml:space="preserve">
+    <value>The supplied user information is invalid</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_SystemUserReserved" xml:space="preserve">
+    <value>The technical MOPR system identity is reserved</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicateLoginName" xml:space="preserve">
+    <value>The Windows login name is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>The Windows security identifier is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>The personnel number is already assigned to another user</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Unauthorized" xml:space="preserve">
+    <value>No valid persistent MOPR user is available to audit this creation</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Conflict" xml:space="preserve">
+    <value>The user could not be created because a unique identity value changed concurrently</value>
+  </data>
+  <data name="UserAdministrationCreateStatus_Failed" xml:space="preserve">
+    <value>The user could not be created</value>
+  </data>
 </root>

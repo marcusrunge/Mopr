@@ -1,3 +1,4 @@
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
@@ -28,8 +29,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             EnsureDirectoryExists(SourceDirectoryPath);
             EnsureDirectoryExists(RepositoryDirectoryPath);
 
+            MachineConfigurationService = new Mock<IMachineConfigurationService>(MockBehavior.Strict);
             OperatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
-            Factory = new ApplicationFactory(Persistence.Object, Repository.Object, OperatingSystemIdentityProvider.Object);
+            Factory = new ApplicationFactory(Persistence.Object, Repository.Object, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object);
             Application = Factory.Create();
 
             var identityService = Application.IdentityService ?? throw new InvalidOperationException("The identity service has not been initialized.");
@@ -49,6 +51,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
         public ApplicationFactory Factory { get; }
 
+        public Mock<IMachineConfigurationService> MachineConfigurationService { get; }
         public Mock<IOperatingSystemIdentityProvider> OperatingSystemIdentityProvider { get; }
 
         public Mock<IPersistence> Persistence { get; } = new(MockBehavior.Strict);

@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
@@ -82,7 +83,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
             var persistence = new Mock<IPersistence>(MockBehavior.Strict);
             persistence.SetupGet(instance => instance.User).Returns(userRepository.Object);
 
-            var factory = new ApplicationFactory(persistence: persistence.Object, repository: null, operatingSystemIdentityProvider: operatingSystemIdentityProvider.Object);
+            var machineConfigurationService = new Mock<IMachineConfigurationService>(MockBehavior.Strict);
+            var factory = new ApplicationFactory(persistence: persistence.Object, repository: null, operatingSystemIdentityProvider: operatingSystemIdentityProvider.Object, machineConfigurationService: machineConfigurationService.Object);
             var application = factory.Create();
             var identityService = application.IdentityService ?? throw new InvalidOperationException("The identity service is not available.");
             var identityServiceBase = identityService as IIdentityServiceBase ?? throw new InvalidOperationException("The internal identity-service contract is not available.");

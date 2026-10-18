@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
@@ -14,8 +15,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
     internal interface IApplicationBase
     {
         /// <summary>
-        /// Gets the administrative authorization service used to protect
-        /// privileged MOPR administration operations.
+        /// Gets the administrative authorization service used to protect privileged MOPR administration operations.
         /// </summary>
         internal IAdministrativeAuthorizationService? AdministrativeAuthorizationService { get; }
 
@@ -28,6 +28,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         /// Gets the logger used within the application-service graph.
         /// </summary>
         internal ILogger? Logger { get; }
+
+        /// <summary>
+        /// Gets the machine-configuration service used to access protected workstation settings.
+        /// </summary>
+        internal IMachineConfigurationService? MachineConfigurationService { get; }
 
         /// <summary>
         /// Gets the operating-system identity provider used to resolve the current authenticated identity.
@@ -45,11 +50,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         internal RepositoryContract? Repository { get; }
 
         /// <summary>
+        /// Gets the repository-location administration service used within the application-service graph.
+        /// </summary>
+        internal IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
+
+        /// <summary>
         /// Reports an exception raised within the application-service graph.
         /// </summary>
         /// <param name="exception">The exception to report.</param>
-        internal IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
-
         internal void OnExceptionThrown(Exception exception);
     }
 }

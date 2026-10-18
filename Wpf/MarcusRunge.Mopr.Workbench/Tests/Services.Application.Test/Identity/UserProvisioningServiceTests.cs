@@ -1,4 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
@@ -653,6 +654,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 AdministrativeAuthorizationService = new Mock<IAdministrativeAuthorizationService>(MockBehavior.Strict);
                 AdministrativeAuthorizationService.SetupGet(service => service.IsElevatedAdministrator).Returns(isElevatedAdministrator);
 
+                MachineConfigurationService = new Mock<IMachineConfigurationService>(MockBehavior.Strict);
                 OperatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
                 OperatingSystemIdentityProvider.Setup(provider => provider.GetCurrentIdentityAsync(TestContext.Current.CancellationToken)).ReturnsAsync(new OperatingSystemIdentity(LoginName, SecurityIdentifier));
 
@@ -673,8 +675,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
                 Persistence.SetupGet(persistence => persistence.User).Returns(userRepositoryAvailable ? UserRepository.Object : null);
 
                 Factory = administrativeAuthorizationServiceAvailable
-                    ? new ApplicationFactory(AdministrativeAuthorizationService.Object, Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object)
-                    : new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object);
+                    ? new ApplicationFactory(AdministrativeAuthorizationService.Object, Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object)
+                    : new ApplicationFactory(Persistence.Object, repository: null, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object);
 
                 Application = Factory.Create();
                 UserProvisioningService = Application.IdentityService?.UserProvisioningService ?? throw new InvalidOperationException("The user-provisioning service is not available.");
@@ -694,6 +696,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Identity
 
             public ApplicationFactory Factory { get; }
 
+            public Mock<IMachineConfigurationService> MachineConfigurationService { get; }
             public Mock<IOperatingSystemIdentityProvider> OperatingSystemIdentityProvider { get; }
 
             public Mock<IPersistence> Persistence { get; }

@@ -9,21 +9,114 @@
              d:DataContext="{d:DesignInstance Type=viewModels:UserAdministrationViewModel}"
              mc:Ignorable="d"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" /></ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid Margin="30">
-        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Users}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Users}" />
+            <Button Grid.Column="1" Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding NewCommand}" Content="{x:Static properties:Resources.UserAdministration_New}" />
+        </Grid>
+
         <TextBlock Grid.Row="1" Margin="0,9,0,22" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_UsersDescription}" />
+
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions><ColumnDefinition Width="360" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-            <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Background="Transparent" BorderThickness="0">
-                <ListBox.Style><Style TargetType="ListBox"><Style.Triggers><DataTrigger Binding="{Binding IsBusy}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers></Style></ListBox.Style>
-                <ListBox.ItemTemplate><DataTemplate><Border Margin="0,0,0,8" Padding="14" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="6"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><StackPanel><TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontWeight="SemiBold" Text="{Binding DisplayName}" /><TextBlock Margin="0,4,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding LoginName}" /></StackPanel><StackPanel Grid.Column="1" Margin="12,0,0,0"><TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" Text="{x:Static properties:Resources.UserAdministration_CurrentUser}" Visibility="{Binding IsCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}}" /><TextBlock Margin="0,4,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" Text="{x:Static properties:Resources.UserAdministration_Inactive}"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsActive}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Grid></Border></DataTemplate></ListBox.ItemTemplate>
+
+            <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" IsEnabled="{Binding CanSelectUser}" Background="Transparent" BorderThickness="0">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0,0,0,8" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="14" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Foreground="{StaticResource WorkbenchTextBrush}" FontWeight="SemiBold" Text="{Binding DisplayName}" />
+                                    <TextBlock Margin="0,4,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding LoginName}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" Text="{x:Static properties:Resources.UserAdministration_CurrentUser}" Visibility="{Binding IsCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Margin="0,4,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" Text="{x:Static properties:Resources.UserAdministration_Inactive}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsActive}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
+
             <Border Grid.Column="2" Padding="22" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="8">
-                <Grid><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasSelectedUser}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><StackPanel><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_Name}" /><TextBlock Margin="0,6,0,18" Foreground="{StaticResource WorkbenchTextBrush}" FontSize="17" FontWeight="SemiBold" Text="{Binding SelectedUser.DisplayName}" /><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_ShortName}" /><TextBlock Margin="0,6,0,18" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding SelectedUser.ShortName}" /><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_PersonnelNumber}" /><TextBlock Margin="0,6,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding SelectedUser.PersonnelNumber}" /></StackPanel><StackPanel Grid.Column="2"><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_LoginName}" /><TextBlock Margin="0,6,0,18" Foreground="{StaticResource WorkbenchTextBrush}" Text="{Binding SelectedUser.LoginName}" /><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_SecurityIdentifier}" /><TextBlock Margin="0,6,0,18" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding SelectedUser.SecurityIdentifier}" TextWrapping="Wrap" /><TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_Status}" /><TextBlock Margin="0,6,0,0"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource WorkbenchSuccessBrush}" /><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_Active}" /><Style.Triggers><DataTrigger Binding="{Binding SelectedUser.IsActive}" Value="False"><Setter Property="Foreground" Value="{StaticResource WorkbenchMutedTextBrush}" /><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_Inactive}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Grid>
+                <Grid>
+                    <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasEditorContext}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+
+                    <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" FontWeight="Bold">
+                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_EditTitle}" /><Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_NewTitle}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                    </TextBlock>
+
+                    <ScrollViewer Grid.Row="1" Margin="0,16,0,0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <Grid IsEnabled="{Binding IsEditorEnabled}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_AcademicTitle}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding AcademicTitle, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_FirstName}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_MiddleName}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding MiddleName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_LastName}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_Suffix}" />
+                                <TextBox Margin="0,6,0,0" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding Suffix, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_ShortName}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding ShortName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_PersonnelNumber}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding PersonnelNumber, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_LoginName}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding LoginName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource SetupLabelStyle}" Text="{x:Static properties:Resources.UserAdministration_SecurityIdentifier}" />
+                                <TextBox Margin="0,6,0,14" Style="{StaticResource SetupTextBoxStyle}" Text="{Binding SecurityIdentifier, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox Content="{x:Static properties:Resources.UserAdministration_Active}" IsChecked="{Binding IsActive}" IsEnabled="{Binding CanChangeActivation}" />
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <Grid Grid.Row="2" Margin="0,22,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ReloadCommand}" Content="{x:Static properties:Resources.UserAdministration_Reload}" />
+                        <Button Grid.Column="1" Margin="10,0,0,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding CancelCreateCommand}" Content="{x:Static properties:Resources.UserAdministration_CancelCreate}" />
+                        <Button Grid.Column="3" Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding DiscardCommand}" Content="{x:Static properties:Resources.UserAdministration_Discard}" />
+                        <Button Grid.Column="4" Command="{Binding SaveCommand}">
+                            <Button.Style><Style BasedOn="{StaticResource SetupPrimaryButtonStyle}" TargetType="Button"><Setter Property="Content" Value="{x:Static properties:Resources.UserAdministration_Save}" /><Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Content" Value="{x:Static properties:Resources.UserAdministration_Create}" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                        </Button>
+                    </Grid>
+                </Grid>
             </Border>
         </Grid>
+
         <TextBlock Grid.Row="3" Margin="0,16,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding StatusText}" TextWrapping="Wrap" />
     </Grid>
 </UserControl>

@@ -1438,11 +1438,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Academic title ähnelt.
+        /// </summary>
+        public static string UserAdministration_AcademicTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_AcademicTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Active ähnelt.
         /// </summary>
         public static string UserAdministration_Active {
             get {
                 return ResourceManager.GetString("UserAdministration_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel creation ähnelt.
+        /// </summary>
+        public static string UserAdministration_CancelCreate {
+            get {
+                return ResourceManager.GetString("UserAdministration_CancelCreate", resourceCulture);
             }
         }
         
@@ -1456,6 +1474,78 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unsaved user changes were discarded. ähnelt.
+        /// </summary>
+        public static string UserAdministration_ChangesDiscarded {
+            get {
+                return ResourceManager.GetString("UserAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere. Reload the current values before editing again. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Conflict {
+            get {
+                return ResourceManager.GetString("UserAdministration_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user ähnelt.
+        /// </summary>
+        public static string UserAdministration_Create {
+            get {
+                return ResourceManager.GetString("UserAdministration_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be created because an identity value was assigned concurrently. Reload the user list and try again. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreateConflict {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreateConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was created. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Created {
+            get {
+                return ResourceManager.GetString("UserAdministration_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be created. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreateFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Creating user... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Creating {
+            get {
+                return ResourceManager.GetString("UserAdministration_Creating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User creation was canceled. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreationCanceled {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreationCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Current user ähnelt.
         /// </summary>
         public static string UserAdministration_CurrentUser {
@@ -1465,11 +1555,74 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
+        /// </summary>
+        public static string UserAdministration_Discard {
+            get {
+                return ResourceManager.GetString("UserAdministration_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user already uses this Windows login name. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicateLoginName {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicateLoginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user already uses this personnel number. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicatePersonnelNumber {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicatePersonnelNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user is already assigned to this Windows security identifier. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicateSecurityIdentifier {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicateSecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Edit user ähnelt.
+        /// </summary>
+        public static string UserAdministration_EditTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_EditTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die First name ähnelt.
+        /// </summary>
+        public static string UserAdministration_FirstName {
+            get {
+                return ResourceManager.GetString("UserAdministration_FirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Inactive ähnelt.
         /// </summary>
         public static string UserAdministration_Inactive {
             get {
                 return ResourceManager.GetString("UserAdministration_Inactive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last name ähnelt.
+        /// </summary>
+        public static string UserAdministration_LastName {
+            get {
+                return ResourceManager.GetString("UserAdministration_LastName", resourceCulture);
             }
         }
         
@@ -1501,11 +1654,56 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Middle name ähnelt.
+        /// </summary>
+        public static string UserAdministration_MiddleName {
+            get {
+                return ResourceManager.GetString("UserAdministration_MiddleName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
         /// </summary>
         public static string UserAdministration_Name {
             get {
                 return ResourceManager.GetString("UserAdministration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New user ähnelt.
+        /// </summary>
+        public static string UserAdministration_New {
+            get {
+                return ResourceManager.GetString("UserAdministration_New", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter the user information. The new user is active by default. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NewInstructions {
+            get {
+                return ResourceManager.GetString("UserAdministration_NewInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user ähnelt.
+        /// </summary>
+        public static string UserAdministration_NewTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_NewTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected user no longer exists. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NotFound {
+            get {
+                return ResourceManager.GetString("UserAdministration_NotFound", resourceCulture);
             }
         }
         
@@ -1528,11 +1726,74 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reload ähnelt.
+        /// </summary>
+        public static string UserAdministration_Reload {
+            get {
+                return ResourceManager.GetString("UserAdministration_Reload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save changes ähnelt.
+        /// </summary>
+        public static string UserAdministration_Save {
+            get {
+                return ResourceManager.GetString("UserAdministration_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user changes were saved. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Saved {
+            get {
+                return ResourceManager.GetString("UserAdministration_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user changes could not be saved. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SaveFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving user changes... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Saving {
+            get {
+                return ResourceManager.GetString("UserAdministration_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Windows security identifier ähnelt.
         /// </summary>
         public static string UserAdministration_SecurityIdentifier {
             get {
                 return ResourceManager.GetString("UserAdministration_SecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currently signed-in user cannot be deactivated. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SelfDeactivationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SelfDeactivationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current workstation security settings do not permit users to modify their own account. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SelfModificationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SelfModificationNotAllowed", resourceCulture);
             }
         }
         
@@ -1551,6 +1812,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string UserAdministration_Status {
             get {
                 return ResourceManager.GetString("UserAdministration_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Name suffix ähnelt.
+        /// </summary>
+        public static string UserAdministration_Suffix {
+            get {
+                return ResourceManager.GetString("UserAdministration_Suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system user is protected and cannot be modified. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SystemUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministration_SystemUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system identity is reserved and cannot be created as a personal user. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SystemUserReserved {
+            get {
+                return ResourceManager.GetString("UserAdministration_SystemUserReserved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid signed-in MOPR user is available to audit this change. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Unauthorized {
+            get {
+                return ResourceManager.GetString("UserAdministration_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete all required user information and verify the entered values. ähnelt.
+        /// </summary>
+        public static string UserAdministration_ValidationFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_ValidationFailed", resourceCulture);
             }
         }
     }

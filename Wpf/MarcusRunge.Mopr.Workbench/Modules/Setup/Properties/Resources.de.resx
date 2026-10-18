@@ -615,4 +615,106 @@
   <data name="UserAdministration_Status" xml:space="preserve">
     <value>Status</value>
   </data>
+  <data name="UserAdministration_AcademicTitle" xml:space="preserve">
+    <value>Akademischer Titel</value>
+  </data>
+  <data name="UserAdministration_FirstName" xml:space="preserve">
+    <value>Vorname</value>
+  </data>
+  <data name="UserAdministration_MiddleName" xml:space="preserve">
+    <value>Weiterer Vorname</value>
+  </data>
+  <data name="UserAdministration_LastName" xml:space="preserve">
+    <value>Nachname</value>
+  </data>
+  <data name="UserAdministration_Suffix" xml:space="preserve">
+    <value>Namenssuffix</value>
+  </data>
+  <data name="UserAdministration_Reload" xml:space="preserve">
+    <value>Neu laden</value>
+  </data>
+  <data name="UserAdministration_Discard" xml:space="preserve">
+    <value>Änderungen verwerfen</value>
+  </data>
+  <data name="UserAdministration_Save" xml:space="preserve">
+    <value>Änderungen speichern</value>
+  </data>
+  <data name="UserAdministration_Saving" xml:space="preserve">
+    <value>Benutzeränderungen werden gespeichert...</value>
+  </data>
+  <data name="UserAdministration_Saved" xml:space="preserve">
+    <value>Die Benutzeränderungen wurden gespeichert.</value>
+  </data>
+  <data name="UserAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Die nicht gespeicherten Benutzeränderungen wurden verworfen.</value>
+  </data>
+  <data name="UserAdministration_NotFound" xml:space="preserve">
+    <value>Der ausgewählte Benutzer ist nicht mehr vorhanden.</value>
+  </data>
+  <data name="UserAdministration_Conflict" xml:space="preserve">
+    <value>Der Benutzer wurde zwischenzeitlich geändert. Laden Sie die aktuellen Werte neu, bevor Sie ihn erneut bearbeiten.</value>
+  </data>
+  <data name="UserAdministration_SystemUserProtected" xml:space="preserve">
+    <value>Der technische MOPR-Systembenutzer ist geschützt und kann nicht geändert werden.</value>
+  </data>
+  <data name="UserAdministration_SelfDeactivationNotAllowed" xml:space="preserve">
+    <value>Der aktuell angemeldete Benutzer kann nicht deaktiviert werden.</value>
+  </data>
+  <data name="UserAdministration_SelfModificationNotAllowed" xml:space="preserve">
+    <value>Die aktuellen Sicherheitseinstellungen dieses Arbeitsplatzes erlauben keine Änderung des eigenen Benutzerkontos.</value>
+  </data>
+  <data name="UserAdministration_DuplicateLoginName" xml:space="preserve">
+    <value>Ein anderer Benutzer verwendet bereits diesen Windows-Anmeldenamen.</value>
+  </data>
+  <data name="UserAdministration_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>Ein anderer Benutzer ist bereits diesem Windows Security Identifier zugeordnet.</value>
+  </data>
+  <data name="UserAdministration_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>Ein anderer Benutzer verwendet bereits diese Personalnummer.</value>
+  </data>
+  <data name="UserAdministration_Unauthorized" xml:space="preserve">
+    <value>Für die Protokollierung dieser Änderung ist kein gültiger angemeldeter MOPR-Benutzer verfügbar.</value>
+  </data>
+  <data name="UserAdministration_ValidationFailed" xml:space="preserve">
+    <value>Vervollständigen Sie alle erforderlichen Benutzerdaten und prüfen Sie die eingegebenen Werte.</value>
+  </data>
+  <data name="UserAdministration_SaveFailed" xml:space="preserve">
+    <value>Die Benutzeränderungen konnten nicht gespeichert werden.</value>
+  </data>
+  <data name="UserAdministration_New" xml:space="preserve">
+    <value>Neuer Benutzer</value>
+  </data>
+  <data name="UserAdministration_NewTitle" xml:space="preserve">
+    <value>Benutzer anlegen</value>
+  </data>
+  <data name="UserAdministration_EditTitle" xml:space="preserve">
+    <value>Benutzer bearbeiten</value>
+  </data>
+  <data name="UserAdministration_Create" xml:space="preserve">
+    <value>Benutzer anlegen</value>
+  </data>
+  <data name="UserAdministration_CancelCreate" xml:space="preserve">
+    <value>Neuanlage abbrechen</value>
+  </data>
+  <data name="UserAdministration_NewInstructions" xml:space="preserve">
+    <value>Geben Sie die Benutzerdaten ein. Der neue Benutzer ist standardmäßig aktiviert.</value>
+  </data>
+  <data name="UserAdministration_Creating" xml:space="preserve">
+    <value>Benutzer wird angelegt...</value>
+  </data>
+  <data name="UserAdministration_Created" xml:space="preserve">
+    <value>Der Benutzer wurde angelegt.</value>
+  </data>
+  <data name="UserAdministration_CreationCanceled" xml:space="preserve">
+    <value>Die Benutzerneuanlage wurde abgebrochen.</value>
+  </data>
+  <data name="UserAdministration_SystemUserReserved" xml:space="preserve">
+    <value>Die technische MOPR-Systemidentität ist reserviert und kann nicht als persönlicher Benutzer angelegt werden.</value>
+  </data>
+  <data name="UserAdministration_CreateConflict" xml:space="preserve">
+    <value>Der Benutzer konnte nicht angelegt werden, weil ein Identitätswert zwischenzeitlich zugeordnet wurde. Laden Sie die Benutzerliste neu und versuchen Sie es erneut.</value>
+  </data>
+  <data name="UserAdministration_CreateFailed" xml:space="preserve">
+    <value>Der Benutzer konnte nicht angelegt werden.</value>
+  </data>
 </root>
