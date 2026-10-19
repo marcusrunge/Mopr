@@ -1,29 +1,85 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity;
+using Prism.Mvvm;
 using System;
 using System.Linq;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 
 /// <summary>
-/// Represents one persisted MOPR user in the administration view.
+/// Represents one persisted MOPR user or one temporary creation preview in the administration view.
 /// </summary>
-public sealed class UserAdministrationItemViewModel(int id, string loginName, string firstName, string middleName, string lastName, string shortName, bool isActive, bool isCurrentUser, string academicTitle, string suffix, string personnelNumber, string securityIdentifier, byte[] rowVersion)
+public sealed class UserAdministrationItemViewModel : BindableBase
 {
-    public string AcademicTitle { get; } = academicTitle;
-    public string DisplayName { get; } = BuildDisplayName(academicTitle, firstName, middleName, lastName, suffix, loginName);
-    public string FirstName { get; } = firstName;
-    public int Id { get; } = id;
-    public bool IsActive { get; } = isActive;
-    public bool IsCurrentUser { get; } = isCurrentUser;
-    public bool IsSystemUser => string.Equals(LoginName, WellKnownUserLoginNames.System, StringComparison.OrdinalIgnoreCase);
-    public string LastName { get; } = lastName;
-    public string LoginName { get; } = loginName;
-    public string MiddleName { get; } = middleName;
-    public string PersonnelNumber { get; } = personnelNumber;
-    public byte[] RowVersion { get; } = [.. rowVersion];
-    public string SecurityIdentifier { get; } = securityIdentifier;
-    public string ShortName { get; } = shortName;
-    public string Suffix { get; } = suffix;
+    private string _academicTitle, _displayName, _firstName, _lastName, _loginName, _middleName, _personnelNumber, _securityIdentifier, _shortName, _suffix;
+    private bool _isActive;
+
+    public UserAdministrationItemViewModel(int id, string loginName, string firstName, string middleName, string lastName, string shortName, bool isActive, bool isCurrentUser, string academicTitle, string suffix, string personnelNumber, string securityIdentifier, byte[] rowVersion, bool isPreview = false)
+    {
+        Id = id;
+        _loginName = loginName;
+        _firstName = firstName;
+        _middleName = middleName;
+        _lastName = lastName;
+        _shortName = shortName;
+        _isActive = isActive;
+        IsCurrentUser = isCurrentUser;
+        _academicTitle = academicTitle;
+        _suffix = suffix;
+        _personnelNumber = personnelNumber;
+        _securityIdentifier = securityIdentifier;
+        RowVersion = [.. rowVersion];
+        IsPreview = isPreview;
+        _displayName = BuildDisplayName(academicTitle, firstName, middleName, lastName, suffix, loginName);
+    }
+
+    public string AcademicTitle => _academicTitle;
+    public string DisplayName => _displayName;
+    public string FirstName => _firstName;
+    public int Id { get; }
+    public bool IsActive => _isActive;
+    public bool IsCurrentUser { get; }
+    public bool IsPreview { get; }
+    public bool IsSystemUser => !IsPreview && string.Equals(LoginName, WellKnownUserLoginNames.System, StringComparison.OrdinalIgnoreCase);
+    public string LastName => _lastName;
+    public string LoginName => _loginName;
+    public string MiddleName => _middleName;
+    public string PersonnelNumber => _personnelNumber;
+    public byte[] RowVersion { get; }
+    public string SecurityIdentifier => _securityIdentifier;
+    public string ShortName => _shortName;
+    public string Suffix => _suffix;
+
+    /// <summary>
+    /// Updates the temporary master-list preview from the current editor values.
+    /// </summary>
+    public void UpdatePreview(string loginName, string firstName, string middleName, string lastName, string shortName, bool isActive, string academicTitle, string suffix, string personnelNumber, string securityIdentifier)
+    {
+        if (!IsPreview) throw new InvalidOperationException("Only a temporary user preview can be updated.");
+
+        _loginName = loginName;
+        _firstName = firstName;
+        _middleName = middleName;
+        _lastName = lastName;
+        _shortName = shortName;
+        _isActive = isActive;
+        _academicTitle = academicTitle;
+        _suffix = suffix;
+        _personnelNumber = personnelNumber;
+        _securityIdentifier = securityIdentifier;
+        _displayName = BuildDisplayName(academicTitle, firstName, middleName, lastName, suffix, loginName);
+
+        RaisePropertyChanged(nameof(LoginName));
+        RaisePropertyChanged(nameof(FirstName));
+        RaisePropertyChanged(nameof(MiddleName));
+        RaisePropertyChanged(nameof(LastName));
+        RaisePropertyChanged(nameof(ShortName));
+        RaisePropertyChanged(nameof(IsActive));
+        RaisePropertyChanged(nameof(AcademicTitle));
+        RaisePropertyChanged(nameof(Suffix));
+        RaisePropertyChanged(nameof(PersonnelNumber));
+        RaisePropertyChanged(nameof(SecurityIdentifier));
+        RaisePropertyChanged(nameof(DisplayName));
+    }
 
     private static string BuildDisplayName(string academicTitle, string firstName, string middleName, string lastName, string suffix, string loginName)
     {

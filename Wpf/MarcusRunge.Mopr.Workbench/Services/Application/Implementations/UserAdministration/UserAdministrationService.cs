@@ -71,6 +71,44 @@ internal sealed class UserAdministrationService : CreateableBindableBase<IUserAd
     }
 
     /// <inheritdoc/>
+    public async Task<UserAdministrationDeleteResult> DeleteAsync(UserAdministrationDeleteRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (request.Id <= 0 || request.RowVersion is not { Length: > 0 }) return UserAdministrationDeleteResult.ValidationFailed();
+
+        var currentUserId = await GetCurrentUserIdAsync(cancellationToken).ConfigureAwait(false);
+        if (currentUserId is null or <= 0) return UserAdministrationDeleteResult.Unauthorized();
+        if (request.Id == currentUserId) return UserAdministrationDeleteResult.CurrentUserProtected();
+
+        var repository = GetRepository();
+        var user = await repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+
+        if (user is null) return UserAdministrationDeleteResult.NotFound();
+        if (user.RowVersion is not { Length: > 0 } || !user.RowVersion.SequenceEqual(request.RowVersion)) return UserAdministrationDeleteResult.Conflict();
+        if (IsSystemUser(user)) return UserAdministrationDeleteResult.SystemUserProtected();
+
+        try
+        {
+            await repository.DeleteAsync(user, cancellationToken).ConfigureAwait(false);
+            return UserAdministrationDeleteResult.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return UserAdministrationDeleteResult.Conflict();
+        }
+        catch (DbUpdateException)
+        {
+            /*
+             * Persistence relationships remain authoritative for historical audit
+             * protection. A referenced user is retained and should be deactivated.
+             */
+            return UserAdministrationDeleteResult.InUse();
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<UserAdministrationSummary>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

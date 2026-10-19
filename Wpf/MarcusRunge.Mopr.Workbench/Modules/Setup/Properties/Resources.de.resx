@@ -717,4 +717,70 @@
   <data name="UserAdministration_CreateFailed" xml:space="preserve">
     <value>Der Benutzer konnte nicht angelegt werden.</value>
   </data>
+  <data name="UserAdministrationDeleteStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_NotFound" xml:space="preserve">
+    <value>Benutzer nicht gefunden</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Conflict" xml:space="preserve">
+    <value>Der Benutzer wurde zwischenzeitlich geändert</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_SystemUserProtected" xml:space="preserve">
+    <value>Der technische MOPR-Systembenutzer ist geschützt</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_CurrentUserProtected" xml:space="preserve">
+    <value>Der aktuell angemeldete Benutzer ist geschützt</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_InUse" xml:space="preserve">
+    <value>Der Benutzer wird von vorhandenen MOPR-Daten referenziert</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Unauthorized" xml:space="preserve">
+    <value>Für die Protokollierung dieser Entfernung ist kein gültiger persistenter MOPR-Benutzer verfügbar</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_ValidationFailed" xml:space="preserve">
+    <value>Die Anforderung zum Entfernen des Benutzers ist ungültig</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Failed" xml:space="preserve">
+    <value>Der Benutzer konnte nicht entfernt werden</value>
+  </data>
+	<data name="UserAdministration_RemovalCanceled" xml:space="preserve">
+    <value>Das Entfernen des Benutzers wurde abgebrochen.</value>
+  </data>
+	<data name="UserAdministration_DeleteConflict" xml:space="preserve">
+    <value>Der Benutzer wurde zwischenzeitlich geändert. Laden Sie die aktuellen Werte neu, bevor Sie erneut versuchen, den Benutzer zu entfernen.</value>
+  </data>
+	<data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
+    <value>Der aktuell angemeldete Benutzer kann nicht entfernt werden.</value>
+  </data>
+	<data name="UserAdministration_InUse" xml:space="preserve">
+    <value>Der Benutzer ist vorhandenen MOPR-Daten zugeordnet und kann nicht entfernt werden. Deaktivieren Sie den Benutzer stattdessen.</value>
+  </data>
+	<data name="UserAdministration_DeleteFailed" xml:space="preserve">
+    <value>Der Benutzer konnte nicht entfernt werden.</value>
+  </data>
+	<data name="UserAdministration_Deleting" xml:space="preserve">
+    <value>Benutzer wird entfernt...</value>
+  </data>
+	<data name="UserAdministration_Deleted" xml:space="preserve">
+    <value>Der Benutzer wurde entfernt.</value>
+  </data>
+	<data name="UserAdministration_Remove" xml:space="preserve">
+    <value>Benutzer entfernen</value>
+  </data>
+	<data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
+    <value>Benutzer aus MOPR entfernen?</value>
+  </data>
+	<data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
+    <value>Der Benutzer wird aus der Benutzerverwaltung entfernt. Vorhandene Bild-, Untersuchungs-, Mess- und Protokolldaten werden nicht gelöscht. Ein Benutzer mit bereits zugeordneten MOPR-Daten kann nicht entfernt werden und sollte stattdessen deaktiviert werden.</value>
+  </data>
+	<data name="UserAdministration_CancelRemove" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+	<data name="UserAdministration_ConfirmRemove" xml:space="preserve">
+    <value>Benutzer entfernen</value>
+  </data>
 </root>

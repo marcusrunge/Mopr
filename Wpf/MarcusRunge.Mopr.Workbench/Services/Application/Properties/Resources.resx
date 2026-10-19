@@ -1,51 +1,110 @@
-<?xml version='1.0' encoding='utf-8'?>
-<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:schema id="root">
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xs:element name="root" ns1:IsDataSet="true">
-      <xs:complexType>
-        <xs:choice maxOccurs="unbounded">
-          <xs:element name="metadata">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" />
-              </xs:sequence>
-              <xs:attribute name="name" use="required" type="xsd:string" />
-              <xs:attribute name="type" type="xsd:string" />
-              <xs:attribute name="mimetype" type="xsd:string" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="assembly">
-            <xs:complexType>
-              <xs:attribute name="alias" type="xsd:string" />
-              <xs:attribute name="name" type="xsd:string" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="data">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
-              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
-              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="resheader">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" />
-            </xs:complexType>
-          </xs:element>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-  </xs:schema>
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -58,172 +117,634 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DicomImportSourceType_AutoDetect" xml:space="preserve">
-    <value>Detect automatically</value>
+  <data name="Setup_AdministratorAccessActive" xml:space="preserve">
+    <value>Administrator access active</value>
   </data>
-  <data name="DicomImportSourceType_CdRom" xml:space="preserve">
-    <value>CD-ROM</value>
+  <data name="Setup_AdministratorRequired" xml:space="preserve">
+    <value>Administrator rights required</value>
   </data>
-  <data name="DicomImportSourceType_Dvd" xml:space="preserve">
-    <value>DVD</value>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>Back</value>
   </data>
-  <data name="DicomImportSourceType_ExternalDrive" xml:space="preserve">
-    <value>External drive</value>
+  <data name="Setup_CancelSetupCompletion" xml:space="preserve">
+    <value>Cancel</value>
   </data>
-  <data name="DicomImportSourceType_IsoImage" xml:space="preserve">
-    <value>ISO image</value>
+  <data name="Setup_CompleteSetup" xml:space="preserve">
+    <value>Complete setup</value>
   </data>
-  <data name="DicomImportSourceType_LocalDirectory" xml:space="preserve">
-    <value>Local directory</value>
+  <data name="Setup_CompletingSetup" xml:space="preserve">
+    <value>Completing setup...</value>
   </data>
-  <data name="DicomImportSourceType_MappedNetworkDrive" xml:space="preserve">
-    <value>Mapped network drive</value>
+  <data name="Setup_CompletionCanceled" xml:space="preserve">
+    <value>Setup completion was canceled safely. The setup has not been marked as complete.</value>
   </data>
-  <data name="DicomImportSourceType_NetworkShare" xml:space="preserve">
-    <value>Network share</value>
+  <data name="Setup_CompletionCancellationRequested" xml:space="preserve">
+    <value>Cancellation has been requested. MOPR is safely completing or reverting the current operation.</value>
   </data>
-  <data name="DicomImportSourceType_RemovableDrive" xml:space="preserve">
-    <value>Removable drive</value>
+  <data name="Setup_CompletionDatabaseValidationFailed" xml:space="preserve">
+    <value>The database connection could not be confirmed. Check the connection and try again.</value>
   </data>
-  <data name="DicomImportSourceType_SdCard" xml:space="preserve">
-    <value>SD card</value>
+  <data name="Setup_CompletionDescription" xml:space="preserve">
+    <value>MOPR is ready to apply the validated workstation configuration.</value>
   </data>
-  <data name="DicomImportSourceType_Unknown" xml:space="preserve">
-    <value>Unknown source</value>
+  <data name="Setup_CompletionFailed" xml:space="preserve">
+    <value>Setup could not be completed. The setup has not been marked as complete. Please try again.</value>
   </data>
-  <data name="DicomImportSourceType_UsbDrive" xml:space="preserve">
-    <value>USB storage device</value>
+  <data name="Setup_CompletionNoChangesNotice" xml:space="preserve">
+    <value>The configuration has not been applied yet. You can return to the previous steps without changing the workstation.</value>
   </data>
-  <data name="DicomImportSourceType_VirtualDrive" xml:space="preserve">
-    <value>Virtual drive</value>
+  <data name="Setup_CompletionReadyDescription" xml:space="preserve">
+    <value>The database connection and DICOM storage have been validated. Review the information before completing setup.</value>
   </data>
-  <data name="DicomImportStatus_AuditIdentityUnavailable" xml:space="preserve">
-    <value>Audit identity unavailable</value>
+  <data name="Setup_CompletionReadyTitle" xml:space="preserve">
+    <value>Configuration ready</value>
   </data>
-  <data name="DicomImportStatus_Canceled" xml:space="preserve">
-    <value>Import canceled</value>
+  <data name="Setup_CompletionRepositoryValidationFailed" xml:space="preserve">
+    <value>The selected image repository could not be confirmed. Check the storage location and try again.</value>
   </data>
-  <data name="DicomImportStatus_Completed" xml:space="preserve">
-    <value>Import completed</value>
+  <data name="Setup_CompletionRollbackFailed" xml:space="preserve">
+    <value>Setup could not be completed and the previous technical state could not be fully restored. Do not continue using MOPR and contact your administrator.</value>
   </data>
-  <data name="DicomImportStatus_CompletedWithErrors" xml:space="preserve">
-    <value>Import completed with individual errors</value>
+  <data name="Setup_CompletionRunning" xml:space="preserve">
+    <value>Completing setup. The database and image repository are being prepared.</value>
   </data>
-  <data name="DicomImportStatus_CompletedWithSkippedFiles" xml:space="preserve">
-    <value>Import completed with skipped files</value>
+  <data name="Setup_CompletionStep" xml:space="preserve">
+    <value>Completion</value>
   </data>
-  <data name="DicomImportStatus_DefaultRepositoryMissing" xml:space="preserve">
-    <value>No default repository configured</value>
+  <data name="Setup_CompletionSuccessful" xml:space="preserve">
+    <value>Setup was completed successfully. MOPR is opening the imaging workbench.</value>
   </data>
-  <data name="DicomImportStatus_Failed" xml:space="preserve">
-    <value>Import failed</value>
+  <data name="Setup_CompletionTitle" xml:space="preserve">
+    <value>Complete setup</value>
   </data>
-  <data name="DicomImportStatus_RepositoryUnavailable" xml:space="preserve">
-    <value>Repository unavailable</value>
+  <data name="Setup_ConfigurationLoadCanceled" xml:space="preserve">
+    <value>Loading the MOPR workstation configuration was canceled.</value>
   </data>
-  <data name="DicomImportStatus_SourceMissing" xml:space="preserve">
-    <value>No import source selected</value>
+  <data name="Setup_ConfigurationLoadFailed" xml:space="preserve">
+    <value>The MOPR workstation configuration could not be loaded.</value>
   </data>
-  <data name="DicomImportStatus_SourceTypeUnsupported" xml:space="preserve">
-    <value>The selected import source is not supported yet</value>
+  <data name="Setup_ConfigurationLoading" xml:space="preserve">
+    <value>Loading workstation configuration...</value>
   </data>
-  <data name="DicomImportStatus_SourceUnavailable" xml:space="preserve">
-    <value>Import source unavailable</value>
+  <data name="Setup_ConfigurationScope" xml:space="preserve">
+    <value>WORKSTATION SETTINGS</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_Completed" xml:space="preserve">
-    <value>Completed</value>
+  <data name="Setup_ConfigurationScopeDescription" xml:space="preserve">
+    <value>This configuration applies to every user of this workstation and can only be changed with elevated administrator rights.</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_NotFound" xml:space="preserve">
-    <value>Not found</value>
+  <data name="Setup_Continue" xml:space="preserve">
+    <value>Continue</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_Conflict" xml:space="preserve">
-    <value>Conflict</value>
+  <data name="Setup_CurrentStep" xml:space="preserve">
+    <value>Current step</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_DefaultRepository" xml:space="preserve">
-    <value>Default repository</value>
+  <data name="Setup_DatabaseConnectionCanceled" xml:space="preserve">
+    <value>The database connection test was canceled.</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_InUse" xml:space="preserve">
-    <value>In use</value>
+  <data name="Setup_DatabaseConnectionFailed" xml:space="preserve">
+    <value>The database connection could not be established.</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_DuplicatePath" xml:space="preserve">
-    <value>Duplicate path</value>
+  <data name="Setup_DatabaseConnectionLabel" xml:space="preserve">
+    <value>SQL Server connection</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_ValidationFailed" xml:space="preserve">
-    <value>Validation failed</value>
+  <data name="Setup_DatabaseConnectionSuccessful" xml:space="preserve">
+    <value>The database connection was established successfully.</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_Unauthorized" xml:space="preserve">
-    <value>Unauthorized</value>
+  <data name="Setup_DatabaseConnectionTesting" xml:space="preserve">
+    <value>Testing the database connection...</value>
   </data>
-  <data name="RepositoryRecoveryActionStatus_Failed" xml:space="preserve">
-    <value>Failed</value>
+  <data name="Setup_DatabaseDescription" xml:space="preserve">
+    <value>Specify the database used by MOPR on this workstation.</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_NotStarted" xml:space="preserve">
+  <data name="Setup_DatabaseTitle" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Setup_Description" xml:space="preserve">
+    <value>Configure MOPR once for this workstation. The settings will then apply to every authorized user.</value>
+  </data>
+  <data name="Setup_HeaderBadge" xml:space="preserve">
+    <value>MOPR SETUP</value>
+  </data>
+  <data name="Setup_HeaderContext" xml:space="preserve">
+    <value>MOPR WORKSTATION CONFIGURATION</value>
+  </data>
+  <data name="Setup_LocalDataStatus" xml:space="preserve">
+    <value>MOPR â€¢ LOCAL WORKSTATION CONFIGURATION â€¢ DATA REMAINS ON THIS SYSTEM</value>
+  </data>
+  <data name="Setup_RepositoryDescription" xml:space="preserve">
+    <value>Select the folder in which MOPR will manage imported DICOM data.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryMissing" xml:space="preserve">
+    <value>The selected folder does not exist.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotReadable" xml:space="preserve">
+    <value>MOPR cannot read the selected folder.</value>
+  </data>
+  <data name="Setup_RepositoryDirectoryNotWritable" xml:space="preserve">
+    <value>MOPR cannot write to the selected folder.</value>
+  </data>
+  <data name="Setup_RepositoryFolderDialogTitle" xml:space="preserve">
+    <value>Select the MOPR DICOM storage folder</value>
+  </data>
+  <data name="Setup_RepositoryNotSelected" xml:space="preserve">
+    <value>Select a folder before validating the DICOM storage.</value>
+  </data>
+  <data name="Setup_RepositoryPathLabel" xml:space="preserve">
+    <value>Storage folder</value>
+  </data>
+  <data name="Setup_RepositoryStep" xml:space="preserve">
+    <value>DICOM storage</value>
+  </data>
+  <data name="Setup_RepositoryTemporaryNotice" xml:space="preserve">
+    <value>The folder is only being validated. No repository entry or DICOM data will be created during this step.</value>
+  </data>
+  <data name="Setup_RepositoryTitle" xml:space="preserve">
+    <value>DICOM storage</value>
+  </data>
+  <data name="Setup_RepositoryValidationCanceled" xml:space="preserve">
+    <value>The DICOM storage validation was canceled.</value>
+  </data>
+  <data name="Setup_RepositoryValidationFailed" xml:space="preserve">
+    <value>The selected folder cannot be used as the MOPR DICOM storage.</value>
+  </data>
+  <data name="Setup_RepositoryValidationRunning" xml:space="preserve">
+    <value>Validating the DICOM storage...</value>
+  </data>
+  <data name="Setup_RepositoryValidationSuccessful" xml:space="preserve">
+    <value>The DICOM storage is available and can be used by MOPR.</value>
+  </data>
+  <data name="Setup_SelectRepositoryLocation" xml:space="preserve">
+    <value>Select folder</value>
+  </data>
+  <data name="Setup_TestDatabaseConnection" xml:space="preserve">
+    <value>Test connection</value>
+  </data>
+  <data name="Setup_Title" xml:space="preserve">
+    <value>Workstation setup</value>
+  </data>
+  <data name="Setup_UseLocalDatabase" xml:space="preserve">
+    <value>Use LocalDB</value>
+  </data>
+  <data name="Setup_UseLocalDatabaseDescription" xml:space="preserve">
+    <value>Uses the local SQL Server LocalDB instance. LocalDB must already be installed on this workstation.</value>
+  </data>
+  <data name="Setup_ValidateRepositoryLocation" xml:space="preserve">
+    <value>Validate storage</value>
+  </data>
+  <data name="Setup_VerificationDescription" xml:space="preserve">
+    <value>Review the validated workstation configuration before MOPR applies it.</value>
+  </data>
+  <data name="Setup_VerificationNoChangesNotice" xml:space="preserve">
+    <value>No changes are applied during verification.</value>
+  </data>
+  <data name="Setup_VerificationStep" xml:space="preserve">
+    <value>Verification</value>
+  </data>
+  <data name="Setup_VerificationTitle" xml:space="preserve">
+    <value>Verify configuration</value>
+  </data>
+  <data name="Setup_Verified" xml:space="preserve">
+    <value>Verified</value>
+  </data>
+  <data name="Administration_Title" xml:space="preserve">
+    <value>Settings and administration</value>
+  </data>
+  <data name="Administration_PrototypeNotice" xml:space="preserve">
+    <value>Structure preview. Productive settings are changed only after explicit validation and saving.</value>
+  </data>
+  <data name="Administration_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Administration_Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Administration_OverviewDescription" xml:space="preserve">
+    <value>Central access to database, DICOM repositories, security, users and system checks.</value>
+  </data>
+  <data name="Administration_Database" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Administration_DatabaseDescription" xml:space="preserve">
+    <value>Connection, reachability and controlled application of database settings.</value>
+  </data>
+  <data name="Administration_Repository" xml:space="preserve">
+    <value>DICOM repository</value>
+  </data>
+  <data name="Administration_RepositoryDescription" xml:space="preserve">
+    <value>Storage locations, availability and controlled repository validation.</value>
+  </data>
+  <data name="Administration_Security" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="Administration_SecurityDescription" xml:space="preserve">
+    <value>Protected workstation settings and security-related behavior.</value>
+  </data>
+  <data name="Administration_Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="Administration_UsersDescription" xml:space="preserve">
+    <value>Persistent MOPR users and their Windows SID assignments.</value>
+  </data>
+  <data name="Administration_SystemCheck" xml:space="preserve">
+    <value>System check</value>
+  </data>
+  <data name="Administration_SystemCheckDescription" xml:space="preserve">
+    <value>Database, repository and MIRAS checks without automatic repair.</value>
+  </data>
+  <data name="Administration_ReturnToImaging" xml:space="preserve">
+    <value>Return to image viewer</value>
+  </data>
+  <data name="Administration_AdministratorAccessActive" xml:space="preserve">
+    <value>ADMINISTRATOR ACCESS ACTIVE</value>
+  </data>
+  <data name="Administration_AccessDeniedTitle" xml:space="preserve">
+    <value>Administrative access denied</value>
+  </data>
+  <data name="Administration_AccessDeniedDescription" xml:space="preserve">
+    <value>This area requires an active MOPR user and effective elevated Windows administrator rights.</value>
+  </data>
+  <data name="DatabaseAdministration_ConnectionString" xml:space="preserve">
+    <value>SQL Server connection string</value>
+  </data>
+  <data name="DatabaseAdministration_SensitiveValueNotice" xml:space="preserve">
+    <value>The connection string is shown only in this protected administrative editing context. Verify it before saving.</value>
+  </data>
+  <data name="DatabaseAdministration_RestartRequired" xml:space="preserve">
+    <value>MOPR must be restarted before the saved database configuration becomes active.</value>
+  </data>
+  <data name="DatabaseAdministration_Discard" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="DatabaseAdministration_TestConnection" xml:space="preserve">
+    <value>Test connection</value>
+  </data>
+  <data name="DatabaseAdministration_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="DatabaseAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Local changes were discarded.</value>
+  </data>
+  <data name="DatabaseAdministration_Saving" xml:space="preserve">
+    <value>Saving the protected database configuration...</value>
+  </data>
+  <data name="DatabaseAdministration_Saved" xml:space="preserve">
+    <value>The database configuration was saved safely. Restart MOPR to apply it.</value>
+  </data>
+  <data name="DatabaseAdministration_Canceled" xml:space="preserve">
+    <value>The operation was canceled.</value>
+  </data>
+  <data name="DatabaseAdministration_AccessDenied" xml:space="preserve">
+    <value>Administrator authorization is required to save this configuration.</value>
+  </data>
+  <data name="DatabaseAdministration_SaveFailed" xml:space="preserve">
+    <value>The database configuration could not be saved. The previous configuration remains available.</value>
+  </data>
+  <data name="DatabaseAdministration_Testing" xml:space="preserve">
+    <value>Testing the database connection...</value>
+  </data>
+  <data name="DatabaseAdministration_TestSucceeded" xml:space="preserve">
+    <value>The database connection was established successfully.</value>
+  </data>
+  <data name="DatabaseAdministration_TestFailed" xml:space="preserve">
+    <value>The database connection could not be established.</value>
+  </data>
+  <data name="DatabaseAdministration_Loading" xml:space="preserve">
+    <value>Loading the protected database configuration...</value>
+  </data>
+  <data name="DatabaseAdministration_LoadFailed" xml:space="preserve">
+    <value>The database configuration could not be loaded.</value>
+  </data>
+  <data name="RepositoryAdministration_Path" xml:space="preserve">
+    <value>Repository path</value>
+  </data>
+  <data name="RepositoryAdministration_SelectFolder" xml:space="preserve">
+    <value>Select folder</value>
+  </data>
+  <data name="RepositoryAdministration_ValidationNotice" xml:space="preserve">
+    <value>Selecting or entering a path does not change the repository. Validate the location before any later save operation.</value>
+  </data>
+  <data name="RepositoryAdministration_Validate" xml:space="preserve">
+    <value>Validate location</value>
+  </data>
+  <data name="RepositoryAdministration_ScopeNotice" xml:space="preserve">
+    <value>This first administration stage validates a repository path only. Existing repository locations are not modified automatically.</value>
+  </data>
+  <data name="RepositoryAdministration_ConfiguredLocations" xml:space="preserve">
+    <value>Configured repository locations</value>
+  </data>
+  <data name="RepositoryAdministration_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="RepositoryAdministration_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="RepositoryAdministration_Loading" xml:space="preserve">
+    <value>Loading configured repository locations...</value>
+  </data>
+  <data name="RepositoryAdministration_NoLocations" xml:space="preserve">
+    <value>No repository locations are stored in the active database.</value>
+  </data>
+  <data name="RepositoryAdministration_LoadFailed" xml:space="preserve">
+    <value>The configured repository locations could not be loaded.</value>
+  </data>
+  <data name="RepositoryAdministration_Canceled" xml:space="preserve">
+    <value>The repository operation was canceled.</value>
+  </data>
+  <data name="RepositoryAdministration_Failed" xml:space="preserve">
+    <value>The repository path could not be validated.</value>
+  </data>
+  <data name="RepositoryAdministration_Valid" xml:space="preserve">
+    <value>The repository path is valid and accessible.</value>
+  </data>
+  <data name="RepositoryAdministration_Validating" xml:space="preserve">
+    <value>Validating the repository path...</value>
+  </data>
+  <data name="RepositoryAdministration_FolderDialogTitle" xml:space="preserve">
+    <value>Select DICOM repository folder</value>
+  </data>
+  <data name="RepositoryAdministration_Missing" xml:space="preserve">
+    <value>The selected repository folder does not exist.</value>
+  </data>
+  <data name="RepositoryAdministration_NotReadable" xml:space="preserve">
+    <value>The selected repository folder cannot be read.</value>
+  </data>
+  <data name="RepositoryAdministration_NotWritable" xml:space="preserve">
+    <value>The selected repository folder cannot be written to.</value>
+  </data>
+  <data name="RepositoryAdministration_Invalid" xml:space="preserve">
+    <value>The selected repository folder is not valid.</value>
+  </data>
+  <data name="RepositoryAdministration_Enabled" xml:space="preserve">
+    <value>Enabled for new imports</value>
+  </data>
+  <data name="RepositoryAdministration_UseAsDefault" xml:space="preserve">
+    <value>Use as default repository</value>
+  </data>
+  <data name="RepositoryAdministration_Discard" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="RepositoryAdministration_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="RepositoryAdministration_Saving" xml:space="preserve">
+    <value>Saving repository changes...</value>
+  </data>
+  <data name="RepositoryAdministration_Saved" xml:space="preserve">
+    <value>Repository changes were saved.</value>
+  </data>
+  <data name="RepositoryAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Unsaved changes were discarded.</value>
+  </data>
+  <data name="RepositoryAdministration_Conflict" xml:space="preserve">
+    <value>The repository was changed elsewhere. Reload the current values before editing again.</value>
+  </data>
+  <data name="RepositoryAdministration_DefaultInvariant" xml:space="preserve">
+    <value>The default repository must remain enabled and cannot be cleared without selecting another default repository.</value>
+  </data>
+  <data name="RepositoryAdministration_NotFound" xml:space="preserve">
+    <value>The selected repository no longer exists.</value>
+  </data>
+  <data name="RepositoryAdministration_Unauthorized" xml:space="preserve">
+    <value>No valid signed-in MOPR user is available to audit this change.</value>
+  </data>
+  <data name="RepositoryAdministration_SaveFailed" xml:space="preserve">
+    <value>The repository changes could not be saved.</value>
+  </data>
+  <data name="RepositoryAdministration_Name" xml:space="preserve">
+    <value>Repository name</value>
+  </data>
+  <data name="RepositoryAdministration_DuplicatePath" xml:space="preserve">
+    <value>Another repository already uses this storage path.</value>
+  </data>
+  <data name="RepositoryAdministration_New" xml:space="preserve">
+    <value>New repository</value>
+  </data>
+  <data name="RepositoryAdministration_Create" xml:space="preserve">
+    <value>Create repository</value>
+  </data>
+  <data name="RepositoryAdministration_CancelCreate" xml:space="preserve">
+    <value>Cancel creation</value>
+  </data>
+  <data name="RepositoryAdministration_Creating" xml:space="preserve">
+    <value>Creating repository...</value>
+  </data>
+  <data name="RepositoryAdministration_Created" xml:space="preserve">
+    <value>The repository was created.</value>
+  </data>
+  <data name="RepositoryAdministration_CreationCanceled" xml:space="preserve">
+    <value>Repository creation was canceled.</value>
+  </data>
+  <data name="RepositoryAdministration_NewInstructions" xml:space="preserve">
+    <value>Enter a name and storage path, then validate the location before creating the repository.</value>
+  </data>
+  <data name="RepositoryAdministration_CreateFailed" xml:space="preserve">
+    <value>The repository could not be created.</value>
+  </data>
+  <data name="RepositoryAdministration_Delete" xml:space="preserve">
+    <value>Remove repository</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationTitle" xml:space="preserve">
+    <value>Remove repository configuration?</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationPrefix" xml:space="preserve">
+    <value>The repository configuration “</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConfirmationSuffix" xml:space="preserve">
+    <value>” will be removed from MOPR. Existing files in the storage folder will not be deleted.</value>
+  </data>
+  <data name="RepositoryAdministration_CancelDelete" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RepositoryAdministration_ConfirmDelete" xml:space="preserve">
+    <value>Remove configuration</value>
+  </data>
+  <data name="RepositoryAdministration_Deleting" xml:space="preserve">
+    <value>Removing repository configuration...</value>
+  </data>
+  <data name="RepositoryAdministration_Deleted" xml:space="preserve">
+    <value>The repository configuration was removed. Existing files were not deleted.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteConflict" xml:space="preserve">
+    <value>The repository was changed elsewhere and was not removed. Reload the current values before trying again.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteDefaultRepository" xml:space="preserve">
+    <value>The default repository cannot be removed. Select another enabled repository as the default first.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteInUse" xml:space="preserve">
+    <value>The repository cannot be removed because persisted DICOM data still references it.</value>
+  </data>
+  <data name="RepositoryAdministration_DeleteFailed" xml:space="preserve">
+    <value>The repository configuration could not be removed.</value>
+  </data>
+  <data name="UserAdministration_Loading" xml:space="preserve">
+    <value>Loading MOPR users...</value>
+  </data>
+  <data name="UserAdministration_NoUsers" xml:space="preserve">
+    <value>No personal MOPR users are stored in the active database.</value>
+  </data>
+  <data name="UserAdministration_LoadFailed" xml:space="preserve">
+    <value>The MOPR users could not be loaded.</value>
+  </data>
+  <data name="UserAdministration_Canceled" xml:space="preserve">
+    <value>Loading MOPR users was canceled.</value>
+  </data>
+  <data name="UserAdministration_CurrentUser" xml:space="preserve">
+    <value>Current user</value>
+  </data>
+  <data name="UserAdministration_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="UserAdministration_Inactive" xml:space="preserve">
+    <value>Inactive</value>
+  </data>
+  <data name="UserAdministration_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="UserAdministration_ShortName" xml:space="preserve">
+    <value>Short name</value>
+  </data>
+  <data name="UserAdministration_PersonnelNumber" xml:space="preserve">
+    <value>Personnel number</value>
+  </data>
+  <data name="UserAdministration_LoginName" xml:space="preserve">
+    <value>Windows login name</value>
+  </data>
+  <data name="UserAdministration_SecurityIdentifier" xml:space="preserve">
+    <value>Windows security identifier</value>
+  </data>
+  <data name="UserAdministration_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="UserAdministration_AcademicTitle" xml:space="preserve">
+    <value>Academic title</value>
+  </data>
+  <data name="UserAdministration_FirstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="UserAdministration_MiddleName" xml:space="preserve">
+    <value>Middle name</value>
+  </data>
+  <data name="UserAdministration_LastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="UserAdministration_Suffix" xml:space="preserve">
+    <value>Name suffix</value>
+  </data>
+  <data name="UserAdministration_Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="UserAdministration_Discard" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="UserAdministration_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="UserAdministration_Saving" xml:space="preserve">
+    <value>Saving user changes...</value>
+  </data>
+  <data name="UserAdministration_Saved" xml:space="preserve">
+    <value>The user changes were saved.</value>
+  </data>
+  <data name="UserAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Unsaved user changes were discarded.</value>
+  </data>
+  <data name="UserAdministration_NotFound" xml:space="preserve">
+    <value>The selected user no longer exists.</value>
+  </data>
+  <data name="UserAdministration_Conflict" xml:space="preserve">
+    <value>The user was changed elsewhere. Reload the current values before editing again.</value>
+  </data>
+  <data name="UserAdministration_SystemUserProtected" xml:space="preserve">
+    <value>The technical MOPR system user is protected and cannot be modified.</value>
+  </data>
+  <data name="UserAdministration_SelfDeactivationNotAllowed" xml:space="preserve">
+    <value>The currently signed-in user cannot be deactivated.</value>
+  </data>
+  <data name="UserAdministration_SelfModificationNotAllowed" xml:space="preserve">
+    <value>The current workstation security settings do not permit users to modify their own account.</value>
+  </data>
+  <data name="UserAdministration_DuplicateLoginName" xml:space="preserve">
+    <value>Another user already uses this Windows login name.</value>
+  </data>
+  <data name="UserAdministration_DuplicateSecurityIdentifier" xml:space="preserve">
+    <value>Another user is already assigned to this Windows security identifier.</value>
+  </data>
+  <data name="UserAdministration_DuplicatePersonnelNumber" xml:space="preserve">
+    <value>Another user already uses this personnel number.</value>
+  </data>
+  <data name="UserAdministration_Unauthorized" xml:space="preserve">
+    <value>No valid signed-in MOPR user is available to audit this change.</value>
+  </data>
+  <data name="UserAdministration_ValidationFailed" xml:space="preserve">
+    <value>Complete all required user information and verify the entered values.</value>
+  </data>
+  <data name="UserAdministration_SaveFailed" xml:space="preserve">
+    <value>The user changes could not be saved.</value>
+  </data>
+  <data name="UserAdministration_New" xml:space="preserve">
+    <value>New user</value>
+  </data>
+  <data name="UserAdministration_NewTitle" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="UserAdministration_EditTitle" xml:space="preserve">
+    <value>Edit user</value>
+  </data>
+  <data name="UserAdministration_Create" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="UserAdministration_CancelCreate" xml:space="preserve">
+    <value>Cancel creation</value>
+  </data>
+  <data name="UserAdministration_NewInstructions" xml:space="preserve">
+    <value>Enter the user information. The new user is active by default.</value>
+  </data>
+  <data name="UserAdministration_Creating" xml:space="preserve">
+    <value>Creating user...</value>
+  </data>
+  <data name="UserAdministration_Created" xml:space="preserve">
+    <value>The user was created.</value>
+  </data>
+  <data name="UserAdministration_CreationCanceled" xml:space="preserve">
+    <value>User creation was canceled.</value>
+  </data>
+  <data name="UserAdministration_SystemUserReserved" xml:space="preserve">
+    <value>The technical MOPR system identity is reserved and cannot be created as a personal user.</value>
+  </data>
+  <data name="UserAdministration_CreateConflict" xml:space="preserve">
+    <value>The user could not be created because an identity value was assigned concurrently. Reload the user list and try again.</value>
+  </data>
+  <data name="UserAdministration_CreateFailed" xml:space="preserve">
+    <value>The user could not be created.</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_NotStarted" xml:space="preserve">
     <value>Not started</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_Completed" xml:space="preserve">
+  <data name="UserAdministrationDeleteStatus_Completed" xml:space="preserve">
     <value>Completed</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_NotFound" xml:space="preserve">
+  <data name="UserAdministrationDeleteStatus_NotFound" xml:space="preserve">
     <value>User not found</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_Conflict" xml:space="preserve">
+  <data name="UserAdministrationDeleteStatus_Conflict" xml:space="preserve">
     <value>The user was changed elsewhere</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_SystemUserProtected" xml:space="preserve">
+  <data name="UserAdministrationDeleteStatus_SystemUserProtected" xml:space="preserve">
     <value>The technical MOPR system user is protected</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_SelfDeactivationNotAllowed" xml:space="preserve">
-    <value>The current user cannot be deactivated</value>
+  <data name="UserAdministrationDeleteStatus_CurrentUserProtected" xml:space="preserve">
+    <value>The currently signed-in user is protected</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_SelfModificationNotAllowed" xml:space="preserve">
-    <value>The current user is not permitted to modify their own user account</value>
+  <data name="UserAdministrationDeleteStatus_InUse" xml:space="preserve">
+    <value>The user is referenced by existing MOPR data</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_DuplicateLoginName" xml:space="preserve">
-    <value>The Windows login name is already assigned to another user</value>
+  <data name="UserAdministrationDeleteStatus_Unauthorized" xml:space="preserve">
+    <value>No valid persistent MOPR user is available to audit this removal</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
-    <value>The Windows security identifier is already assigned to another user</value>
+  <data name="UserAdministrationDeleteStatus_ValidationFailed" xml:space="preserve">
+    <value>The supplied user-removal request is invalid</value>
   </data>
-  <data name="UserAdministrationUpdateStatus_DuplicatePersonnelNumber" xml:space="preserve">
-    <value>The personnel number is already assigned to another user</value>
-  </data>
-  <data name="UserAdministrationUpdateStatus_Unauthorized" xml:space="preserve">
-    <value>No valid persistent MOPR user is available to audit this change</value>
-  </data>
-  <data name="UserAdministrationUpdateStatus_ValidationFailed" xml:space="preserve">
-    <value>The supplied user information is invalid</value>
-  </data>
-  <data name="UserAdministrationUpdateStatus_Failed" xml:space="preserve">
-    <value>The user could not be updated</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_NotStarted" xml:space="preserve">
-    <value>Not started</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_Completed" xml:space="preserve">
-    <value>Completed</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_ValidationFailed" xml:space="preserve">
-    <value>The supplied user information is invalid</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_SystemUserReserved" xml:space="preserve">
-    <value>The technical MOPR system identity is reserved</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_DuplicateLoginName" xml:space="preserve">
-    <value>The Windows login name is already assigned to another user</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_DuplicateSecurityIdentifier" xml:space="preserve">
-    <value>The Windows security identifier is already assigned to another user</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_DuplicatePersonnelNumber" xml:space="preserve">
-    <value>The personnel number is already assigned to another user</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_Unauthorized" xml:space="preserve">
-    <value>No valid persistent MOPR user is available to audit this creation</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_Conflict" xml:space="preserve">
-    <value>The user could not be created because a unique identity value changed concurrently</value>
-  </data>
-  <data name="UserAdministrationCreateStatus_Failed" xml:space="preserve">
-    <value>The user could not be created</value>
+  <data name="UserAdministrationDeleteStatus_Failed" xml:space="preserve">
+    <value>The user could not be removed</value>
   </data>
 </root>

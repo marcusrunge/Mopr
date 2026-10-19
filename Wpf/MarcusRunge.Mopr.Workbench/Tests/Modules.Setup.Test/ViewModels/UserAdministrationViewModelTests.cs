@@ -171,18 +171,25 @@ public sealed class UserAdministrationViewModelTests
         Assert.False(context.ViewModel.IsDirty);
     }
 
-
     [Fact]
-    public async Task NewCommand_WhenExecuted_EntersCreationMode()
+    public async Task NewCommand_WhenExecuted_EntersCreationModeAndSelectsPreview()
     {
         var cancellationToken = Xunit.TestContext.Current.CancellationToken;
         var context = new TestContext(CreateUsers());
+
         await context.WaitUntilLoadedAsync(cancellationToken);
+
+        var initialUserCount = context.ViewModel.Users.Count;
 
         context.ViewModel.NewCommand.Execute();
 
         Assert.True(context.ViewModel.IsCreating);
-        Assert.Null(context.ViewModel.SelectedUser);
+        Assert.NotNull(context.ViewModel.SelectedUser);
+        Assert.True(context.ViewModel.SelectedUser.IsPreview);
+        Assert.Equal(0, context.ViewModel.SelectedUser.Id);
+        Assert.Empty(context.ViewModel.SelectedUser.RowVersion);
+        Assert.Equal(initialUserCount + 1, context.ViewModel.Users.Count);
+        Assert.Same(context.ViewModel.SelectedUser, context.ViewModel.Users.Last());
         Assert.True(context.ViewModel.IsActive);
         Assert.True(context.ViewModel.IsEditorEnabled);
         Assert.False(context.ViewModel.CanSelectUser);
@@ -231,6 +238,84 @@ public sealed class UserAdministrationViewModelTests
         Assert.Equal("New", context.ViewModel.FirstName);
         Assert.False(context.ViewModel.IsDirty);
         context.UserAdministration.Verify(service => service.CreateAsync(It.Is<UserAdministrationCreateRequest>(request => request.LoginName == @"DOMAIN\new" && request.FirstName == "New" && request.LastName == "User" && request.ShortName == "NEW" && request.IsActive), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task BeginRemoveCommand_WhenEligibleUserIsSelected_ShowsConfirmation()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var context = new TestContext(CreateUsers());
+        await context.WaitUntilLoadedAsync(cancellationToken);
+        context.ViewModel.SelectedUser = context.ViewModel.Users.Single(user => user.Id == OtherUserId);
+
+        context.ViewModel.BeginRemoveCommand.Execute();
+
+        Assert.True(context.ViewModel.IsRemoveConfirmationVisible);
+        Assert.True(context.ViewModel.ConfirmRemoveCommand.CanExecute());
+        Assert.True(context.ViewModel.CancelRemoveCommand.CanExecute());
+    }
+
+    [Fact]
+    public async Task BeginRemoveCommand_WhenCurrentOrSystemUserIsSelected_IsDisabled()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var context = new TestContext(CreateUsers());
+        await context.WaitUntilLoadedAsync(cancellationToken);
+
+        Assert.False(context.ViewModel.BeginRemoveCommand.CanExecute());
+        context.ViewModel.SelectedUser = context.ViewModel.Users.Single(user => user.Id == SystemUserId);
+        Assert.False(context.ViewModel.BeginRemoveCommand.CanExecute());
+    }
+
+    [Fact]
+    public async Task CancelRemoveCommand_WhenExecuted_HidesConfirmation()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var context = new TestContext(CreateUsers());
+        await context.WaitUntilLoadedAsync(cancellationToken);
+        context.ViewModel.SelectedUser = context.ViewModel.Users.Single(user => user.Id == OtherUserId);
+        context.ViewModel.BeginRemoveCommand.Execute();
+
+        context.ViewModel.CancelRemoveCommand.Execute();
+
+        Assert.False(context.ViewModel.IsRemoveConfirmationVisible);
+        Assert.Equal(Resources.UserAdministration_RemovalCanceled, context.ViewModel.StatusText);
+    }
+
+    [Fact]
+    public async Task ConfirmRemoveCommand_WhenDeletionSucceeds_ReloadsUsers()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var remainingUsers = CreateUsers().Where(user => user.Id != OtherUserId).ToArray();
+        var context = new TestContext(CreateUsers(), remainingUsers);
+        context.UserAdministration.Setup(service => service.DeleteAsync(It.Is<UserAdministrationDeleteRequest>(request => request.Id == OtherUserId && request.RowVersion.SequenceEqual(new byte[] { 1, 2, 3, OtherUserId })), It.IsAny<CancellationToken>())).ReturnsAsync(UserAdministrationDeleteResult.Success());
+        await context.WaitUntilLoadedAsync(cancellationToken);
+        context.ViewModel.SelectedUser = context.ViewModel.Users.Single(user => user.Id == OtherUserId);
+        context.ViewModel.BeginRemoveCommand.Execute();
+
+        context.ViewModel.ConfirmRemoveCommand.Execute();
+        await WaitUntilAsync(() => !context.ViewModel.IsBusy && context.ViewModel.StatusText == Resources.UserAdministration_Deleted, cancellationToken);
+
+        Assert.False(context.ViewModel.IsRemoveConfirmationVisible);
+        Assert.DoesNotContain(context.ViewModel.Users, user => user.Id == OtherUserId);
+        Assert.Equal(CurrentUserId, context.ViewModel.SelectedUser?.Id);
+    }
+
+    [Fact]
+    public async Task ConfirmRemoveCommand_WhenUserIsInUse_ShowsDeactivationGuidance()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var context = new TestContext(CreateUsers());
+        context.UserAdministration.Setup(service => service.DeleteAsync(It.IsAny<UserAdministrationDeleteRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(UserAdministrationDeleteResult.InUse());
+        await context.WaitUntilLoadedAsync(cancellationToken);
+        context.ViewModel.SelectedUser = context.ViewModel.Users.Single(user => user.Id == OtherUserId);
+        context.ViewModel.BeginRemoveCommand.Execute();
+
+        context.ViewModel.ConfirmRemoveCommand.Execute();
+        await WaitUntilAsync(() => !context.ViewModel.IsBusy && context.ViewModel.StatusText == Resources.UserAdministration_InUse, cancellationToken);
+
+        Assert.True(context.ViewModel.IsRemoveConfirmationVisible);
+        Assert.Contains(context.ViewModel.Users, user => user.Id == OtherUserId);
     }
 
     private static IReadOnlyList<UserAdministrationSummary> CreateUsers() => [CreateSystemSummary(), CreateSummary(CurrentUserId, @"DOMAIN\current", isCurrentUser: true, firstName: "Current"), CreateOtherSummary()];

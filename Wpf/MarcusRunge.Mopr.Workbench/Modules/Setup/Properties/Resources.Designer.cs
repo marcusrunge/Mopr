@@ -1474,11 +1474,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string UserAdministration_CancelRemove {
+            get {
+                return ResourceManager.GetString("UserAdministration_CancelRemove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Unsaved user changes were discarded. ähnelt.
         /// </summary>
         public static string UserAdministration_ChangesDiscarded {
             get {
                 return ResourceManager.GetString("UserAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove user ähnelt.
+        /// </summary>
+        public static string UserAdministration_ConfirmRemove {
+            get {
+                return ResourceManager.GetString("UserAdministration_ConfirmRemove", resourceCulture);
             }
         }
         
@@ -1555,6 +1573,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currently signed-in user cannot be removed. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CurrentUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministration_CurrentUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere. Reload the current values before trying to remove the user again. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DeleteConflict {
+            get {
+                return ResourceManager.GetString("UserAdministration_DeleteConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was removed. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Deleted {
+            get {
+                return ResourceManager.GetString("UserAdministration_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be removed. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DeleteFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_DeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removing user... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Deleting {
+            get {
+                return ResourceManager.GetString("UserAdministration_Deleting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
         /// </summary>
         public static string UserAdministration_Discard {
@@ -1614,6 +1677,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string UserAdministration_Inactive {
             get {
                 return ResourceManager.GetString("UserAdministration_Inactive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user is assigned to existing MOPR data and cannot be removed. Deactivate the user instead. ähnelt.
+        /// </summary>
+        public static string UserAdministration_InUse {
+            get {
+                return ResourceManager.GetString("UserAdministration_InUse", resourceCulture);
             }
         }
         
@@ -1731,6 +1803,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string UserAdministration_Reload {
             get {
                 return ResourceManager.GetString("UserAdministration_Reload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User removal was canceled. ähnelt.
+        /// </summary>
+        public static string UserAdministration_RemovalCanceled {
+            get {
+                return ResourceManager.GetString("UserAdministration_RemovalCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove user ähnelt.
+        /// </summary>
+        public static string UserAdministration_Remove {
+            get {
+                return ResourceManager.GetString("UserAdministration_Remove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user will be removed from user administration. Existing image, examination, measurement, and audit data will not be deleted. A user assigned to existing MOPR data cannot be removed and should be deactivated instead. ähnelt.
+        /// </summary>
+        public static string UserAdministration_RemoveConfirmationDescription {
+            get {
+                return ResourceManager.GetString("UserAdministration_RemoveConfirmationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove user from MOPR? ähnelt.
+        /// </summary>
+        public static string UserAdministration_RemoveConfirmationTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_RemoveConfirmationTitle", resourceCulture);
             }
         }
         
@@ -1857,6 +1965,96 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string UserAdministration_ValidationFailed {
             get {
                 return ResourceManager.GetString("UserAdministration_ValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_Completed {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_Conflict {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currently signed-in user is protected ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_CurrentUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_CurrentUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be removed ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_Failed {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user is referenced by existing MOPR data ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_InUse {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_InUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User not found ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_NotFound {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system user is protected ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_SystemUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_SystemUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid persistent MOPR user is available to audit this removal ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_Unauthorized {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The supplied user-removal request is invalid ähnelt.
+        /// </summary>
+        public static string UserAdministrationDeleteStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_ValidationFailed", resourceCulture);
             }
         }
     }

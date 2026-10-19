@@ -22,9 +22,9 @@ public sealed class UserAdministrationViewModel : BindableBase
     private readonly IUserAdministrationService _administrationService;
     private readonly CancellationToken _applicationStopping;
     private string _academicTitle = string.Empty, _firstName = string.Empty, _lastName = string.Empty, _loginName = string.Empty, _middleName = string.Empty, _personnelNumber = string.Empty, _securityIdentifier = string.Empty, _shortName = string.Empty, _statusText = string.Empty, _suffix = string.Empty;
-    private DelegateCommand? _cancelCreateCommand, _discardCommand, _newCommand, _reloadCommand, _saveCommand;
-    private bool _isActive, _isBusy, _isCreating;
-    private UserAdministrationItemViewModel? _selectedUser;
+    private DelegateCommand? _beginRemoveCommand, _cancelCreateCommand, _cancelRemoveCommand, _confirmRemoveCommand, _discardCommand, _newCommand, _reloadCommand, _saveCommand;
+    private bool _isActive, _isBusy, _isCreating, _isRemoveConfirmationVisible;
+    private UserAdministrationItemViewModel? _creationPreview, _selectedUser, _selectionBeforeCreate;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserAdministrationViewModel"/> class.
@@ -39,9 +39,13 @@ public sealed class UserAdministrationViewModel : BindableBase
 
     public string AcademicTitle { get => _academicTitle; set { if (!SetProperty(ref _academicTitle, value ?? string.Empty)) return; OnEditorChanged(); } }
     public bool CanChangeActivation => IsEditorEnabled && (IsCreating || SelectedUser is { IsCurrentUser: false });
+    public DelegateCommand BeginRemoveCommand => _beginRemoveCommand ??= new DelegateCommand(ExecuteBeginRemove, CanBeginRemove);
+    public DelegateCommand CancelRemoveCommand => _cancelRemoveCommand ??= new DelegateCommand(ExecuteCancelRemove, () => !IsBusy && IsRemoveConfirmationVisible);
+    public bool CanRemoveSelectedUser => !IsBusy && !IsCreating && !IsDirty && SelectedUser is { IsPreview: false, IsSystemUser: false, IsCurrentUser: false };
     public bool CanSelectUser => !IsBusy && !IsCreating && !IsDirty;
     public DelegateCommand CancelCreateCommand => _cancelCreateCommand ??= new DelegateCommand(ExecuteCancelCreate, () => !IsBusy && IsCreating);
     public DelegateCommand DiscardCommand => _discardCommand ??= new DelegateCommand(ExecuteDiscard, () => !IsBusy && !IsCreating && IsDirty);
+    public DelegateCommand ConfirmRemoveCommand => _confirmRemoveCommand ??= new DelegateCommand(() => _ = RemoveAsync(_applicationStopping), () => !IsBusy && IsRemoveConfirmationVisible && CanRemoveSelectedUser);
     public string FirstName { get => _firstName; set { if (!SetProperty(ref _firstName, value ?? string.Empty)) return; OnEditorChanged(); } }
     public bool HasEditorContext => IsCreating || SelectedUser is not null;
     public bool HasSelectedUser => SelectedUser is not null;
@@ -68,6 +72,16 @@ public sealed class UserAdministrationViewModel : BindableBase
         }
     }
 
+    public bool IsRemoveConfirmationVisible
+    {
+        get => _isRemoveConfirmationVisible;
+        private set
+        {
+            if (!SetProperty(ref _isRemoveConfirmationVisible, value)) return;
+            RaiseCommandStates();
+        }
+    }
+
     public bool IsDirty => IsCreating ? !string.IsNullOrWhiteSpace(LoginName) || !string.IsNullOrWhiteSpace(FirstName) || !string.IsNullOrWhiteSpace(MiddleName) || !string.IsNullOrWhiteSpace(LastName) || !string.IsNullOrWhiteSpace(ShortName) || !string.IsNullOrWhiteSpace(AcademicTitle) || !string.IsNullOrWhiteSpace(Suffix) || !string.IsNullOrWhiteSpace(PersonnelNumber) || !string.IsNullOrWhiteSpace(SecurityIdentifier) || !IsActive : SelectedUser is not null && (!string.Equals(AcademicTitle.Trim(), SelectedUser.AcademicTitle, StringComparison.Ordinal) || !string.Equals(FirstName.Trim(), SelectedUser.FirstName, StringComparison.Ordinal) || !string.Equals(MiddleName.Trim(), SelectedUser.MiddleName, StringComparison.Ordinal) || !string.Equals(LastName.Trim(), SelectedUser.LastName, StringComparison.Ordinal) || !string.Equals(Suffix.Trim(), SelectedUser.Suffix, StringComparison.Ordinal) || !string.Equals(ShortName.Trim(), SelectedUser.ShortName, StringComparison.Ordinal) || !string.Equals(PersonnelNumber.Trim(), SelectedUser.PersonnelNumber, StringComparison.OrdinalIgnoreCase) || !string.Equals(LoginName.Trim(), SelectedUser.LoginName, StringComparison.OrdinalIgnoreCase) || !string.Equals(SecurityIdentifier.Trim(), SelectedUser.SecurityIdentifier, StringComparison.OrdinalIgnoreCase) || IsActive != SelectedUser.IsActive);
     public bool IsEditorEnabled => !IsBusy && (IsCreating || SelectedUser is { IsSystemUser: false });
     public string LastName { get => _lastName; set { if (!SetProperty(ref _lastName, value ?? string.Empty)) return; OnEditorChanged(); } }
@@ -85,6 +99,7 @@ public sealed class UserAdministrationViewModel : BindableBase
         set
         {
             if (IsCreating || IsDirty || !SetProperty(ref _selectedUser, value)) return;
+            IsRemoveConfirmationVisible = false;
             ApplySelection(value);
         }
     }
@@ -112,10 +127,27 @@ public sealed class UserAdministrationViewModel : BindableBase
 
     private bool CanSave() => !IsBusy && IsEditorEnabled && (IsCreating || IsDirty) && !string.IsNullOrWhiteSpace(LoginName) && !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(LastName) && !string.IsNullOrWhiteSpace(ShortName) && (IsCreating || SelectedUser?.IsCurrentUser != true || IsActive);
 
+    private bool CanBeginRemove() => CanRemoveSelectedUser;
+
+    private void ExecuteBeginRemove()
+    {
+        if (!CanRemoveSelectedUser) return;
+        IsRemoveConfirmationVisible = true;
+        StatusText = string.Empty;
+    }
+
+    private void ExecuteCancelRemove()
+    {
+        IsRemoveConfirmationVisible = false;
+        StatusText = Resources.UserAdministration_RemovalCanceled;
+    }
+
     private void ExecuteCancelCreate()
     {
+        RemoveCreationPreview();
         IsCreating = false;
-        var user = Users.FirstOrDefault(item => item.IsCurrentUser) ?? Users.FirstOrDefault();
+        var user = _selectionBeforeCreate is not null && Users.Contains(_selectionBeforeCreate) ? _selectionBeforeCreate : Users.FirstOrDefault(item => item.IsCurrentUser) ?? Users.FirstOrDefault();
+        _selectionBeforeCreate = null;
         _selectedUser = user;
         RaisePropertyChanged(nameof(SelectedUser));
         ApplySelection(user);
@@ -130,11 +162,14 @@ public sealed class UserAdministrationViewModel : BindableBase
 
     private void ExecuteNew()
     {
-        _selectedUser = null;
-        RaisePropertyChanged(nameof(SelectedUser));
+        _selectionBeforeCreate = SelectedUser;
         IsCreating = true;
         _academicTitle = _firstName = _lastName = _loginName = _middleName = _personnelNumber = _securityIdentifier = _shortName = _suffix = string.Empty;
         _isActive = true;
+        _creationPreview = new UserAdministrationItemViewModel(0, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, isActive: true, isCurrentUser: false, string.Empty, string.Empty, string.Empty, string.Empty, [], isPreview: true);
+        Users.Add(_creationPreview);
+        _selectedUser = _creationPreview;
+        RaisePropertyChanged(nameof(SelectedUser));
         RaiseEditorProperties();
         StatusText = Resources.UserAdministration_NewInstructions;
     }
@@ -177,9 +212,12 @@ public sealed class UserAdministrationViewModel : BindableBase
             StatusText = Resources.UserAdministration_Loading;
             var summaries = await _administrationService.GetAllAsync(cancellationToken).ConfigureAwait(true);
             Users.Clear();
+            _creationPreview = null;
+            _selectionBeforeCreate = null;
             foreach (var user in summaries) Users.Add(Map(user));
             _selectedUser = selectedUserId.HasValue ? Users.FirstOrDefault(user => user.Id == selectedUserId) : Users.FirstOrDefault(user => user.IsCurrentUser) ?? Users.FirstOrDefault();
             RaisePropertyChanged(nameof(SelectedUser));
+            IsRemoveConfirmationVisible = false;
             IsCreating = false;
             ApplySelection(_selectedUser);
             StatusText = Users.Count == 0 ? Resources.UserAdministration_NoUsers : string.Empty;
@@ -194,15 +232,28 @@ public sealed class UserAdministrationViewModel : BindableBase
 
     private void OnEditorChanged()
     {
+        IsRemoveConfirmationVisible = false;
         StatusText = string.Empty;
+        UpdateCreationPreview();
         RaisePropertyChanged(nameof(IsDirty));
         RaisePropertyChanged(nameof(CanSelectUser));
         RaiseCommandStates();
     }
 
+    private void RemoveCreationPreview()
+    {
+        if (_creationPreview is not null) Users.Remove(_creationPreview);
+        _creationPreview = null;
+    }
+
+    private void UpdateCreationPreview() => _creationPreview?.UpdatePreview(LoginName, FirstName, MiddleName, LastName, ShortName, IsActive, AcademicTitle, Suffix, PersonnelNumber, SecurityIdentifier);
+
     private void RaiseCommandStates()
     {
+        _beginRemoveCommand?.RaiseCanExecuteChanged();
         _cancelCreateCommand?.RaiseCanExecuteChanged();
+        _cancelRemoveCommand?.RaiseCanExecuteChanged();
+        _confirmRemoveCommand?.RaiseCanExecuteChanged();
         _discardCommand?.RaiseCanExecuteChanged();
         _newCommand?.RaiseCanExecuteChanged();
         _reloadCommand?.RaiseCanExecuteChanged();
@@ -231,8 +282,41 @@ public sealed class UserAdministrationViewModel : BindableBase
         RaisePropertyChanged(nameof(IsDirty));
         RaisePropertyChanged(nameof(IsEditorEnabled));
         RaisePropertyChanged(nameof(CanChangeActivation));
+        RaisePropertyChanged(nameof(CanRemoveSelectedUser));
         RaisePropertyChanged(nameof(CanSelectUser));
         RaiseCommandStates();
+    }
+
+    private static string GetDeleteStatusText(UserAdministrationDeleteStatus status) => status switch
+    {
+        UserAdministrationDeleteStatus.NotFound => Resources.UserAdministration_NotFound,
+        UserAdministrationDeleteStatus.Conflict => Resources.UserAdministration_DeleteConflict,
+        UserAdministrationDeleteStatus.SystemUserProtected => Resources.UserAdministration_SystemUserProtected,
+        UserAdministrationDeleteStatus.CurrentUserProtected => Resources.UserAdministration_CurrentUserProtected,
+        UserAdministrationDeleteStatus.InUse => Resources.UserAdministration_InUse,
+        UserAdministrationDeleteStatus.Unauthorized => Resources.UserAdministration_Unauthorized,
+        UserAdministrationDeleteStatus.ValidationFailed => Resources.UserAdministration_ValidationFailed,
+        UserAdministrationDeleteStatus.Failed or UserAdministrationDeleteStatus.NotStarted or UserAdministrationDeleteStatus.Completed or _ => Resources.UserAdministration_DeleteFailed
+    };
+
+    private async Task RemoveAsync(CancellationToken cancellationToken)
+    {
+        var selectedUser = SelectedUser;
+        if (selectedUser is null || !CanRemoveSelectedUser) return;
+
+        try
+        {
+            IsBusy = true;
+            StatusText = Resources.UserAdministration_Deleting;
+            var result = await _administrationService.DeleteAsync(new UserAdministrationDeleteRequest(selectedUser.Id, [.. selectedUser.RowVersion]), cancellationToken).ConfigureAwait(true);
+            if (!result.IsSuccess) { StatusText = GetDeleteStatusText(result.Status); return; }
+            IsRemoveConfirmationVisible = false;
+            await LoadUsersAsync(cancellationToken).ConfigureAwait(true);
+            StatusText = Resources.UserAdministration_Deleted;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { StatusText = Resources.UserAdministration_Canceled; }
+        catch { StatusText = Resources.UserAdministration_DeleteFailed; }
+        finally { IsBusy = false; }
     }
 
     private async Task SaveAsync(CancellationToken cancellationToken)

@@ -717,4 +717,70 @@
   <data name="UserAdministration_CreateFailed" xml:space="preserve">
     <value>The user could not be created.</value>
   </data>
+  <data name="UserAdministrationDeleteStatus_NotStarted" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_NotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Conflict" xml:space="preserve">
+    <value>The user was changed elsewhere</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_SystemUserProtected" xml:space="preserve">
+    <value>The technical MOPR system user is protected</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_CurrentUserProtected" xml:space="preserve">
+    <value>The currently signed-in user is protected</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_InUse" xml:space="preserve">
+    <value>The user is referenced by existing MOPR data</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Unauthorized" xml:space="preserve">
+    <value>No valid persistent MOPR user is available to audit this removal</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_ValidationFailed" xml:space="preserve">
+    <value>The supplied user-removal request is invalid</value>
+  </data>
+  <data name="UserAdministrationDeleteStatus_Failed" xml:space="preserve">
+    <value>The user could not be removed</value>
+  </data>
+	<data name="UserAdministration_RemovalCanceled" xml:space="preserve">
+    <value>User removal was canceled.</value>
+  </data>
+	<data name="UserAdministration_DeleteConflict" xml:space="preserve">
+    <value>The user was changed elsewhere. Reload the current values before trying to remove the user again.</value>
+  </data>
+	<data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
+    <value>The currently signed-in user cannot be removed.</value>
+  </data>
+	<data name="UserAdministration_InUse" xml:space="preserve">
+    <value>The user is assigned to existing MOPR data and cannot be removed. Deactivate the user instead.</value>
+  </data>
+	<data name="UserAdministration_DeleteFailed" xml:space="preserve">
+    <value>The user could not be removed.</value>
+  </data>
+	<data name="UserAdministration_Deleting" xml:space="preserve">
+    <value>Removing user...</value>
+  </data>
+	<data name="UserAdministration_Deleted" xml:space="preserve">
+    <value>The user was removed.</value>
+  </data>
+	<data name="UserAdministration_Remove" xml:space="preserve">
+    <value>Remove user</value>
+  </data>
+	<data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
+    <value>Remove user from MOPR?</value>
+  </data>
+	<data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
+    <value>The user will be removed from user administration. Existing image, examination, measurement, and audit data will not be deleted. A user assigned to existing MOPR data cannot be removed and should be deactivated instead.</value>
+  </data>
+	<data name="UserAdministration_CancelRemove" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+	<data name="UserAdministration_ConfirmRemove" xml:space="preserve">
+    <value>Remove user</value>
+  </data>
 </root>

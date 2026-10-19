@@ -132,6 +132,96 @@ public sealed class UserAdministrationServiceTests
         Assert.Equal(UserAdministrationUpdateStatus.Conflict, result.Status);
     }
 
+    [Fact]
+    public async Task DeleteAsync_WhenRequestIsValid_DeletesUser()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var user = CreateUser();
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, cancellationToken)).ReturnsAsync(user);
+        context.UserRepository.Setup(repository => repository.DeleteAsync(user, cancellationToken)).Returns(Task.CompletedTask);
+
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), cancellationToken);
+
+        Assert.True(result.IsSuccess);
+        context.UserRepository.Verify(repository => repository.DeleteAsync(user, cancellationToken), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenAuditIdentityIsUnavailable_ReturnsUnauthorized()
+    {
+        var context = new TestContext(currentUserId: null);
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), Xunit.TestContext.Current.CancellationToken);
+        Assert.Equal(UserAdministrationDeleteStatus.Unauthorized, result.Status);
+        context.UserRepository.Verify(repository => repository.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenCurrentUserIsSelected_ReturnsCurrentUserProtected()
+    {
+        var context = new TestContext(currentUserId: EditedUserId);
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), Xunit.TestContext.Current.CancellationToken);
+        Assert.Equal(UserAdministrationDeleteStatus.CurrentUserProtected, result.Status);
+        context.UserRepository.Verify(repository => repository.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenUserDoesNotExist_ReturnsNotFound()
+    {
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), Xunit.TestContext.Current.CancellationToken);
+        Assert.Equal(UserAdministrationDeleteStatus.NotFound, result.Status);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenRowVersionChanged_ReturnsConflict()
+    {
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, It.IsAny<CancellationToken>())).ReturnsAsync(CreateUser(rowVersion: [9, 9, 9, 9]));
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), Xunit.TestContext.Current.CancellationToken);
+        Assert.Equal(UserAdministrationDeleteStatus.Conflict, result.Status);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenSystemUserIsSelected_ReturnsSystemUserProtected()
+    {
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, It.IsAny<CancellationToken>())).ReturnsAsync(CreateUser(loginName: WellKnownUserLoginNames.System));
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), Xunit.TestContext.Current.CancellationToken);
+        Assert.Equal(UserAdministrationDeleteStatus.SystemUserProtected, result.Status);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenUserIsReferenced_ReturnsInUse()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var user = CreateUser();
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, cancellationToken)).ReturnsAsync(user);
+        context.UserRepository.Setup(repository => repository.DeleteAsync(user, cancellationToken)).ThrowsAsync(new DbUpdateException());
+
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), cancellationToken);
+
+        Assert.Equal(UserAdministrationDeleteStatus.InUse, result.Status);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenPersistenceReportsConcurrencyConflict_ReturnsConflict()
+    {
+        var cancellationToken = Xunit.TestContext.Current.CancellationToken;
+        var user = CreateUser();
+        var context = new TestContext();
+        context.UserRepository.Setup(repository => repository.GetByIdAsync(EditedUserId, cancellationToken)).ReturnsAsync(user);
+        context.UserRepository.Setup(repository => repository.DeleteAsync(user, cancellationToken)).ThrowsAsync(new DbUpdateConcurrencyException());
+
+        var result = await context.Service.DeleteAsync(CreateDeleteRequest(), cancellationToken);
+
+        Assert.Equal(UserAdministrationDeleteStatus.Conflict, result.Status);
+    }
+
+    private static UserAdministrationDeleteRequest CreateDeleteRequest() => new(EditedUserId, [.. RowVersion]);
+
     private static UserAdministrationUpdateRequest CreateRequest(bool isActive = true) => new(EditedUserId, @"DOMAIN\Edited", "Edited", null, "Updated", "ED", null, null, "200", "S-1-5-21-2000", isActive, [.. RowVersion]);
 
     private static User CreateUser(int id = EditedUserId, string loginName = @"DOMAIN\Edited", string securityIdentifier = "S-1-5-21-2000", string personnelNumber = "200", byte[]? rowVersion = null) => new() { Id = id, LoginName = loginName, FirstName = "Edited", LastName = "User", ShortName = "ED", PersonnelNumber = personnelNumber, SecurityIdentifier = securityIdentifier, IsActive = true, RowVersion = rowVersion ?? [.. RowVersion] };

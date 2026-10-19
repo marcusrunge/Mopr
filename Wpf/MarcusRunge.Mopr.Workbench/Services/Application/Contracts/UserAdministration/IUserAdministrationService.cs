@@ -16,6 +16,14 @@ public interface IUserAdministrationService
     Task<UserAdministrationCreateResult> CreateAsync(UserAdministrationCreateRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Removes one persisted personal MOPR user while preserving identity and concurrency guarantees.
+    /// </summary>
+    /// <param name="request">The requested user deletion.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
+    /// <returns>The structured deletion result.</returns>
+    Task<UserAdministrationDeleteResult> DeleteAsync(UserAdministrationDeleteRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets every persisted MOPR user.
     /// </summary>
     /// <param name="cancellationToken">Cancels the operation.</param>

@@ -56,6 +56,7 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="12,0,0,0">
                                     <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" Text="{x:Static properties:Resources.UserAdministration_CurrentUser}" Visibility="{Binding IsCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" Text="{x:Static properties:Resources.UserAdministration_New}" Visibility="{Binding IsPreview, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                     <TextBlock Margin="0,4,0,0" Foreground="{StaticResource WorkbenchMutedTextBrush}" Text="{x:Static properties:Resources.UserAdministration_Inactive}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsActive}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
@@ -69,7 +70,7 @@
             <Border Grid.Column="2" Padding="22" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="8">
                 <Grid>
                     <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasEditorContext}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
 
                     <TextBlock Foreground="{StaticResource WorkbenchAccentBrush}" FontSize="12" FontWeight="Bold">
                         <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_EditTitle}" /><Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Text" Value="{x:Static properties:Resources.UserAdministration_NewTitle}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
@@ -105,14 +106,29 @@
                     </ScrollViewer>
 
                     <Grid Grid.Row="2" Margin="0,22,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <Button Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ReloadCommand}" Content="{x:Static properties:Resources.UserAdministration_Reload}" />
                         <Button Grid.Column="1" Margin="10,0,0,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding CancelCreateCommand}" Content="{x:Static properties:Resources.UserAdministration_CancelCreate}" />
-                        <Button Grid.Column="3" Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding DiscardCommand}" Content="{x:Static properties:Resources.UserAdministration_Discard}" />
-                        <Button Grid.Column="4" Command="{Binding SaveCommand}">
+                        <Button Grid.Column="2" Margin="10,0,0,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding BeginRemoveCommand}" Content="{x:Static properties:Resources.UserAdministration_Remove}" />
+                        <Button Grid.Column="4" Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding DiscardCommand}" Content="{x:Static properties:Resources.UserAdministration_Discard}" />
+                        <Button Grid.Column="5" Command="{Binding SaveCommand}">
                             <Button.Style><Style BasedOn="{StaticResource SetupPrimaryButtonStyle}" TargetType="Button"><Setter Property="Content" Value="{x:Static properties:Resources.UserAdministration_Save}" /><Style.Triggers><DataTrigger Binding="{Binding IsCreating}" Value="True"><Setter Property="Content" Value="{x:Static properties:Resources.UserAdministration_Create}" /></DataTrigger></Style.Triggers></Style></Button.Style>
                         </Button>
                     </Grid>
+
+                    <Border Grid.Row="3" Margin="0,18,0,0" Padding="16" Background="#3A2F18" BorderBrush="#665329" BorderThickness="1" CornerRadius="6">
+                        <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsRemoveConfirmationVisible}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Border.Style>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Foreground="#F2C14E" FontWeight="SemiBold" Text="{x:Static properties:Resources.UserAdministration_RemoveConfirmationTitle}" />
+                                <TextBlock Margin="0,6,20,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{x:Static properties:Resources.UserAdministration_RemoveConfirmationDescription}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,6,20,0" Foreground="{StaticResource WorkbenchTextBrush}" FontWeight="SemiBold" Text="{Binding SelectedUser.DisplayName}" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Bottom" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding CancelRemoveCommand}" Content="{x:Static properties:Resources.UserAdministration_CancelRemove}" />
+                            <Button Grid.Column="2" VerticalAlignment="Bottom" Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding ConfirmRemoveCommand}" Content="{x:Static properties:Resources.UserAdministration_ConfirmRemove}" />
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>

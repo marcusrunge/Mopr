@@ -61,416 +61,1892 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Detect automatically ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die This area requires an active MOPR user and effective elevated Windows administrator rights. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_AutoDetect {
+        public static string Administration_AccessDeniedDescription {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_AutoDetect", resourceCulture);
+                return ResourceManager.GetString("Administration_AccessDeniedDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die CD-ROM ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrative access denied ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_CdRom {
+        public static string Administration_AccessDeniedTitle {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_CdRom", resourceCulture);
+                return ResourceManager.GetString("Administration_AccessDeniedTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die DVD ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die ADMINISTRATOR ACCESS ACTIVE ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_Dvd {
+        public static string Administration_AdministratorAccessActive {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_Dvd", resourceCulture);
+                return ResourceManager.GetString("Administration_AdministratorAccessActive", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die External drive ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_ExternalDrive {
+        public static string Administration_Database {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_ExternalDrive", resourceCulture);
+                return ResourceManager.GetString("Administration_Database", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die ISO image ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Connection, reachability and controlled application of database settings. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_IsoImage {
+        public static string Administration_DatabaseDescription {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_IsoImage", resourceCulture);
+                return ResourceManager.GetString("Administration_DatabaseDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Local directory ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Overview ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_LocalDirectory {
+        public static string Administration_Overview {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_LocalDirectory", resourceCulture);
+                return ResourceManager.GetString("Administration_Overview", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Mapped network drive ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Central access to database, DICOM repositories, security, users and system checks. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_MappedNetworkDrive {
+        public static string Administration_OverviewDescription {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_MappedNetworkDrive", resourceCulture);
+                return ResourceManager.GetString("Administration_OverviewDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Network share ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Structure preview. Productive settings are changed only after explicit validation and saving. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_NetworkShare {
+        public static string Administration_PrototypeNotice {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_NetworkShare", resourceCulture);
+                return ResourceManager.GetString("Administration_PrototypeNotice", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Removable drive ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM repository ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_RemovableDrive {
+        public static string Administration_Repository {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_RemovableDrive", resourceCulture);
+                return ResourceManager.GetString("Administration_Repository", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SD card ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Storage locations, availability and controlled repository validation. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_SdCard {
+        public static string Administration_RepositoryDescription {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_SdCard", resourceCulture);
+                return ResourceManager.GetString("Administration_RepositoryDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown source ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Return to image viewer ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_Unknown {
+        public static string Administration_ReturnToImaging {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_Unknown", resourceCulture);
+                return ResourceManager.GetString("Administration_ReturnToImaging", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die USB storage device ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Security ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_UsbDrive {
+        public static string Administration_Security {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_UsbDrive", resourceCulture);
+                return ResourceManager.GetString("Administration_Security", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Virtual drive ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Protected workstation settings and security-related behavior. ähnelt.
         /// </summary>
-        public static string DicomImportSourceType_VirtualDrive {
+        public static string Administration_SecurityDescription {
             get {
-                return ResourceManager.GetString("DicomImportSourceType_VirtualDrive", resourceCulture);
+                return ResourceManager.GetString("Administration_SecurityDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Audit identity unavailable ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Settings ähnelt.
         /// </summary>
-        public static string DicomImportStatus_AuditIdentityUnavailable {
+        public static string Administration_Settings {
             get {
-                return ResourceManager.GetString("DicomImportStatus_AuditIdentityUnavailable", resourceCulture);
+                return ResourceManager.GetString("Administration_Settings", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import canceled ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die System check ähnelt.
         /// </summary>
-        public static string DicomImportStatus_Canceled {
+        public static string Administration_SystemCheck {
             get {
-                return ResourceManager.GetString("DicomImportStatus_Canceled", resourceCulture);
+                return ResourceManager.GetString("Administration_SystemCheck", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database, repository and MIRAS checks without automatic repair. ähnelt.
         /// </summary>
-        public static string DicomImportStatus_Completed {
+        public static string Administration_SystemCheckDescription {
             get {
-                return ResourceManager.GetString("DicomImportStatus_Completed", resourceCulture);
+                return ResourceManager.GetString("Administration_SystemCheckDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed with individual errors ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Settings and administration ähnelt.
         /// </summary>
-        public static string DicomImportStatus_CompletedWithErrors {
+        public static string Administration_Title {
             get {
-                return ResourceManager.GetString("DicomImportStatus_CompletedWithErrors", resourceCulture);
+                return ResourceManager.GetString("Administration_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import completed with skipped files ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Users ähnelt.
         /// </summary>
-        public static string DicomImportStatus_CompletedWithSkippedFiles {
+        public static string Administration_Users {
             get {
-                return ResourceManager.GetString("DicomImportStatus_CompletedWithSkippedFiles", resourceCulture);
+                return ResourceManager.GetString("Administration_Users", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die No default repository configured ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Persistent MOPR users and their Windows SID assignments. ähnelt.
         /// </summary>
-        public static string DicomImportStatus_DefaultRepositoryMissing {
+        public static string Administration_UsersDescription {
             get {
-                return ResourceManager.GetString("DicomImportStatus_DefaultRepositoryMissing", resourceCulture);
+                return ResourceManager.GetString("Administration_UsersDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import failed ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator authorization is required to save this configuration. ähnelt.
         /// </summary>
-        public static string DicomImportStatus_Failed {
+        public static string DatabaseAdministration_AccessDenied {
             get {
-                return ResourceManager.GetString("DicomImportStatus_Failed", resourceCulture);
+                return ResourceManager.GetString("DatabaseAdministration_AccessDenied", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Repository unavailable ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The operation was canceled. ähnelt.
         /// </summary>
-        public static string DicomImportStatus_RepositoryUnavailable {
+        public static string DatabaseAdministration_Canceled {
             get {
-                return ResourceManager.GetString("DicomImportStatus_RepositoryUnavailable", resourceCulture);
+                return ResourceManager.GetString("DatabaseAdministration_Canceled", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die No import source selected ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Local changes were discarded. ähnelt.
         /// </summary>
-        public static string DicomImportStatus_SourceMissing {
+        public static string DatabaseAdministration_ChangesDiscarded {
             get {
-                return ResourceManager.GetString("DicomImportStatus_SourceMissing", resourceCulture);
+                return ResourceManager.GetString("DatabaseAdministration_ChangesDiscarded", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The selected import source is not supported yet ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SQL Server connection string ähnelt.
         /// </summary>
-        public static string DicomImportStatus_SourceTypeUnsupported {
+        public static string DatabaseAdministration_ConnectionString {
             get {
-                return ResourceManager.GetString("DicomImportStatus_SourceTypeUnsupported", resourceCulture);
+                return ResourceManager.GetString("DatabaseAdministration_ConnectionString", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Import source unavailable ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
         /// </summary>
-        public static string DicomImportStatus_SourceUnavailable {
+        public static string DatabaseAdministration_Discard {
             get {
-                return ResourceManager.GetString("DicomImportStatus_SourceUnavailable", resourceCulture);
+                return ResourceManager.GetString("DatabaseAdministration_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration could not be loaded. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_LoadFailed {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading the protected database configuration... ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Loading {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR must be restarted before the saved database configuration becomes active. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_RestartRequired {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_RestartRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Save {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration was saved safely. Restart MOPR to apply it. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Saved {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration could not be saved. The previous configuration remains available. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_SaveFailed {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving the protected database configuration... ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Saving {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The connection string is shown only in this protected administrative editing context. Verify it before saving. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_SensitiveValueNotice {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_SensitiveValueNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Test connection ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_TestConnection {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_TestConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be established. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_TestFailed {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_TestFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Testing the database connection... ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Testing {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Testing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection was established successfully. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_TestSucceeded {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_TestSucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel creation ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CancelCreate {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CancelCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CancelDelete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CancelDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository operation was canceled. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Canceled {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unsaved changes were discarded. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ChangesDiscarded {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configured repository locations ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ConfiguredLocations {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ConfiguredLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove configuration ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ConfirmDelete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ConfirmDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was changed elsewhere. Reload the current values before editing again. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Conflict {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Create {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was created. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Created {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository could not be created. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CreateFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Creating repository... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Creating {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Creating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository creation was canceled. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_CreationCanceled {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_CreationCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Default ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Default {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The default repository must remain enabled and cannot be cleared without selecting another default repository. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DefaultInvariant {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DefaultInvariant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Delete {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration “ ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationPrefix {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ” will be removed from MOPR. Existing files in the storage folder will not be deleted. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationSuffix {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove repository configuration? ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConfirmationTitle {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConfirmationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository was changed elsewhere and was not removed. Reload the current values before trying again. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteConflict {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration was removed. Existing files were not deleted. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Deleted {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The default repository cannot be removed. Select another enabled repository as the default first. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteDefaultRepository {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteDefaultRepository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository configuration could not be removed. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository cannot be removed because persisted DICOM data still references it. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DeleteInUse {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DeleteInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removing repository configuration... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Deleting {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Deleting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Disabled ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Disabled {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Discard {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another repository already uses this storage path. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_DuplicatePath {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_DuplicatePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enabled for new imports ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Enabled {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Enabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository path could not be validated. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Failed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select DICOM repository folder ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_FolderDialogTitle {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_FolderDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository folder is not valid. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Invalid {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The configured repository locations could not be loaded. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_LoadFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading configured repository locations... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Loading {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository folder does not exist. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Missing {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository name ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Name {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_New {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_New", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter a name and storage path, then validate the location before creating the repository. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NewInstructions {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NewInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No repository locations are stored in the active database. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NoLocations {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NoLocations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository no longer exists. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NotFound {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository folder cannot be read. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NotReadable {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NotReadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected repository folder cannot be written to. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_NotWritable {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_NotWritable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository path ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Path {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save changes ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Save {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository changes were saved. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Saved {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository changes could not be saved. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_SaveFailed {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving repository changes... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Saving {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This first administration stage validates a repository path only. Existing repository locations are not modified automatically. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ScopeNotice {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ScopeNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select folder ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_SelectFolder {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_SelectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid signed-in MOPR user is available to audit this change. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Unauthorized {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Use as default repository ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_UseAsDefault {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_UseAsDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The repository path is valid and accessible. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Valid {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Valid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validate location ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Validate {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Validate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validating the repository path... ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Validating {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Validating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Selecting or entering a path does not change the repository. Validate the location before any later save operation. ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_ValidationNotice {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_ValidationNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator access active ähnelt.
+        /// </summary>
+        public static string Setup_AdministratorAccessActive {
+            get {
+                return ResourceManager.GetString("Setup_AdministratorAccessActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administrator rights required ähnelt.
+        /// </summary>
+        public static string Setup_AdministratorRequired {
+            get {
+                return ResourceManager.GetString("Setup_AdministratorRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Back ähnelt.
+        /// </summary>
+        public static string Setup_Back {
+            get {
+                return ResourceManager.GetString("Setup_Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string Setup_CancelSetupCompletion {
+            get {
+                return ResourceManager.GetString("Setup_CancelSetupCompletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete setup ähnelt.
+        /// </summary>
+        public static string Setup_CompleteSetup {
+            get {
+                return ResourceManager.GetString("Setup_CompleteSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completing setup... ähnelt.
+        /// </summary>
+        public static string Setup_CompletingSetup {
+            get {
+                return ResourceManager.GetString("Setup_CompletingSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup completion was canceled safely. The setup has not been marked as complete. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionCanceled {
+            get {
+                return ResourceManager.GetString("Setup_CompletionCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancellation has been requested. MOPR is safely completing or reverting the current operation. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionCancellationRequested {
+            get {
+                return ResourceManager.GetString("Setup_CompletionCancellationRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be confirmed. Check the connection and try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionDatabaseValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionDatabaseValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR is ready to apply the validated workstation configuration. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionDescription {
+            get {
+                return ResourceManager.GetString("Setup_CompletionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup could not be completed. The setup has not been marked as complete. Please try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The configuration has not been applied yet. You can return to the previous steps without changing the workstation. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionNoChangesNotice {
+            get {
+                return ResourceManager.GetString("Setup_CompletionNoChangesNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection and DICOM storage have been validated. Review the information before completing setup. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionReadyDescription {
+            get {
+                return ResourceManager.GetString("Setup_CompletionReadyDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configuration ready ähnelt.
+        /// </summary>
+        public static string Setup_CompletionReadyTitle {
+            get {
+                return ResourceManager.GetString("Setup_CompletionReadyTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected image repository could not be confirmed. Check the storage location and try again. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRepositoryValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup could not be completed and the previous technical state could not be fully restored. Do not continue using MOPR and contact your administrator. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRollbackFailed {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRollbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completing setup. The database and image repository are being prepared. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionRunning {
+            get {
+                return ResourceManager.GetString("Setup_CompletionRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completion ähnelt.
+        /// </summary>
+        public static string Setup_CompletionStep {
+            get {
+                return ResourceManager.GetString("Setup_CompletionStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Setup was completed successfully. MOPR is opening the imaging workbench. ähnelt.
+        /// </summary>
+        public static string Setup_CompletionSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_CompletionSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete setup ähnelt.
+        /// </summary>
+        public static string Setup_CompletionTitle {
+            get {
+                return ResourceManager.GetString("Setup_CompletionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading the MOPR workstation configuration was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoadCanceled {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoadCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MOPR workstation configuration could not be loaded. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoadFailed {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading workstation configuration... ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationLoading {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die WORKSTATION SETTINGS ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationScope {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This configuration applies to every user of this workstation and can only be changed with elevated administrator rights. ähnelt.
+        /// </summary>
+        public static string Setup_ConfigurationScopeDescription {
+            get {
+                return ResourceManager.GetString("Setup_ConfigurationScopeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Continue ähnelt.
+        /// </summary>
+        public static string Setup_Continue {
+            get {
+                return ResourceManager.GetString("Setup_Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current step ähnelt.
+        /// </summary>
+        public static string Setup_CurrentStep {
+            get {
+                return ResourceManager.GetString("Setup_CurrentStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection test was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionCanceled {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be established. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionFailed {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SQL Server connection ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionLabel {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection was established successfully. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Testing the database connection... ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseConnectionTesting {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseConnectionTesting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Specify the database used by MOPR on this workstation. ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseDescription {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
+        /// </summary>
+        public static string Setup_DatabaseTitle {
+            get {
+                return ResourceManager.GetString("Setup_DatabaseTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure MOPR once for this workstation. The settings will then apply to every authorized user. ähnelt.
+        /// </summary>
+        public static string Setup_Description {
+            get {
+                return ResourceManager.GetString("Setup_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR SETUP ähnelt.
+        /// </summary>
+        public static string Setup_HeaderBadge {
+            get {
+                return ResourceManager.GetString("Setup_HeaderBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR WORKSTATION CONFIGURATION ähnelt.
+        /// </summary>
+        public static string Setup_HeaderContext {
+            get {
+                return ResourceManager.GetString("Setup_HeaderContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR â€¢ LOCAL WORKSTATION CONFIGURATION â€¢ DATA REMAINS ON THIS SYSTEM ähnelt.
+        /// </summary>
+        public static string Setup_LocalDataStatus {
+            get {
+                return ResourceManager.GetString("Setup_LocalDataStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the folder in which MOPR will manage imported DICOM data. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDescription {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected folder does not exist. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryMissing {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR cannot read the selected folder. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryNotReadable {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryNotReadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR cannot write to the selected folder. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryDirectoryNotWritable {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryDirectoryNotWritable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select the MOPR DICOM storage folder ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryFolderDialogTitle {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryFolderDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select a folder before validating the DICOM storage. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryNotSelected {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryNotSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Storage folder ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryPathLabel {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryPathLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM storage ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryStep {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The folder is only being validated. No repository entry or DICOM data will be created during this step. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryTemporaryNotice {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryTemporaryNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM storage ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryTitle {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The DICOM storage validation was canceled. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationCanceled {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected folder cannot be used as the MOPR DICOM storage. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationFailed {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validating the DICOM storage... ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationRunning {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The DICOM storage is available and can be used by MOPR. ähnelt.
+        /// </summary>
+        public static string Setup_RepositoryValidationSuccessful {
+            get {
+                return ResourceManager.GetString("Setup_RepositoryValidationSuccessful", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select folder ähnelt.
+        /// </summary>
+        public static string Setup_SelectRepositoryLocation {
+            get {
+                return ResourceManager.GetString("Setup_SelectRepositoryLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Test connection ähnelt.
+        /// </summary>
+        public static string Setup_TestDatabaseConnection {
+            get {
+                return ResourceManager.GetString("Setup_TestDatabaseConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Workstation setup ähnelt.
+        /// </summary>
+        public static string Setup_Title {
+            get {
+                return ResourceManager.GetString("Setup_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Use LocalDB ähnelt.
+        /// </summary>
+        public static string Setup_UseLocalDatabase {
+            get {
+                return ResourceManager.GetString("Setup_UseLocalDatabase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Uses the local SQL Server LocalDB instance. LocalDB must already be installed on this workstation. ähnelt.
+        /// </summary>
+        public static string Setup_UseLocalDatabaseDescription {
+            get {
+                return ResourceManager.GetString("Setup_UseLocalDatabaseDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validate storage ähnelt.
+        /// </summary>
+        public static string Setup_ValidateRepositoryLocation {
+            get {
+                return ResourceManager.GetString("Setup_ValidateRepositoryLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Review the validated workstation configuration before MOPR applies it. ähnelt.
+        /// </summary>
+        public static string Setup_VerificationDescription {
+            get {
+                return ResourceManager.GetString("Setup_VerificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No changes are applied during verification. ähnelt.
+        /// </summary>
+        public static string Setup_VerificationNoChangesNotice {
+            get {
+                return ResourceManager.GetString("Setup_VerificationNoChangesNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verification ähnelt.
+        /// </summary>
+        public static string Setup_VerificationStep {
+            get {
+                return ResourceManager.GetString("Setup_VerificationStep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verify configuration ähnelt.
+        /// </summary>
+        public static string Setup_VerificationTitle {
+            get {
+                return ResourceManager.GetString("Setup_VerificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verified ähnelt.
+        /// </summary>
+        public static string Setup_Verified {
+            get {
+                return ResourceManager.GetString("Setup_Verified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Academic title ähnelt.
+        /// </summary>
+        public static string UserAdministration_AcademicTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_AcademicTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Active ähnelt.
+        /// </summary>
+        public static string UserAdministration_Active {
+            get {
+                return ResourceManager.GetString("UserAdministration_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel creation ähnelt.
+        /// </summary>
+        public static string UserAdministration_CancelCreate {
+            get {
+                return ResourceManager.GetString("UserAdministration_CancelCreate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading MOPR users was canceled. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Canceled {
+            get {
+                return ResourceManager.GetString("UserAdministration_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unsaved user changes were discarded. ähnelt.
+        /// </summary>
+        public static string UserAdministration_ChangesDiscarded {
+            get {
+                return ResourceManager.GetString("UserAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere. Reload the current values before editing again. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Conflict {
+            get {
+                return ResourceManager.GetString("UserAdministration_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user ähnelt.
+        /// </summary>
+        public static string UserAdministration_Create {
+            get {
+                return ResourceManager.GetString("UserAdministration_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be created because an identity value was assigned concurrently. Reload the user list and try again. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreateConflict {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreateConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user was created. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Created {
+            get {
+                return ResourceManager.GetString("UserAdministration_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be created. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreateFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Creating user... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Creating {
+            get {
+                return ResourceManager.GetString("UserAdministration_Creating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User creation was canceled. ähnelt.
+        /// </summary>
+        public static string UserAdministration_CreationCanceled {
+            get {
+                return ResourceManager.GetString("UserAdministration_CreationCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current user ähnelt.
+        /// </summary>
+        public static string UserAdministration_CurrentUser {
+            get {
+                return ResourceManager.GetString("UserAdministration_CurrentUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
+        /// </summary>
+        public static string UserAdministration_Discard {
+            get {
+                return ResourceManager.GetString("UserAdministration_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user already uses this Windows login name. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicateLoginName {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicateLoginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user already uses this personnel number. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicatePersonnelNumber {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicatePersonnelNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Another user is already assigned to this Windows security identifier. ähnelt.
+        /// </summary>
+        public static string UserAdministration_DuplicateSecurityIdentifier {
+            get {
+                return ResourceManager.GetString("UserAdministration_DuplicateSecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Edit user ähnelt.
+        /// </summary>
+        public static string UserAdministration_EditTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_EditTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die First name ähnelt.
+        /// </summary>
+        public static string UserAdministration_FirstName {
+            get {
+                return ResourceManager.GetString("UserAdministration_FirstName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Inactive ähnelt.
+        /// </summary>
+        public static string UserAdministration_Inactive {
+            get {
+                return ResourceManager.GetString("UserAdministration_Inactive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last name ähnelt.
+        /// </summary>
+        public static string UserAdministration_LastName {
+            get {
+                return ResourceManager.GetString("UserAdministration_LastName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MOPR users could not be loaded. ähnelt.
+        /// </summary>
+        public static string UserAdministration_LoadFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading MOPR users... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Loading {
+            get {
+                return ResourceManager.GetString("UserAdministration_Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Windows login name ähnelt.
+        /// </summary>
+        public static string UserAdministration_LoginName {
+            get {
+                return ResourceManager.GetString("UserAdministration_LoginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Middle name ähnelt.
+        /// </summary>
+        public static string UserAdministration_MiddleName {
+            get {
+                return ResourceManager.GetString("UserAdministration_MiddleName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
+        /// </summary>
+        public static string UserAdministration_Name {
+            get {
+                return ResourceManager.GetString("UserAdministration_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New user ähnelt.
+        /// </summary>
+        public static string UserAdministration_New {
+            get {
+                return ResourceManager.GetString("UserAdministration_New", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter the user information. The new user is active by default. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NewInstructions {
+            get {
+                return ResourceManager.GetString("UserAdministration_NewInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user ähnelt.
+        /// </summary>
+        public static string UserAdministration_NewTitle {
+            get {
+                return ResourceManager.GetString("UserAdministration_NewTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The selected user no longer exists. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NotFound {
+            get {
+                return ResourceManager.GetString("UserAdministration_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No personal MOPR users are stored in the active database. ähnelt.
+        /// </summary>
+        public static string UserAdministration_NoUsers {
+            get {
+                return ResourceManager.GetString("UserAdministration_NoUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Personnel number ähnelt.
+        /// </summary>
+        public static string UserAdministration_PersonnelNumber {
+            get {
+                return ResourceManager.GetString("UserAdministration_PersonnelNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reload ähnelt.
+        /// </summary>
+        public static string UserAdministration_Reload {
+            get {
+                return ResourceManager.GetString("UserAdministration_Reload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save changes ähnelt.
+        /// </summary>
+        public static string UserAdministration_Save {
+            get {
+                return ResourceManager.GetString("UserAdministration_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user changes were saved. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Saved {
+            get {
+                return ResourceManager.GetString("UserAdministration_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user changes could not be saved. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SaveFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving user changes... ähnelt.
+        /// </summary>
+        public static string UserAdministration_Saving {
+            get {
+                return ResourceManager.GetString("UserAdministration_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Windows security identifier ähnelt.
+        /// </summary>
+        public static string UserAdministration_SecurityIdentifier {
+            get {
+                return ResourceManager.GetString("UserAdministration_SecurityIdentifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currently signed-in user cannot be deactivated. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SelfDeactivationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SelfDeactivationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current workstation security settings do not permit users to modify their own account. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SelfModificationNotAllowed {
+            get {
+                return ResourceManager.GetString("UserAdministration_SelfModificationNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Short name ähnelt.
+        /// </summary>
+        public static string UserAdministration_ShortName {
+            get {
+                return ResourceManager.GetString("UserAdministration_ShortName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Status ähnelt.
+        /// </summary>
+        public static string UserAdministration_Status {
+            get {
+                return ResourceManager.GetString("UserAdministration_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Name suffix ähnelt.
+        /// </summary>
+        public static string UserAdministration_Suffix {
+            get {
+                return ResourceManager.GetString("UserAdministration_Suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system user is protected and cannot be modified. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SystemUserProtected {
+            get {
+                return ResourceManager.GetString("UserAdministration_SystemUserProtected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system identity is reserved and cannot be created as a personal user. ähnelt.
+        /// </summary>
+        public static string UserAdministration_SystemUserReserved {
+            get {
+                return ResourceManager.GetString("UserAdministration_SystemUserReserved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid signed-in MOPR user is available to audit this change. ähnelt.
+        /// </summary>
+        public static string UserAdministration_Unauthorized {
+            get {
+                return ResourceManager.GetString("UserAdministration_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Complete all required user information and verify the entered values. ähnelt.
+        /// </summary>
+        public static string UserAdministration_ValidationFailed {
+            get {
+                return ResourceManager.GetString("UserAdministration_ValidationFailed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
         /// </summary>
-        public static string RepositoryRecoveryActionStatus_Completed {
+        public static string UserAdministrationDeleteStatus_Completed {
             get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Completed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Conflict ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_Conflict {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Conflict", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Default repository ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_DefaultRepository {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_DefaultRepository", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Duplicate path ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_DuplicatePath {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_DuplicatePath", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_Failed {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Failed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die In use ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_InUse {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_InUse", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Not found ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_NotFound {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_NotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Unauthorized ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_Unauthorized {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_Unauthorized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Validation failed ähnelt.
-        /// </summary>
-        public static string RepositoryRecoveryActionStatus_ValidationFailed {
-            get {
-                return ResourceManager.GetString("RepositoryRecoveryActionStatus_ValidationFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
-        /// </summary>
-        public static string UserAdministrationUpdateStatus_Completed {
-            get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_Completed", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Completed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user was changed elsewhere ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_Conflict {
+        public static string UserAdministrationDeleteStatus_Conflict {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_Conflict", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Conflict", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The Windows login name is already assigned to another user ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currently signed-in user is protected ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_DuplicateLoginName {
+        public static string UserAdministrationDeleteStatus_CurrentUserProtected {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicateLoginName", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_CurrentUserProtected", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The personnel number is already assigned to another user ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be removed ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_DuplicatePersonnelNumber {
+        public static string UserAdministrationDeleteStatus_Failed {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicatePersonnelNumber", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Failed", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The Windows security identifier is already assigned to another user ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user is referenced by existing MOPR data ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_DuplicateSecurityIdentifier {
+        public static string UserAdministrationDeleteStatus_InUse {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_DuplicateSecurityIdentifier", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The user could not be updated ähnelt.
-        /// </summary>
-        public static string UserAdministrationUpdateStatus_Failed {
-            get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_Failed", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_InUse", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die User not found ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_NotFound {
+        public static string UserAdministrationDeleteStatus_NotFound {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_NotFound", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_NotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_NotStarted {
+        public static string UserAdministrationDeleteStatus_NotStarted {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_NotStarted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The current user cannot be deactivated ähnelt.
-        /// </summary>
-        public static string UserAdministrationUpdateStatus_SelfDeactivationNotAllowed {
-            get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_SelfDeactivationNotAllowed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The current user is not permitted to modify their own user account ähnelt.
-        /// </summary>
-        public static string UserAdministrationUpdateStatus_SelfModificationNotAllowed {
-            get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_SelfModificationNotAllowed", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_NotStarted", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The technical MOPR system user is protected ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_SystemUserProtected {
+        public static string UserAdministrationDeleteStatus_SystemUserProtected {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_SystemUserProtected", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_SystemUserProtected", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die No valid persistent MOPR user is available to audit this change ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die No valid persistent MOPR user is available to audit this removal ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_Unauthorized {
+        public static string UserAdministrationDeleteStatus_Unauthorized {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_Unauthorized", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_Unauthorized", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The supplied user information is invalid ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The supplied user-removal request is invalid ähnelt.
         /// </summary>
-        public static string UserAdministrationUpdateStatus_ValidationFailed {
+        public static string UserAdministrationDeleteStatus_ValidationFailed {
             get {
-                return ResourceManager.GetString("UserAdministrationUpdateStatus_ValidationFailed", resourceCulture);
+                return ResourceManager.GetString("UserAdministrationDeleteStatus_ValidationFailed", resourceCulture);
             }
         }
     }
