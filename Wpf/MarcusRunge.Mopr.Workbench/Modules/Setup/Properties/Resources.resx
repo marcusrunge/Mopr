@@ -747,40 +747,100 @@
   <data name="UserAdministrationDeleteStatus_Failed" xml:space="preserve">
     <value>The user could not be removed</value>
   </data>
-	<data name="UserAdministration_RemovalCanceled" xml:space="preserve">
+  <data name="UserAdministration_RemovalCanceled" xml:space="preserve">
     <value>User removal was canceled.</value>
   </data>
-	<data name="UserAdministration_DeleteConflict" xml:space="preserve">
+  <data name="UserAdministration_DeleteConflict" xml:space="preserve">
     <value>The user was changed elsewhere. Reload the current values before trying to remove the user again.</value>
   </data>
-	<data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
+  <data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
     <value>The currently signed-in user cannot be removed.</value>
   </data>
-	<data name="UserAdministration_InUse" xml:space="preserve">
+  <data name="UserAdministration_InUse" xml:space="preserve">
     <value>The user is assigned to existing MOPR data and cannot be removed. Deactivate the user instead.</value>
   </data>
-	<data name="UserAdministration_DeleteFailed" xml:space="preserve">
+  <data name="UserAdministration_DeleteFailed" xml:space="preserve">
     <value>The user could not be removed.</value>
   </data>
-	<data name="UserAdministration_Deleting" xml:space="preserve">
+  <data name="UserAdministration_Deleting" xml:space="preserve">
     <value>Removing user...</value>
   </data>
-	<data name="UserAdministration_Deleted" xml:space="preserve">
+  <data name="UserAdministration_Deleted" xml:space="preserve">
     <value>The user was removed.</value>
   </data>
-	<data name="UserAdministration_Remove" xml:space="preserve">
+  <data name="UserAdministration_Remove" xml:space="preserve">
     <value>Remove user</value>
   </data>
-	<data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
+  <data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
     <value>Remove user from MOPR?</value>
   </data>
-	<data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
+  <data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
     <value>The user will be removed from user administration. Existing image, examination, measurement, and audit data will not be deleted. A user assigned to existing MOPR data cannot be removed and should be deactivated instead.</value>
   </data>
-	<data name="UserAdministration_CancelRemove" xml:space="preserve">
+  <data name="UserAdministration_CancelRemove" xml:space="preserve">
     <value>Cancel</value>
   </data>
-	<data name="UserAdministration_ConfirmRemove" xml:space="preserve">
+  <data name="UserAdministration_ConfirmRemove" xml:space="preserve">
     <value>Remove user</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfModification" xml:space="preserve">
+    <value>Allow users to modify their own user information</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfModificationDescription" xml:space="preserve">
+    <value>Allows users to maintain their own personal user information. Administrative protection and validation remain active.</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfDeletion" xml:space="preserve">
+    <value>Allow users to delete their own user account</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfDeletionDescription" xml:space="preserve">
+    <value>Allows self-deletion only in a controlled personal-user workflow that safely ends the active session. The current administration workflow continues to protect the signed-in user.</value>
+  </data>
+  <data name="SecurityAdministration_HideOtherUsers" xml:space="preserve">
+    <value>Hide other users from regular users</value>
+  </data>
+  <data name="SecurityAdministration_HideOtherUsersDescription" xml:space="preserve">
+    <value>Prevents regular users from viewing other persisted MOPR users. Administrative user management remains available to authorized administrators.</value>
+  </data>
+  <data name="SecurityAdministration_Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="SecurityAdministration_Discard" xml:space="preserve">
+    <value>Discard changes</value>
+  </data>
+  <data name="SecurityAdministration_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="SecurityAdministration_Loading" xml:space="preserve">
+    <value>Loading security configuration...</value>
+  </data>
+  <data name="SecurityAdministration_Saving" xml:space="preserve">
+    <value>Saving security configuration...</value>
+  </data>
+  <data name="SecurityAdministration_Saved" xml:space="preserve">
+    <value>The security configuration was saved.</value>
+  </data>
+  <data name="SecurityAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Unsaved security changes were discarded.</value>
+  </data>
+  <data name="SecurityAdministration_ReadOnly" xml:space="preserve">
+    <value>The security configuration is displayed read-only because elevated administrator authorization is not available.</value>
+  </data>
+  <data name="SecurityAdministration_Canceled" xml:space="preserve">
+    <value>The security operation was canceled.</value>
+  </data>
+  <data name="SecurityAdministration_LoadFailed" xml:space="preserve">
+    <value>The security configuration could not be loaded.</value>
+  </data>
+  <data name="SecurityAdministration_Unauthorized" xml:space="preserve">
+    <value>Elevated administrator authorization is required to change the security configuration.</value>
+  </data>
+  <data name="SecurityAdministration_ConfigurationUnavailable" xml:space="preserve">
+    <value>The current machine configuration is unavailable. Reload the configuration before trying again.</value>
+  </data>
+  <data name="SecurityAdministration_ValidationFailed" xml:space="preserve">
+    <value>The resulting machine configuration is invalid and was not saved.</value>
+  </data>
+  <data name="SecurityAdministration_SaveFailed" xml:space="preserve">
+    <value>The security configuration could not be saved.</value>
   </data>
 </root>

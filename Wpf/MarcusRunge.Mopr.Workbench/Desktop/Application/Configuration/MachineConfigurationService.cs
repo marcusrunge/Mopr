@@ -1,7 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,56 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
         }
 
         /// <inheritdoc/>
+        public async Task<SecurityConfigurationUpdateResult> UpdateSecurityAsync(SecurityConfigurationUpdateRequest request, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!CanModify) return SecurityConfigurationUpdateResult.Unauthorized();
+
+            IApplicationConfiguration currentConfiguration;
+
+            try
+            {
+                currentConfiguration = await _configurationStore.LoadAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                return SecurityConfigurationUpdateResult.ConfigurationUnavailable();
+            }
+
+            var updatedConfiguration = new SecurityUpdatedApplicationConfiguration(currentConfiguration, new SecurityConfigurationUpdate(request));
+            var validationResult = ValidateForSetupCompletion(updatedConfiguration);
+
+            if (!validationResult.IsValid) return SecurityConfigurationUpdateResult.ValidationFailed();
+
+            try
+            {
+                // Authorization is checked immediately before persistence so a changed
+                // elevation state cannot result in an unprotected machine-wide update.
+                _authorizationService.DemandElevatedAdministrator();
+                await _configurationStore.SaveAsync(updatedConfiguration, cancellationToken).ConfigureAwait(false);
+                return SecurityConfigurationUpdateResult.Success();
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return SecurityConfigurationUpdateResult.Unauthorized();
+            }
+            catch
+            {
+                return SecurityConfigurationUpdateResult.Failed();
+            }
+        }
+
+        /// <inheritdoc/>
         public MachineConfigurationValidationResult ValidateForSetupCompletion(IApplicationConfiguration configuration)
         {
             ArgumentNullException.ThrowIfNull(configuration);
@@ -88,5 +139,21 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 
             return issues.Count == 0 ? MachineConfigurationValidationResult.Success : new MachineConfigurationValidationResult(issues);
         }
+        private sealed class SecurityConfigurationUpdate(SecurityConfigurationUpdateRequest request) : ISecurityConfiguration
+        {
+            public bool AllowSelfDeletion { get; } = request.AllowSelfDeletion;
+            public bool AllowSelfModification { get; } = request.AllowSelfModification;
+            public bool HideOtherUsersFromRegularUsers { get; } = request.HideOtherUsersFromRegularUsers;
+        }
+
+        private sealed class SecurityUpdatedApplicationConfiguration(IApplicationConfiguration source, ISecurityConfiguration security) : IApplicationConfiguration
+        {
+            public IDatabaseConfiguration Database => source.Database;
+            public bool IsSetupComplete => source.IsSetupComplete;
+            public IRepositoryConfiguration Repository => source.Repository;
+            public ISecurityConfiguration Security { get; } = security;
+            public int SetupVersion => source.SetupVersion;
+        }
+
     }
 }

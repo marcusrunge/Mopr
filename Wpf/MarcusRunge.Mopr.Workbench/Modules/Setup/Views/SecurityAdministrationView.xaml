@@ -1,0 +1,55 @@
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Setup.Views.SecurityAdministrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.Properties"
+             xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewModels:SecurityAdministrationViewModel}"
+             mc:Ignorable="d"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MarcusRunge.Mopr.Workbench.Modules.Setup;component/Themes/SetupControls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Security}" />
+        <TextBlock Grid.Row="1" Margin="0,9,0,22" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SecurityDescription}" />
+
+        <StackPanel Grid.Row="2" IsEnabled="{Binding IsInteractionEnabled}">
+            <Border Margin="0,0,0,12" Padding="18" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="6">
+                <StackPanel>
+                    <CheckBox FontWeight="SemiBold" Content="{x:Static properties:Resources.SecurityAdministration_AllowSelfModification}" IsChecked="{Binding AllowSelfModification}" />
+                    <TextBlock Margin="24,7,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{x:Static properties:Resources.SecurityAdministration_AllowSelfModificationDescription}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Margin="0,0,0,12" Padding="18" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="6">
+                <StackPanel>
+                    <CheckBox FontWeight="SemiBold" Content="{x:Static properties:Resources.SecurityAdministration_AllowSelfDeletion}" IsChecked="{Binding AllowSelfDeletion}" />
+                    <TextBlock Margin="24,7,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{x:Static properties:Resources.SecurityAdministration_AllowSelfDeletionDescription}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+            <Border Padding="18" Background="{StaticResource WorkbenchSecondaryPanelBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="1" CornerRadius="6">
+                <StackPanel>
+                    <CheckBox FontWeight="SemiBold" Content="{x:Static properties:Resources.SecurityAdministration_HideOtherUsers}" IsChecked="{Binding HideOtherUsersFromRegularUsers}" />
+                    <TextBlock Margin="24,7,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{x:Static properties:Resources.SecurityAdministration_HideOtherUsersDescription}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" Margin="0,18,0,0" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" Text="{Binding StatusText}" TextWrapping="Wrap" />
+
+        <Grid Grid.Row="4" Margin="0,22,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Button Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ReloadCommand}" Content="{x:Static properties:Resources.SecurityAdministration_Reload}" />
+            <Button Grid.Column="2" Margin="0,0,10,0" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding DiscardCommand}" Content="{x:Static properties:Resources.SecurityAdministration_Discard}" />
+            <Button Grid.Column="3" Style="{StaticResource SetupPrimaryButtonStyle}" Command="{Binding SaveCommand}" Content="{x:Static properties:Resources.SecurityAdministration_Save}" />
+        </Grid>
+    </Grid>
+</UserControl>

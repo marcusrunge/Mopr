@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,6 +50,14 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Service
         /// otherwise, <see langword="false"/>.
         /// </returns>
         Task<bool> TestDatabaseConnectionAsync(IDatabaseConfiguration configuration, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Updates only the machine-wide security configuration while preserving all other current configuration sections.
+        /// </summary>
+        /// <param name="request">The requested security settings.</param>
+        /// <param name="cancellationToken">Cancels the update operation.</param>
+        /// <returns>The structured update result.</returns>
+        Task<SecurityConfigurationUpdateResult> UpdateSecurityAsync(SecurityConfigurationUpdateRequest request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Validates a configuration for completed machine-wide setup.

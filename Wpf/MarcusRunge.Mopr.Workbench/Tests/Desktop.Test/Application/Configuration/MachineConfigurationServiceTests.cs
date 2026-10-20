@@ -1,8 +1,9 @@
-﻿using MarcusRunge.Mopr.Workbench.Application.Configuration;
+using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Moq;
 using System;
@@ -112,6 +113,80 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
             Assert.Equal(1, context.AuthorizationService.DemandCallCount);
             Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WhenRequestIsValid_PreservesOtherConfigurationAndSavesSecurityValues()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var configuration = CreateValidConfiguration();
+            var context = new MachineConfigurationServiceTestContext(isElevatedAdministrator: true, configuration);
+            var request = new SecurityConfigurationUpdateRequest(AllowSelfDeletion: true, AllowSelfModification: false, HideOtherUsersFromRegularUsers: true);
+
+            var result = await context.Service.UpdateSecurityAsync(request, cancellationToken);
+
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(context.Store.SavedConfiguration);
+            Assert.Same(configuration.Database, context.Store.SavedConfiguration.Database);
+            Assert.Same(configuration.Repository, context.Store.SavedConfiguration.Repository);
+            Assert.Equal(configuration.IsSetupComplete, context.Store.SavedConfiguration.IsSetupComplete);
+            Assert.Equal(configuration.SetupVersion, context.Store.SavedConfiguration.SetupVersion);
+            Assert.True(context.Store.SavedConfiguration.Security.AllowSelfDeletion);
+            Assert.False(context.Store.SavedConfiguration.Security.AllowSelfModification);
+            Assert.True(context.Store.SavedConfiguration.Security.HideOtherUsersFromRegularUsers);
+            Assert.Equal(1, context.Store.LoadCallCount);
+            Assert.Equal(1, context.Store.SaveCallCount);
+            Assert.Equal(1, context.AuthorizationService.DemandCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WithoutElevation_ReturnsUnauthorizedWithoutLoadingOrSaving()
+        {
+            var context = new MachineConfigurationServiceTestContext(isElevatedAdministrator: false, CreateValidConfiguration());
+            var result = await context.Service.UpdateSecurityAsync(new(false, false, false), TestContext.Current.CancellationToken);
+            Assert.Equal(SecurityConfigurationUpdateStatus.Unauthorized, result.Status);
+            Assert.Equal(0, context.Store.LoadCallCount);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WhenCurrentConfigurationIsInvalid_ReturnsValidationFailed()
+        {
+            var context = new MachineConfigurationServiceTestContext(isElevatedAdministrator: true, new ApplicationConfiguration());
+            var result = await context.Service.UpdateSecurityAsync(new(false, false, false), TestContext.Current.CancellationToken);
+            Assert.Equal(SecurityConfigurationUpdateStatus.ValidationFailed, result.Status);
+            Assert.Equal(1, context.Store.LoadCallCount);
+            Assert.Equal(0, context.Store.SaveCallCount);
+            Assert.Equal(0, context.AuthorizationService.DemandCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WhenLoadFails_ReturnsConfigurationUnavailable()
+        {
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            context.Store.LoadException = new InvalidOperationException("Load failed.");
+            var result = await context.Service.UpdateSecurityAsync(new(false, false, false), TestContext.Current.CancellationToken);
+            Assert.Equal(SecurityConfigurationUpdateStatus.ConfigurationUnavailable, result.Status);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WhenSaveFails_ReturnsFailed()
+        {
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            context.Store.SaveException = new InvalidOperationException("Save failed.");
+            var result = await context.Service.UpdateSecurityAsync(new(false, false, false), TestContext.Current.CancellationToken);
+            Assert.Equal(SecurityConfigurationUpdateStatus.Failed, result.Status);
+            Assert.Equal(1, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateSecurityAsync_WhenCanceled_PropagatesCancellation()
+        {
+            using var cancellationSource = new CancellationTokenSource();
+            cancellationSource.Cancel();
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await context.Service.UpdateSecurityAsync(new(false, false, false), cancellationSource.Token));
         }
 
         [Fact]
@@ -231,9 +306,13 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
 
         private sealed class TestConfigurationStore(IApplicationConfiguration configuration) : IApplicationConfigurationStore
         {
+            public Exception? LoadException { get; set; }
+
             public int LoadCallCount { get; private set; }
 
             public int SaveCallCount { get; private set; }
+
+            public Exception? SaveException { get; set; }
 
             public IApplicationConfiguration? SavedConfiguration { get; private set; }
 
@@ -245,7 +324,7 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 LoadCallCount++;
-
+                if (LoadException is not null) throw LoadException;
                 return Task.FromResult(configuration);
             }
 
@@ -254,8 +333,8 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 SaveCallCount++;
+                if (SaveException is not null) throw SaveException;
                 SavedConfiguration = configurationToSave;
-
                 return Task.CompletedTask;
             }
         }

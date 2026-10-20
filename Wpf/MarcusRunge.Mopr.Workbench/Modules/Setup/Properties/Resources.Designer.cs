@@ -871,6 +871,186 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Allow users to delete their own user account ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_AllowSelfDeletion {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_AllowSelfDeletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Allows self-deletion only in a controlled personal-user workflow that safely ends the active session. The current administration workflow continues to protect the signed-in user. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_AllowSelfDeletionDescription {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_AllowSelfDeletionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Allow users to modify their own user information ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_AllowSelfModification {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_AllowSelfModification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Allows users to maintain their own personal user information. Administrative protection and validation remain active. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_AllowSelfModificationDescription {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_AllowSelfModificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security operation was canceled. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Canceled {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unsaved security changes were discarded. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_ChangesDiscarded {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current machine configuration is unavailable. Reload the configuration before trying again. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_ConfigurationUnavailable {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_ConfigurationUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Discard {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Hide other users from regular users ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_HideOtherUsers {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_HideOtherUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Prevents regular users from viewing other persisted MOPR users. Administrative user management remains available to authorized administrators. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_HideOtherUsersDescription {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_HideOtherUsersDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security configuration could not be loaded. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_LoadFailed {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading security configuration... ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Loading {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security configuration is displayed read-only because elevated administrator authorization is not available. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_ReadOnly {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_ReadOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reload ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Reload {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Reload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save changes ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Save {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security configuration was saved. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Saved {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security configuration could not be saved. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_SaveFailed {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving security configuration... ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Saving {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Elevated administrator authorization is required to change the security configuration. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_Unauthorized {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The resulting machine configuration is invalid and was not saved. ähnelt.
+        /// </summary>
+        public static string SecurityAdministration_ValidationFailed {
+            get {
+                return ResourceManager.GetString("SecurityAdministration_ValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Administrator access active ähnelt.
         /// </summary>
         public static string Setup_AdministratorAccessActive {

@@ -747,40 +747,100 @@
   <data name="UserAdministrationDeleteStatus_Failed" xml:space="preserve">
     <value>Der Benutzer konnte nicht entfernt werden</value>
   </data>
-	<data name="UserAdministration_RemovalCanceled" xml:space="preserve">
+  <data name="UserAdministration_RemovalCanceled" xml:space="preserve">
     <value>Das Entfernen des Benutzers wurde abgebrochen.</value>
   </data>
-	<data name="UserAdministration_DeleteConflict" xml:space="preserve">
+  <data name="UserAdministration_DeleteConflict" xml:space="preserve">
     <value>Der Benutzer wurde zwischenzeitlich geändert. Laden Sie die aktuellen Werte neu, bevor Sie erneut versuchen, den Benutzer zu entfernen.</value>
   </data>
-	<data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
+  <data name="UserAdministration_CurrentUserProtected" xml:space="preserve">
     <value>Der aktuell angemeldete Benutzer kann nicht entfernt werden.</value>
   </data>
-	<data name="UserAdministration_InUse" xml:space="preserve">
+  <data name="UserAdministration_InUse" xml:space="preserve">
     <value>Der Benutzer ist vorhandenen MOPR-Daten zugeordnet und kann nicht entfernt werden. Deaktivieren Sie den Benutzer stattdessen.</value>
   </data>
-	<data name="UserAdministration_DeleteFailed" xml:space="preserve">
+  <data name="UserAdministration_DeleteFailed" xml:space="preserve">
     <value>Der Benutzer konnte nicht entfernt werden.</value>
   </data>
-	<data name="UserAdministration_Deleting" xml:space="preserve">
+  <data name="UserAdministration_Deleting" xml:space="preserve">
     <value>Benutzer wird entfernt...</value>
   </data>
-	<data name="UserAdministration_Deleted" xml:space="preserve">
+  <data name="UserAdministration_Deleted" xml:space="preserve">
     <value>Der Benutzer wurde entfernt.</value>
   </data>
-	<data name="UserAdministration_Remove" xml:space="preserve">
+  <data name="UserAdministration_Remove" xml:space="preserve">
     <value>Benutzer entfernen</value>
   </data>
-	<data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
+  <data name="UserAdministration_RemoveConfirmationTitle" xml:space="preserve">
     <value>Benutzer aus MOPR entfernen?</value>
   </data>
-	<data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
+  <data name="UserAdministration_RemoveConfirmationDescription" xml:space="preserve">
     <value>Der Benutzer wird aus der Benutzerverwaltung entfernt. Vorhandene Bild-, Untersuchungs-, Mess- und Protokolldaten werden nicht gelöscht. Ein Benutzer mit bereits zugeordneten MOPR-Daten kann nicht entfernt werden und sollte stattdessen deaktiviert werden.</value>
   </data>
-	<data name="UserAdministration_CancelRemove" xml:space="preserve">
+  <data name="UserAdministration_CancelRemove" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
-	<data name="UserAdministration_ConfirmRemove" xml:space="preserve">
+  <data name="UserAdministration_ConfirmRemove" xml:space="preserve">
     <value>Benutzer entfernen</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfModification" xml:space="preserve">
+    <value>Änderung der eigenen Benutzerdaten erlauben</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfModificationDescription" xml:space="preserve">
+    <value>Erlaubt Benutzern, die eigenen persönlichen Benutzerdaten zu pflegen. Administrative Schutz- und Validierungsregeln bleiben wirksam.</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfDeletion" xml:space="preserve">
+    <value>Löschen des eigenen Benutzerkontos erlauben</value>
+  </data>
+  <data name="SecurityAdministration_AllowSelfDeletionDescription" xml:space="preserve">
+    <value>Erlaubt die Selbstlöschung nur in einem kontrollierten persönlichen Benutzerablauf, der die aktive Sitzung sicher beendet. Im Verwaltungsmodus bleibt der angemeldete Benutzer weiterhin geschützt.</value>
+  </data>
+  <data name="SecurityAdministration_HideOtherUsers" xml:space="preserve">
+    <value>Andere Benutzer vor regulären Benutzern ausblenden</value>
+  </data>
+  <data name="SecurityAdministration_HideOtherUsersDescription" xml:space="preserve">
+    <value>Verhindert, dass reguläre Benutzer andere persistierte MOPR-Benutzer sehen. Die administrative Benutzerverwaltung bleibt für berechtigte Administratoren verfügbar.</value>
+  </data>
+  <data name="SecurityAdministration_Reload" xml:space="preserve">
+    <value>Neu laden</value>
+  </data>
+  <data name="SecurityAdministration_Discard" xml:space="preserve">
+    <value>Änderungen verwerfen</value>
+  </data>
+  <data name="SecurityAdministration_Save" xml:space="preserve">
+    <value>Änderungen speichern</value>
+  </data>
+  <data name="SecurityAdministration_Loading" xml:space="preserve">
+    <value>Sicherheitskonfiguration wird geladen...</value>
+  </data>
+  <data name="SecurityAdministration_Saving" xml:space="preserve">
+    <value>Sicherheitskonfiguration wird gespeichert...</value>
+  </data>
+  <data name="SecurityAdministration_Saved" xml:space="preserve">
+    <value>Die Sicherheitskonfiguration wurde gespeichert.</value>
+  </data>
+  <data name="SecurityAdministration_ChangesDiscarded" xml:space="preserve">
+    <value>Die nicht gespeicherten Sicherheitsänderungen wurden verworfen.</value>
+  </data>
+  <data name="SecurityAdministration_ReadOnly" xml:space="preserve">
+    <value>Die Sicherheitskonfiguration wird schreibgeschützt angezeigt, weil keine erhöhte Administratorberechtigung verfügbar ist.</value>
+  </data>
+  <data name="SecurityAdministration_Canceled" xml:space="preserve">
+    <value>Der Sicherheitsvorgang wurde abgebrochen.</value>
+  </data>
+  <data name="SecurityAdministration_LoadFailed" xml:space="preserve">
+    <value>Die Sicherheitskonfiguration konnte nicht geladen werden.</value>
+  </data>
+  <data name="SecurityAdministration_Unauthorized" xml:space="preserve">
+    <value>Zum Ändern der Sicherheitskonfiguration ist eine erhöhte Administratorberechtigung erforderlich.</value>
+  </data>
+  <data name="SecurityAdministration_ConfigurationUnavailable" xml:space="preserve">
+    <value>Die aktuelle Maschinenkonfiguration ist nicht verfügbar. Laden Sie die Konfiguration neu, bevor Sie es erneut versuchen.</value>
+  </data>
+  <data name="SecurityAdministration_ValidationFailed" xml:space="preserve">
+    <value>Die resultierende Maschinenkonfiguration ist ungültig und wurde nicht gespeichert.</value>
+  </data>
+  <data name="SecurityAdministration_SaveFailed" xml:space="preserve">
+    <value>Die Sicherheitskonfiguration konnte nicht gespeichert werden.</value>
   </data>
 </root>

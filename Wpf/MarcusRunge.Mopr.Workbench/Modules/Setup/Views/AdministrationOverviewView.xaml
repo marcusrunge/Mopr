@@ -215,12 +215,9 @@
                     <Grid Visibility="{Binding RepositoryVisibility}">
                         <views:RepositoryAdministrationView />
                     </Grid>
-                    <ScrollViewer Visibility="{Binding SecurityVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_Security}" />
-                            <TextBlock Margin="0,9,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SecurityDescription}" />
-                        </StackPanel>
-                    </ScrollViewer>
+                    <Grid Visibility="{Binding SecurityVisibility}">
+                        <views:SecurityAdministrationView />
+                    </Grid>
                     <Grid Visibility="{Binding UsersVisibility}">
                         <views:UserAdministrationView />
                     </Grid>
