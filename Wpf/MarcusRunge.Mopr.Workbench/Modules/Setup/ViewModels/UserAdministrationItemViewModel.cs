@@ -8,43 +8,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 /// <summary>
 /// Represents one persisted MOPR user or one temporary creation preview in the administration view.
 /// </summary>
-public sealed class UserAdministrationItemViewModel : BindableBase
+public sealed class UserAdministrationItemViewModel(int id, string loginName, string firstName, string middleName, string lastName, string shortName, bool isActive, bool isCurrentUser, string academicTitle, string suffix, string personnelNumber, string securityIdentifier, byte[] rowVersion, bool isPreview = false) : BindableBase
 {
-    private string _academicTitle, _displayName, _firstName, _lastName, _loginName, _middleName, _personnelNumber, _securityIdentifier, _shortName, _suffix;
-    private bool _isActive;
-
-    public UserAdministrationItemViewModel(int id, string loginName, string firstName, string middleName, string lastName, string shortName, bool isActive, bool isCurrentUser, string academicTitle, string suffix, string personnelNumber, string securityIdentifier, byte[] rowVersion, bool isPreview = false)
-    {
-        Id = id;
-        _loginName = loginName;
-        _firstName = firstName;
-        _middleName = middleName;
-        _lastName = lastName;
-        _shortName = shortName;
-        _isActive = isActive;
-        IsCurrentUser = isCurrentUser;
-        _academicTitle = academicTitle;
-        _suffix = suffix;
-        _personnelNumber = personnelNumber;
-        _securityIdentifier = securityIdentifier;
-        RowVersion = [.. rowVersion];
-        IsPreview = isPreview;
-        _displayName = BuildDisplayName(academicTitle, firstName, middleName, lastName, suffix, loginName);
-    }
+    private string _academicTitle = academicTitle, _displayName = BuildDisplayName(academicTitle, firstName, middleName, lastName, suffix, loginName), _firstName = firstName, _lastName = lastName, _loginName = loginName, _middleName = middleName, _personnelNumber = personnelNumber, _securityIdentifier = securityIdentifier, _shortName = shortName, _suffix = suffix;
+    private bool _isActive = isActive;
 
     public string AcademicTitle => _academicTitle;
     public string DisplayName => _displayName;
     public string FirstName => _firstName;
-    public int Id { get; }
+    public int Id { get; } = id;
     public bool IsActive => _isActive;
-    public bool IsCurrentUser { get; }
-    public bool IsPreview { get; }
+    public bool IsCurrentUser { get; } = isCurrentUser;
+    public bool IsPreview { get; } = isPreview;
     public bool IsSystemUser => !IsPreview && string.Equals(LoginName, WellKnownUserLoginNames.System, StringComparison.OrdinalIgnoreCase);
     public string LastName => _lastName;
     public string LoginName => _loginName;
     public string MiddleName => _middleName;
     public string PersonnelNumber => _personnelNumber;
-    public byte[] RowVersion { get; }
+    public byte[] RowVersion { get; } = [.. rowVersion];
     public string SecurityIdentifier => _securityIdentifier;
     public string ShortName => _shortName;
     public string Suffix => _suffix;

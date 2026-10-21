@@ -843,4 +843,61 @@
   <data name="SecurityAdministration_SaveFailed" xml:space="preserve">
     <value>Die Sicherheitskonfiguration konnte nicht gespeichert werden.</value>
   </data>
+  <data name="SystemCheck_Start" xml:space="preserve">
+    <value>Systemprüfung starten</value>
+  </data>
+  <data name="SystemCheck_Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="SystemCheck_Running" xml:space="preserve">
+    <value>Die Systemprüfung wird ausgeführt...</value>
+  </data>
+  <data name="SystemCheck_Completed" xml:space="preserve">
+    <value>Die Systemprüfung wurde abgeschlossen.</value>
+  </data>
+  <data name="SystemCheck_Canceled" xml:space="preserve">
+    <value>Die Systemprüfung wurde abgebrochen.</value>
+  </data>
+  <data name="SystemCheck_RunFailed" xml:space="preserve">
+    <value>Die Systemprüfung konnte nicht abgeschlossen werden.</value>
+  </data>
+  <data name="SystemCheck_Database" xml:space="preserve">
+    <value>Datenbank</value>
+  </data>
+  <data name="SystemCheck_Persistence" xml:space="preserve">
+    <value>Anwendungsdaten</value>
+  </data>
+  <data name="SystemCheck_Repository" xml:space="preserve">
+    <value>Bildspeicher und MIRAS</value>
+  </data>
+  <data name="SystemCheck_OverallPassed" xml:space="preserve">
+    <value>Alle geprüften MOPR-Dienste sind verfügbar. Es ist keine Aktion erforderlich.</value>
+  </data>
+  <data name="SystemCheck_OverallNotice" xml:space="preserve">
+    <value>Die Systemprüfung wurde mit Hinweisen abgeschlossen, die geprüft werden sollten.</value>
+  </data>
+  <data name="SystemCheck_OverallWarning" xml:space="preserve">
+    <value>Die Systemprüfung hat Warnungen erkannt, die geprüft werden sollten.</value>
+  </data>
+  <data name="SystemCheck_OverallActionRequired" xml:space="preserve">
+    <value>MIRAS Aktion erforderlich. Mindestens ein blockierender Befund erfordert Aufmerksamkeit.</value>
+  </data>
+  <data name="SystemCheck_OverallUnavailable" xml:space="preserve">
+    <value>Mindestens eine Prüfung konnte nicht abgeschlossen werden. Der Zustand des Arbeitsplatzes konnte nicht vollständig bestätigt werden.</value>
+  </data>
+  <data name="SystemCheck_OverallFailed" xml:space="preserve">
+    <value>Die Systemprüfung ist fehlgeschlagen. Der Zustand des Arbeitsplatzes konnte nicht bestätigt werden.</value>
+  </data>
+  <data name="SystemCheck_ScannedItemsFormat" xml:space="preserve">
+    <value>Geprüfte Elemente: {0}</value>
+  </data>
+  <data name="SystemCheck_DurationFormat" xml:space="preserve">
+    <value>Dauer: {0:g}</value>
+  </data>
+  <data name="SystemCheck_InitialTitle" xml:space="preserve">
+    <value>Systemprüfung noch nicht ausgeführt</value>
+  </data>
+  <data name="SystemCheck_InitialDescription" xml:space="preserve">
+    <value>Starten Sie die Systemprüfung, um Datenbank, Anwendungsdaten sowie Bildspeicher und MIRAS zu prüfen.</value>
+  </data>
 </root>

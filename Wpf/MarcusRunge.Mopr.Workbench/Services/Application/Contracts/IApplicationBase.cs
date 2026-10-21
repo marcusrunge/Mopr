@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
@@ -32,7 +33,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         /// <summary>
         /// Gets the machine-configuration service used to access protected workstation settings.
         /// </summary>
-        internal IMachineConfigurationService? MachineConfigurationService { get; }
+        internal IMachineConfigurationService MachineConfigurationService { get; }
+
+        /// <summary>
+        /// Gets the MIRAS service used for integrity and Repository checks.
+        /// </summary>
+        internal IMiras Miras { get; }
 
         /// <summary>
         /// Gets the operating-system identity provider used to resolve the current authenticated identity.

@@ -7,9 +7,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
     {
         private readonly Mock<IRegionManager> _regionManagerMock;
 
-        public ImagingWorkbenchViewModelFixture()
-        {
-            _regionManagerMock = new Mock<IRegionManager>();
-        }
+        public ImagingWorkbenchViewModelFixture() => _regionManagerMock = new Mock<IRegionManager>();
     }
 }

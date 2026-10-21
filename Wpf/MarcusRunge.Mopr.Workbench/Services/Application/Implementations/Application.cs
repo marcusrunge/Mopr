@@ -6,6 +6,8 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.SystemCheck;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations;
 /// </summary>
 internal sealed class Application : ApplicationBase
 {
-    internal Application(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository, IMachineConfigurationService? machineConfigurationService) : base(logger, administrativeAuthorizationService, operatingSystemIdentityProvider, persistence, repository, machineConfigurationService)
+    internal Application(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : base(logger, administrativeAuthorizationService, operatingSystemIdentityProvider, persistence, repository, machineConfigurationService, miras)
     {
         _dialogService = Dialog.DialogService.Create(this);
         _mediaService = Media.MediaService.Create(this);
@@ -26,6 +28,7 @@ internal sealed class Application : ApplicationBase
         _repositoryAdministration = RepositoryLocationAdministrationService.Create(this, CreationLifetime.Scoped);
         _repositoryRecovery = RepositoryRecoveryActionService.Create(this, CreationLifetime.Scoped);
         _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
+        _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);
         _importService = Import.ImportService.Create(this);
     }
 }

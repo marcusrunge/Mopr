@@ -5,6 +5,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
@@ -26,6 +27,8 @@ public interface IApplication
     IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
 
     IRepositoryRecoveryActionService? RepositoryRecovery { get; }
+
+    ISystemCheckService? SystemCheck { get; }
 
     IUserAdministrationService? UserAdministration { get; }
 }

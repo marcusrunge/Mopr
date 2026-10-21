@@ -26,10 +26,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom
         {
         }
 
-        public DicomFactory(ILogger? logger)
-        {
-            _logger = logger;
-        }
+        public DicomFactory(ILogger? logger) => _logger = logger;
 
         /// <inheritdoc/>
         public IDicom Create() =>

@@ -1618,6 +1618,177 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string SystemCheck_Cancel {
+            get {
+                return ResourceManager.GetString("SystemCheck_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check was canceled. ähnelt.
+        /// </summary>
+        public static string SystemCheck_Canceled {
+            get {
+                return ResourceManager.GetString("SystemCheck_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check was completed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_Completed {
+            get {
+                return ResourceManager.GetString("SystemCheck_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
+        /// </summary>
+        public static string SystemCheck_Database {
+            get {
+                return ResourceManager.GetString("SystemCheck_Database", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Duration: {0:g} ähnelt.
+        /// </summary>
+        public static string SystemCheck_DurationFormat {
+            get {
+                return ResourceManager.GetString("SystemCheck_DurationFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Start the system check to verify the database, application data, and image repository with MIRAS. ähnelt.
+        /// </summary>
+        public static string SystemCheck_InitialDescription {
+            get {
+                return ResourceManager.GetString("SystemCheck_InitialDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die System check not yet run ähnelt.
+        /// </summary>
+        public static string SystemCheck_InitialTitle {
+            get {
+                return ResourceManager.GetString("SystemCheck_InitialTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required. At least one blocking finding requires attention. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallActionRequired {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check failed. The workstation state could not be confirmed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallFailed {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check completed with information that should be reviewed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallNotice {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die All checked MOPR services are available and no action is required. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallPassed {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallPassed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die At least one check could not be completed. The workstation state could not be fully confirmed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallUnavailable {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check detected warnings that should be reviewed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_OverallWarning {
+            get {
+                return ResourceManager.GetString("SystemCheck_OverallWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Application data ähnelt.
+        /// </summary>
+        public static string SystemCheck_Persistence {
+            get {
+                return ResourceManager.GetString("SystemCheck_Persistence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Image repository and MIRAS ähnelt.
+        /// </summary>
+        public static string SystemCheck_Repository {
+            get {
+                return ResourceManager.GetString("SystemCheck_Repository", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check could not be completed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RunFailed {
+            get {
+                return ResourceManager.GetString("SystemCheck_RunFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The system check is running... ähnelt.
+        /// </summary>
+        public static string SystemCheck_Running {
+            get {
+                return ResourceManager.GetString("SystemCheck_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Examined items: {0} ähnelt.
+        /// </summary>
+        public static string SystemCheck_ScannedItemsFormat {
+            get {
+                return ResourceManager.GetString("SystemCheck_ScannedItemsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Start system check ähnelt.
+        /// </summary>
+        public static string SystemCheck_Start {
+            get {
+                return ResourceManager.GetString("SystemCheck_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Academic title ähnelt.
         /// </summary>
         public static string UserAdministration_AcademicTitle {

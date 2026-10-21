@@ -1438,6 +1438,213 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection could not be established. Check the database configuration and availability. ähnelt.
+        /// </summary>
+        public static string SystemCheck_DatabaseActionRequired {
+            get {
+                return ResourceManager.GetString("SystemCheck_DatabaseActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database connection was established successfully. ähnelt.
+        /// </summary>
+        public static string SystemCheck_DatabasePassed {
+            get {
+                return ResourceManager.GetString("SystemCheck_DatabasePassed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database check could not be completed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_DatabaseUnavailable {
+            get {
+                return ResourceManager.GetString("SystemCheck_DatabaseUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The stored application data contains integrity findings that require action. ähnelt.
+        /// </summary>
+        public static string SystemCheck_PersistenceActionRequired {
+            get {
+                return ResourceManager.GetString("SystemCheck_PersistenceActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The stored application data could not be checked completely because technical errors occurred. ähnelt.
+        /// </summary>
+        public static string SystemCheck_PersistenceFailed {
+            get {
+                return ResourceManager.GetString("SystemCheck_PersistenceFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} integrity finding(s) were detected. ähnelt.
+        /// </summary>
+        public static string SystemCheck_PersistenceIssueCount {
+            get {
+                return ResourceManager.GetString("SystemCheck_PersistenceIssueCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The stored application data passed the integrity check. ähnelt.
+        /// </summary>
+        public static string SystemCheck_PersistencePassed {
+            get {
+                return ResourceManager.GetString("SystemCheck_PersistencePassed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Persistence integrity check is unavailable. ähnelt.
+        /// </summary>
+        public static string SystemCheck_PersistenceUnavailable {
+            get {
+                return ResourceManager.GetString("SystemCheck_PersistenceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required. The Repository contains a blocking finding. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryActionRequired {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MIRAS Repository check failed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryFailed {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS completed the Repository check with informational findings. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryNotice {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS completed the Repository check without findings. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryPassed {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryPassed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The MIRAS Repository check could not be completed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryUnavailable {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS completed the Repository check with warnings that should be reviewed. ähnelt.
+        /// </summary>
+        public static string SystemCheck_RepositoryWarning {
+            get {
+                return ResourceManager.GetString("SystemCheck_RepositoryWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Action required ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_ActionRequired {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_ActionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Canceled ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Canceled {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Canceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Failed {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Notice ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Notice {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Notice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passed ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Passed {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Passed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Running ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Running {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unavailable ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Unavailable {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Unavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Warning ähnelt.
+        /// </summary>
+        public static string SystemCheckSectionStatus_Warning {
+            get {
+                return ResourceManager.GetString("SystemCheckSectionStatus_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Academic title ähnelt.
         /// </summary>
         public static string UserAdministration_AcademicTitle {

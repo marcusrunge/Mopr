@@ -5,6 +5,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Moq;
@@ -30,8 +31,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             EnsureDirectoryExists(RepositoryDirectoryPath);
 
             MachineConfigurationService = new Mock<IMachineConfigurationService>(MockBehavior.Strict);
+            Miras = new Mock<IMiras>(MockBehavior.Strict);
             OperatingSystemIdentityProvider = new Mock<IOperatingSystemIdentityProvider>(MockBehavior.Strict);
-            Factory = new ApplicationFactory(Persistence.Object, Repository.Object, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object);
+            Factory = new ApplicationFactory(Persistence.Object, Repository.Object, OperatingSystemIdentityProvider.Object, MachineConfigurationService.Object, Miras.Object);
             Application = Factory.Create();
 
             var identityService = Application.IdentityService ?? throw new InvalidOperationException("The identity service has not been initialized.");
@@ -43,32 +45,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             Reset();
         }
 
-        public int AuditUserId => _auditUserId;
-
         public Contracts.IApplication Application { get; }
-
-        internal ICurrentUserContextManager CurrentUserContextManager { get; }
-
+        public int AuditUserId => _auditUserId;
         public ApplicationFactory Factory { get; }
-
         public Mock<IMachineConfigurationService> MachineConfigurationService { get; }
+        public Mock<IMiras> Miras { get; }
         public Mock<IOperatingSystemIdentityProvider> OperatingSystemIdentityProvider { get; }
-
         public Mock<IPersistence> Persistence { get; } = new(MockBehavior.Strict);
-
-        public string RepositoryDirectoryPath { get; }
-
         public Mock<RepositoryContract> Repository { get; } = new(MockBehavior.Strict);
-
+        public string RepositoryDirectoryPath { get; }
         public Mock<RepositoryImportService> RepositoryImportService { get; } = new(MockBehavior.Strict);
-
         public int RepositoryLocationId => _repositoryLocationId;
-
         public Mock<IRepositoryLocationRepository> RepositoryLocationRepository { get; } = new(MockBehavior.Strict);
-
         public IDicomImportService Service { get; }
-
         public string SourceDirectoryPath { get; }
+        internal ICurrentUserContextManager CurrentUserContextManager { get; }
 
         public DicomImportRequest CreateRequest(bool allowOverwrite = false) => new(SourceDirectoryPath, allowOverwrite);
 

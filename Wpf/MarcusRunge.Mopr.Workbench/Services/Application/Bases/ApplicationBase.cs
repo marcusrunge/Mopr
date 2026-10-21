@@ -10,6 +10,8 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
 using Microsoft.Extensions.Logging;
@@ -17,7 +19,7 @@ using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
-    internal abstract class ApplicationBase(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository, IMachineConfigurationService? machineConfigurationService) : IApplicationBase, IApplication
+    internal abstract class ApplicationBase(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
@@ -26,6 +28,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
         protected IRepositoryRecoveryActionService? _repositoryRecovery;
         protected IUserAdministrationService? _userAdministration;
+        protected ISystemCheckService? _systemCheck;
 
         private readonly Lock _exceptionThrownLock = new();
         private Action<Exception>? _exceptionThrown;
@@ -60,10 +63,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         ILogger? IApplicationBase.Logger => logger;
 
-        IMachineConfigurationService? IApplicationBase.MachineConfigurationService => machineConfigurationService;
+        IMachineConfigurationService IApplicationBase.MachineConfigurationService => machineConfigurationService;
 
         public IMediaService? MediaService => _mediaService;
-
+        IMiras IApplicationBase.Miras => miras;
         IOperatingSystemIdentityProvider? IApplicationBase.OperatingSystemIdentityProvider => operatingSystemIdentityProvider;
 
         IPersistence? IApplicationBase.Persistence => persistence;
@@ -75,6 +78,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         IRepositoryLocationAdministrationService? IApplicationBase.RepositoryAdministration => _repositoryAdministration;
 
         public IRepositoryRecoveryActionService? RepositoryRecovery => _repositoryRecovery;
+
+        public ISystemCheckService? SystemCheck => _systemCheck;
 
         public IUserAdministrationService? UserAdministration => _userAdministration;
 

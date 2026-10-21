@@ -221,12 +221,9 @@
                     <Grid Visibility="{Binding UsersVisibility}">
                         <views:UserAdministrationView />
                     </Grid>
-                    <ScrollViewer Visibility="{Binding SystemCheckVisibility}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="30">
-                            <TextBlock Style="{StaticResource SetupSectionTitleStyle}" Text="{x:Static properties:Resources.Administration_SystemCheck}" />
-                            <TextBlock Margin="0,9,0,0" Style="{StaticResource SetupDescriptionStyle}" Text="{x:Static properties:Resources.Administration_SystemCheckDescription}" />
-                        </StackPanel>
-                    </ScrollViewer>
+                    <Grid Visibility="{Binding SystemCheckVisibility}">
+                        <views:SystemCheckView />
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dicom\MarcusRunge.Mopr.Workbench.Services.Dicom.csproj" />
+    <ProjectReference Include="..\Miras\MarcusRunge.Mopr.Workbench.Services.Miras.csproj" />
     <ProjectReference Include="..\Persistence\MarcusRunge.Mopr.Workbench.Services.Persistence.csproj" />
     <ProjectReference Include="..\Repository\MarcusRunge.Mopr.Workbench.Services.Repository.csproj" />
   </ItemGroup>
