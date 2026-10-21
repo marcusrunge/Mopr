@@ -65,6 +65,58 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
         }
 
         /// <inheritdoc/>
+        public async Task<DatabaseConfigurationUpdateResult> UpdateDatabaseAsync(DatabaseConfigurationUpdateRequest request, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var connectionString = request.ConnectionString?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(connectionString)) return DatabaseConfigurationUpdateResult.ValidationFailed();
+            if (!CanModify) return DatabaseConfigurationUpdateResult.Unauthorized();
+
+            IApplicationConfiguration currentConfiguration;
+
+            try
+            {
+                currentConfiguration = await _configurationStore.LoadAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                return DatabaseConfigurationUpdateResult.ConfigurationUnavailable();
+            }
+
+            var updatedConfiguration = new DatabaseUpdatedApplicationConfiguration(currentConfiguration, new DatabaseConfigurationUpdate(connectionString));
+            var validationResult = ValidateForSetupCompletion(updatedConfiguration);
+
+            if (!validationResult.IsValid) return DatabaseConfigurationUpdateResult.ValidationFailed();
+
+            try
+            {
+                // Authorization is checked immediately before persistence so a changed
+                // elevation state cannot result in an unprotected machine-wide update.
+                _authorizationService.DemandElevatedAdministrator();
+                await _configurationStore.SaveAsync(updatedConfiguration, cancellationToken).ConfigureAwait(false);
+                return DatabaseConfigurationUpdateResult.Success();
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return DatabaseConfigurationUpdateResult.Unauthorized();
+            }
+            catch
+            {
+                return DatabaseConfigurationUpdateResult.Failed();
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<SecurityConfigurationUpdateResult> UpdateSecurityAsync(SecurityConfigurationUpdateRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
@@ -139,6 +191,20 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 
             return issues.Count == 0 ? MachineConfigurationValidationResult.Success : new MachineConfigurationValidationResult(issues);
         }
+        private sealed class DatabaseConfigurationUpdate(string connectionString) : IDatabaseConfiguration
+        {
+            public string ConnectionString { get; } = connectionString;
+        }
+
+        private sealed class DatabaseUpdatedApplicationConfiguration(IApplicationConfiguration source, IDatabaseConfiguration database) : IApplicationConfiguration
+        {
+            public IDatabaseConfiguration Database { get; } = database;
+            public bool IsSetupComplete => source.IsSetupComplete;
+            public IRepositoryConfiguration Repository => source.Repository;
+            public ISecurityConfiguration Security => source.Security;
+            public int SetupVersion => source.SetupVersion;
+        }
+
         private sealed class SecurityConfigurationUpdate(SecurityConfigurationUpdateRequest request) : ISecurityConfiguration
         {
             public bool AllowSelfDeletion { get; } = request.AllowSelfDeletion;

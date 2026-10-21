@@ -241,6 +241,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_Cancel {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The operation was canceled. ähnelt.
         /// </summary>
         public static string DatabaseAdministration_Canceled {
@@ -255,6 +264,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string DatabaseAdministration_ChangesDiscarded {
             get {
                 return ResourceManager.GetString("DatabaseAdministration_ChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The current machine configuration is unavailable. Reload the administration view before trying again. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_ConfigurationUnavailable {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_ConfigurationUnavailable", resourceCulture);
             }
         }
         
@@ -295,7 +313,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR must be restarted before the saved database configuration becomes active. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The new database connection was saved. MOPR will use it after the application is restarted. ähnelt.
         /// </summary>
         public static string DatabaseAdministration_RestartRequired {
             get {
@@ -381,6 +399,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         public static string DatabaseAdministration_TestSucceeded {
             get {
                 return ResourceManager.GetString("DatabaseAdministration_TestSucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration is invalid and was not saved. ähnelt.
+        /// </summary>
+        public static string DatabaseAdministration_ValidationFailed {
+            get {
+                return ResourceManager.GetString("DatabaseAdministration_ValidationFailed", resourceCulture);
             }
         }
         

@@ -259,4 +259,22 @@
   <data name="SecurityConfigurationUpdateStatus_Failed" xml:space="preserve">
     <value>Die Sicherheitskonfiguration konnte nicht aktualisiert werden</value>
   </data>
+  <data name="DatabaseConfigurationUpdateStatus_NotStarted" xml:space="preserve">
+    <value>Nicht gestartet</value>
+  </data>
+  <data name="DatabaseConfigurationUpdateStatus_Completed" xml:space="preserve">
+    <value>Abgeschlossen</value>
+  </data>
+  <data name="DatabaseConfigurationUpdateStatus_Unauthorized" xml:space="preserve">
+    <value>Eine erhöhte Administratorberechtigung ist erforderlich</value>
+  </data>
+  <data name="DatabaseConfigurationUpdateStatus_ConfigurationUnavailable" xml:space="preserve">
+    <value>Die Maschinenkonfiguration ist nicht verfügbar</value>
+  </data>
+  <data name="DatabaseConfigurationUpdateStatus_ValidationFailed" xml:space="preserve">
+    <value>Die Datenbankkonfiguration ist ungültig</value>
+  </data>
+  <data name="DatabaseConfigurationUpdateStatus_Failed" xml:space="preserve">
+    <value>Die Datenbankkonfiguration konnte nicht aktualisiert werden</value>
+  </data>
 </root>

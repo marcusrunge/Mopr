@@ -116,6 +116,90 @@ namespace MarcusRunge.Mopr.Workbench.Test.Application.Configuration
         }
 
         [Fact]
+        public async Task UpdateDatabaseAsync_WhenRequestIsValid_PreservesOtherConfigurationAndSavesNormalizedConnectionString()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var configuration = CreateValidConfiguration();
+            var context = new MachineConfigurationServiceTestContext(isElevatedAdministrator: true, configuration);
+
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("  Server=NewServer;Database=NewMoprDb;  "), cancellationToken);
+
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(context.Store.SavedConfiguration);
+            Assert.Equal("Server=NewServer;Database=NewMoprDb;", context.Store.SavedConfiguration.Database.ConnectionString);
+            Assert.Same(configuration.Repository, context.Store.SavedConfiguration.Repository);
+            Assert.Same(configuration.Security, context.Store.SavedConfiguration.Security);
+            Assert.Equal(configuration.IsSetupComplete, context.Store.SavedConfiguration.IsSetupComplete);
+            Assert.Equal(configuration.SetupVersion, context.Store.SavedConfiguration.SetupVersion);
+            Assert.Equal(1, context.Store.LoadCallCount);
+            Assert.Equal(1, context.Store.SaveCallCount);
+            Assert.Equal(1, context.AuthorizationService.DemandCallCount);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public async Task UpdateDatabaseAsync_WhenConnectionStringIsMissing_ReturnsValidationFailedWithoutLoadingOrSaving(string connectionString)
+        {
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest(connectionString), TestContext.Current.CancellationToken);
+            Assert.Equal(DatabaseConfigurationUpdateStatus.ValidationFailed, result.Status);
+            Assert.Equal(0, context.Store.LoadCallCount);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateDatabaseAsync_WithoutElevation_ReturnsUnauthorizedWithoutLoadingOrSaving()
+        {
+            var context = new MachineConfigurationServiceTestContext(isElevatedAdministrator: false, CreateValidConfiguration());
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("Server=NewServer;Database=NewMoprDb;"), TestContext.Current.CancellationToken);
+            Assert.Equal(DatabaseConfigurationUpdateStatus.Unauthorized, result.Status);
+            Assert.Equal(0, context.Store.LoadCallCount);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateDatabaseAsync_WhenCurrentConfigurationIsInvalid_ReturnsValidationFailed()
+        {
+            var configuration = CreateValidConfiguration();
+            configuration.IsSetupComplete = false;
+            var context = new MachineConfigurationServiceTestContext(configuration: configuration);
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("Server=NewServer;Database=NewMoprDb;"), TestContext.Current.CancellationToken);
+            Assert.Equal(DatabaseConfigurationUpdateStatus.ValidationFailed, result.Status);
+            Assert.Equal(1, context.Store.LoadCallCount);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateDatabaseAsync_WhenLoadFails_ReturnsConfigurationUnavailable()
+        {
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            context.Store.LoadException = new InvalidOperationException("Load failed.");
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("Server=NewServer;Database=NewMoprDb;"), TestContext.Current.CancellationToken);
+            Assert.Equal(DatabaseConfigurationUpdateStatus.ConfigurationUnavailable, result.Status);
+            Assert.Equal(0, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateDatabaseAsync_WhenSaveFails_ReturnsFailed()
+        {
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            context.Store.SaveException = new InvalidOperationException("Save failed.");
+            var result = await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("Server=NewServer;Database=NewMoprDb;"), TestContext.Current.CancellationToken);
+            Assert.Equal(DatabaseConfigurationUpdateStatus.Failed, result.Status);
+            Assert.Equal(1, context.Store.SaveCallCount);
+        }
+
+        [Fact]
+        public async Task UpdateDatabaseAsync_WhenCanceled_PropagatesCancellation()
+        {
+            using var cancellationSource = new CancellationTokenSource();
+            cancellationSource.Cancel();
+            var context = new MachineConfigurationServiceTestContext(configuration: CreateValidConfiguration());
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await context.Service.UpdateDatabaseAsync(new DatabaseConfigurationUpdateRequest("Server=NewServer;Database=NewMoprDb;"), cancellationSource.Token));
+        }
+
+        [Fact]
         public async Task UpdateSecurityAsync_WhenRequestIsValid_PreservesOtherConfigurationAndSavesSecurityValues()
         {
             var cancellationToken = TestContext.Current.CancellationToken;

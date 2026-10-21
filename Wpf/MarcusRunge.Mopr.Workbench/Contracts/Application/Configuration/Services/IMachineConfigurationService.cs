@@ -52,6 +52,14 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Service
         Task<bool> TestDatabaseConnectionAsync(IDatabaseConfiguration configuration, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Updates only the machine-wide database configuration while preserving all other current configuration sections.
+        /// </summary>
+        /// <param name="request">The requested database settings.</param>
+        /// <param name="cancellationToken">Cancels the update operation.</param>
+        /// <returns>The structured update result.</returns>
+        Task<DatabaseConfigurationUpdateResult> UpdateDatabaseAsync(DatabaseConfigurationUpdateRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Updates only the machine-wide security configuration while preserving all other current configuration sections.
         /// </summary>
         /// <param name="request">The requested security settings.</param>
