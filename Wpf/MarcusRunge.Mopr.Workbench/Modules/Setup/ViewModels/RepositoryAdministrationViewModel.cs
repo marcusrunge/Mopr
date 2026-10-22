@@ -1,10 +1,8 @@
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -23,26 +21,28 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
     private readonly IRepositoryLocationAdministrationService _administrationService;
     private readonly IApplication _application;
     private readonly CancellationToken _applicationStopping;
-    private readonly IRepositoryLocationValidationService _validationService;
-    private DelegateCommand? _cancelCreateCommand, _discardCommand, _newCommand, _saveCommand, _selectFolderCommand, _validateCommand;
+    private DelegateCommand? _cancelCommand, _cancelCreateCommand, _discardCommand, _newCommand, _saveCommand, _selectFolderCommand, _validateCommand;
     private DelegateCommand? _cancelDeleteCommand;
     private DelegateCommand? _confirmDeleteCommand;
     private bool _isBusy, _isCreating, _isDefaultRepository, _isPathValidated, _isRepositoryEnabled;
     private bool _isDeleteConfirmationVisible;
+    private CancellationTokenSource? _operationCancellationSource;
     private string _repositoryName = string.Empty, _repositoryPath = string.Empty, _statusText = string.Empty;
     private DelegateCommand? _requestDeleteCommand;
     private RepositoryLocationItemViewModel? _selectedLocation;
 
     /// <summary>Initializes a new instance of the <see cref="RepositoryAdministrationViewModel"/> class.</summary>
-    public RepositoryAdministrationViewModel(IRepository repository, IApplication application, ILifetimeService lifetimeService)
+    public RepositoryAdministrationViewModel(IApplication application, ILifetimeService lifetimeService)
     {
         _administrationService = (application ?? throw new ArgumentNullException(nameof(application))).RepositoryAdministration ?? throw new InvalidOperationException("The repository-location administration service has not been initialized.");
-        _validationService = (repository ?? throw new ArgumentNullException(nameof(repository))).LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
         _application = application;
         ArgumentNullException.ThrowIfNull(lifetimeService);
         _applicationStopping = lifetimeService.ApplicationStopping;
         _ = LoadLocationsAsync(_applicationStopping);
     }
+
+    /// <summary>Gets the command that cancels the active repository operation.</summary>
+    public DelegateCommand CancelCommand => _cancelCommand ??= new DelegateCommand(ExecuteCancel, () => IsBusy && _operationCancellationSource is not null);
 
     /// <summary>Gets the command that cancels creation.</summary>
     public DelegateCommand CancelCreateCommand => _cancelCreateCommand ??= new DelegateCommand(ExecuteCancelCreate, () => !IsBusy && IsCreating);
@@ -183,7 +183,6 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
 
         try
         {
-            IsBusy = true;
             StatusText = Resources.RepositoryAdministration_Deleting;
 
             var request = new RepositoryLocationDeleteRequest(
@@ -213,11 +212,9 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         {
             StatusText = Resources.RepositoryAdministration_DeleteFailed;
         }
-        finally
-        {
-            IsBusy = false;
-        }
     }
+
+    private void ExecuteCancel() => _operationCancellationSource?.Cancel();
 
     private void ExecuteCancelCreate()
     {
@@ -237,7 +234,7 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         StatusText = string.Empty;
     }
 
-    private async void ExecuteConfirmDelete() => await DeleteSelectedLocationAsync(_applicationStopping);
+    private void ExecuteConfirmDelete() => _ = RunOperationAsync(DeleteSelectedLocationAsync);
 
     private void ExecuteDiscard()
     {
@@ -272,7 +269,7 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         StatusText = string.Empty;
     }
 
-    private async void ExecuteSave() => await SaveAsync(_applicationStopping);
+    private void ExecuteSave() => _ = RunOperationAsync(SaveAsync);
 
     private void ExecuteSelectFolder()
     {
@@ -281,13 +278,12 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         if (!string.IsNullOrWhiteSpace(selectedPath)) RepositoryPath = selectedPath;
     }
 
-    private async void ExecuteValidate() => await ValidateAsync(_applicationStopping);
+    private void ExecuteValidate() => _ = RunOperationAsync(ValidateAsync);
 
     private async Task LoadLocationsAsync(CancellationToken cancellationToken, int? selectedId = null)
     {
         try
         {
-            IsBusy = true;
             StatusText = Resources.RepositoryAdministration_Loading;
             var summaries = await _administrationService.GetAllAsync(cancellationToken).ConfigureAwait(true);
             Locations.Clear();
@@ -300,7 +296,6 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { StatusText = Resources.RepositoryAdministration_Canceled; }
         catch { StatusText = Resources.RepositoryAdministration_LoadFailed; }
-        finally { IsBusy = false; }
     }
 
     private void OnEditorChanged(bool resetPathValidation)
@@ -330,6 +325,7 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         RaisePropertyChanged(nameof(CanSelectLocation));
         RaisePropertyChanged(nameof(DeleteConfirmationRepositoryName));
 
+        _cancelCommand?.RaiseCanExecuteChanged();
         _cancelCreateCommand?.RaiseCanExecuteChanged();
         _discardCommand?.RaiseCanExecuteChanged();
         _newCommand?.RaiseCanExecuteChanged();
@@ -340,11 +336,29 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         RaiseDeleteCommandStates();
     }
 
+    private async Task RunOperationAsync(Func<CancellationToken, Task> operation)
+    {
+        if (IsBusy) return;
+
+        using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(_applicationStopping);
+        _operationCancellationSource = cancellationSource;
+        IsBusy = true;
+
+        try
+        {
+            await operation(cancellationSource.Token).ConfigureAwait(true);
+        }
+        finally
+        {
+            _operationCancellationSource = null;
+            IsBusy = false;
+        }
+    }
+
     private async Task SaveAsync(CancellationToken cancellationToken)
     {
         try
         {
-            IsBusy = true;
             StatusText = IsCreating ? Resources.RepositoryAdministration_Creating : Resources.RepositoryAdministration_Saving;
             if (IsCreating)
             {
@@ -362,22 +376,20 @@ public sealed class RepositoryAdministrationViewModel : BindableBase
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { StatusText = Resources.RepositoryAdministration_Canceled; }
         catch { StatusText = IsCreating ? Resources.RepositoryAdministration_CreateFailed : Resources.RepositoryAdministration_SaveFailed; }
-        finally { IsBusy = false; }
     }
 
     private async Task ValidateAsync(CancellationToken cancellationToken)
     {
         try
         {
-            IsBusy = true;
             StatusText = Resources.RepositoryAdministration_Validating;
-            var result = await _validationService.ValidateAsync(RepositoryPath, cancellationToken).ConfigureAwait(true);
+            var result = await _administrationService.ValidateAsync(RepositoryPath, cancellationToken).ConfigureAwait(true);
             _isPathValidated = result.IsValid;
             if (result.IsValid) { _repositoryPath = result.NormalizedPath ?? RepositoryPath; RaisePropertyChanged(nameof(RepositoryPath)); StatusText = Resources.RepositoryAdministration_Valid; RaisePropertyChanged(nameof(IsDirty)); return; }
             StatusText = !result.Exists ? Resources.RepositoryAdministration_Missing : !result.IsReadable ? Resources.RepositoryAdministration_NotReadable : !result.IsWritable ? Resources.RepositoryAdministration_NotWritable : Resources.RepositoryAdministration_Invalid;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { StatusText = Resources.RepositoryAdministration_Canceled; }
         catch { _isPathValidated = false; StatusText = Resources.RepositoryAdministration_Invalid; }
-        finally { IsBusy = false; RaiseEditorState(); }
+        finally { RaiseEditorState(); }
     }
 }

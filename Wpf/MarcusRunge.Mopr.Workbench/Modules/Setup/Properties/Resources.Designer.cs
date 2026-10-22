@@ -412,6 +412,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string RepositoryAdministration_Cancel {
+            get {
+                return ResourceManager.GetString("RepositoryAdministration_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Cancel creation ähnelt.
         /// </summary>
         public static string RepositoryAdministration_CancelCreate {
