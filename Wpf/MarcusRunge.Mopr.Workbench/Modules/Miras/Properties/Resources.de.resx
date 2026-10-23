@@ -274,4 +274,7 @@ MirasActionRequiredCorrectionConflict = The repository was changed by another op
   <data name="MirasActionRequiredCorrectionConflict" xml:space="preserve">
     <value>Das Repository wurde durch einen anderen Vorgang geändert. Führen Sie die Prüfung erneut aus.</value>
   </data>
+  <data name="MirasActionRequiredReturnToAdministration" xml:space="preserve">
+    <value>Zurück zur Verwaltung</value>
+  </data>
 </root>

@@ -33,7 +33,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         private bool _isAdministrativeContext;
         private bool _isBusy;
         private CancellationTokenSource? _navigationCancellation;
-        private DelegateCommand? _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _retryCommand;
+        private DelegateCommand? _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
         private string _repositoryPath = string.Empty;
         private MirasIssueItemViewModel? _selectedIssue;
         private string _statusMessage = string.Empty;
@@ -70,6 +70,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             {
                 if (!SetProperty(ref _isAdministrativeContext, value)) return;
                 RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
+                _returnToAdministrationCommand?.RaiseCanExecuteChanged();
             }
         }
         public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && !HasIssues;
@@ -107,6 +108,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                 RecoverCommand.RaiseCanExecuteChanged();
             }
         }
+
+        public DelegateCommand ReturnToAdministrationCommand => _returnToAdministrationCommand ??= new DelegateCommand(ExecuteReturnToAdministration, () => IsAdministrativeContext && !IsBusy);
 
         public DelegateCommand RetryCommand => _retryCommand ??= new DelegateCommand(() => _ = RetryAsync(), () => !IsBusy && _miras.Flow is not null);
 
@@ -219,6 +222,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
             await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
         }
+        private void ExecuteReturnToAdministration()
+        {
+            var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration } };
+            _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Setup, parameters);
+        }
+
         private static string GetRecoveryStatusMessage(RepositoryInfrastructureRecoveryStatus status) => status switch
         {
             RepositoryInfrastructureRecoveryStatus.AdministrativeAuthorizationRequired => Resources.MirasActionRequiredAdministratorRequired,

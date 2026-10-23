@@ -1,3 +1,4 @@
+
 <UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Miras.Views.MirasActionRequiredView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -24,6 +25,11 @@
                 BorderBrush="#2B3B47"
                 BorderThickness="0,0,0,1">
             <Grid Margin="48,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
                 <StackPanel VerticalAlignment="Center">
                     <Border Padding="9,4"
                             HorizontalAlignment="Left"
@@ -43,6 +49,24 @@
                                FontWeight="SemiBold"
                                Text="{Binding Title}" />
                 </StackPanel>
+
+                <Button Grid.Column="1"
+                        MinWidth="190"
+                        Height="42"
+                        VerticalAlignment="Center"
+                        Command="{Binding ReturnToAdministrationCommand}"
+                        Content="{x:Static properties:Resources.MirasActionRequiredReturnToAdministration}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAdministrativeContext}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </Grid>
         </Border>
 

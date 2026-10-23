@@ -1717,6 +1717,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Open MIRAS actions ähnelt.
+        /// </summary>
+        public static string SystemCheck_OpenMirasActions {
+            get {
+                return ResourceManager.GetString("SystemCheck_OpenMirasActions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MIRAS action required. At least one blocking finding requires attention. ähnelt.
         /// </summary>
         public static string SystemCheck_OverallActionRequired {

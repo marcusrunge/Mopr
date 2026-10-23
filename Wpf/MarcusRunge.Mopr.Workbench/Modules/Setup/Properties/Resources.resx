@@ -912,4 +912,7 @@
   <data name="RepositoryAdministration_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="SystemCheck_OpenMirasActions" xml:space="preserve">
+    <value>Open MIRAS actions</value>
+  </data>
 </root>

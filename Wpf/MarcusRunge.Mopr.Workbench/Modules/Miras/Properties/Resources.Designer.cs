@@ -466,6 +466,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Return to administration ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredReturnToAdministration {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredReturnToAdministration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die No image data was changed. MOPR has stopped the protected startup sequence to prevent access to incomplete or inconsistent repository data. ähnelt.
         /// </summary>
         public static string MirasActionRequiredSafetyNotice {

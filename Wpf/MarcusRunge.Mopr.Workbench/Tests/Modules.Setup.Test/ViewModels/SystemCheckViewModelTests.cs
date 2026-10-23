@@ -27,6 +27,8 @@ public sealed class SystemCheckViewModelTests
         Assert.Equal(Resources.SystemCheck_OverallPassed, context.ViewModel.OverallStatusText);
         Assert.Equal(Resources.SystemCheck_Completed, context.ViewModel.StatusText);
         Assert.NotNull(context.ViewModel.Duration);
+        Assert.False(context.ViewModel.IsMirasActionRequired);
+        Assert.False(context.ViewModel.OpenMirasActionsCommand.CanExecute());
     }
 
     [Fact]
@@ -41,6 +43,8 @@ public sealed class SystemCheckViewModelTests
 
         Assert.Equal(Resources.SystemCheck_OverallActionRequired, context.ViewModel.OverallStatusText);
         Assert.Equal(SystemCheckSectionStatus.ActionRequired, context.ViewModel.Sections[2].Status);
+        Assert.True(context.ViewModel.IsMirasActionRequired);
+        Assert.True(context.ViewModel.OpenMirasActionsCommand.CanExecute());
     }
 
     [Fact]
@@ -123,18 +127,19 @@ public sealed class SystemCheckViewModelTests
             {
                 SystemCheck.Setup(service => service.RunAsync(It.IsAny<CancellationToken>())).ReturnsAsync(result);
             }
-            ViewModel = new SystemCheckViewModel(Application.Object, LifetimeService.Object);
+            ViewModel = new SystemCheckViewModel(Application.Object, LifetimeService.Object, RegionManager.Object);
         }
 
         internal TestContext(Exception exception)
         {
             ConfigureApplication();
             SystemCheck.Setup(service => service.RunAsync(It.IsAny<CancellationToken>())).ThrowsAsync(exception);
-            ViewModel = new SystemCheckViewModel(Application.Object, LifetimeService.Object);
+            ViewModel = new SystemCheckViewModel(Application.Object, LifetimeService.Object, RegionManager.Object);
         }
 
         internal Mock<IApplication> Application { get; } = new(MockBehavior.Strict);
         internal Mock<ILifetimeService> LifetimeService { get; } = new(MockBehavior.Strict);
+        internal Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Loose);
         internal Mock<ISystemCheckService> SystemCheck { get; } = new(MockBehavior.Strict);
         internal bool SystemCheckCancellationObserved { get; private set; }
         internal SystemCheckViewModel ViewModel { get; }

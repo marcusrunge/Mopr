@@ -16,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
             Assert.False(context.ViewModel.IsAdministrativeContext);
             Assert.True(context.ViewModel.IsInfrastructureRecoveryVisible);
+            Assert.False(context.ViewModel.ReturnToAdministrationCommand.CanExecute());
         }
 
         [Fact]
@@ -29,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Assert.False(context.ViewModel.IsInfrastructureRecoveryVisible);
             Assert.False(context.ViewModel.SelectRepositoryCommand.CanExecute());
             Assert.False(context.ViewModel.RecoverCommand.CanExecute());
+            Assert.True(context.ViewModel.ReturnToAdministrationCommand.CanExecute());
         }
 
         [Fact]

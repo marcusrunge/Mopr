@@ -273,4 +273,7 @@
   <data name="MirasActionRequiredCorrectionConflict" xml:space="preserve">
     <value>The repository was changed by another operation. Run the check again.</value>
   </data>
+  <data name="MirasActionRequiredReturnToAdministration" xml:space="preserve">
+    <value>Return to administration</value>
+  </data>
 </root>
