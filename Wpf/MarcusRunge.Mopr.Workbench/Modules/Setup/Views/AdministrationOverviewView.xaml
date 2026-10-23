@@ -57,7 +57,6 @@
     <Grid Background="{StaticResource WorkbenchBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="56" />
-            <RowDefinition Height="52" />
             <RowDefinition Height="*" />
             <RowDefinition Height="44" />
         </Grid.RowDefinitions>
@@ -74,13 +73,7 @@
                 <Button Grid.Column="1" Height="36" MinWidth="168" VerticalAlignment="Center" Style="{StaticResource SetupSecondaryButtonStyle}" Command="{Binding ReturnToImagingCommand}" Content="{Binding ReturnToImagingText}" />
             </Grid>
         </Border>
-        <Border Grid.Row="1"
-                Background="{StaticResource WorkbenchCommandBarBackgroundBrush}"
-                BorderBrush="{StaticResource WorkbenchBorderBrush}"
-                BorderThickness="0,0,0,1">
-            <TextBlock Margin="16,0" VerticalAlignment="Center" Foreground="{StaticResource WorkbenchSecondaryTextBrush}" FontSize="13" Text="{x:Static properties:Resources.Administration_PrototypeNotice}" />
-        </Border>
-        <Grid Grid.Row="2" Margin="48,28,48,32" HorizontalAlignment="Left">
+        <Grid Grid.Row="1" Margin="48,28,48,32" HorizontalAlignment="Left">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="252" />
                 <ColumnDefinition Width="28" />
@@ -227,7 +220,7 @@
                 </Grid>
             </Border>
         </Grid>
-        <Border Grid.Row="3" Background="{StaticResource WorkbenchFooterBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Background="{StaticResource WorkbenchFooterBackgroundBrush}" BorderBrush="{StaticResource WorkbenchBorderBrush}" BorderThickness="0,1,0,0">
             <TextBlock Margin="48,0" VerticalAlignment="Center" Foreground="{StaticResource WorkbenchMutedTextBrush}" FontSize="11" Text="{x:Static properties:Resources.Administration_AdministratorAccessActive}" />
         </Border>
     </Grid>

@@ -85,8 +85,10 @@ public sealed class SystemCheckViewModel : BindableBase
 
     private async Task RunAsync()
     {
-        _runCancellationSource?.Dispose();
-        _runCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(_applicationStopping);
+        if (IsRunning) return;
+
+        using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(_applicationStopping);
+        _runCancellationSource = cancellationSource;
 
         try
         {
@@ -96,11 +98,11 @@ public sealed class SystemCheckViewModel : BindableBase
             Duration = null;
             Sections.Clear();
             RaisePropertyChanged(nameof(HasResult));
-            var result = await _systemCheckService.RunAsync(_runCancellationSource.Token).ConfigureAwait(true);
+            var result = await _systemCheckService.RunAsync(cancellationSource.Token).ConfigureAwait(true);
             ApplyResult(result);
             StatusText = Resources.SystemCheck_Completed;
         }
-        catch (OperationCanceledException) when (_runCancellationSource.IsCancellationRequested)
+        catch (OperationCanceledException) when (cancellationSource.IsCancellationRequested)
         {
             StatusText = Resources.SystemCheck_Canceled;
         }
@@ -110,6 +112,7 @@ public sealed class SystemCheckViewModel : BindableBase
         }
         finally
         {
+            if (ReferenceEquals(_runCancellationSource, cancellationSource)) _runCancellationSource = null;
             IsRunning = false;
         }
     }
