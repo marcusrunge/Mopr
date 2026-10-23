@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
+using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
@@ -29,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             DialogService.SetupGet(service => service.FileDialogService).Returns(fileDialogAvailable ? FileDialogService.Object : null);
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
+            RegionNavigationService.SetupGet(service => service.Region).Returns(Region.Object);
             ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
         }
 
@@ -48,7 +50,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
         internal Mock<IRepositoryInfrastructureRecoveryService> RecoveryService { get; } = new(MockBehavior.Strict);
 
+        internal Mock<IRegion> Region { get; } = new(MockBehavior.Strict);
+
         internal Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Strict);
+
+        internal Mock<IRegionNavigationService> RegionNavigationService { get; } = new(MockBehavior.Strict);
 
         internal Mock<IRepositoryLocationAdministrationService> RepositoryLocationAdministrationService { get; } = new(MockBehavior.Strict);
 
@@ -88,6 +94,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             ArgumentNullException.ThrowIfNull(result);
 
             RecoveryService.Setup(service => service.RecoverAsync(It.IsAny<RepositoryInfrastructureRecoveryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+        }
+
+        internal void NavigateTo(bool isAdministrativeContext = false)
+        {
+            var navigationUri = isAdministrativeContext ? new Uri($"MirasActionRequired?{NavigationParameterNames.MirasAdministrativeContext}=true", UriKind.Relative) : new Uri("MirasActionRequired", UriKind.Relative);
+            ViewModel.OnNavigatedTo(new NavigationContext(RegionNavigationService.Object, navigationUri));
         }
 
         internal void ExecuteRecover() => ViewModel.RecoverCommand.Execute();

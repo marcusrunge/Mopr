@@ -30,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         private readonly IRepositoryRecoveryActionService _repositoryRecoveryActionService;
         private readonly Dictionary<int, byte[]> _repositoryRowVersions = [];
 
+        private bool _isAdministrativeContext;
         private bool _isBusy;
         private CancellationTokenSource? _navigationCancellation;
         private DelegateCommand? _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _retryCommand;
@@ -59,7 +60,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
         public bool HasIssues => Issues.Count > 0;
         public bool HasSelectedIssue => SelectedIssue is not null;
-        public bool IsInfrastructureRecoveryVisible => !HasIssues;
+        /// <summary>
+        /// Gets a value indicating whether the view is being used from the administrative workflow.
+        /// </summary>
+        public bool IsAdministrativeContext
+        {
+            get => _isAdministrativeContext;
+            private set
+            {
+                if (!SetProperty(ref _isAdministrativeContext, value)) return;
+                RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
+            }
+        }
+        public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && !HasIssues;
         public ObservableCollection<MirasIssueItemViewModel> Issues { get; } = [];
 
         public bool IsBusy
@@ -136,6 +149,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             _navigationCancellation?.Cancel();
             _navigationCancellation?.Dispose();
             _navigationCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeService.ApplicationStopping);
+            IsAdministrativeContext = navigationContext.Parameters.GetValue<bool>(NavigationParameterNames.MirasAdministrativeContext);
 
             RaisePropertyChanged(nameof(HasAdministrativeAuthorization));
             SelectRepositoryCommand.RaiseCanExecuteChanged();
@@ -190,6 +204,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             }
         }
 
+        private async Task CompleteSuccessfulVerificationAsync(string statusMessage, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Administrative verification must remain inside the administration workflow.
+            // Only the protected startup workflow may release the imaging workbench directly.
+            if (IsAdministrativeContext)
+            {
+                await LoadIssuesAsync(cancellationToken).ConfigureAwait(true);
+                StatusMessage = statusMessage;
+                return;
+            }
+
+            await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
+        }
         private static string GetRecoveryStatusMessage(RepositoryInfrastructureRecoveryStatus status) => status switch
         {
             RepositoryInfrastructureRecoveryStatus.AdministrativeAuthorizationRequired => Resources.MirasActionRequiredAdministratorRequired,
@@ -386,8 +415,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                     return;
                 }
 
-                StatusMessage = Resources.MirasActionRequiredRecoveryCompleted;
-                await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(false);
+                await CompleteSuccessfulVerificationAsync(Resources.MirasActionRequiredRecoveryCompleted, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -480,7 +508,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
             if (MirasImagingReleasePolicy.CanOpenImaging(result))
             {
-                await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
+                await CompleteSuccessfulVerificationAsync(Resources.MirasActionRequiredRecoveryCompleted, cancellationToken).ConfigureAwait(true);
                 return;
             }
 

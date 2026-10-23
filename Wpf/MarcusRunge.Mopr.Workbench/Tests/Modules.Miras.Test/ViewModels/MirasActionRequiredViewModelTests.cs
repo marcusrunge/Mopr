@@ -8,6 +8,30 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
     public sealed class MirasActionRequiredViewModelTests
     {
         [Fact]
+        public void OnNavigatedTo_WithoutAdministrativeContext_PreservesStartupBehavior()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+
+            context.NavigateTo();
+
+            Assert.False(context.ViewModel.IsAdministrativeContext);
+            Assert.True(context.ViewModel.IsInfrastructureRecoveryVisible);
+        }
+
+        [Fact]
+        public void OnNavigatedTo_WithAdministrativeContext_DisablesStartupInfrastructureRecovery()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+
+            context.NavigateTo(isAdministrativeContext: true);
+
+            Assert.True(context.ViewModel.IsAdministrativeContext);
+            Assert.False(context.ViewModel.IsInfrastructureRecoveryVisible);
+            Assert.False(context.ViewModel.SelectRepositoryCommand.CanExecute());
+            Assert.False(context.ViewModel.RecoverCommand.CanExecute());
+        }
+
+        [Fact]
         public void Commands_WhenAdministrativeAuthorizationIsMissing_AreDisabled()
         {
             using var context = new MirasActionRequiredViewModelTestContext(isElevatedAdministrator: false);
