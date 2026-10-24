@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using Moq;
 using System.Reactive.Subjects;
 
@@ -21,6 +22,7 @@ public sealed class RepositoryLocationValidationServiceTests
         Assert.False(result.IsReadable);
         Assert.False(result.IsWritable);
         Assert.False(result.IsValid);
+        Assert.Equal(RepositoryLocationValidationFailureKind.InvalidPath, result.FailureKind);
         Assert.Null(result.NormalizedPath);
     }
 
@@ -35,6 +37,7 @@ public sealed class RepositoryLocationValidationServiceTests
         Assert.False(result.IsReadable);
         Assert.False(result.IsWritable);
         Assert.False(result.IsValid);
+        Assert.Equal(RepositoryLocationValidationFailureKind.NotFound, result.FailureKind);
         Assert.Equal(Path.GetFullPath(directoryPath), result.NormalizedPath);
     }
 
@@ -54,6 +57,7 @@ public sealed class RepositoryLocationValidationServiceTests
             Assert.True(result.IsReadable);
             Assert.True(result.IsWritable);
             Assert.True(result.IsValid);
+            Assert.Equal(RepositoryLocationValidationFailureKind.None, result.FailureKind);
             Assert.Equal(Path.GetFullPath(directoryPath), result.NormalizedPath);
             Assert.Equal(filesBeforeValidation, filesAfterValidation);
             Assert.DoesNotContain(filesAfterValidation, path => Path.GetFileName(path).StartsWith(".mopr-write-test-", StringComparison.Ordinal));
@@ -62,6 +66,20 @@ public sealed class RepositoryLocationValidationServiceTests
         {
             Directory.Delete(directoryPath, recursive: true);
         }
+    }
+
+    [Fact]
+    public async Task LocationValidation_WithUnavailableNetworkLocation_ReturnsUnavailableResult()
+    {
+        using var context = new RepositoryLocationValidationServiceTestContext();
+        var directoryPath = $@"\\mopr-unavailable-{Guid.NewGuid():N}\repository";
+        var result = await context.LocationValidation.ValidateAsync(directoryPath, TestContext.Current.CancellationToken);
+        Assert.False(result.Exists);
+        Assert.False(result.IsReadable);
+        Assert.False(result.IsWritable);
+        Assert.False(result.IsValid);
+        Assert.Equal(RepositoryLocationValidationFailureKind.Unavailable, result.FailureKind);
+        Assert.Equal(Path.GetFullPath(directoryPath), result.NormalizedPath);
     }
 
     [Fact]

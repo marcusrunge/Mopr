@@ -122,5 +122,59 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Properties {
                 return ResourceManager.GetString("ImportSourceType_UsbDrive", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository access denied ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_AccessDenied {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_AccessDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid repository path ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_InvalidPath {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_InvalidPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No validation failure ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_None {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository directory not found ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_NotFound {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository is read-only ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_ReadOnly {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_ReadOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Repository infrastructure unavailable ähnelt.
+        /// </summary>
+        public static string RepositoryLocationValidationFailureKind_Unavailable {
+            get {
+                return ResourceManager.GetString("RepositoryLocationValidationFailureKind_Unavailable", resourceCulture);
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
@@ -1466,7 +1466,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
                 Assert.Equal(unavailableRootPath, issue.ActualFilePath);
                 Assert.False(issue.CanResolveAutomatically);
                 Assert.False(issue.AutomaticallyResolved);
-                Assert.Contains("does not exist", issue.TechnicalDetails, StringComparison.OrdinalIgnoreCase);
+                Assert.Equal(RepositoryLocationValidationFailureKind.NotFound, issue.ValidationFailureKind);
+                Assert.Contains(nameof(RepositoryLocationValidationFailureKind.NotFound), issue.TechnicalDetails, StringComparison.Ordinal);
 
                 /*
                  * The unavailable repository is reported once at location level.

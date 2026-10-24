@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
@@ -99,6 +99,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// completed successfully.
         /// </summary>
         public DateTime? ResolvedAtUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the repository-location validation failure associated with a location-level issue.
+        /// </summary>
+        public RepositoryLocationValidationFailureKind ValidationFailureKind { get; set; }
 
         /// <summary>
         /// Gets or sets technical diagnostic details.

@@ -8,6 +8,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministr
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 using Moq;
 

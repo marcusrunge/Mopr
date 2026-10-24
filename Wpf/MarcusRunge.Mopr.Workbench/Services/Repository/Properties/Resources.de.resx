@@ -138,4 +138,22 @@
   <data name="ImportSourceType_UsbDrive" xml:space="preserve">
     <value>USB-Laufwerk</value>
   </data>
+  <data name="RepositoryLocationValidationFailureKind_AccessDenied" xml:space="preserve">
+    <value>Kein Validierungsfehler</value>
+  </data>
+  <data name="RepositoryLocationValidationFailureKind_InvalidPath" xml:space="preserve">
+    <value>Ungültiger Repository-Pfad</value>
+  </data>
+  <data name="RepositoryLocationValidationFailureKind_None" xml:space="preserve">
+    <value>Repository-Verzeichnis nicht gefunden</value>
+  </data>
+  <data name="RepositoryLocationValidationFailureKind_NotFound" xml:space="preserve">
+    <value>Repository-Infrastruktur nicht verfügbar</value>
+  </data>
+  <data name="RepositoryLocationValidationFailureKind_ReadOnly" xml:space="preserve">
+    <value>Repository-Zugriff verweigert</value>
+  </data>
+  <data name="RepositoryLocationValidationFailureKind_Unavailable" xml:space="preserve">
+    <value>Repository ist schreibgeschützt</value>
+  </data>
 </root>

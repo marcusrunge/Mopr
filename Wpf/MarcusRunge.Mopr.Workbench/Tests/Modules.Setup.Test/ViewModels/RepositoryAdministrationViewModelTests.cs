@@ -6,6 +6,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using Moq;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels;
 

@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -16,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IRepositoryOperationsCoordinator OperationsCoordinator => Base.OperationsCoordinator ?? throw new InvalidOperationException("The repository operations coordinator has not been initialized.");
         private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
         private IRepository Repository => Base as IRepository ?? throw new InvalidOperationException("The repository base does not implement IRepository.");
+        private IRepositoryLocationValidationService RepositoryLocationValidation => Repository.LocationValidation ?? throw new InvalidOperationException("The repository-location validation service has not been initialized.");
         private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
         private IDicomRepositoryService RepositoryService => Repository.RepositoryService ?? throw new InvalidOperationException("The repository service has not been initialized.");
         private ISeriesRepository SeriesRepository => Persistence.Series ?? throw new InvalidOperationException("The series repository has not been initialized.");
@@ -144,16 +145,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
         private async Task<DicomRepositoryLocationRepairContext?> CreateLocationContextAsync(RepositoryLocation repositoryLocation, DicomRepositoryRepairResult result, CancellationToken cancellationToken)
         {
+            var configuredRootPath = repositoryLocation.RootPath ?? string.Empty;
+
             try
             {
-                string repositoryRootPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(repositoryLocation.RootPath ?? throw new InvalidOperationException("The repository location has no root path.")));
+                var validationResult = await RepositoryLocationValidation.ValidateAsync(configuredRootPath, cancellationToken).ConfigureAwait(false);
 
-                if (!Directory.Exists(repositoryRootPath))
+                // Repository-wide inspection must stop before enumerating files when the
+                // location itself is invalid or unavailable. Persisted instances in that
+                // location must not be misclassified as individually missing.
+                if (!validationResult.IsValid)
                 {
-                    RegisterUnavailableRepositoryLocation(repositoryLocation, repositoryRootPath, "The configured repository root directory does not exist.", result);
+                    RegisterUnavailableRepositoryLocation(repositoryLocation, validationResult.NormalizedPath ?? configuredRootPath, validationResult.FailureKind, result);
                     return null;
                 }
 
+                var repositoryRootPath = Path.TrimEndingDirectorySeparator(validationResult.NormalizedPath!);
                 DicomRepositoryLocationRepairContext context = new()
                 {
                     RepositoryLocation = repositoryLocation,
@@ -169,15 +176,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
             catch (Exception exception)
             {
-                RegisterUnavailableRepositoryLocation(repositoryLocation, repositoryLocation.RootPath ?? string.Empty, exception.Message, result, exception);
+                RegisterUnavailableRepositoryLocation(repositoryLocation, configuredRootPath, RepositoryLocationValidationFailureKind.Unavailable, result, exception);
                 return null;
             }
         }
 
-        private void RegisterUnavailableRepositoryLocation(RepositoryLocation repositoryLocation, string repositoryRootPath, string reason, DicomRepositoryRepairResult result, Exception? exception = null)
+        private void RegisterUnavailableRepositoryLocation(RepositoryLocation repositoryLocation, string repositoryRootPath, RepositoryLocationValidationFailureKind validationFailureKind, DicomRepositoryRepairResult result, Exception? exception = null)
         {
             result.UnavailableRepositoryLocations++;
-            string technicalDetails = $"Repository location '{repositoryLocation.Id}' at '{repositoryRootPath}' could not be inspected: {reason} No persisted instance was classified as missing and no file was changed.";
+            string technicalDetails = $"Repository location '{repositoryLocation.Id}' at '{repositoryRootPath}' could not be inspected because validation returned '{validationFailureKind}'. No persisted instance was classified as missing and no file was changed.";
             result.Issues.Add(new DicomRepositoryIssue
             {
                 IssueType = DicomRepositoryIssueType.RepositoryLocationUnavailable,
@@ -186,7 +193,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 CanResolveAutomatically = false,
                 AutomaticallyResolved = false,
                 DetectedAtUtc = DateTime.UtcNow,
-                TechnicalDetails = technicalDetails
+                TechnicalDetails = technicalDetails,
+                ValidationFailureKind = validationFailureKind
             });
             AddError(result, technicalDetails, exception);
         }

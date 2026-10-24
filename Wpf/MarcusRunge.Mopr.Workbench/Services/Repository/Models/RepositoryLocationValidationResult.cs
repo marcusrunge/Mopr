@@ -1,5 +1,7 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
-{
+using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+{    
     /// <summary>
     /// Represents the validation result of a potential DICOM repository location.
     /// </summary>
@@ -11,6 +13,11 @@
         public bool Exists { get; init; }
 
         /// <summary>
+        /// Gets the reason why validation failed.
+        /// </summary>
+        public RepositoryLocationValidationFailureKind FailureKind { get; init; }
+
+        /// <summary>
         /// Gets a value indicating whether the directory can be enumerated.
         /// </summary>
         public bool IsReadable { get; init; }
@@ -18,7 +25,7 @@
         /// <summary>
         /// Gets a value indicating whether the location satisfies all requirements.
         /// </summary>
-        public bool IsValid => Exists && IsReadable && IsWritable;
+        public bool IsValid => Exists && IsReadable && IsWritable && FailureKind == RepositoryLocationValidationFailureKind.None;
 
         /// <summary>
         /// Gets a value indicating whether a temporary file can be written and removed.
