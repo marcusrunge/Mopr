@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
@@ -21,6 +21,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         /// Gets or sets the UTC date and time when the operation completed.
         /// </summary>
         public DateTime CompletedAtUtc { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets the number of issues acknowledged for the current application session.
+        /// </summary>
+        public int DeferredCount => Issues.Count(issue => issue.IssueState == MirasIssueState.Deferred);
 
         /// <summary>
         /// Gets the duration of the operation.

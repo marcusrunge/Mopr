@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -183,6 +184,50 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.VerifyPersistenceCalledOnce();
             context.VerifyRepositoryCalledOnce();
+        }
+
+        [Fact]
+        public void DeferForSession_WithRepositoryUnavailableActionRequired_DefersWithoutResolutionMetadata()
+        {
+            var issue = new MirasIssue
+            {
+                IssueState = MirasIssueState.ActionRequired,
+                IssueType = MirasIssueType.RepositoryUnavailable,
+                ResolvedAtUtc = DateTime.UtcNow,
+                ResolvedByUserId = 17
+            };
+
+            Assert.True(issue.CanDeferForSession);
+
+            issue.DeferForSession();
+
+            Assert.Equal(MirasIssueState.Deferred, issue.IssueState);
+            Assert.False(issue.CanDeferForSession);
+            Assert.Null(issue.ResolvedAtUtc);
+            Assert.Null(issue.ResolvedByUserId);
+        }
+
+        [Theory]
+        [InlineData(MirasIssueType.IdentityMismatch, MirasIssueState.ActionRequired)]
+        [InlineData(MirasIssueType.PersistenceRelationshipConflict, MirasIssueState.ActionRequired)]
+        [InlineData(MirasIssueType.RepositoryUnavailable, MirasIssueState.Deferred)]
+        public void DeferForSession_WithIneligibleIssue_ThrowsInvalidOperationException(MirasIssueType issueType, MirasIssueState issueState)
+        {
+            var issue = new MirasIssue { IssueState = issueState, IssueType = issueType };
+
+            Assert.False(issue.CanDeferForSession);
+            Assert.Throws<InvalidOperationException>(issue.DeferForSession);
+        }
+
+        [Fact]
+        public void DeferredCount_CountsOnlyDeferredIssues()
+        {
+            var result = new MirasOperationResult();
+            result.Issues.Add(new MirasIssue { IssueState = MirasIssueState.Deferred, IssueType = MirasIssueType.RepositoryUnavailable });
+            result.Issues.Add(new MirasIssue { IssueState = MirasIssueState.ActionRequired, IssueType = MirasIssueType.RepositoryUnavailable });
+            result.Issues.Add(new MirasIssue { IssueState = MirasIssueState.ManuallyResolved, IssueType = MirasIssueType.MissingFile });
+
+            Assert.Equal(1, result.DeferredCount);
         }
 
         private static CancellationToken CreateCanceledToken(

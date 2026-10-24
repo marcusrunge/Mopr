@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
 {
@@ -26,6 +26,26 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         /// Gets or sets a value indicating whether the issue can be resolved automatically.
         /// </summary>
         public bool CanResolveAutomatically { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the issue may be acknowledged for the current application session.
+        /// </summary>
+        public bool CanDeferForSession => IssueType == MirasIssueType.RepositoryUnavailable && IssueState == MirasIssueState.ActionRequired;
+
+        /// <summary>
+        /// Acknowledges the issue for the current application session without marking it as resolved.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The issue is not eligible for session deferral.</exception>
+        public void DeferForSession()
+        {
+            if (!CanDeferForSession) throw new InvalidOperationException($"MIRAS issue type '{IssueType}' in state '{IssueState}' cannot be deferred for the current session.");
+
+            // Deferral records a conscious temporary acceptance only in the current
+            // in-memory result. It must never create resolution metadata or imply repair.
+            IssueState = MirasIssueState.Deferred;
+            ResolvedAtUtc = null;
+            ResolvedByUserId = null;
+        }
 
         /// <summary>
         /// Gets or sets the expected physical repository file path.

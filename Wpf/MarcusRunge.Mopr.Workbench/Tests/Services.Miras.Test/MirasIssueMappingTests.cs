@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -144,6 +144,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.Equal(MirasIssueState.ActionRequired, issue.IssueState);
             Assert.Equal(expectedRecommendedAction, issue.RecommendedAction);
             Assert.False(issue.CanResolveAutomatically);
+            Assert.Equal(sourceIssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable, issue.CanDeferForSession);
             Assert.Equal(repositoryIssue.InstanceId, issue.InstanceId);
             Assert.Equal(repositoryIssue.RepositoryLocationId, issue.RepositoryLocationId);
             Assert.Equal(repositoryIssue.ExpectedFilePath, issue.ExpectedFilePath);
