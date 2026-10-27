@@ -98,6 +98,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         }
 
         [Fact]
+        public void ReturnToAdministrationCommand_WithAdministrativeContext_NavigatesToSystemCheck()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            context.NavigateTo(isAdministrativeContext: true);
+
+            Assert.True(context.ViewModel.ReturnToAdministrationCommand.CanExecute());
+
+            context.ExecuteReturnToAdministration();
+
+            context.VerifyAdministrationSystemCheckNavigationRequested();
+        }
+
+        [Fact]
         public void Commands_WhenAdministrativeAuthorizationIsMissing_AreDisabled()
         {
             using var context = new MirasActionRequiredViewModelTestContext(isElevatedAdministrator: false);

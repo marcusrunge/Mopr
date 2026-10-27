@@ -301,6 +301,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             var isValidMode = !hasExplicitMode || Enum.TryParse(requestedMode, ignoreCase: false, out operatingMode);
             IsAdministrationMode = isValidMode && hasExplicitMode && operatingMode == SetupOperatingMode.Administration;
             IsAdministrationAccessDenied = !isValidMode || IsAdministrationMode && !CanModify;
+            var requestedAdministrationSection = navigationContext?.Parameters.GetValue<string>(SetupNavigation.AdministrationSectionParameter);
 
             // A direct route request must not expose administrative state when the
             // effective Windows token is not authorized by the existing service.
@@ -310,6 +311,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
                 IsLoading = false;
                 return;
             }
+
+            // Section selection is published only after the administration route has
+            // passed the existing authorization boundary. Invalid values are ignored
+            // by the administration view model and cannot reveal hidden state.
+            if (IsAdministrationMode && !string.IsNullOrWhiteSpace(requestedAdministrationSection)) _eventAggregator.GetEvent<AdministrationSectionRequestedEvent>().Publish(requestedAdministrationSection);
 
             try
             {

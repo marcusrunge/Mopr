@@ -12,6 +12,7 @@ using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Test.Shared.Application;
 using Moq;
 using IDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
+using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 {
@@ -33,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
             RegionNavigationService.SetupGet(service => service.Region).Returns(Region.Object);
+            RegionManager.Setup(manager => manager.RequestNavigate(RegionNames.ContentRegion, It.Is<Uri>(uri => uri.OriginalString == NavigationNames.Setup), It.IsAny<Action<NavigationResult>>(), It.IsAny<INavigationParameters>()));
             ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
         }
 
@@ -133,6 +135,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         internal void ExecuteDeferForSession() => ViewModel.DeferForSessionCommand.Execute();
 
         internal bool WasImagingNavigationRequested() => RegionManager.Invocations.Any(invocation => invocation.Arguments.OfType<string>().Contains(RegionNames.ContentRegion) && invocation.Arguments.OfType<string>().Contains(NavigationNames.Imaging));
+
+        internal void ExecuteReturnToAdministration() => ViewModel.ReturnToAdministrationCommand.Execute();
+
+        internal void VerifyAdministrationSystemCheckNavigationRequested()
+        {
+            var invocation = Assert.Single(RegionManager.Invocations, item => item.Arguments.OfType<string>().Contains(RegionNames.ContentRegion) && item.Arguments.OfType<Uri>().Any(uri => uri.OriginalString == NavigationNames.Setup));
+            var parameters = Assert.Single(invocation.Arguments.OfType<INavigationParameters>());
+            Assert.Equal(SetupOperatingMode.Administration, parameters.GetValue<SetupOperatingMode>(SetupNavigation.OperatingModeParameter));
+            Assert.Equal(SetupNavigation.AdministrationSystemCheckSection, parameters.GetValue<string>(SetupNavigation.AdministrationSectionParameter));
+        }
 
         internal void ExecuteRecover() => ViewModel.RecoverCommand.Execute();
 

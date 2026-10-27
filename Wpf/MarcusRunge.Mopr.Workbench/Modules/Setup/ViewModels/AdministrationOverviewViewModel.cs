@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 using System;
@@ -11,11 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
     /// <summary>
     /// Provides local section selection and navigation for the administrative Setup overview.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="AdministrationOverviewViewModel"/> class.
-    /// </remarks>
-    /// <param name="regionManager">The application region manager.</param>
-    public sealed class AdministrationOverviewViewModel(IRegionManager regionManager) : BindableBase
+    public sealed class AdministrationOverviewViewModel : BindableBase
     {
         private const string DatabaseSection = "Database";
         private const string OverviewSection = "Overview";
@@ -23,10 +20,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         private const string SecuritySection = "Security";
         private const string SystemCheckSection = "SystemCheck";
         private const string UsersSection = "Users";
-        private readonly IRegionManager _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+        private readonly IRegionManager _regionManager;
+        private readonly SubscriptionToken _sectionRequestSubscription;
         private DelegateCommand? _returnToImagingCommand;
         private DelegateCommand<string>? _selectSectionCommand;
         private string _selectedSection = OverviewSection;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdministrationOverviewViewModel"/> class.
+        /// </summary>
+        /// <param name="regionManager">The application region manager.</param>
+        /// <param name="eventAggregator">The application event aggregator.</param>
+        public AdministrationOverviewViewModel(IRegionManager regionManager, IEventAggregator eventAggregator)
+        {
+            _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            ArgumentNullException.ThrowIfNull(eventAggregator);
+            _sectionRequestSubscription = eventAggregator.GetEvent<AdministrationSectionRequestedEvent>().Subscribe(ApplyRequestedSection, ThreadOption.PublisherThread, keepSubscriberReferenceAlive: false);
+        }
 
         public Visibility DatabaseVisibility => GetVisibility(DatabaseSection);
         public bool IsDatabaseSelected => IsSelected(DatabaseSection);
@@ -45,6 +55,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         public Visibility UsersVisibility => GetVisibility(UsersSection);
 
         private static bool CanSelectSection(string? section) => section is OverviewSection or DatabaseSection or RepositorySection or SecuritySection or UsersSection or SystemCheckSection;
+        private void ApplyRequestedSection(string section) => ExecuteSelectSection(section);
         private void ExecuteReturnToImaging() => _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Imaging);
         private void ExecuteSelectSection(string? section)
         {

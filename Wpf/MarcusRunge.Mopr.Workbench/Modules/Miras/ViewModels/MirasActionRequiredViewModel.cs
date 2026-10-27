@@ -248,7 +248,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
         private void ExecuteReturnToAdministration()
         {
-            var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration } };
+            var parameters = new NavigationParameters
+            {
+                { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration },
+                { SetupNavigation.AdministrationSectionParameter, SetupNavigation.AdministrationSystemCheckSection }
+            };
             _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Setup, parameters);
         }
 
