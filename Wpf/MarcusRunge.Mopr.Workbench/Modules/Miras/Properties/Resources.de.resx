@@ -277,4 +277,13 @@ MirasActionRequiredCorrectionConflict = The repository was changed by another op
   <data name="MirasActionRequiredReturnToAdministration" xml:space="preserve">
     <value>Zurück zur Verwaltung</value>
   </data>
+  <data name="MirasActionRequiredDeferredForSession" xml:space="preserve">
+    <value>Der Befund wurde für diese Sitzung zur Kenntnis genommen. Bei der nächsten MIRAS-Prüfung wird er erneut geprüft.</value>
+  </data>
+  <data name="MirasActionRequiredDeferForSession" xml:space="preserve">
+    <value>Für diese Sitzung zur Kenntnis nehmen</value>
+  </data>
+  <data name="MirasActionRequiredDeferForSessionNotice" xml:space="preserve">
+    <value>Sie können fortfahren, ohne dieses Verfügbarkeitsproblem zu beheben. Die betroffene Datenquelle bleibt nicht verfügbar und ihre Daten können nicht verwendet werden. MIRAS zeigt diesen Befund bei der nächsten Prüfung erneut an.</value>
+  </data>
 </root>

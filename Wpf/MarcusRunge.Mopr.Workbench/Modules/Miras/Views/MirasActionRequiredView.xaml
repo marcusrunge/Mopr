@@ -303,12 +303,48 @@
                                             Command="{Binding RemoveRepositoryCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredRemoveRepository}" />
 
+                                    <Button MinWidth="240"
+                                            Height="42"
+                                            Margin="0,0,10,10"
+                                            Command="{Binding DeferForSessionCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredDeferForSession}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedIssue.CanDeferForSession}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                     <Button MinWidth="150"
                                             Height="42"
                                             Margin="0,0,0,10"
                                             Command="{Binding RetryCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredRetry}" />
                                 </WrapPanel>
+                                <Border Margin="0,8,0,0"
+                                        Padding="14"
+                                        Background="#142531"
+                                        BorderBrush="#315064"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedIssue.CanDeferForSession}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Foreground="#A6B4BF"
+                                               Text="{x:Static properties:Resources.MirasActionRequiredDeferForSessionNotice}"
+                                               TextWrapping="Wrap" />
+                                </Border>
 
                                 <TextBlock Margin="0,8,0,0"
                                            Foreground="#A6B4BF"

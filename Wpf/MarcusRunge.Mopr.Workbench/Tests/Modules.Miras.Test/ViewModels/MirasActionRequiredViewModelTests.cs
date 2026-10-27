@@ -8,6 +8,70 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
     public sealed class MirasActionRequiredViewModelTests
     {
         [Fact]
+        public async Task DeferForSessionCommand_WithRepositoryUnavailable_DefersIssueAndRemovesOpenItem()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            var issue = context.ConfigureLastResult();
+            context.NavigateTo(isAdministrativeContext: true);
+            await MirasActionRequiredViewModelTestContext.WaitUntilAsync(() => context.ViewModel.Issues.Count == 1, TestContext.Current.CancellationToken);
+
+            Assert.True(context.ViewModel.DeferForSessionCommand.CanExecute());
+
+            context.ExecuteDeferForSession();
+
+            Assert.Equal(MirasIssueState.Deferred, issue.IssueState);
+            Assert.Empty(context.ViewModel.Issues);
+            Assert.Null(context.ViewModel.SelectedIssue);
+            Assert.False(context.ViewModel.DeferForSessionCommand.CanExecute());
+            Assert.False(context.WasImagingNavigationRequested());
+        }
+
+        [Theory]
+        [InlineData(MirasIssueType.IdentityMismatch)]
+        [InlineData(MirasIssueType.PersistenceRelationshipConflict)]
+        public async Task DeferForSessionCommand_WithIneligibleIssue_IsDisabled(MirasIssueType issueType)
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            var issue = context.ConfigureLastResult(issueType);
+            context.NavigateTo(isAdministrativeContext: true);
+            await MirasActionRequiredViewModelTestContext.WaitUntilAsync(() => context.ViewModel.Issues.Count == 1, TestContext.Current.CancellationToken);
+
+            Assert.False(issue.CanDeferForSession);
+            Assert.False(context.ViewModel.DeferForSessionCommand.CanExecute());
+        }
+
+        [Fact]
+        public async Task DeferForSessionCommand_InStartupContext_WithTechnicalError_DoesNotNavigateToImaging()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            context.ConfigureLastResult(includeTechnicalError: true);
+            context.NavigateTo();
+            await MirasActionRequiredViewModelTestContext.WaitUntilAsync(() => context.ViewModel.Issues.Count == 1, TestContext.Current.CancellationToken);
+
+            context.ExecuteDeferForSession();
+
+            Assert.False(context.WasImagingNavigationRequested());
+        }
+
+        [Fact]
+        public async Task DeferForSessionCommand_InStartupContext_WithRemainingActionRequiredIssue_DoesNotNavigateToImaging()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            var deferredIssue = context.ConfigureLastResult();
+            var result = context.Flow.Object.LastResult!;
+            result.Issues.Add(new MirasIssue { Id = Guid.NewGuid(), IssueState = MirasIssueState.ActionRequired, IssueType = MirasIssueType.MissingFile });
+            context.NavigateTo();
+            await MirasActionRequiredViewModelTestContext.WaitUntilAsync(() => context.ViewModel.Issues.Count == 2, TestContext.Current.CancellationToken);
+            context.ViewModel.SelectedIssue = context.ViewModel.Issues.Single(item => item.Id == deferredIssue.Id);
+
+            context.ExecuteDeferForSession();
+
+            Assert.Single(context.ViewModel.Issues);
+            Assert.Equal(MirasIssueType.MissingFile, context.ViewModel.SelectedIssue?.IssueType);
+            Assert.False(context.WasImagingNavigationRequested());
+        }
+
+        [Fact]
         public void OnNavigatedTo_WithoutAdministrativeContext_PreservesStartupBehavior()
         {
             using var context = new MirasActionRequiredViewModelTestContext();

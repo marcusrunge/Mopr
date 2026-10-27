@@ -33,7 +33,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         private bool _isAdministrativeContext;
         private bool _isBusy;
         private CancellationTokenSource? _navigationCancellation;
-        private DelegateCommand? _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
+        private DelegateCommand? _deferForSessionCommand, _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
         private string _repositoryPath = string.Empty;
         private MirasIssueItemViewModel? _selectedIssue;
         private string _statusMessage = string.Empty;
@@ -89,6 +89,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             }
         }
 
+        public DelegateCommand DeferForSessionCommand => _deferForSessionCommand ??= new DelegateCommand(ExecuteDeferForSession, () => !IsBusy && SelectedIssue?.CanDeferForSession == true);
         public DelegateCommand RecreateDirectoryCommand => _recreateDirectoryCommand ??= new DelegateCommand(() => _ = ExecuteRepositoryActionAsync((issue, token) => _repositoryRecoveryActionService.RecreateDirectoryAsync(issue.RepositoryLocationId!.Value, issue.RepositoryPath, token)), () => CanCorrectSelectedRepository);
 
         public DelegateCommand RecoverCommand { get; }
@@ -122,6 +123,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
                 RaisePropertyChanged(nameof(HasSelectedIssue));
                 RaiseRepositoryActionStates();
+                _deferForSessionCommand?.RaiseCanExecuteChanged();
             }
         }
 
@@ -157,6 +159,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             RaisePropertyChanged(nameof(HasAdministrativeAuthorization));
             SelectRepositoryCommand.RaiseCanExecuteChanged();
             RecoverCommand.RaiseCanExecuteChanged();
+            _deferForSessionCommand?.RaiseCanExecuteChanged();
             RaiseRepositoryActionStates();
 
             _ = LoadIssuesAsync(_navigationCancellation.Token);
@@ -222,6 +225,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
             await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
         }
+        private void ExecuteDeferForSession()
+        {
+            var selectedIssue = SelectedIssue;
+            var result = _miras.Flow?.LastResult;
+
+            if (selectedIssue is null || result is null) return;
+
+            var issue = result.Issues.SingleOrDefault(item => item.Id == selectedIssue.Id);
+            if (issue is null || !issue.CanDeferForSession) return;
+
+            issue.DeferForSession();
+            Issues.Remove(selectedIssue);
+            SelectedIssue = Issues.FirstOrDefault();
+            StatusMessage = Resources.MirasActionRequiredDeferredForSession;
+            RaiseIssueState();
+
+            // The centralized release policy remains authoritative. The view model only
+            // applies the explicit session deferral requested by the user.
+            if (!IsAdministrativeContext && MirasImagingReleasePolicy.CanOpenImaging(result)) _ = NavigateAsync(NavigationNames.Imaging, _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping);
+        }
+
         private void ExecuteReturnToAdministration()
         {
             var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration } };
@@ -304,6 +328,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                         issue.RecommendedAction,
                         message?.Title ?? issue.IssueType.ToString(),
                         message?.Description ?? Resources.MirasActionRequiredIssueDescriptionUnavailable,
+                        issue.CanDeferForSession,
                         issue.RepositoryLocationId,
                         repository?.Name ?? Resources.MirasActionRequiredUnknownRepository,
                         repositoryPath ?? string.Empty,

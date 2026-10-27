@@ -169,6 +169,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Acknowledge for this session ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDeferForSession {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDeferForSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You can continue without resolving this availability issue. The affected data source remains unavailable, and its data cannot be used. MIRAS will show this issue again during the next assessment. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDeferForSessionNotice {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDeferForSessionNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The issue has been acknowledged for this session. It will be checked again during the next MIRAS assessment. ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredDeferredForSession {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredDeferredForSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die MOPR could not confirm that the image database and image repository are ready for safe use. The imaging workbench remains unavailable until the configuration has been checked and restored. ähnelt.
         /// </summary>
         public static string MirasActionRequiredDescription {

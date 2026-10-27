@@ -7,6 +7,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Test.Shared.Application;
 using Moq;
@@ -27,6 +28,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Application.SetupGet(application => application.DialogService).Returns(DialogService.Object);
             Application.SetupGet(application => application.RepositoryAdministration).Returns(RepositoryLocationAdministrationService.Object);
             Application.SetupGet(application => application.RepositoryRecovery).Returns(RepositoryRecoveryActionService.Object);
+            RepositoryLocationAdministrationService.Setup(service => service.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
             DialogService.SetupGet(service => service.FileDialogService).Returns(fileDialogAvailable ? FileDialogService.Object : null);
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
@@ -89,6 +91,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
         internal void ConfigureFolderSelection(string selectedPath = SelectedRepositoryPath) => FileDialogService.Setup(service => service.SelectFolder(It.IsAny<string>(), It.IsAny<string?>())).Returns(selectedPath);
 
+        internal MirasIssue ConfigureLastResult(MirasIssueType issueType = MirasIssueType.RepositoryUnavailable, bool includeTechnicalError = false)
+        {
+            var issue = new MirasIssue
+            {
+                Id = Guid.NewGuid(),
+                IssueState = MirasIssueState.ActionRequired,
+                IssueType = issueType,
+                RecommendedAction = issueType == MirasIssueType.RepositoryUnavailable ? MirasRecommendedAction.ReconnectRepository : MirasRecommendedAction.ReviewConflict,
+                RepositoryLocationId = 7
+            };
+            var result = new MirasOperationResult { Status = MirasOperationStatus.CompletedWithIssues };
+            result.Issues.Add(issue);
+            result.Messages.Add(new MirasUserMessage
+            {
+                IssueId = issue.Id,
+                Title = "Repository unavailable",
+                Description = "The repository is currently unavailable."
+            });
+
+            if (includeTechnicalError) result.TechnicalErrors.Add("Technical verification error.");
+
+            Flow.SetupGet(flow => flow.LastResult).Returns(result);
+            return issue;
+        }
+
+
         internal void ConfigureRecoveryResult(RepositoryInfrastructureRecoveryResult result)
         {
             ArgumentNullException.ThrowIfNull(result);
@@ -101,6 +129,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             var navigationUri = isAdministrativeContext ? new Uri($"MirasActionRequired?{NavigationParameterNames.MirasAdministrativeContext}=true", UriKind.Relative) : new Uri("MirasActionRequired", UriKind.Relative);
             ViewModel.OnNavigatedTo(new NavigationContext(RegionNavigationService.Object, navigationUri));
         }
+
+        internal void ExecuteDeferForSession() => ViewModel.DeferForSessionCommand.Execute();
+
+        internal bool WasImagingNavigationRequested() => RegionManager.Invocations.Any(invocation => invocation.Arguments.OfType<string>().Contains(RegionNames.ContentRegion) && invocation.Arguments.OfType<string>().Contains(NavigationNames.Imaging));
 
         internal void ExecuteRecover() => ViewModel.RecoverCommand.Execute();
 

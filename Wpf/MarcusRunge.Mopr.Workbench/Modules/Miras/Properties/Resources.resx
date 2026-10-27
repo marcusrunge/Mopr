@@ -276,4 +276,13 @@
   <data name="MirasActionRequiredReturnToAdministration" xml:space="preserve">
     <value>Return to administration</value>
   </data>
+  <data name="MirasActionRequiredDeferredForSession" xml:space="preserve">
+    <value>The issue has been acknowledged for this session. It will be checked again during the next MIRAS assessment.</value>
+  </data>
+  <data name="MirasActionRequiredDeferForSession" xml:space="preserve">
+    <value>Acknowledge for this session</value>
+  </data>
+  <data name="MirasActionRequiredDeferForSessionNotice" xml:space="preserve">
+    <value>You can continue without resolving this availability issue. The affected data source remains unavailable, and its data cannot be used. MIRAS will show this issue again during the next assessment.</value>
+  </data>
 </root>

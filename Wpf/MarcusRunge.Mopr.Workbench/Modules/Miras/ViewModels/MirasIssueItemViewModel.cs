@@ -6,8 +6,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
 /// <summary>
 /// Represents one structured MIRAS issue together with its affected repository location.
 /// </summary>
-public sealed class MirasIssueItemViewModel(Guid id, MirasIssueType issueType, MirasIssueState issueState, MirasRecommendedAction recommendedAction, string title, string description, int? repositoryLocationId, string repositoryName, string repositoryPath, bool? isRepositoryEnabled, bool? isRepositoryDefault)
+public sealed class MirasIssueItemViewModel(Guid id, MirasIssueType issueType, MirasIssueState issueState, MirasRecommendedAction recommendedAction, string title, string description, bool canDeferForSession, int? repositoryLocationId, string repositoryName, string repositoryPath, bool? isRepositoryEnabled, bool? isRepositoryDefault)
 {
+    public bool CanDeferForSession { get; } = canDeferForSession;
     public string Description { get; } = description;
     public Guid Id { get; } = id;
     public bool? IsRepositoryDefault { get; } = isRepositoryDefault;
