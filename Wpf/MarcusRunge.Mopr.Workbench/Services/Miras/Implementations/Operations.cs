@@ -67,8 +67,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                 var repositoryResult = await InspectRepositoryAsync(effectiveCancellationToken).ConfigureAwait(false);
                 effectiveCancellationToken.ThrowIfCancellationRequested();
 
+                result.AssessedRepositoryLocations = repositoryResult.AssessedRepositoryLocations;
                 result.ScannedItems += repositoryResult.ScannedFiles;
-                AddRepositoryIssues(result, repositoryResult.Issues);
+                result.UsableRepositoryLocations = repositoryResult.UsableRepositoryLocations;
+                AddRepositoryIssues(result, repositoryResult.Issues, repositoryResult.UsableRepositoryLocations > 0);
                 AddTechnicalErrors(result, repositoryResult.Errors);
 
                 if (repositoryResult.Errors.Count > 0)
@@ -114,11 +116,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             }
         }
 
-        private static void AddRepositoryIssues(MirasOperationResult result, IEnumerable<DicomRepositoryIssue> repositoryIssues)
+        private static void AddRepositoryIssues(MirasOperationResult result, IEnumerable<DicomRepositoryIssue> repositoryIssues, bool hasUsableRepository)
         {
             foreach (var repositoryIssue in repositoryIssues)
             {
-                var mirasIssue = MapRepositoryIssue(repositoryIssue);
+                var mirasIssue = MapRepositoryIssue(repositoryIssue, hasUsableRepository);
                 result.Issues.Add(mirasIssue);
                 result.Messages.Add(CreateIssueMessage(mirasIssue));
             }
@@ -339,7 +341,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
             };
         }
 
-        private static MirasIssue MapRepositoryIssue(DicomRepositoryIssue issue)
+        private static MirasIssue MapRepositoryIssue(DicomRepositoryIssue issue, bool hasUsableRepository)
         {
             var issueType = issue.IssueType switch
             {
@@ -366,6 +368,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                 ExpectedSopInstanceUid = issue.ExpectedSopInstanceUid,
                 Id = issue.Id,
                 InstanceId = issue.InstanceId,
+                IsSessionDeferralAllowed = hasUsableRepository && issue.IssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable,
                 IssueState = GetRepositoryIssueState(issue),
                 IssueType = issueType,
                 OccurredAtUtc = issue.DetectedAtUtc,

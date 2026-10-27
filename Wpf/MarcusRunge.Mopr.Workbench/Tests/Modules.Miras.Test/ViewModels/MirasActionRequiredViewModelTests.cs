@@ -21,6 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
             Assert.Equal(MirasIssueState.Deferred, issue.IssueState);
             Assert.Empty(context.ViewModel.Issues);
+            Assert.False(context.ViewModel.IsInfrastructureRecoveryVisible);
             Assert.Null(context.ViewModel.SelectedIssue);
             Assert.False(context.ViewModel.DeferForSessionCommand.CanExecute());
             Assert.False(context.WasImagingNavigationRequested());
@@ -95,19 +96,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Assert.False(context.ViewModel.SelectRepositoryCommand.CanExecute());
             Assert.False(context.ViewModel.RecoverCommand.CanExecute());
             Assert.True(context.ViewModel.ReturnToAdministrationCommand.CanExecute());
-        }
-
-        [Fact]
-        public void ReturnToAdministrationCommand_WithAdministrativeContext_NavigatesToSystemCheck()
-        {
-            using var context = new MirasActionRequiredViewModelTestContext();
-            context.NavigateTo(isAdministrativeContext: true);
-
-            Assert.True(context.ViewModel.ReturnToAdministrationCommand.CanExecute());
-
-            context.ExecuteReturnToAdministration();
-
-            context.VerifyAdministrationSystemCheckNavigationRequested();
         }
 
         [Fact]

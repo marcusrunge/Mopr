@@ -51,6 +51,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         }
 
         [Fact]
+        public void CanOpenImaging_WithDeferredRepositoryUnavailableWithoutUsableRepository_ReturnsFalse()
+        {
+            var result = CreateResult(CreateIssue(MirasIssueType.RepositoryUnavailable, MirasIssueState.Deferred));
+            result.AssessedRepositoryLocations = 1;
+            result.UsableRepositoryLocations = 0;
+
+            Assert.False(MirasImagingReleasePolicy.CanOpenImaging(result));
+        }
+
+        [Fact]
         public void CanOpenImaging_WithCompletedResultAndNoIssues_ReturnsTrue()
         {
             var result = new MirasOperationResult { Status = MirasOperationStatus.Completed };
@@ -66,11 +76,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.False(MirasImagingReleasePolicy.CanOpenImaging(result));
         }
 
-        private static MirasIssue CreateIssue(MirasIssueType issueType, MirasIssueState issueState) => new() { IssueState = issueState, IssueType = issueType };
+        private static MirasIssue CreateIssue(MirasIssueType issueType, MirasIssueState issueState) => new()
+        {
+            IsSessionDeferralAllowed = issueType == MirasIssueType.RepositoryUnavailable,
+            IssueState = issueState,
+            IssueType = issueType
+        };
 
         private static MirasOperationResult CreateResult(params MirasIssue[] issues)
         {
-            var result = new MirasOperationResult { Status = MirasOperationStatus.CompletedWithIssues };
+            var result = new MirasOperationResult
+            {
+                AssessedRepositoryLocations = 2,
+                Status = MirasOperationStatus.CompletedWithIssues,
+                UsableRepositoryLocations = 1
+            };
 
             foreach (var issue in issues) result.Issues.Add(issue);
 

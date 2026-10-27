@@ -34,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
 
             IReadOnlyList<RepositoryLocation> repositoryLocations = await GetRepositoryLocationsAsync(request.RepositoryLocationId, result, cancellationToken);
+            result.AssessedRepositoryLocations = repositoryLocations.Count;
 
             /*
              * A repair covering all enabled locations deliberately coordinates one
@@ -79,6 +80,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 return;
             }
+
+            // A location is usable only after controlled validation succeeded and the
+            // location-specific repair context was created without an exception.
+            result.UsableRepositoryLocations++;
 
             RegisterIncompleteImportFiles(context, result, cancellationToken);
             RegisterDuplicateFiles(context, result, cancellationToken);

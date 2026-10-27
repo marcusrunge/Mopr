@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
     /// <summary>
     /// Represents the result of a repository repair operation.
@@ -68,10 +68,19 @@
         public int RepairedFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of repository locations included in this assessment.
+        /// </summary>
+        public int AssessedRepositoryLocations { get; set; }
+        /// <summary>
         /// Gets or sets the number of configured repository locations that could not
         /// be accessed or inspected.
         /// </summary>
         public int UnavailableRepositoryLocations { get; set; }
+        /// <summary>
+        /// Gets or sets the number of assessed repository locations that passed
+        /// location validation and could be inspected safely.
+        /// </summary>
+        public int UsableRepositoryLocations { get; set; }
 
         /// <summary>
         /// Gets or sets the number of persisted instances verified against the

@@ -72,9 +72,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         public IList<MirasUserMessage> Messages { get; } = [];
 
         /// <summary>
+        /// Gets or sets the number of repository locations included in the repository assessment.
+        /// </summary>
+        public int AssessedRepositoryLocations { get; set; }
+        /// <summary>
         /// Gets or sets the number of repository files or persisted entities inspected during the operation.
         /// </summary>
         public int ScannedItems { get; set; }
+        /// <summary>
+        /// Gets or sets the number of assessed repository locations that remain safely usable.
+        /// </summary>
+        public int UsableRepositoryLocations { get; set; }
 
         /// <summary>
         /// Gets or sets the UTC date and time when the operation started.

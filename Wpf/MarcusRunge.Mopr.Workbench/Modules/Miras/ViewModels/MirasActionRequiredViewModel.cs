@@ -32,6 +32,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
         private bool _isAdministrativeContext;
         private bool _isBusy;
+        private bool _isInfrastructureRecoveryRequired = true;
         private CancellationTokenSource? _navigationCancellation;
         private DelegateCommand? _deferForSessionCommand, _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
         private string _repositoryPath = string.Empty;
@@ -73,7 +74,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                 _returnToAdministrationCommand?.RaiseCanExecuteChanged();
             }
         }
-        public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && !HasIssues;
+        public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && _isInfrastructureRecoveryRequired;
         public ObservableCollection<MirasIssueItemViewModel> Issues { get; } = [];
 
         public bool IsBusy
@@ -248,11 +249,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
         private void ExecuteReturnToAdministration()
         {
-            var parameters = new NavigationParameters
-            {
-                { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration },
-                { SetupNavigation.AdministrationSectionParameter, SetupNavigation.AdministrationSystemCheckSection }
-            };
+            var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration } };
             _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Setup, parameters);
         }
 
@@ -298,6 +295,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                 _repositoryRowVersions.Clear();
 
                 var result = _miras.Flow?.LastResult;
+                SetInfrastructureRecoveryRequired(result is null || !result.HasIssues);
 
                 if (result is null)
                 {
@@ -389,6 +387,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             });
 
             await completion.Task.ConfigureAwait(false);
+        }
+
+        private void SetInfrastructureRecoveryRequired(bool value)
+        {
+            if (_isInfrastructureRecoveryRequired == value) return;
+
+            _isInfrastructureRecoveryRequired = value;
+            RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
         }
 
         private void RaiseIssueState()

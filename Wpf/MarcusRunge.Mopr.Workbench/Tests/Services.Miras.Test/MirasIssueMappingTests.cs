@@ -121,7 +121,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             var repositoryIssue = CreateRepositoryIssue(sourceIssueType);
             var repositoryResult = new DicomRepositoryRepairResult
             {
-                ScannedFiles = 1
+                AssessedRepositoryLocations = 2,
+                ScannedFiles = 1,
+                UsableRepositoryLocations = 1
             };
 
             context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
@@ -144,6 +146,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             Assert.Equal(MirasIssueState.ActionRequired, issue.IssueState);
             Assert.Equal(expectedRecommendedAction, issue.RecommendedAction);
             Assert.False(issue.CanResolveAutomatically);
+            Assert.Equal(sourceIssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable, issue.IsSessionDeferralAllowed);
             Assert.Equal(sourceIssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable, issue.CanDeferForSession);
             Assert.Equal(repositoryIssue.InstanceId, issue.InstanceId);
             Assert.Equal(repositoryIssue.RepositoryLocationId, issue.RepositoryLocationId);
@@ -172,6 +175,29 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 
             context.VerifyPersistenceCalledOnce();
             context.VerifyRepositoryCalledOnce();
+        }
+
+        [Fact]
+        public async Task CheckRepositoryAsync_WithUnavailableRepositoryAndNoUsableRepository_DoesNotAllowSessionDeferral()
+        {
+            using var context = new MirasServiceTestContext();
+            var repositoryResult = new DicomRepositoryRepairResult
+            {
+                AssessedRepositoryLocations = 1,
+                UnavailableRepositoryLocations = 1,
+                UsableRepositoryLocations = 0
+            };
+            repositoryResult.Issues.Add(CreateRepositoryIssue(DicomRepositoryIssueType.RepositoryLocationUnavailable));
+            context.ConfigurePersistenceResult(new PersistenceIntegrityResult());
+            context.ConfigureRepositoryResult(repositoryResult);
+
+            var result = await context.Operations.CheckRepositoryAsync(TestContext.Current.CancellationToken);
+
+            var issue = Assert.Single(result.Issues);
+            Assert.False(issue.IsSessionDeferralAllowed);
+            Assert.False(issue.CanDeferForSession);
+            Assert.Equal(1, result.AssessedRepositoryLocations);
+            Assert.Equal(0, result.UsableRepositoryLocations);
         }
 
         [Fact]
@@ -285,15 +311,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
                 ScannedEntities = 9
             };
 
-            persistenceResult.Issues.Add(CreatePersistenceIssue(
-                PersistenceIntegrityIssueType.InvalidAuditReference,
-                PersistenceIntegrityEntityType.User,
-                entityId: 3));
+            persistenceResult.Issues.Add(CreatePersistenceIssue(PersistenceIntegrityIssueType.InvalidAuditReference, PersistenceIntegrityEntityType.User, entityId: 3));
 
-            persistenceResult.Issues.Add(CreatePersistenceIssue(
-                PersistenceIntegrityIssueType.DuplicateUniqueValue,
-                PersistenceIntegrityEntityType.Instance,
-                entityId: 8));
+            persistenceResult.Issues.Add(CreatePersistenceIssue(PersistenceIntegrityIssueType.DuplicateUniqueValue, PersistenceIntegrityEntityType.Instance, entityId: 8));
 
             context.ConfigurePersistenceResult(persistenceResult);
 
@@ -313,42 +333,38 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             context.VerifyRepositoryNotCalled();
         }
 
-        private static PersistenceIntegrityIssue CreatePersistenceIssue(
-            PersistenceIntegrityIssueType issueType,
-            PersistenceIntegrityEntityType entityType = PersistenceIntegrityEntityType.Instance,
-            int? entityId = 11) =>
-            new()
-            {
-                DetectedAtUtc = DateTime.UtcNow,
-                EntityId = entityId,
-                EntityType = entityType,
-                IssueType = issueType,
-                PropertyName = "TechnicalProperty",
-                ReferencedEntityId = 19,
-                ReferencedEntityType = PersistenceIntegrityEntityType.Series,
-                TechnicalDetails = "Technical persistence details",
-                Value = "TechnicalValue"
-            };
+        private static PersistenceIntegrityIssue CreatePersistenceIssue(PersistenceIntegrityIssueType issueType, PersistenceIntegrityEntityType entityType = PersistenceIntegrityEntityType.Instance, int? entityId = 11) => new()
+        {
+            DetectedAtUtc = DateTime.UtcNow,
+            EntityId = entityId,
+            EntityType = entityType,
+            IssueType = issueType,
+            PropertyName = "TechnicalProperty",
+            ReferencedEntityId = 19,
+            ReferencedEntityType = PersistenceIntegrityEntityType.Series,
+            TechnicalDetails = "Technical persistence details",
+            Value = "TechnicalValue"
+        };
 
-        private static DicomRepositoryIssue CreateRepositoryIssue(DicomRepositoryIssueType issueType) =>
-            new()
-            {
-                ActualFilePath = @"C:\Sensitive\actual-image.dcm",
-                ActualSeriesInstanceUid = "1.2.840.actual.series",
-                ActualSopInstanceUid = "1.2.840.actual.instance",
-                ActualStudyInstanceUid = "1.2.840.actual.study",
-                AutomaticallyResolved = false,
-                CanResolveAutomatically = false,
-                DetectedAtUtc = DateTime.UtcNow,
-                ExpectedFilePath = @"C:\Sensitive\expected-image.dcm",
-                ExpectedSeriesInstanceUid = "1.2.840.expected.series",
-                ExpectedSopInstanceUid = "1.2.840.expected.instance",
-                ExpectedStudyInstanceUid = "1.2.840.expected.study",
-                InstanceId = 31,
-                IssueType = issueType,
-                RecoveryCandidateFilePath = @"C:\Sensitive\recovery-image.dcm",
-                RepositoryLocationId = 7,
-                TechnicalDetails = "Technical repository details"
-            };
+        private static DicomRepositoryIssue CreateRepositoryIssue(DicomRepositoryIssueType issueType) => new()
+        {
+            ActualFilePath = @"C:\Sensitive\actual-image.dcm",
+            ActualSeriesInstanceUid = "1.2.840.actual.series",
+            ActualSopInstanceUid = "1.2.840.actual.instance",
+            ActualStudyInstanceUid = "1.2.840.actual.study",
+            AutomaticallyResolved = false,
+            CanResolveAutomatically = false,
+            DetectedAtUtc = DateTime.UtcNow,
+            ExpectedFilePath = @"C:\Sensitive\expected-image.dcm",
+            ExpectedSeriesInstanceUid = "1.2.840.expected.series",
+            ExpectedSopInstanceUid = "1.2.840.expected.instance",
+            ExpectedStudyInstanceUid = "1.2.840.expected.study",
+            InstanceId = 31,
+            IssueType = issueType,
+            RecoveryCandidateFilePath = @"C:\Sensitive\recovery-image.dcm",
+            RepositoryLocationId = 7,
+            TechnicalDetails = "Technical repository details",
+            ValidationFailureKind = issueType == DicomRepositoryIssueType.RepositoryLocationUnavailable ? RepositoryLocationValidationFailureKind.Unavailable : RepositoryLocationValidationFailureKind.None,
+        };
     }
 }

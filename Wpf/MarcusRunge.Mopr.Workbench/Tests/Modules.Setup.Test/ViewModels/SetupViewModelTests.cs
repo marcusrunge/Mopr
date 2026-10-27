@@ -2,12 +2,12 @@ using MarcusRunge.Mopr.Workbench.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 using Moq;
 
@@ -372,6 +372,50 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
         }
 
         [Fact]
+        public async Task OnNavigatedTo_WhenAuthorizedAdministrationRequestsSystemCheck_PublishesSectionRequest()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var context = new SetupViewModelTestContext();
+            string? requestedSection = null;
+            context.EventAggregator.GetEvent<AdministrationSectionRequestedEvent>().Subscribe(section => requestedSection = section);
+
+            context.NavigateTo(SetupOperatingMode.Administration, SetupNavigation.AdministrationSystemCheckSection);
+            await WaitUntilAsync(() => !context.ViewModel.IsLoading, cancellationToken);
+
+            Assert.True(context.ViewModel.IsAdministrationMode);
+            Assert.False(context.ViewModel.IsAdministrationAccessDenied);
+            Assert.Equal(SetupNavigation.AdministrationSystemCheckSection, requestedSection);
+        }
+
+        [Fact]
+        public async Task OnNavigatedTo_WhenInitialSetupIncludesAdministrationSection_DoesNotPublishSectionRequest()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var context = new SetupViewModelTestContext();
+            string? requestedSection = null;
+            context.EventAggregator.GetEvent<AdministrationSectionRequestedEvent>().Subscribe(section => requestedSection = section);
+
+            context.NavigateTo(SetupOperatingMode.InitialSetup, SetupNavigation.AdministrationSystemCheckSection);
+            await WaitUntilAsync(() => !context.ViewModel.IsLoading, cancellationToken);
+
+            Assert.False(context.ViewModel.IsAdministrationMode);
+            Assert.Null(requestedSection);
+        }
+
+        [Fact]
+        public void OnNavigatedTo_WhenAdministrationAccessIsDenied_DoesNotPublishSectionRequest()
+        {
+            var context = new SetupViewModelTestContext(canModify: false);
+            string? requestedSection = null;
+            context.EventAggregator.GetEvent<AdministrationSectionRequestedEvent>().Subscribe(section => requestedSection = section);
+
+            context.NavigateTo(SetupOperatingMode.Administration, SetupNavigation.AdministrationSystemCheckSection);
+
+            Assert.True(context.ViewModel.IsAdministrationAccessDenied);
+            Assert.Null(requestedSection);
+        }
+
+        [Fact]
         public async Task RepositoryLocationPath_WhenChangedAfterSuccessfulValidation_InvalidatesValidationResult()
         {
             var cancellationToken = TestContext.Current.CancellationToken;
@@ -454,6 +498,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
                     .ReturnsAsync(SetupCompletionResult.Completed());
 
                 EventAggregator = new EventAggregator();
+                RegionNavigationService.SetupGet(service => service.Region).Returns(Region.Object);
 
                 ViewModel = new SetupViewModel(
                     ConfigurationService.Object,
@@ -470,13 +515,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels
 
             public IEventAggregator EventAggregator { get; }
 
+            public Mock<IRegion> Region { get; } = new(MockBehavior.Strict);
             public Mock<IRegionManager> RegionManager { get; } = new(MockBehavior.Strict);
+            public Mock<IRegionNavigationService> RegionNavigationService { get; } = new(MockBehavior.Strict);
             public Mock<IRepository> Repository { get; } = new(MockBehavior.Strict);
             public Mock<IRepositoryLocationValidationService> RepositoryLocationValidationService { get; } = new(MockBehavior.Strict);
 
             public Mock<ISetupCompletionService> SetupCompletionService { get; } = new(MockBehavior.Strict);
 
             public SetupViewModel ViewModel { get; }
+
+            public void NavigateTo(SetupOperatingMode operatingMode, string? administrationSection = null)
+            {
+                var uri = $"Setup?{SetupNavigation.OperatingModeParameter}={operatingMode}";
+                if (!string.IsNullOrWhiteSpace(administrationSection)) uri = $"{uri}&{SetupNavigation.AdministrationSectionParameter}={administrationSection}";
+                ViewModel.OnNavigatedTo(new NavigationContext(RegionNavigationService.Object, new Uri(uri, UriKind.Relative)));
+            }
 
             public async Task LoadAsync(CancellationToken cancellationToken)
             {

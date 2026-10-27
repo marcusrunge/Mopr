@@ -17,17 +17,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
         {
             ArgumentNullException.ThrowIfNull(result);
 
-            /*
-             * Imaging is released only after a technically complete assessment
-             * without an unresolved condition requiring explicit user action.
-             * Unknown or internally inconsistent result states remain fail-closed.
-             */
+            // Technical errors mean that MIRAS could not complete a trustworthy
+            // assessment. Session acknowledgement must never bypass this boundary.
             if (result.HasTechnicalErrors) return false;
 
             return result.Status switch
             {
                 MirasOperationStatus.Completed => !result.HasIssues,
-                MirasOperationStatus.CompletedWithIssues => result.Issues.All(CanOpenImagingWithIssue),
+                MirasOperationStatus.CompletedWithIssues => result.UsableRepositoryLocations > 0 && result.Issues.All(CanOpenImagingWithIssue),
                 _ => false
             };
         }
@@ -36,9 +33,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
         {
             ArgumentNullException.ThrowIfNull(issue);
 
-            // Only an unavailable repository explicitly acknowledged for this session
-            // is non-blocking. Deferring any integrity conflict remains fail-closed.
-            if (issue.IssueState == MirasIssueState.Deferred) return issue.IssueType == MirasIssueType.RepositoryUnavailable;
+            // A repository-level availability finding may be acknowledged for one
+            // session only after the completed assessment confirmed a safe repository
+            // remainder. All integrity findings remain fail-closed.
+            if (issue.IssueState == MirasIssueState.Deferred) return issue.IssueType == MirasIssueType.RepositoryUnavailable && issue.IsSessionDeferralAllowed;
 
             return issue.IssueState is MirasIssueState.ActionAvailable or MirasIssueState.AutomaticallyResolved or MirasIssueState.ManuallyResolved;
         }

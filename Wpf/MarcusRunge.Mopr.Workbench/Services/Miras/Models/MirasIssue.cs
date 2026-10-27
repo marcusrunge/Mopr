@@ -30,7 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         /// <summary>
         /// Gets a value indicating whether the issue may be acknowledged for the current application session.
         /// </summary>
-        public bool CanDeferForSession => IssueType == MirasIssueType.RepositoryUnavailable && IssueState == MirasIssueState.ActionRequired;
+        public bool CanDeferForSession => IsSessionDeferralAllowed && IssueType == MirasIssueType.RepositoryUnavailable && IssueState == MirasIssueState.ActionRequired;
 
         /// <summary>
         /// Acknowledges the issue for the current application session without marking it as resolved.
@@ -67,6 +67,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         /// </summary>
         public int? InstanceId { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the completed assessment permits
+        /// this repository issue to be acknowledged for the current session.
+        /// </summary>
+        public bool IsSessionDeferralAllowed { get; set; }
         /// <summary>
         /// Gets or sets the issue state.
         /// </summary>

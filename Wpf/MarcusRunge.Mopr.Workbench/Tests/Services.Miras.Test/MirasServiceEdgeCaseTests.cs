@@ -191,6 +191,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         {
             var issue = new MirasIssue
             {
+                IsSessionDeferralAllowed = true,
                 IssueState = MirasIssueState.ActionRequired,
                 IssueType = MirasIssueType.RepositoryUnavailable,
                 ResolvedAtUtc = DateTime.UtcNow,
@@ -208,12 +209,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         }
 
         [Theory]
-        [InlineData(MirasIssueType.IdentityMismatch, MirasIssueState.ActionRequired)]
-        [InlineData(MirasIssueType.PersistenceRelationshipConflict, MirasIssueState.ActionRequired)]
-        [InlineData(MirasIssueType.RepositoryUnavailable, MirasIssueState.Deferred)]
-        public void DeferForSession_WithIneligibleIssue_ThrowsInvalidOperationException(MirasIssueType issueType, MirasIssueState issueState)
+        [InlineData(MirasIssueType.IdentityMismatch, MirasIssueState.ActionRequired, true)]
+        [InlineData(MirasIssueType.PersistenceRelationshipConflict, MirasIssueState.ActionRequired, true)]
+        [InlineData(MirasIssueType.RepositoryUnavailable, MirasIssueState.Deferred, true)]
+        [InlineData(MirasIssueType.RepositoryUnavailable, MirasIssueState.ActionRequired, false)]
+        public void DeferForSession_WithIneligibleIssue_ThrowsInvalidOperationException(MirasIssueType issueType, MirasIssueState issueState, bool isSessionDeferralAllowed)
         {
-            var issue = new MirasIssue { IssueState = issueState, IssueType = issueType };
+            var issue = new MirasIssue
+            {
+                IsSessionDeferralAllowed = isSessionDeferralAllowed,
+                IssueState = issueState,
+                IssueType = issueType
+            };
 
             Assert.False(issue.CanDeferForSession);
             Assert.Throws<InvalidOperationException>(issue.DeferForSession);
@@ -244,36 +251,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             return cancellationSource.Token;
         }
 
-        private static PersistenceIntegrityIssue CreatePersistenceIssue(
-            PersistenceIntegrityIssueType issueType) =>
-            new()
-            {
-                DetectedAtUtc = DateTime.UtcNow,
-                EntityId = 12,
-                EntityType = PersistenceIntegrityEntityType.Instance,
-                IssueType = issueType,
-                PropertyName = "TechnicalProperty",
-                ReferencedEntityId = 8,
-                ReferencedEntityType = PersistenceIntegrityEntityType.Series,
-                TechnicalDetails = "Technical persistence details",
-                Value = "TechnicalValue"
-            };
+        private static PersistenceIntegrityIssue CreatePersistenceIssue(PersistenceIntegrityIssueType issueType) => new()
+        {
+            DetectedAtUtc = DateTime.UtcNow,
+            EntityId = 12,
+            EntityType = PersistenceIntegrityEntityType.Instance,
+            IssueType = issueType,
+            PropertyName = "TechnicalProperty",
+            ReferencedEntityId = 8,
+            ReferencedEntityType = PersistenceIntegrityEntityType.Series,
+            TechnicalDetails = "Technical persistence details",
+            Value = "TechnicalValue"
+        };
 
-        private static DicomRepositoryIssue CreateRepositoryIssue(
-            DicomRepositoryIssueType issueType) =>
-            new()
-            {
-                ActualFilePath = @"C:\Sensitive\actual-image.dcm",
-                ActualSopInstanceUid = "1.2.840.actual.instance",
-                AutomaticallyResolved = false,
-                CanResolveAutomatically = false,
-                DetectedAtUtc = DateTime.UtcNow,
-                ExpectedFilePath = @"C:\Sensitive\expected-image.dcm",
-                ExpectedSopInstanceUid = "1.2.840.expected.instance",
-                InstanceId = 31,
-                IssueType = issueType,
-                RepositoryLocationId = 7,
-                TechnicalDetails = "Technical repository details"
-            };
+        private static DicomRepositoryIssue CreateRepositoryIssue(DicomRepositoryIssueType issueType) => new()
+        {
+            ActualFilePath = @"C:\Sensitive\actual-image.dcm",
+            ActualSopInstanceUid = "1.2.840.actual.instance",
+            AutomaticallyResolved = false,
+            CanResolveAutomatically = false,
+            DetectedAtUtc = DateTime.UtcNow,
+            ExpectedFilePath = @"C:\Sensitive\expected-image.dcm",
+            ExpectedSopInstanceUid = "1.2.840.expected.instance",
+            InstanceId = 31,
+            IssueType = issueType,
+            RepositoryLocationId = 7,
+            TechnicalDetails = "Technical repository details"
+        };
     }
 }

@@ -57,7 +57,7 @@
                         Command="{Binding ReturnToAdministrationCommand}"
                         Content="{x:Static properties:Resources.MirasActionRequiredReturnToAdministration}">
                     <Button.Style>
-                        <Style TargetType="Button">
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsAdministrativeContext}" Value="True">
@@ -284,32 +284,58 @@
                                            Text="{x:Static properties:Resources.MirasActionRequiredAvailableActionsDescription}"
                                            TextWrapping="Wrap" />
 
-                                <WrapPanel>
-                                    <Button MinWidth="190"
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
                                             Height="42"
-                                            Margin="0,0,10,10"
+                                            Margin="0,0,7,0"
+                                            HorizontalAlignment="Stretch"
                                             Command="{Binding RecreateDirectoryCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredRecreateDirectory}" />
 
-                                    <Button MinWidth="190"
+                                    <Button Grid.Row="0"
+                                            Grid.Column="2"
+                                            Grid.ColumnSpan="2"
                                             Height="42"
-                                            Margin="0,0,10,10"
+                                            Margin="3,0,3,0"
+                                            HorizontalAlignment="Stretch"
                                             Command="{Binding RelocateCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredRelocate}" />
 
-                                    <Button MinWidth="190"
+                                    <Button Grid.Row="0"
+                                            Grid.Column="4"
+                                            Grid.ColumnSpan="2"
                                             Height="42"
-                                            Margin="0,0,10,10"
+                                            Margin="7,0,0,0"
+                                            HorizontalAlignment="Stretch"
                                             Command="{Binding RemoveRepositoryCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredRemoveRepository}" />
 
-                                    <Button MinWidth="240"
+                                    <Button Grid.Row="2"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="3"
                                             Height="42"
-                                            Margin="0,0,10,10"
+                                            Margin="0,0,5,0"
+                                            HorizontalAlignment="Stretch"
                                             Command="{Binding DeferForSessionCommand}"
                                             Content="{x:Static properties:Resources.MirasActionRequiredDeferForSession}">
                                         <Button.Style>
-                                            <Style TargetType="Button">
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding SelectedIssue.CanDeferForSession}" Value="True">
@@ -319,13 +345,48 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button MinWidth="150"
+
+                                    <Button Grid.Row="2"
+                                            Grid.Column="3"
+                                            Grid.ColumnSpan="3"
                                             Height="42"
-                                            Margin="0,0,0,10"
+                                            Margin="5,0,0,0"
+                                            HorizontalAlignment="Stretch"
                                             Command="{Binding RetryCommand}"
-                                            Content="{x:Static properties:Resources.MirasActionRequiredRetry}" />
-                                </WrapPanel>
-                                <Border Margin="0,8,0,0"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRetry}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedIssue.CanDeferForSession}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Grid.Row="2"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="6"
+                                            Height="42"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{Binding RetryCommand}"
+                                            Content="{x:Static properties:Resources.MirasActionRequiredRetry}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedIssue.CanDeferForSession}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+
+                                <Border Margin="0,12,0,0"
                                         Padding="14"
                                         Background="#142531"
                                         BorderBrush="#315064"

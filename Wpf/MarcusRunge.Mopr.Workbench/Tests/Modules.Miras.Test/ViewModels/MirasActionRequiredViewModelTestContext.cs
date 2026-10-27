@@ -33,6 +33,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             DialogService.SetupGet(service => service.FileDialogService).Returns(fileDialogAvailable ? FileDialogService.Object : null);
             Miras.SetupGet(miras => miras.RepositoryInfrastructureRecovery).Returns(RecoveryService.Object);
             Miras.SetupGet(miras => miras.Flow).Returns(Flow.Object);
+            Flow.SetupGet(flow => flow.LastResult).Returns((MirasOperationResult?)null);
             RegionNavigationService.SetupGet(service => service.Region).Returns(Region.Object);
             RegionManager.Setup(manager => manager.RequestNavigate(RegionNames.ContentRegion, It.Is<Uri>(uri => uri.OriginalString == NavigationNames.Setup), It.IsAny<Action<NavigationResult>>(), It.IsAny<INavigationParameters>()));
             ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
@@ -101,9 +102,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
                 IssueState = MirasIssueState.ActionRequired,
                 IssueType = issueType,
                 RecommendedAction = issueType == MirasIssueType.RepositoryUnavailable ? MirasRecommendedAction.ReconnectRepository : MirasRecommendedAction.ReviewConflict,
+                IsSessionDeferralAllowed = issueType == MirasIssueType.RepositoryUnavailable,
                 RepositoryLocationId = 7
             };
-            var result = new MirasOperationResult { Status = MirasOperationStatus.CompletedWithIssues };
+            var result = new MirasOperationResult
+            {
+                AssessedRepositoryLocations = 2,
+                Status = MirasOperationStatus.CompletedWithIssues,
+                UsableRepositoryLocations = 1
+            };
             result.Issues.Add(issue);
             result.Messages.Add(new MirasUserMessage
             {
