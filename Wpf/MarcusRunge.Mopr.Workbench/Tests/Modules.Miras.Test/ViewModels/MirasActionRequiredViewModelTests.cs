@@ -24,7 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Assert.False(context.ViewModel.IsInfrastructureRecoveryVisible);
             Assert.Null(context.ViewModel.SelectedIssue);
             Assert.False(context.ViewModel.DeferForSessionCommand.CanExecute());
-            Assert.False(context.WasImagingNavigationRequested());
+            Assert.False(context.WasSessionReleaseRequested());
         }
 
         [Theory]
@@ -42,6 +42,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         }
 
         [Fact]
+        public async Task DeferForSessionCommand_InStartupContext_WhenReleaseIsPermitted_RequestsSessionRelease()
+        {
+            using var context = new MirasActionRequiredViewModelTestContext();
+            var issue = context.ConfigureLastResult();
+            context.NavigateTo();
+            await MirasActionRequiredViewModelTestContext.WaitUntilAsync(() => context.ViewModel.Issues.Count == 1, TestContext.Current.CancellationToken);
+
+            context.ExecuteDeferForSession();
+
+            Assert.Equal(MirasIssueState.Deferred, issue.IssueState);
+            Assert.Empty(context.ViewModel.Issues);
+            Assert.False(context.ViewModel.IsInfrastructureRecoveryVisible);
+            Assert.True(context.WasSessionReleaseRequested());
+        }
+
+        [Fact]
         public async Task DeferForSessionCommand_InStartupContext_WithTechnicalError_DoesNotNavigateToImaging()
         {
             using var context = new MirasActionRequiredViewModelTestContext();
@@ -51,7 +67,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
             context.ExecuteDeferForSession();
 
-            Assert.False(context.WasImagingNavigationRequested());
+            Assert.False(context.WasSessionReleaseRequested());
         }
 
         [Fact]
@@ -69,7 +85,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
             Assert.Single(context.ViewModel.Issues);
             Assert.Equal(MirasIssueType.MissingFile, context.ViewModel.SelectedIssue?.IssueType);
-            Assert.False(context.WasImagingNavigationRequested());
+            Assert.False(context.WasSessionReleaseRequested());
         }
 
         [Fact]

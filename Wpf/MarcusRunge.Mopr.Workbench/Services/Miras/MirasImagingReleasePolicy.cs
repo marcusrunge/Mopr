@@ -17,7 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
         {
             ArgumentNullException.ThrowIfNull(result);
 
-            // Technical errors mean that MIRAS could not complete a trustworthy
+            // Technical errors indicate that MIRAS could not complete a trustworthy
             // assessment. Session acknowledgement must never bypass this boundary.
             if (result.HasTechnicalErrors) return false;
 
@@ -33,11 +33,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras
         {
             ArgumentNullException.ThrowIfNull(issue);
 
-            // A repository-level availability finding may be acknowledged for one
-            // session only after the completed assessment confirmed a safe repository
-            // remainder. All integrity findings remain fail-closed.
-            if (issue.IssueState == MirasIssueState.Deferred) return issue.IssueType == MirasIssueType.RepositoryUnavailable && issue.IsSessionDeferralAllowed;
+            // A repository-availability finding may be acknowledged for the current
+            // session. The affected repository remains unusable and will be assessed
+            // again by the next MIRAS run.
+            if (issue.IssueState == MirasIssueState.Deferred)
+            {
+                return issue.IssueType == MirasIssueType.RepositoryUnavailable && issue.IsSessionDeferralAllowed;
+            }
 
+            // Integrity findings remain fail-closed until MIRAS reports a state that
+            // is already safe for continued application operation.
             return issue.IssueState is MirasIssueState.ActionAvailable or MirasIssueState.AutomaticallyResolved or MirasIssueState.ManuallyResolved;
         }
     }

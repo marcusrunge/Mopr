@@ -53,6 +53,7 @@ namespace MarcusRunge.Mopr.Workbench
         private Task? _applicationInitialization;
         private SubscriptionToken? _initialUserProvisioningCompletedSubscription;
         private SubscriptionToken? _machineSetupCompletedSubscription;
+        private SubscriptionToken? _mirasSessionReleaseRequestedSubscription;
         private SingleInstanceCoordinator? _singleInstanceCoordinator;
         private StartupDiagnostics? _startupDiagnostics;
 
@@ -349,6 +350,12 @@ namespace MarcusRunge.Mopr.Workbench
             _applicationInitialization = RunProtectedStartupTransitionAsync(ContinueAfterMachineSetupAsync, "Machine setup continuation", cancellationToken);
         }
 
+        private void HandleMirasSessionReleaseRequested()
+        {
+            var cancellationToken = Container.Resolve<ILifetimeService>().ApplicationStopping;
+            _applicationInitialization = RunProtectedStartupTransitionAsync(token => NavigateAsync(NavigationNames.Imaging, token), "MIRAS session release", cancellationToken);
+        }
+
         private void HandleProtectedStartupFailure(Exception exception)
         {
             _startupDiagnostics!.WriteError("MOPR startup failed before protected application initialization completed.", exception);
@@ -536,6 +543,8 @@ namespace MarcusRunge.Mopr.Workbench
             _machineSetupCompletedSubscription = eventAggregator.GetEvent<MachineSetupCompletedEvent>().Subscribe(HandleMachineSetupCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
 
             _initialUserProvisioningCompletedSubscription = eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Subscribe(HandleInitialUserProvisioningCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
+
+            _mirasSessionReleaseRequestedSubscription = eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Subscribe(HandleMirasSessionReleaseRequested, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
         }
 
         private bool TryAcquireSingleInstance()
@@ -575,6 +584,12 @@ namespace MarcusRunge.Mopr.Workbench
                 eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Unsubscribe(_initialUserProvisioningCompletedSubscription);
 
                 _initialUserProvisioningCompletedSubscription = null;
+            }
+            if (_mirasSessionReleaseRequestedSubscription is not null)
+            {
+                eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Unsubscribe(_mirasSessionReleaseRequestedSubscription);
+
+                _mirasSessionReleaseRequestedSubscription = null;
             }
         }
     }

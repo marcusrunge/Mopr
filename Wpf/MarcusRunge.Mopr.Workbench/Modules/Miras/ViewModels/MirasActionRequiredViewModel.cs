@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Core;
+using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
@@ -10,6 +11,7 @@ using MarcusRunge.Mopr.Workbench.Services.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
+using Prism.Events;
 using System.Collections.ObjectModel;
 using WpfApplication = System.Windows.Application;
 
@@ -23,6 +25,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
     {
         private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService;
         private readonly IApplication _application;
+        private readonly IEventAggregator _eventAggregator;
         private readonly ILifetimeService _lifetimeService;
         private readonly IMiras _miras;
         private readonly IRegionManager _regionManager;
@@ -42,9 +45,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         /// <summary>
         /// Initializes a new instance of the <see cref="MirasActionRequiredViewModel"/> class.
         /// </summary>
-        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, ILifetimeService lifetimeService, IRegionManager regionManager)
+        public MirasActionRequiredViewModel(IApplication application, IMiras miras, IAdministrativeAuthorizationService administrativeAuthorizationService, IEventAggregator eventAggregator, ILifetimeService lifetimeService, IRegionManager regionManager)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             _miras = miras ?? throw new ArgumentNullException(nameof(miras));
             _administrativeAuthorizationService = administrativeAuthorizationService ?? throw new ArgumentNullException(nameof(administrativeAuthorizationService));
             _lifetimeService = lifetimeService ?? throw new ArgumentNullException(nameof(lifetimeService));
@@ -242,9 +246,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             StatusMessage = Resources.MirasActionRequiredDeferredForSession;
             RaiseIssueState();
 
-            // The centralized release policy remains authoritative. The view model only
-            // applies the explicit session deferral requested by the user.
-            if (!IsAdministrativeContext && MirasImagingReleasePolicy.CanOpenImaging(result)) _ = NavigateAsync(NavigationNames.Imaging, _navigationCancellation?.Token ?? _lifetimeService.ApplicationStopping);
+            // The composition root owns protected startup navigation. Publishing the
+            // release request reuses the same observed navigation pipeline as normal
+            // startup instead of creating a second module-local transition path.
+            if (!IsAdministrativeContext && MirasImagingReleasePolicy.CanOpenImaging(result)) _eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Publish();
         }
 
         private void ExecuteReturnToAdministration()

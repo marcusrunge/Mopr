@@ -1,5 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Core;
+using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
@@ -11,6 +12,7 @@ using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Test.Shared.Application;
 using Moq;
+using Prism.Events;
 using IDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 using Xunit;
 
@@ -22,6 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         internal const string SelectedRepositoryPath = @"D:\MOPR\Repository";
 
         private bool _disposed;
+        private bool _sessionReleaseRequested;
 
         internal MirasActionRequiredViewModelTestContext(bool isElevatedAdministrator = true, bool fileDialogAvailable = true)
         {
@@ -36,7 +39,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Flow.SetupGet(flow => flow.LastResult).Returns((MirasOperationResult?)null);
             RegionNavigationService.SetupGet(service => service.Region).Returns(Region.Object);
             RegionManager.Setup(manager => manager.RequestNavigate(RegionNames.ContentRegion, It.Is<Uri>(uri => uri.OriginalString == NavigationNames.Setup), It.IsAny<Action<NavigationResult>>(), It.IsAny<INavigationParameters>()));
-            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, LifetimeService, RegionManager.Object);
+            EventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Subscribe(() => _sessionReleaseRequested = true);
+            ViewModel = new MirasActionRequiredViewModel(Application.Object, Miras.Object, AdministrativeAuthorizationService.Object, EventAggregator, LifetimeService, RegionManager.Object);
         }
 
         internal Mock<IAdministrativeAuthorizationService> AdministrativeAuthorizationService { get; } = new(MockBehavior.Strict);
@@ -44,6 +48,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
         internal Mock<IApplication> Application { get; } = new(MockBehavior.Strict);
 
         internal Mock<IDialogService> DialogService { get; } = new(MockBehavior.Strict);
+
+        internal IEventAggregator EventAggregator { get; } = new EventAggregator();
 
         internal Mock<IFileDialogService> FileDialogService { get; } = new(MockBehavior.Strict);
 
@@ -141,7 +147,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 
         internal void ExecuteDeferForSession() => ViewModel.DeferForSessionCommand.Execute();
 
-        internal bool WasImagingNavigationRequested() => RegionManager.Invocations.Any(invocation => invocation.Arguments.OfType<string>().Contains(RegionNames.ContentRegion) && invocation.Arguments.OfType<string>().Contains(NavigationNames.Imaging));
+        internal bool WasSessionReleaseRequested() => _sessionReleaseRequested;
 
         internal void ExecuteReturnToAdministration() => ViewModel.ReturnToAdministrationCommand.Execute();
 

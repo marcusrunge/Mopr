@@ -368,6 +368,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
                 ExpectedSopInstanceUid = issue.ExpectedSopInstanceUid,
                 Id = issue.Id,
                 InstanceId = issue.InstanceId,
+                // Session acknowledgement is available only when the completed repository
+                // assessment confirmed that at least one repository remains safely usable.
                 IsSessionDeferralAllowed = hasUsableRepository && issue.IssueType == DicomRepositoryIssueType.RepositoryLocationUnavailable,
                 IssueState = GetRepositoryIssueState(issue),
                 IssueType = issueType,

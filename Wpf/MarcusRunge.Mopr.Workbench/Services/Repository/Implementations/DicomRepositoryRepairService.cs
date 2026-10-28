@@ -201,7 +201,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 TechnicalDetails = technicalDetails,
                 ValidationFailureKind = validationFailureKind
             });
-            AddError(result, technicalDetails, exception);
+            // A classified validation failure is an expected repository finding, not
+            // a technical failure of the MIRAS assessment. Only an unexpected exception
+            // is added to Errors and reported through the application exception channel.
+            if (exception is not null) AddError(result, technicalDetails, exception);
         }
 
         private static bool IsFileReadException(Exception exception)
