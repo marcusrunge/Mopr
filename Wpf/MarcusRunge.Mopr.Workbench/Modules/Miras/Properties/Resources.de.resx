@@ -286,4 +286,7 @@ MirasActionRequiredCorrectionConflict = The repository was changed by another op
   <data name="MirasActionRequiredDeferForSessionNotice" xml:space="preserve">
     <value>Sie können fortfahren, ohne dieses Verfügbarkeitsproblem zu beheben. Die betroffene Datenquelle bleibt nicht verfügbar und ihre Daten können nicht verwendet werden. MIRAS zeigt diesen Befund bei der nächsten Prüfung erneut an.</value>
   </data>
+  <data name="MirasActionRequiredAdministratorRequiredFooter" xml:space="preserve">
+    <value>MOPR • MIRAS GESCHÜTZTER STARTZUSTAND • ADMINRECHTE ZUR MIRAS-AKTION ERFORDERLICH</value>
+  </data>
 </root>

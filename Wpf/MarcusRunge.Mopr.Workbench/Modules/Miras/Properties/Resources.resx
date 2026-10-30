@@ -285,4 +285,7 @@
   <data name="MirasActionRequiredDeferForSessionNotice" xml:space="preserve">
     <value>You can continue without resolving this availability issue. The affected data source remains unavailable, and its data cannot be used. MIRAS will show this issue again during the next assessment.</value>
   </data>
+  <data name="MirasActionRequiredAdministratorRequiredFooter" xml:space="preserve">
+    <value>MOPR • MIRAS PROTECTED STARTUP STATE • ADMINISTRATOR RIGHTS REQUIRED FOR MIRAS ACTION</value>
+  </data>
 </root>

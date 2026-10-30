@@ -1,17 +1,16 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
-using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Miras;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
-using Prism.Events;
 using System.Collections.ObjectModel;
 using WpfApplication = System.Windows.Application;
 
@@ -33,11 +32,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
         private readonly IRepositoryRecoveryActionService _repositoryRecoveryActionService;
         private readonly Dictionary<int, byte[]> _repositoryRowVersions = [];
 
+        private DelegateCommand? _deferForSessionCommand, _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
         private bool _isAdministrativeContext;
         private bool _isBusy;
         private bool _isInfrastructureRecoveryRequired = true;
         private CancellationTokenSource? _navigationCancellation;
-        private DelegateCommand? _deferForSessionCommand, _recreateDirectoryCommand, _relocateCommand, _removeRepositoryCommand, _returnToAdministrationCommand, _retryCommand;
         private string _repositoryPath = string.Empty;
         private MirasIssueItemViewModel? _selectedIssue;
         private string _statusMessage = string.Empty;
@@ -60,11 +59,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             RecoverCommand = new DelegateCommand(() => _ = RecoverAsync(), CanRecover);
         }
 
-        public bool CanCorrectSelectedRepository => HasAdministrativeAuthorization && !IsBusy && SelectedIssue is { IssueType: MirasIssueType.RepositoryUnavailable, RepositoryLocationId: not null };
         public static string Description => Resources.MirasActionRequiredDescription;
+        public static string Title => Resources.MirasActionRequiredTitle;
+        public bool CanCorrectSelectedRepository => HasAdministrativeAuthorization && !IsBusy && SelectedIssue is { IssueType: MirasIssueType.RepositoryUnavailable, RepositoryLocationId: not null };
+        public DelegateCommand DeferForSessionCommand => _deferForSessionCommand ??= new DelegateCommand(ExecuteDeferForSession, () => !IsBusy && SelectedIssue?.CanDeferForSession == true);
         public bool HasAdministrativeAuthorization => _administrativeAuthorizationService.IsElevatedAdministrator;
         public bool HasIssues => Issues.Count > 0;
         public bool HasSelectedIssue => SelectedIssue is not null;
+
         /// <summary>
         /// Gets a value indicating whether the view is being used from the administrative workflow.
         /// </summary>
@@ -78,8 +80,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                 _returnToAdministrationCommand?.RaiseCanExecuteChanged();
             }
         }
-        public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && _isInfrastructureRecoveryRequired;
-        public ObservableCollection<MirasIssueItemViewModel> Issues { get; } = [];
 
         public bool IsBusy
         {
@@ -90,15 +90,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
 
                 SelectRepositoryCommand.RaiseCanExecuteChanged();
                 RecoverCommand.RaiseCanExecuteChanged();
+                _deferForSessionCommand?.RaiseCanExecuteChanged();
                 RaiseRepositoryActionStates();
             }
         }
 
-        public DelegateCommand DeferForSessionCommand => _deferForSessionCommand ??= new DelegateCommand(ExecuteDeferForSession, () => !IsBusy && SelectedIssue?.CanDeferForSession == true);
-        public DelegateCommand RecreateDirectoryCommand => _recreateDirectoryCommand ??= new DelegateCommand(() => _ = ExecuteRepositoryActionAsync((issue, token) => _repositoryRecoveryActionService.RecreateDirectoryAsync(issue.RepositoryLocationId!.Value, issue.RepositoryPath, token)), () => CanCorrectSelectedRepository);
-
+        public bool IsInfrastructureRecoveryVisible => !IsAdministrativeContext && _isInfrastructureRecoveryRequired;
+        public ObservableCollection<MirasIssueItemViewModel> Issues { get; } = [];
+        public string ProtectedStateFooter => HasAdministrativeAuthorization ? Resources.MirasActionRequiredFooter : Resources.MirasActionRequiredAdministratorRequiredFooter;
         public DelegateCommand RecoverCommand { get; }
-
+        public DelegateCommand RecreateDirectoryCommand => _recreateDirectoryCommand ??= new DelegateCommand(() => _ = ExecuteRepositoryActionAsync((issue, token) => _repositoryRecoveryActionService.RecreateDirectoryAsync(issue.RepositoryLocationId!.Value, issue.RepositoryPath, token)), () => CanCorrectSelectedRepository);
         public DelegateCommand RelocateCommand => _relocateCommand ??= new DelegateCommand(() => _ = RelocateAsync(), () => CanCorrectSelectedRepository && _application.DialogService?.FileDialogService is not null);
 
         public DelegateCommand RemoveRepositoryCommand => _removeRepositoryCommand ??= new DelegateCommand(() => _ = RemoveRepositoryAsync(), () => CanCorrectSelectedRepository && SelectedIssue?.IsRepositoryDefault == false);
@@ -115,9 +116,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             }
         }
 
-        public DelegateCommand ReturnToAdministrationCommand => _returnToAdministrationCommand ??= new DelegateCommand(ExecuteReturnToAdministration, () => IsAdministrativeContext && !IsBusy);
-
         public DelegateCommand RetryCommand => _retryCommand ??= new DelegateCommand(() => _ = RetryAsync(), () => !IsBusy && _miras.Flow is not null);
+        public DelegateCommand ReturnToAdministrationCommand => _returnToAdministrationCommand ??= new DelegateCommand(ExecuteReturnToAdministration, () => IsAdministrativeContext && !IsBusy);
 
         public MirasIssueItemViewModel? SelectedIssue
         {
@@ -140,8 +140,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             private set => SetProperty(ref _statusMessage, value);
         }
 
-        public static string Title => Resources.MirasActionRequiredTitle;
-
         /// <inheritdoc/>
         public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
@@ -162,6 +160,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             IsAdministrativeContext = navigationContext.Parameters.GetValue<bool>(NavigationParameterNames.MirasAdministrativeContext);
 
             RaisePropertyChanged(nameof(HasAdministrativeAuthorization));
+            RaisePropertyChanged(nameof(ProtectedStateFooter));
             SelectRepositoryCommand.RaiseCanExecuteChanged();
             RecoverCommand.RaiseCanExecuteChanged();
             _deferForSessionCommand?.RaiseCanExecuteChanged();
@@ -170,9 +169,69 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             _ = LoadIssuesAsync(_navigationCancellation.Token);
         }
 
+        private static string GetRecoveryStatusMessage(RepositoryInfrastructureRecoveryStatus status) => status switch
+        {
+            RepositoryInfrastructureRecoveryStatus.AdministrativeAuthorizationRequired => Resources.MirasActionRequiredAdministratorRequired,
+            RepositoryInfrastructureRecoveryStatus.RepositoryValidationFailed => Resources.MirasActionRequiredRepositoryValidationFailed,
+            RepositoryInfrastructureRecoveryStatus.RepositoryAlreadyConfigured => Resources.MirasActionRequiredRepositoryAlreadyConfigured,
+            RepositoryInfrastructureRecoveryStatus.PersistenceUnavailable => Resources.MirasActionRequiredPersistenceUnavailable,
+            RepositoryInfrastructureRecoveryStatus.Failed => Resources.MirasActionRequiredRecoveryFailed,
+            RepositoryInfrastructureRecoveryStatus.NotStarted or RepositoryInfrastructureRecoveryStatus.Completed or _ => Resources.MirasActionRequiredRecoveryFailed
+        };
+
+        private static string GetRepositoryActionStatusMessage(RepositoryRecoveryActionStatus status) => status switch
+        {
+            RepositoryRecoveryActionStatus.Conflict => Resources.MirasActionRequiredCorrectionConflict,
+            RepositoryRecoveryActionStatus.DefaultRepository => Resources.MirasActionRequiredRemoveDefaultRepository,
+            RepositoryRecoveryActionStatus.InUse => Resources.MirasActionRequiredRemoveInUse,
+            RepositoryRecoveryActionStatus.DuplicatePath => Resources.MirasActionRequiredDuplicatePath,
+            RepositoryRecoveryActionStatus.ValidationFailed => Resources.MirasActionRequiredRepositoryValidationFailed,
+            RepositoryRecoveryActionStatus.NotFound => Resources.MirasActionRequiredRepositoryNotFound,
+            RepositoryRecoveryActionStatus.Unauthorized => Resources.MirasActionRequiredAdministratorRequired,
+            RepositoryRecoveryActionStatus.Failed or _ => Resources.MirasActionRequiredCorrectionFailed
+        };
+
         private bool CanRecover() => HasAdministrativeAuthorization && IsInfrastructureRecoveryVisible && !IsBusy && !string.IsNullOrWhiteSpace(RepositoryPath) && _miras.RepositoryInfrastructureRecovery is not null && _miras.Flow is not null;
 
         private bool CanSelectRepository() => HasAdministrativeAuthorization && IsInfrastructureRecoveryVisible && !IsBusy && _application.DialogService?.FileDialogService is not null;
+
+        private async Task CompleteSuccessfulVerificationAsync(string statusMessage, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Administrative verification must remain inside the administration workflow.
+            // Only the protected startup workflow may release the imaging workbench directly.
+            if (IsAdministrativeContext)
+            {
+                await LoadIssuesAsync(cancellationToken).ConfigureAwait(true);
+                StatusMessage = statusMessage;
+                return;
+            }
+
+            await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
+        }
+
+        private void ExecuteDeferForSession()
+        {
+            var selectedIssue = SelectedIssue;
+            var result = _miras.Flow?.LastResult;
+
+            if (selectedIssue is null || result is null) return;
+
+            var issue = result.Issues.SingleOrDefault(item => item.Id == selectedIssue.Id);
+            if (issue is null || !issue.CanDeferForSession) return;
+
+            issue.DeferForSession();
+            Issues.Remove(selectedIssue);
+            SelectedIssue = Issues.FirstOrDefault();
+            StatusMessage = Resources.MirasActionRequiredDeferredForSession;
+            RaiseIssueState();
+
+            // The composition root owns protected startup navigation. Publishing the
+            // release request reuses the same observed navigation pipeline as normal
+            // startup instead of creating a second module-local transition path.
+            if (!IsAdministrativeContext && MirasImagingReleasePolicy.CanOpenImaging(result)) _eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Publish();
+        }
 
         private async Task ExecuteRepositoryActionAsync(Func<MirasIssueItemViewModel, CancellationToken, Task<RepositoryRecoveryActionResult>> action)
         {
@@ -215,70 +274,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             }
         }
 
-        private async Task CompleteSuccessfulVerificationAsync(string statusMessage, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // Administrative verification must remain inside the administration workflow.
-            // Only the protected startup workflow may release the imaging workbench directly.
-            if (IsAdministrativeContext)
-            {
-                await LoadIssuesAsync(cancellationToken).ConfigureAwait(true);
-                StatusMessage = statusMessage;
-                return;
-            }
-
-            await NavigateAsync(NavigationNames.Imaging, cancellationToken).ConfigureAwait(true);
-        }
-        private void ExecuteDeferForSession()
-        {
-            var selectedIssue = SelectedIssue;
-            var result = _miras.Flow?.LastResult;
-
-            if (selectedIssue is null || result is null) return;
-
-            var issue = result.Issues.SingleOrDefault(item => item.Id == selectedIssue.Id);
-            if (issue is null || !issue.CanDeferForSession) return;
-
-            issue.DeferForSession();
-            Issues.Remove(selectedIssue);
-            SelectedIssue = Issues.FirstOrDefault();
-            StatusMessage = Resources.MirasActionRequiredDeferredForSession;
-            RaiseIssueState();
-
-            // The composition root owns protected startup navigation. Publishing the
-            // release request reuses the same observed navigation pipeline as normal
-            // startup instead of creating a second module-local transition path.
-            if (!IsAdministrativeContext && MirasImagingReleasePolicy.CanOpenImaging(result)) _eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Publish();
-        }
-
         private void ExecuteReturnToAdministration()
         {
             var parameters = new NavigationParameters { { SetupNavigation.OperatingModeParameter, SetupOperatingMode.Administration } };
             _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Setup, parameters);
         }
-
-        private static string GetRecoveryStatusMessage(RepositoryInfrastructureRecoveryStatus status) => status switch
-        {
-            RepositoryInfrastructureRecoveryStatus.AdministrativeAuthorizationRequired => Resources.MirasActionRequiredAdministratorRequired,
-            RepositoryInfrastructureRecoveryStatus.RepositoryValidationFailed => Resources.MirasActionRequiredRepositoryValidationFailed,
-            RepositoryInfrastructureRecoveryStatus.RepositoryAlreadyConfigured => Resources.MirasActionRequiredRepositoryAlreadyConfigured,
-            RepositoryInfrastructureRecoveryStatus.PersistenceUnavailable => Resources.MirasActionRequiredPersistenceUnavailable,
-            RepositoryInfrastructureRecoveryStatus.Failed => Resources.MirasActionRequiredRecoveryFailed,
-            RepositoryInfrastructureRecoveryStatus.NotStarted or RepositoryInfrastructureRecoveryStatus.Completed or _ => Resources.MirasActionRequiredRecoveryFailed
-        };
-
-        private static string GetRepositoryActionStatusMessage(RepositoryRecoveryActionStatus status) => status switch
-        {
-            RepositoryRecoveryActionStatus.Conflict => Resources.MirasActionRequiredCorrectionConflict,
-            RepositoryRecoveryActionStatus.DefaultRepository => Resources.MirasActionRequiredRemoveDefaultRepository,
-            RepositoryRecoveryActionStatus.InUse => Resources.MirasActionRequiredRemoveInUse,
-            RepositoryRecoveryActionStatus.DuplicatePath => Resources.MirasActionRequiredDuplicatePath,
-            RepositoryRecoveryActionStatus.ValidationFailed => Resources.MirasActionRequiredRepositoryValidationFailed,
-            RepositoryRecoveryActionStatus.NotFound => Resources.MirasActionRequiredRepositoryNotFound,
-            RepositoryRecoveryActionStatus.Unauthorized => Resources.MirasActionRequiredAdministratorRequired,
-            RepositoryRecoveryActionStatus.Failed or _ => Resources.MirasActionRequiredCorrectionFailed
-        };
 
         private byte[] GetRepositoryRowVersion(int repositoryLocationId)
         {
@@ -309,7 +309,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                     return;
                 }
 
-                var repositories = await _repositoryLocationAdministrationService.GetAllAsync(cancellationToken).ConfigureAwait(true);
+                // Findings must remain visible to every user. Administrative repository metadata is optional
+                // enrichment and must never gate the protected startup explanation.
+                var repositories = HasAdministrativeAuthorization ? await _repositoryLocationAdministrationService.GetAllAsync(cancellationToken).ConfigureAwait(true) : [];
                 var repositoriesById = repositories.ToDictionary(repository => repository.Id);
                 var messagesByIssueId = result.Messages.GroupBy(message => message.IssueId).ToDictionary(group => group.Key, group => group.First());
 
@@ -323,32 +325,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
                     repositoriesById.TryGetValue(issue.RepositoryLocationId ?? 0, out var repository);
                     messagesByIssueId.TryGetValue(issue.Id, out var message);
 
-                    var repositoryPath = repository?.RootPath
-                        ?? (!string.IsNullOrWhiteSpace(issue.ExpectedFilePath)
-                            ? issue.ExpectedFilePath
-                            : issue.ActualFilePath);
+                    var repositoryPath = repository?.RootPath ?? (!string.IsNullOrWhiteSpace(issue.ExpectedFilePath) ? issue.ExpectedFilePath : issue.ActualFilePath);
 
-                    Issues.Add(new MirasIssueItemViewModel(
-                        issue.Id,
-                        issue.IssueType,
-                        issue.IssueState,
-                        issue.RecommendedAction,
-                        message?.Title ?? issue.IssueType.ToString(),
-                        message?.Description ?? Resources.MirasActionRequiredIssueDescriptionUnavailable,
-                        issue.CanDeferForSession,
-                        issue.RepositoryLocationId,
-                        repository?.Name ?? Resources.MirasActionRequiredUnknownRepository,
-                        repositoryPath ?? string.Empty,
-                        repository?.IsEnabled,
-                        repository?.IsDefault));
+                    Issues.Add(new MirasIssueItemViewModel(issue.Id, issue.IssueType, issue.IssueState, issue.RecommendedAction, message?.Title ?? issue.IssueType.ToString(), message?.Description ?? Resources.MirasActionRequiredIssueDescriptionUnavailable, issue.CanDeferForSession, issue.RepositoryLocationId, repository?.Name ?? Resources.MirasActionRequiredUnknownRepository, repositoryPath ?? string.Empty, repository?.IsEnabled, repository?.IsDefault));
                 }
 
                 SelectedIssue = Issues.FirstOrDefault();
-                StatusMessage = HasIssues
-                    ? string.Empty
-                    : HasAdministrativeAuthorization
-                        ? Resources.MirasActionRequiredSelectRepositoryNotice
-                        : Resources.MirasActionRequiredAdministratorRequired;
+                StatusMessage = HasIssues ? string.Empty : HasAdministrativeAuthorization ? Resources.MirasActionRequiredSelectRepositoryNotice : Resources.MirasActionRequiredAdministratorRequired;
 
                 RaiseIssueState();
             }
@@ -392,14 +375,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             });
 
             await completion.Task.ConfigureAwait(false);
-        }
-
-        private void SetInfrastructureRecoveryRequired(bool value)
-        {
-            if (_isInfrastructureRecoveryRequired == value) return;
-
-            _isInfrastructureRecoveryRequired = value;
-            RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
         }
 
         private void RaiseIssueState()
@@ -582,6 +557,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels
             {
                 RepositoryPath = selectedPath;
             }
+        }
+
+        private void SetInfrastructureRecoveryRequired(bool value)
+        {
+            if (_isInfrastructureRecoveryRequired == value) return;
+
+            _isInfrastructureRecoveryRequired = value;
+            RaisePropertyChanged(nameof(IsInfrastructureRecoveryVisible));
         }
     }
 }

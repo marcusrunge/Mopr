@@ -510,7 +510,7 @@
                        VerticalAlignment="Center"
                        Foreground="#738490"
                        FontSize="11"
-                       Text="{x:Static properties:Resources.MirasActionRequiredFooter}" />
+                       Text="{Binding ProtectedStateFooter}" />
         </Border>
 
         <Border Grid.RowSpan="3"
@@ -542,3 +542,4 @@
         </Border>
     </Grid>
 </UserControl>
+

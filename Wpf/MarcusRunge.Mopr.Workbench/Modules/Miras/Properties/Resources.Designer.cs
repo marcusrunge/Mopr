@@ -79,6 +79,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die MOPR • MIRAS PROTECTED STARTUP STATE • ADMINISTRATOR RIGHTS REQUIRED FOR MIRAS ACTION ähnelt.
+        /// </summary>
+        public static string MirasActionRequiredAdministratorRequiredFooter {
+            get {
+                return ResourceManager.GetString("MirasActionRequiredAdministratorRequiredFooter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Affected areas ähnelt.
         /// </summary>
         public static string MirasActionRequiredAffectedAreas {
