@@ -17,7 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -225,6 +225,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<int?>("SeriesNumber")
+                        .HasColumnType("int");
+
                     b.Property<int>("StudyId")
                         .HasColumnType("int");
 
@@ -270,10 +273,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Migrations
                     b.Property<int?>("ModifiedByUserId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("PatientBirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("PatientId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("PatientName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("StudyDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("StudyInstanceUid")
                         .IsRequired()

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {

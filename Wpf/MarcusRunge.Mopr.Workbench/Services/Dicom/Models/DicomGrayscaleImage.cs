@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Models
 {
     public sealed class DicomGrayscaleImage
     {

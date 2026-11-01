@@ -1,9 +1,9 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Media
 {

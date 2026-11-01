@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,6 +22,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Configurations
 
             builder.Property(x => x.Description)
                    .HasMaxLength(1024);
+
+            builder.Property(x => x.PatientBirthDate)
+                   .HasColumnType("date");
+
+            builder.Property(x => x.PatientId)
+                   .HasMaxLength(128);
+
+            builder.Property(x => x.PatientName)
+                   .HasMaxLength(256);
 
             builder.HasMany(x => x.Series)
                    .WithOne(x => x.Study)

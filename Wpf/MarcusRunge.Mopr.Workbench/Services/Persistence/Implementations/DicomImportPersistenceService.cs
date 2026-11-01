@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -48,11 +48,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 {
                     study = new Study
                     {
-                        StudyInstanceUid = request.StudyInstanceUid,
-                        CreatedByUser = user
+                        AccessionNumber = NormalizeOptionalValue(request.AccessionNumber),
+                        CreatedByUser = user,
+                        Description = NormalizeOptionalValue(request.StudyDescription),
+                        PatientBirthDate = request.PatientBirthDate?.Date,
+                        PatientId = NormalizeOptionalValue(request.PatientId),
+                        PatientName = NormalizeOptionalValue(request.PatientName),
+                        StudyDate = request.StudyDate,
+                        StudyInstanceUid = request.StudyInstanceUid
                     };
 
                     await context.Studies.AddAsync(study, cancellationToken);
+                }
+                else
+                {
+                    UpdateExistingStudyMetadata(study, request, user);
                 }
 
                 Series? series = await context.Series.SingleOrDefaultAsync(item => item.SeriesInstanceUid == request.SeriesInstanceUid, cancellationToken);
@@ -65,9 +75,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                      */
                     series = new Series
                     {
+                        CreatedByUser = user,
+                        Description = NormalizeOptionalValue(request.SeriesDescription),
+                        Modality = NormalizeOptionalValue(request.Modality),
                         SeriesInstanceUid = request.SeriesInstanceUid,
-                        Study = study,
-                        CreatedByUser = user
+                        SeriesNumber = request.SeriesNumber,
+                        Study = study
                     };
 
                     await context.Series.AddAsync(series, cancellationToken);
@@ -79,6 +92,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                      * cannot be reassigned to another existing Study during import.
                      */
                     throw new InvalidOperationException($"Series '{request.SeriesInstanceUid}' belongs to a different study.");
+                }
+                else
+                {
+                    UpdateExistingSeriesMetadata(series, request, user);
                 }
 
                 Instance? instance = await context.Instances.SingleOrDefaultAsync(item => item.SopInstanceUid == request.SopInstanceUid, cancellationToken);
@@ -92,6 +109,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                      */
                     instance = new Instance
                     {
+                        InstanceNumber = request.InstanceNumber,
                         SopInstanceUid = request.SopInstanceUid,
                         RelativeFilePath = request.RelativeFilePath,
                         RepositoryLocation = repositoryLocation,
@@ -109,6 +127,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                     {
                         instance.RelativeFilePath = request.RelativeFilePath;
                         instance.ModifiedByUser = user;
+                    }
+
+                    if (instance.InstanceNumber is null && request.InstanceNumber is not null)
+                    {
+                        instance.InstanceNumber = request.InstanceNumber;
+                        instance.ModifiedByUser = user;
+                    }
+                    else if (instance.InstanceNumber is not null && request.InstanceNumber is not null && instance.InstanceNumber != request.InstanceNumber)
+                    {
+                        throw new InvalidOperationException($"Instance '{request.SopInstanceUid}' contains a conflicting DICOM instance number.");
                     }
                 }
 
@@ -172,6 +200,59 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             * resolution and creation form one protected database operation.
             */
             context.Database.IsRelational() ? await context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken) : null;
+
+        private static string? NormalizeOptionalValue(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+        private static void UpdateExistingSeriesMetadata(Series series, DicomImportPersistenceRequest request, User user)
+        {
+            var changed = false;
+            changed |= FillOrValidate(ref series, item => item.Description, (item, value) => item.Description = value, NormalizeOptionalValue(request.SeriesDescription), "series description", request.SeriesInstanceUid);
+            changed |= FillOrValidate(ref series, item => item.Modality, (item, value) => item.Modality = value, NormalizeOptionalValue(request.Modality), "modality", request.SeriesInstanceUid);
+            changed |= FillOrValidate(ref series, item => item.SeriesNumber, (item, value) => item.SeriesNumber = value, request.SeriesNumber, "series number", request.SeriesInstanceUid);
+            if (changed) series.ModifiedByUser = user;
+        }
+
+        private static void UpdateExistingStudyMetadata(Study study, DicomImportPersistenceRequest request, User user)
+        {
+            var changed = false;
+            changed |= FillOrValidate(ref study, item => item.AccessionNumber, (item, value) => item.AccessionNumber = value, NormalizeOptionalValue(request.AccessionNumber), "accession number", request.StudyInstanceUid);
+            changed |= FillOrValidate(ref study, item => item.Description, (item, value) => item.Description = value, NormalizeOptionalValue(request.StudyDescription), "study description", request.StudyInstanceUid);
+            changed |= FillOrValidate(ref study, item => item.PatientBirthDate, (item, value) => item.PatientBirthDate = value, request.PatientBirthDate?.Date, "patient birth date", request.StudyInstanceUid);
+            changed |= FillOrValidate(ref study, item => item.PatientId, (item, value) => item.PatientId = value, NormalizeOptionalValue(request.PatientId), "patient identifier", request.StudyInstanceUid);
+            changed |= FillOrValidate(ref study, item => item.PatientName, (item, value) => item.PatientName = value, NormalizeOptionalValue(request.PatientName), "patient name", request.StudyInstanceUid);
+            changed |= FillOrValidate(ref study, item => item.StudyDate, (item, value) => item.StudyDate = value, request.StudyDate, "study date", request.StudyInstanceUid);
+            if (changed) study.ModifiedByUser = user;
+        }
+
+        private static bool FillOrValidate<TEntity, TValue>(ref TEntity entity, Func<TEntity, TValue?> getter, Action<TEntity, TValue?> setter, TValue? incomingValue, string fieldName, string dicomUid) where TEntity : class where TValue : struct
+        {
+            if (incomingValue is null) return false;
+
+            var currentValue = getter(entity);
+            if (currentValue is null)
+            {
+                setter(entity, incomingValue);
+                return true;
+            }
+
+            if (!EqualityComparer<TValue>.Default.Equals(currentValue.Value, incomingValue.Value)) throw new InvalidOperationException($"DICOM object '{dicomUid}' contains a conflicting {fieldName}.");
+            return false;
+        }
+
+        private static bool FillOrValidate<TEntity>(ref TEntity entity, Func<TEntity, string?> getter, Action<TEntity, string?> setter, string? incomingValue, string fieldName, string dicomUid) where TEntity : class
+        {
+            if (incomingValue is null) return false;
+
+            var currentValue = getter(entity);
+            if (currentValue is null)
+            {
+                setter(entity, incomingValue);
+                return true;
+            }
+
+            if (!string.Equals(currentValue, incomingValue, StringComparison.Ordinal)) throw new InvalidOperationException($"DICOM object '{dicomUid}' contains a conflicting {fieldName}.");
+            return false;
+        }
 
         private static void ValidateExistingInstance(Instance instance, Series series, RepositoryLocation repositoryLocation, DicomImportPersistenceRequest request)
         {

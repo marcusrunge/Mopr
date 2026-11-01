@@ -2,6 +2,7 @@
 using FellowOakDicom.Imaging;
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

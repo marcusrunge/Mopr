@@ -4,7 +4,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
-using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Prism.Commands;
 using System;
 using System.Collections;

@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +32,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
 
             try
             {
-                var allFiles = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).ToList();
+                var allFiles = Directory.EnumerateFiles(folderPath, "*", SearchOption.AllDirectories).ToList();
 
                 var metadataItems = new List<DicomFileMetadata>();
 

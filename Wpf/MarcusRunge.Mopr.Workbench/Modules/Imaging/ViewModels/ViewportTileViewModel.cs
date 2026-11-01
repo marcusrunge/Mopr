@@ -1,6 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
-using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

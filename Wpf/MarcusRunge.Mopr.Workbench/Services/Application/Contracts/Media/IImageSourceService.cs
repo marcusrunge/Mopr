@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media

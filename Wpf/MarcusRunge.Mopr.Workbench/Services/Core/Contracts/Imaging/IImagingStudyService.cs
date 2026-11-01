@@ -1,6 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
-using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;

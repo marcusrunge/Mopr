@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts

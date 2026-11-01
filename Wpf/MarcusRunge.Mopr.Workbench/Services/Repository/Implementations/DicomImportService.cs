@@ -1,4 +1,5 @@
 using FellowOakDicom;
+using System.Globalization;
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
@@ -178,6 +179,62 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             await destinationStream.FlushAsync(cancellationToken);
         }
 
+        private static DateTime? GetDicomDate(DicomDataset dataset, DicomTag tag)
+        {
+            var value = GetOptionalString(dataset, tag);
+            if (!DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) return null;
+
+            return date.Date;
+        }
+
+        private static int? GetOptionalInt(DicomDataset dataset, DicomTag tag)
+        {
+            if (dataset.TryGetSingleValue<int>(tag, out var intValue)) return intValue;
+            if (dataset.TryGetSingleValue<ushort>(tag, out var ushortValue)) return ushortValue;
+            if (dataset.TryGetSingleValue<short>(tag, out var shortValue)) return shortValue;
+            if (!dataset.TryGetSingleValue<string>(tag, out var stringValue)) return null;
+            if (!int.TryParse(stringValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedValue)) return null;
+
+            return parsedValue;
+        }
+
+        private static string? GetOptionalString(DicomDataset dataset, DicomTag tag) => dataset.TryGetSingleValue<string>(tag, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
+
+        private static DateTime? GetStudyDateTime(DicomDataset dataset)
+        {
+            var date = GetDicomDate(dataset, DicomTag.StudyDate);
+            if (date is null) return null;
+
+            var timeValue = GetOptionalString(dataset, DicomTag.StudyTime);
+            if (string.IsNullOrWhiteSpace(timeValue)) return date;
+
+            var normalizedTime = timeValue.Split('.')[0].PadRight(6, '0');
+            if (normalizedTime.Length < 6 || !int.TryParse(normalizedTime.Substring(0, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var hour) || !int.TryParse(normalizedTime.Substring(2, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var minute) || !int.TryParse(normalizedTime.Substring(4, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var second)) return date;
+
+            try
+            {
+                return date.Value.Add(new TimeSpan(hour, minute, second));
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return date;
+            }
+        }
+
+        private static string? NormalizePersonName(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            // DICOM PN components are ordered as family, given, middle, prefix and suffix.
+            // Missing components are omitted without inventing patient information.
+            var components = value.Split('^').Select(component => component.Trim()).ToArray();
+            var familyName = components.ElementAtOrDefault(0);
+            var remainingNames = string.Join(" ", components.Skip(1).Where(component => !string.IsNullOrWhiteSpace(component)));
+            if (string.IsNullOrWhiteSpace(familyName)) return string.IsNullOrWhiteSpace(remainingNames) ? null : remainingNames;
+
+            return string.IsNullOrWhiteSpace(remainingNames) ? familyName : $"{familyName}, {remainingNames}";
+        }
+
         private static DicomImportFileInfo CreateFileInfo(string filePath)
         {
             DicomImportFileInfo fileInfo = new()
@@ -197,10 +254,21 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 return fileInfo;
             }
 
+            var dataset = dicomFile.Dataset;
+            fileInfo.AccessionNumber = GetOptionalString(dataset, DicomTag.AccessionNumber);
+            fileInfo.InstanceNumber = GetOptionalInt(dataset, DicomTag.InstanceNumber);
             fileInfo.IsDicomFile = true;
-            fileInfo.StudyInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty);
-            fileInfo.SeriesInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty);
-            fileInfo.SopInstanceUid = dicomFile.Dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty);
+            fileInfo.Modality = GetOptionalString(dataset, DicomTag.Modality);
+            fileInfo.PatientBirthDate = GetDicomDate(dataset, DicomTag.PatientBirthDate);
+            fileInfo.PatientId = GetOptionalString(dataset, DicomTag.PatientID);
+            fileInfo.PatientName = NormalizePersonName(GetOptionalString(dataset, DicomTag.PatientName));
+            fileInfo.SeriesDescription = GetOptionalString(dataset, DicomTag.SeriesDescription);
+            fileInfo.SeriesInstanceUid = GetOptionalString(dataset, DicomTag.SeriesInstanceUID) ?? string.Empty;
+            fileInfo.SeriesNumber = GetOptionalInt(dataset, DicomTag.SeriesNumber);
+            fileInfo.SopInstanceUid = GetOptionalString(dataset, DicomTag.SOPInstanceUID) ?? string.Empty;
+            fileInfo.StudyDate = GetStudyDateTime(dataset);
+            fileInfo.StudyDescription = GetOptionalString(dataset, DicomTag.StudyDescription);
+            fileInfo.StudyInstanceUid = GetOptionalString(dataset, DicomTag.StudyInstanceUID) ?? string.Empty;
 
             return fileInfo;
         }
@@ -476,12 +544,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 await DicomImportPersistenceService.PersistAsync(new DicomImportPersistenceRequest
                 {
+                    AccessionNumber = fileInfo.AccessionNumber,
                     CreatedByUserId = createdByUserId,
+                    InstanceNumber = fileInfo.InstanceNumber,
+                    Modality = fileInfo.Modality,
+                    PatientBirthDate = fileInfo.PatientBirthDate,
+                    PatientId = fileInfo.PatientId,
+                    PatientName = fileInfo.PatientName,
+                    RelativeFilePath = pathInfo.RelativePath,
                     RepositoryLocationId = repositoryLocation.Id,
-                    StudyInstanceUid = fileInfo.StudyInstanceUid,
+                    SeriesDescription = fileInfo.SeriesDescription,
                     SeriesInstanceUid = fileInfo.SeriesInstanceUid,
+                    SeriesNumber = fileInfo.SeriesNumber,
                     SopInstanceUid = fileInfo.SopInstanceUid,
-                    RelativeFilePath = pathInfo.RelativePath
+                    StudyDate = fileInfo.StudyDate,
+                    StudyDescription = fileInfo.StudyDescription,
+                    StudyInstanceUid = fileInfo.StudyInstanceUid
                 }, cancellationToken);
 
                 persistenceCommitted = true;
@@ -535,3 +613,4 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         }
     }
 }
+

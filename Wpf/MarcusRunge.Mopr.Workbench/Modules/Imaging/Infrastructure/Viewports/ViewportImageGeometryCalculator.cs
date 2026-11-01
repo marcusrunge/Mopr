@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+﻿using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
 using System.Windows;
 

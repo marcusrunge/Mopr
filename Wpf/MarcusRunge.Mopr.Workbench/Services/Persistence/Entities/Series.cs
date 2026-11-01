@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
 {
@@ -9,6 +9,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     {
         private string? _seriesInstanceUid, _description, _modality;
         private Study? _study;
+        private int? _seriesNumber;
         private int _studyId;
 
         /// <summary>
@@ -30,6 +31,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the series instance UID.
         /// </summary>
         public string? SeriesInstanceUid { get => _seriesInstanceUid; set => SetProperty(ref _seriesInstanceUid, value); }
+
+
+        /// <summary>
+        /// Gets or sets the series number supplied by DICOM.
+        /// </summary>
+        public int? SeriesNumber { get => _seriesNumber; set => SetProperty(ref _seriesNumber, value); }
 
         /// <summary>
         /// Gets or sets the study.
