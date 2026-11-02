@@ -1,8 +1,8 @@
 using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -121,7 +121,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         {
             ArgumentNullException.ThrowIfNull(result);
             var status = result.FailedFiles > 0 || result.Errors.Count > 0 ? DicomImportStatus.CompletedWithErrors : result.SkippedFiles > 0 ? DicomImportStatus.CompletedWithSkippedFiles : DicomImportStatus.Completed;
-            return new DicomImportResult(status, result.DiscoveredFiles, result.ValidDicomFiles, result.ImportableFiles, result.ImportedFiles, result.SkippedFiles, result.FailedFiles, result.Errors);
+            return new DicomImportResult(status, result.DiscoveredFiles, result.ValidDicomFiles, result.ImportableFiles, result.ImportedFiles, result.ExistingFiles, result.SkippedFiles, result.FailedFiles, result.Errors);
         }
 
         private static bool TryMapSourceType(DicomImportSourceType sourceType, out ImportSourceType repositorySourceType)

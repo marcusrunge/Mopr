@@ -1,7 +1,7 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using System;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
 {
     /// <summary>
     /// Contains the user-selected source and behavior for a DICOM import operation.

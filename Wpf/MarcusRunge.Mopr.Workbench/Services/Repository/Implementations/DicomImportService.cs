@@ -209,7 +209,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             if (string.IsNullOrWhiteSpace(timeValue)) return date;
 
             var normalizedTime = timeValue.Split('.')[0].PadRight(6, '0');
-            if (normalizedTime.Length < 6 || !int.TryParse(normalizedTime.Substring(0, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var hour) || !int.TryParse(normalizedTime.Substring(2, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var minute) || !int.TryParse(normalizedTime.Substring(4, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var second)) return date;
+            if (normalizedTime.Length < 6 || !int.TryParse(normalizedTime.AsSpan(0, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var hour) || !int.TryParse(normalizedTime.AsSpan(2, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var minute) || !int.TryParse(normalizedTime.AsSpan(4, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var second)) return date;
 
             try
             {
@@ -573,6 +573,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
                 if (fileSystemContext.State == DicomImportFileSystemState.ExistingIdentical)
                 {
+                    result.ExistingFiles++;
                     result.SkippedFiles++;
                 }
                 else
@@ -613,4 +614,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         }
     }
 }
+
 

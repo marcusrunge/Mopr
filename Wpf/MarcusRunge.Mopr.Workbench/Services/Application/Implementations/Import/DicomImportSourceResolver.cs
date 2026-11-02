@@ -1,7 +1,7 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using System.IO;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import

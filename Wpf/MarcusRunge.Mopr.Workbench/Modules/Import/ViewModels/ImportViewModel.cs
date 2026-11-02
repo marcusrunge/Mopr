@@ -1,8 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
-using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 {

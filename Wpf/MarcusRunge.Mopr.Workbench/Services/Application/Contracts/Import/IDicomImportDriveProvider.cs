@@ -1,4 +1,6 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
+
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {
     /// <summary>
     /// Provides operating-system drive information required for import-source classification.

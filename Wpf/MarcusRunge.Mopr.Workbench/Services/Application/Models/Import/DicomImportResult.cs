@@ -1,9 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 
-namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
 {
     /// <summary>
     /// Represents the public result of a DICOM import operation.
@@ -21,15 +18,17 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// <param name="importableFiles">The number of importable DICOM files.</param>
         /// <param name="importedFiles">The number of imported files.</param>
         /// <param name="skippedFiles">The number of skipped files.</param>
+        /// <param name="existingFiles">The number of valid DICOM files already present unchanged.</param>
         /// <param name="failedFiles">The number of files that failed to import.</param>
         /// <param name="technicalErrors">Technical diagnostics that must not be displayed as unfiltered user messages.</param>
-        public DicomImportResult(DicomImportStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
+        public DicomImportResult(DicomImportStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int existingFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
         {
             Status = status;
             DiscoveredFiles = discoveredFiles;
             ValidDicomFiles = validDicomFiles;
             ImportableFiles = importableFiles;
             ImportedFiles = importedFiles;
+            ExistingFiles = existingFiles;
             SkippedFiles = skippedFiles;
             FailedFiles = failedFiles;
             _technicalErrors = technicalErrors?.Where(error => !string.IsNullOrWhiteSpace(error)).ToArray() ?? [];
@@ -39,6 +38,11 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models
         /// Gets the number of discovered source files.
         /// </summary>
         public int DiscoveredFiles { get; }
+
+        /// <summary>
+        /// Gets the number of valid DICOM files already present unchanged.
+        /// </summary>
+        public int ExistingFiles { get; }
 
         /// <summary>
         /// Gets the number of files that failed to import.

@@ -1,6 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
 using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
-using Prism.Mvvm;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 {
@@ -10,6 +9,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
     public sealed class ImportResultViewModel : BindableBase
     {
         private int _discoveredFiles;
+        private int _existingFiles;
         private int _failedFiles;
         private int _importableFiles;
         private int _importedFiles;
@@ -23,6 +23,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         {
             get => _discoveredFiles;
             private set => SetProperty(ref _discoveredFiles, value);
+        }
+
+        public int ExistingFiles
+        {
+            get => _existingFiles;
+            private set => SetProperty(ref _existingFiles, value);
         }
 
         public int FailedFiles
@@ -55,6 +61,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             private set => SetProperty(ref _message, value);
         }
 
+        public int OtherSkippedFiles => Math.Max(0, SkippedFiles - ExistingFiles);
+
         public int SkippedFiles
         {
             get => _skippedFiles;
@@ -83,24 +91,32 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             ValidDicomFiles = result.ValidDicomFiles;
             ImportableFiles = result.ImportableFiles;
             ImportedFiles = result.ImportedFiles;
+            ExistingFiles = result.ExistingFiles;
             SkippedFiles = result.SkippedFiles;
+            RaisePropertyChanged(nameof(OtherSkippedFiles));
             FailedFiles = result.FailedFiles;
-            Message = CreateMessage(result.Status);
+            Message = CreateMessage(result);
         }
 
-        private static string CreateMessage(DicomImportStatus status) => status switch
+        private static string CreateMessage(DicomImportResult result)
         {
-            DicomImportStatus.Completed => Properties.Resources.ImportResultCompleted,
-            DicomImportStatus.CompletedWithSkippedFiles => Properties.Resources.ImportResultCompletedWithSkippedFiles,
-            DicomImportStatus.CompletedWithErrors => Properties.Resources.ImportResultCompletedWithErrors,
-            DicomImportStatus.Canceled => Properties.Resources.ImportResultCanceled,
-            DicomImportStatus.SourceMissing => Properties.Resources.ImportResultSourceMissing,
-            DicomImportStatus.SourceUnavailable => Properties.Resources.ImportResultSourceUnavailable,
-            DicomImportStatus.SourceTypeUnsupported => Properties.Resources.ImportResultSourceTypeUnsupported,
-            DicomImportStatus.DefaultRepositoryMissing => Properties.Resources.ImportResultDefaultRepositoryMissing,
-            DicomImportStatus.RepositoryUnavailable => Properties.Resources.ImportResultRepositoryUnavailable,
-            DicomImportStatus.AuditIdentityUnavailable => Properties.Resources.ImportResultAuditIdentityUnavailable,
-            _ => Properties.Resources.ImportResultFailed
-        };
+            if (result.ImportedFiles == 0 && result.FailedFiles == 0 && result.ImportableFiles > 0 && result.ExistingFiles == result.ImportableFiles) return Properties.Resources.ImportResultNoNewImages;
+            if (result.ValidDicomFiles == 0) return Properties.Resources.ImportResultNoValidDicomFiles;
+
+            return result.Status switch
+            {
+                DicomImportStatus.Completed => Properties.Resources.ImportResultCompleted,
+                DicomImportStatus.CompletedWithSkippedFiles => Properties.Resources.ImportResultCompletedWithSkippedFiles,
+                DicomImportStatus.CompletedWithErrors => Properties.Resources.ImportResultCompletedWithErrors,
+                DicomImportStatus.Canceled => Properties.Resources.ImportResultCanceled,
+                DicomImportStatus.SourceMissing => Properties.Resources.ImportResultSourceMissing,
+                DicomImportStatus.SourceUnavailable => Properties.Resources.ImportResultSourceUnavailable,
+                DicomImportStatus.SourceTypeUnsupported => Properties.Resources.ImportResultSourceTypeUnsupported,
+                DicomImportStatus.DefaultRepositoryMissing => Properties.Resources.ImportResultDefaultRepositoryMissing,
+                DicomImportStatus.RepositoryUnavailable => Properties.Resources.ImportResultRepositoryUnavailable,
+                DicomImportStatus.AuditIdentityUnavailable => Properties.Resources.ImportResultAuditIdentityUnavailable,
+                _ => Properties.Resources.ImportResultFailed
+            };
+        }
     }
 }

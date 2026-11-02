@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Import.Models;
+﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {

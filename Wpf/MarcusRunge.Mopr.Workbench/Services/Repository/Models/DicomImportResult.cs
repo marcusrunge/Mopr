@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
+namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
     /// <summary>
     /// Represents the result of a DICOM import operation.
@@ -14,6 +14,11 @@
         /// Gets the collection of import errors.
         /// </summary>
         public IList<string> Errors { get; } = [];
+
+        /// <summary>
+        /// Gets or sets the number of valid DICOM files that were already present unchanged.
+        /// </summary>
+        public int ExistingFiles { get; set; }
 
         /// <summary>
         /// Gets or sets the number of failed files.

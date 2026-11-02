@@ -97,6 +97,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Already present ähnelt.
+        /// </summary>
+        public static string ExistingFilesLabel {
+            get {
+                return ResourceManager.GetString("ExistingFilesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Failed ähnelt.
         /// </summary>
         public static string FailedFilesLabel {
@@ -187,6 +196,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No new image data was imported. The valid image files are already present in MOPR. Existing data was not overwritten. ähnelt.
+        /// </summary>
+        public static string ImportResultNoNewImages {
+            get {
+                return ResourceManager.GetString("ImportResultNoNewImages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No usable DICOM data was found. ähnelt.
+        /// </summary>
+        public static string ImportResultNoValidDicomFiles {
+            get {
+                return ResourceManager.GetString("ImportResultNoValidDicomFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The configured DICOM storage location is currently unavailable. ähnelt.
         /// </summary>
         public static string ImportResultRepositoryUnavailable {
@@ -232,6 +259,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM files are being checked and processed safely. ähnelt.
+        /// </summary>
+        public static string ImportRunningProgressNotice {
+            get {
+                return ResourceManager.GetString("ImportRunningProgressNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Import in progress ähnelt.
         /// </summary>
         public static string ImportRunningTitle {
@@ -273,6 +309,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string NoSourceSelected {
             get {
                 return ResourceManager.GetString("NoSourceSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Other skipped ähnelt.
+        /// </summary>
+        public static string OtherSkippedFilesLabel {
+            get {
+                return ResourceManager.GetString("OtherSkippedFilesLabel", resourceCulture);
             }
         }
         

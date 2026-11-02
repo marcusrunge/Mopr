@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
 {
     /// <summary>
     /// Contains the drive information required for import-source classification.

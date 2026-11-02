@@ -1,6 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 
-namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
+namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
 {
     /// <summary>
     /// Describes the classified and validated source of a DICOM import operation.

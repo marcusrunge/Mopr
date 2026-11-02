@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -209,5 +209,20 @@
   </data>
   <data name="CloseDialogButton" xml:space="preserve">
     <value>Schließen</value>
+  </data>
+  <data name="ExistingFilesLabel" xml:space="preserve">
+    <value>Bereits vorhanden</value>
+  </data>
+  <data name="OtherSkippedFilesLabel" xml:space="preserve">
+    <value>Sonstige übersprungen</value>
+  </data>
+  <data name="ImportResultNoNewImages" xml:space="preserve">
+    <value>Keine neuen Bilddaten importiert. Die gültigen Bilddateien sind bereits in MOPR vorhanden. Vorhandene Daten wurden nicht überschrieben.</value>
+  </data>
+  <data name="ImportResultNoValidDicomFiles" xml:space="preserve">
+    <value>Keine verwendbaren DICOM-Daten gefunden.</value>
+  </data>
+  <data name="ImportRunningProgressNotice" xml:space="preserve">
+    <value>DICOM-Dateien werden geprüft und sicher verarbeitet.</value>
   </data>
 </root>
