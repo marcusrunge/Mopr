@@ -133,6 +133,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} files found ähnelt.
+        /// </summary>
+        public static string ImportProgressDiscoveredFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressDiscoveredFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The source is being scanned and DICOM files are being checked. ähnelt.
         /// </summary>
         public static string ImportProgressDiscovering {
@@ -147,6 +156,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string ImportProgressDiscoveringFormat {
             get {
                 return ResourceManager.GetString("ImportProgressDiscoveringFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die File {0} of {1} is being checked ähnelt.
+        /// </summary>
+        public static string ImportProgressInspectingFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressInspectingFormat", resourceCulture);
             }
         }
         

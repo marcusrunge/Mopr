@@ -20,7 +20,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         private int _processedFiles;
         private ImportResultViewModel? _result;
         private int _totalFiles;
+        private bool _isInspectingSource;
+        public bool IsInspectingSource
+        {
+            get => _isInspectingSource;
+            private set
+            {
+                if (!SetProperty(ref _isInspectingSource, value)) return;
 
+                RaisePropertyChanged(nameof(ImportProgressText));
+            }
+        }
         public ImportViewModel(IApplication application)
         {
             ArgumentNullException.ThrowIfNull(application);
@@ -50,9 +60,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             get => _importProgressPercentage;
             private set => SetProperty(ref _importProgressPercentage, value);
         }
+        public string ImportProgressText
+        {
+            get
+            {
+                if (TotalFiles <= 0)
+                {
+                    return ProcessedFiles <= 0                        ? Properties.Resources.ImportProgressDiscovering                        : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
+                }
 
-        public string ImportProgressText => IsProgressIndeterminate ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveredFiles) : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
-
+                return IsInspectingSource                    ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles)                    : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
+            }
+        }
         public bool IsImporting
         {
             get => _isImporting;
@@ -226,6 +245,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             IsImporting = true;
             Result = null;
             ImportProgressPercentage = 0d;
+            IsInspectingSource = true;
             ProcessedFiles = 0;
             TotalFiles = 0;
 
@@ -247,11 +267,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                  * operations. A dedicated long-running worker prevents those operations from
                  * occupying the WPF dispatcher or depending on immediate ThreadPool availability.
                  */
-                var result = await Task.Factory.StartNew(
-                    () => _dicomImportService.ImportAsync(request, progress, cancellationToken),
-                    cancellationToken,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default).Unwrap();
+                var result = await Task.Factory.StartNew(() => _dicomImportService.ImportAsync(request, progress, cancellationToken), cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
                 var resultViewModel = new ImportResultViewModel();
                 resultViewModel.Apply(result);
@@ -278,9 +294,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         private void UpdateProgress(DicomImportProgress progress)
         {
             ArgumentNullException.ThrowIfNull(progress);
+
             TotalFiles = progress.TotalFiles;
             ProcessedFiles = progress.ProcessedFiles;
+            IsInspectingSource = progress.IsInspectingSource;
             ImportProgressPercentage = progress.Percentage;
+
+            RaisePropertyChanged(nameof(IsProgressIndeterminate));
+            RaisePropertyChanged(nameof(DiscoveredFiles));
+            RaisePropertyChanged(nameof(ImportProgressText));
         }
     }
 }

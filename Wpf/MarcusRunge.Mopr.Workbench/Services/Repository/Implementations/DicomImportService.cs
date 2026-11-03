@@ -133,11 +133,22 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return result;
         }
 
-        protected override void OnCreate(IRepositoryBase @base) =>
-            // Store the repository base required by subsequent import operations.
+        /// <inheritdoc/>
+        protected override void OnCreate(IRepositoryBase @base)
+        {
+            ArgumentNullException.ThrowIfNull(@base);
             _base = @base;
+        }
 
-        protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken) => Task.CompletedTask;
+        /// <inheritdoc/>
+        protected override Task OnCreateAsync(IRepositoryBase @base, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(@base);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            _base = @base;
+            return Task.CompletedTask;
+        }
 
         private static void CompensateFileSystem(DicomImportFileSystemContext fileSystemContext)
         {
@@ -228,38 +239,50 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return fileInfo;
         }
 
-        private static Task<IList<DicomImportFileInfo>> CreateFileInfosAsync(
-    string sourcePath,
-    IProgress<DicomImportProgress>? progress,
-    CancellationToken cancellationToken) =>
-    Task.Run<IList<DicomImportFileInfo>>(() =>
-    {
-        List<DicomImportFileInfo> fileInfos = [];
-        var inspectedFiles = 0;
-
-        foreach (var filePath in Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories))
+        private static Task<IList<DicomImportFileInfo>> CreateFileInfosAsync(string sourcePath, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken) => Task.Run<IList<DicomImportFileInfo>>(() =>
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            fileInfos.Add(CreateFileInfo(filePath));
-            inspectedFiles++;
+            List<string> filePaths = [];
 
             /*
-             * The total number is intentionally zero during discovery because
-             * Directory.EnumerateFiles does not know it without a second traversal.
-             * The UI therefore remains indeterminate while still showing activity.
+             * Recursive enumeration may take a noticeable amount of time on network,
+             * optical or synchronized sources. Report every discovered path immediately
+             * instead of waiting until the complete source tree has been materialized.
              */
-            progress?.Report(new DicomImportProgress(
-                TotalFiles: 0,
-                ProcessedFiles: inspectedFiles,
-                ImportedFiles: 0,
-                ExistingFiles: 0,
-                SkippedFiles: 0,
-                FailedFiles: 0));
-        }
+            foreach (var filePath in Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
-        return fileInfos;
-    }, cancellationToken);
+                filePaths.Add(filePath);
+
+                progress?.Report(new DicomImportProgress(TotalFiles: 0, ProcessedFiles: filePaths.Count, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
+            }
+
+            /*
+             * The stable total is now known. Reset the processed count before DICOM
+             * inspection starts so the UI can distinguish discovery from validation.
+             */
+            progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: 0, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
+
+            List<DicomImportFileInfo> fileInfos = new(filePaths.Count);
+
+            for (var index = 0; index < filePaths.Count; index++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                /*
+                 * Report the current candidate before opening it. DICOM parsing can take a
+                 * noticeable amount of time, especially for synchronized, optical or network
+                 * sources. The UI must therefore show which candidate is currently being checked.
+                 */
+                progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: index + 1, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
+
+                fileInfos.Add(CreateFileInfo(filePaths[index]));
+            }
+
+            return fileInfos;
+        }, cancellationToken);
 
         private static async Task<DicomImportFileSystemContext> CreateFileSystemStateAsync(string sourcePath, string destinationPath, bool allowOverwrite, CancellationToken cancellationToken)
         {
@@ -294,7 +317,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
         }
 
-        private static DicomImportProgress CreateProgress(DicomImportResult result, int processedFiles) => new(result.DiscoveredFiles, processedFiles, result.ImportedFiles, result.ExistingFiles, result.SkippedFiles, result.FailedFiles);
+        private static DicomImportProgress CreateProgress(DicomImportResult result, int processedFiles) => new(TotalFiles: result.DiscoveredFiles, ProcessedFiles: processedFiles, ImportedFiles: result.ImportedFiles, ExistingFiles: result.ExistingFiles, SkippedFiles: result.SkippedFiles, FailedFiles: result.FailedFiles, IsInspectingSource: false);
 
         private static void DeleteTemporaryFile(string temporaryPath, Exception? originalException = null)
         {

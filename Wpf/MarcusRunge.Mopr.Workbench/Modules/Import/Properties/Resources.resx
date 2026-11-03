@@ -225,11 +225,16 @@
   <data name="ImportProgressDiscoveringFormat" xml:space="preserve">
     <value>{0} files found and checked</value>
   </data>
-	<data name="ExistingFilesLabel" xml:space="preserve">
-  <value>Already present</value>
-</data>
-
-	<data name="OtherSkippedFilesLabel" xml:space="preserve">
-  <value>Other skipped</value>
-</data>
+  <data name="ExistingFilesLabel" xml:space="preserve">
+    <value>Already present</value>
+  </data>
+  <data name="OtherSkippedFilesLabel" xml:space="preserve">
+    <value>Other skipped</value>
+  </data>
+  <data name="ImportProgressInspectingFormat" xml:space="preserve">
+    <value>File {0} of {1} is being checked</value>
+  </data>
+  <data name="ImportProgressDiscoveredFormat" xml:space="preserve">
+    <value>{0} files found</value>
+  </data>
 </root>
