@@ -210,11 +210,11 @@
   <data name="CloseDialogButton" xml:space="preserve">
     <value>Close</value>
   </data>
-  <data name="ExistingFilesLabel" xml:space="preserve">
-    <value>Already present</value>
+  <data name="ImportProgressDiscovering" xml:space="preserve">
+    <value>The source is being scanned and DICOM files are being checked.</value>
   </data>
-  <data name="OtherSkippedFilesLabel" xml:space="preserve">
-    <value>Other skipped</value>
+  <data name="ImportProgressProcessingFormat" xml:space="preserve">
+    <value>{0} of {1} files processed</value>
   </data>
   <data name="ImportResultNoNewImages" xml:space="preserve">
     <value>No new image data was imported. The valid image files are already present in MOPR. Existing data was not overwritten.</value>
@@ -222,7 +222,14 @@
   <data name="ImportResultNoValidDicomFiles" xml:space="preserve">
     <value>No usable DICOM data was found.</value>
   </data>
-  <data name="ImportRunningProgressNotice" xml:space="preserve">
-    <value>DICOM files are being checked and processed safely.</value>
+  <data name="ImportProgressDiscoveringFormat" xml:space="preserve">
+    <value>{0} files found and checked</value>
   </data>
+	<data name="ExistingFilesLabel" xml:space="preserve">
+  <value>Already present</value>
+</data>
+
+	<data name="OtherSkippedFilesLabel" xml:space="preserve">
+  <value>Other skipped</value>
+</data>
 </root>

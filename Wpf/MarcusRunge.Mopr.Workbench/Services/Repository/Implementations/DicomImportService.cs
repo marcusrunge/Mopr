@@ -23,7 +23,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         private IRepositoryLocationRepository RepositoryLocationRepository => Persistence.RepositoryLocation ?? throw new InvalidOperationException("The repository-location repository has not been initialized.");
 
         /// <inheritdoc/>
-        public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
+        public Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default) => ImportAsync(request, null, cancellationToken);
+
+        /// <inheritdoc/>
+        public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
             ArgumentException.ThrowIfNullOrWhiteSpace(request.SourcePath);
@@ -89,7 +92,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
 
             IList<DicomImportFileInfo> fileInfos = request.SourceType switch
             {
-                ImportSourceType.Directory or ImportSourceType.CdRom or ImportSourceType.Dvd or ImportSourceType.UsbDrive or ImportSourceType.NetworkShare => CreateFileInfos(request.SourcePath),
+                ImportSourceType.Directory or ImportSourceType.CdRom or ImportSourceType.Dvd or ImportSourceType.UsbDrive or ImportSourceType.NetworkShare => await CreateFileInfosAsync(request.SourcePath, progress, cancellationToken).ConfigureAwait(false),
                 ImportSourceType.IsoImage => throw new NotSupportedException("ISO images must be mounted by the application source provider before repository import starts."),
                 ImportSourceType.Unknown => throw new ArgumentException("The import source type must not be Unknown.", nameof(request)),
                 _ => throw new NotSupportedException($"Import source type '{request.SourceType}' is currently not supported.")
@@ -100,6 +103,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 result.Files.Add(fileInfo);
             }
 
+            progress?.Report(CreateProgress(result, 0));
+            var processedFiles = 0;
+
             foreach (DicomImportFileInfo fileInfo in result.Files)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -107,6 +113,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 if (!fileInfo.IsImportable)
                 {
                     result.SkippedFiles++;
+                    processedFiles++;
+                    progress?.Report(CreateProgress(result, processedFiles));
                     continue;
                 }
 
@@ -116,7 +124,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     repositoryLocation,
                     request.AllowOverwrite,
                     request.CreatedByUserId,
-                    cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
+
+                processedFiles++;
+                progress?.Report(CreateProgress(result, processedFiles));
             }
 
             return result;
@@ -179,62 +190,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             await destinationStream.FlushAsync(cancellationToken);
         }
 
-        private static DateTime? GetDicomDate(DicomDataset dataset, DicomTag tag)
-        {
-            var value = GetOptionalString(dataset, tag);
-            if (!DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) return null;
-
-            return date.Date;
-        }
-
-        private static int? GetOptionalInt(DicomDataset dataset, DicomTag tag)
-        {
-            if (dataset.TryGetSingleValue<int>(tag, out var intValue)) return intValue;
-            if (dataset.TryGetSingleValue<ushort>(tag, out var ushortValue)) return ushortValue;
-            if (dataset.TryGetSingleValue<short>(tag, out var shortValue)) return shortValue;
-            if (!dataset.TryGetSingleValue<string>(tag, out var stringValue)) return null;
-            if (!int.TryParse(stringValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedValue)) return null;
-
-            return parsedValue;
-        }
-
-        private static string? GetOptionalString(DicomDataset dataset, DicomTag tag) => dataset.TryGetSingleValue<string>(tag, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
-
-        private static DateTime? GetStudyDateTime(DicomDataset dataset)
-        {
-            var date = GetDicomDate(dataset, DicomTag.StudyDate);
-            if (date is null) return null;
-
-            var timeValue = GetOptionalString(dataset, DicomTag.StudyTime);
-            if (string.IsNullOrWhiteSpace(timeValue)) return date;
-
-            var normalizedTime = timeValue.Split('.')[0].PadRight(6, '0');
-            if (normalizedTime.Length < 6 || !int.TryParse(normalizedTime.AsSpan(0, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var hour) || !int.TryParse(normalizedTime.AsSpan(2, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var minute) || !int.TryParse(normalizedTime.AsSpan(4, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var second)) return date;
-
-            try
-            {
-                return date.Value.Add(new TimeSpan(hour, minute, second));
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return date;
-            }
-        }
-
-        private static string? NormalizePersonName(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value)) return null;
-
-            // DICOM PN components are ordered as family, given, middle, prefix and suffix.
-            // Missing components are omitted without inventing patient information.
-            var components = value.Split('^').Select(component => component.Trim()).ToArray();
-            var familyName = components.ElementAtOrDefault(0);
-            var remainingNames = string.Join(" ", components.Skip(1).Where(component => !string.IsNullOrWhiteSpace(component)));
-            if (string.IsNullOrWhiteSpace(familyName)) return string.IsNullOrWhiteSpace(remainingNames) ? null : remainingNames;
-
-            return string.IsNullOrWhiteSpace(remainingNames) ? familyName : $"{familyName}, {remainingNames}";
-        }
-
         private static DicomImportFileInfo CreateFileInfo(string filePath)
         {
             DicomImportFileInfo fileInfo = new()
@@ -273,7 +228,38 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return fileInfo;
         }
 
-        private static IList<DicomImportFileInfo> CreateFileInfos(string sourcePath) => [.. Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories).Select(CreateFileInfo)];
+        private static Task<IList<DicomImportFileInfo>> CreateFileInfosAsync(
+    string sourcePath,
+    IProgress<DicomImportProgress>? progress,
+    CancellationToken cancellationToken) =>
+    Task.Run<IList<DicomImportFileInfo>>(() =>
+    {
+        List<DicomImportFileInfo> fileInfos = [];
+        var inspectedFiles = 0;
+
+        foreach (var filePath in Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            fileInfos.Add(CreateFileInfo(filePath));
+            inspectedFiles++;
+
+            /*
+             * The total number is intentionally zero during discovery because
+             * Directory.EnumerateFiles does not know it without a second traversal.
+             * The UI therefore remains indeterminate while still showing activity.
+             */
+            progress?.Report(new DicomImportProgress(
+                TotalFiles: 0,
+                ProcessedFiles: inspectedFiles,
+                ImportedFiles: 0,
+                ExistingFiles: 0,
+                SkippedFiles: 0,
+                FailedFiles: 0));
+        }
+
+        return fileInfos;
+    }, cancellationToken);
 
         private static async Task<DicomImportFileSystemContext> CreateFileSystemStateAsync(string sourcePath, string destinationPath, bool allowOverwrite, CancellationToken cancellationToken)
         {
@@ -307,6 +293,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 throw;
             }
         }
+
+        private static DicomImportProgress CreateProgress(DicomImportResult result, int processedFiles) => new(result.DiscoveredFiles, processedFiles, result.ImportedFiles, result.ExistingFiles, result.SkippedFiles, result.FailedFiles);
 
         private static void DeleteTemporaryFile(string temporaryPath, Exception? originalException = null)
         {
@@ -394,6 +382,62 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             {
                 File.Delete(fileSystemContext.BackupPath);
             }
+        }
+
+        private static DateTime? GetDicomDate(DicomDataset dataset, DicomTag tag)
+        {
+            var value = GetOptionalString(dataset, tag);
+            if (!DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) return null;
+
+            return date.Date;
+        }
+
+        private static int? GetOptionalInt(DicomDataset dataset, DicomTag tag)
+        {
+            if (dataset.TryGetSingleValue<int>(tag, out var intValue)) return intValue;
+            if (dataset.TryGetSingleValue<ushort>(tag, out var ushortValue)) return ushortValue;
+            if (dataset.TryGetSingleValue<short>(tag, out var shortValue)) return shortValue;
+            if (!dataset.TryGetSingleValue<string>(tag, out var stringValue)) return null;
+            if (!int.TryParse(stringValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedValue)) return null;
+
+            return parsedValue;
+        }
+
+        private static string? GetOptionalString(DicomDataset dataset, DicomTag tag) => dataset.TryGetSingleValue<string>(tag, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
+
+        private static DateTime? GetStudyDateTime(DicomDataset dataset)
+        {
+            var date = GetDicomDate(dataset, DicomTag.StudyDate);
+            if (date is null) return null;
+
+            var timeValue = GetOptionalString(dataset, DicomTag.StudyTime);
+            if (string.IsNullOrWhiteSpace(timeValue)) return date;
+
+            var normalizedTime = timeValue.Split('.')[0].PadRight(6, '0');
+            if (normalizedTime.Length < 6 || !int.TryParse(normalizedTime.AsSpan(0, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var hour) || !int.TryParse(normalizedTime.AsSpan(2, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var minute) || !int.TryParse(normalizedTime.AsSpan(4, 2), NumberStyles.None, CultureInfo.InvariantCulture, out var second)) return date;
+
+            try
+            {
+                return date.Value.Add(new TimeSpan(hour, minute, second));
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return date;
+            }
+        }
+
+        private static string? NormalizePersonName(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            // DICOM PN components are ordered as family, given, middle, prefix and suffix.
+            // Missing components are omitted without inventing patient information.
+            var components = value.Split('^').Select(component => component.Trim()).ToArray();
+            var familyName = components.ElementAtOrDefault(0);
+            var remainingNames = string.Join(" ", components.Skip(1).Where(component => !string.IsNullOrWhiteSpace(component)));
+            if (string.IsNullOrWhiteSpace(familyName)) return string.IsNullOrWhiteSpace(remainingNames) ? null : remainingNames;
+
+            return string.IsNullOrWhiteSpace(remainingNames) ? familyName : $"{familyName}, {remainingNames}";
         }
 
         private static async Task<DicomImportFileSystemContext> PrepareFileSystemStateAsync(string sourcePath, string destinationPath, string temporaryPath, bool allowOverwrite, CancellationToken cancellationToken)
@@ -614,5 +658,3 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
         }
     }
 }
-
-

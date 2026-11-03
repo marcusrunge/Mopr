@@ -133,6 +133,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The source is being scanned and DICOM files are being checked. ähnelt.
+        /// </summary>
+        public static string ImportProgressDiscovering {
+            get {
+                return ResourceManager.GetString("ImportProgressDiscovering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} files found and checked ähnelt.
+        /// </summary>
+        public static string ImportProgressDiscoveringFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressDiscoveringFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} of {1} files processed ähnelt.
+        /// </summary>
+        public static string ImportProgressProcessingFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressProcessingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The current user could not be recorded for the import. Contact an administrator. ähnelt.
         /// </summary>
         public static string ImportResultAuditIdentityUnavailable {
@@ -255,15 +282,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string ImportRunningMessage {
             get {
                 return ResourceManager.GetString("ImportRunningMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die DICOM files are being checked and processed safely. ähnelt.
-        /// </summary>
-        public static string ImportRunningProgressNotice {
-            get {
-                return ResourceManager.GetString("ImportRunningProgressNotice", resourceCulture);
             }
         }
         

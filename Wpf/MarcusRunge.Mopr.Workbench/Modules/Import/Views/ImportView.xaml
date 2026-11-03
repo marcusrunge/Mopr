@@ -17,21 +17,21 @@
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
             <Setter Property="Width"
-                Value="760" />
+                    Value="760" />
             <Setter Property="MinWidth"
-                Value="680" />
+                    Value="680" />
             <Setter Property="MaxHeight"
-                Value="720" />
+                    Value="720" />
             <Setter Property="SizeToContent"
-                Value="Height" />
+                    Value="Height" />
             <Setter Property="prism:Dialog.WindowStartupLocation"
-                Value="CenterOwner" />
+                    Value="CenterOwner" />
             <Setter Property="ResizeMode"
-                Value="CanResize" />
+                    Value="CanResize" />
             <Setter Property="ShowInTaskbar"
-                Value="False" />
+                    Value="False" />
             <Setter Property="Background"
-                Value="#10161C" />
+                    Value="#10161C" />
         </Style>
     </prism:Dialog.WindowStyle>
 
@@ -98,6 +98,10 @@
                     Value="#9FB1BE" />
             <Setter Property="FontSize"
                     Value="12" />
+            <Setter Property="TextAlignment"
+                    Value="Center" />
+            <Setter Property="TextWrapping"
+                    Value="Wrap" />
         </Style>
     </UserControl.Resources>
 
@@ -152,14 +156,14 @@
 
                             <TextBlock Margin="0,6,0,0"
                                        Foreground="#C6D2DA"
-                                       Text="{Binding Source.DisplayName}" />
+                                       Text="{Binding Source.DisplayName, Mode=OneWay}" />
 
                             <TextBlock Margin="0,3,0,0"
                                        Foreground="#718796"
                                        FontSize="11"
-                                       Text="{Binding Source.Path}"
+                                       Text="{Binding Source.Path, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis"
-                                       ToolTip="{Binding Source.Path}" />
+                                       ToolTip="{Binding Source.Path, Mode=OneWay}" />
                         </StackPanel>
 
                         <Button Grid.Column="1"
@@ -176,7 +180,7 @@
                         BorderBrush="#334550"
                         BorderThickness="1"
                         CornerRadius="6"
-                        Visibility="{Binding IsImporting, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        Visibility="{Binding IsImporting, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <TextBlock Foreground="#F1F6F9"
                                    FontSize="15"
@@ -189,17 +193,33 @@
                                    Text="{x:Static properties:Resources.ImportRunningMessage}"
                                    TextWrapping="Wrap" />
 
-                        <Grid Margin="0,2,0,0">
-                            <ProgressBar Height="12"
-                                         MinWidth="420"
-                                         IsIndeterminate="True" />
+                        <ProgressBar Height="12"
+                                     MinWidth="420"
+                                     Maximum="100"
+                                     Value="{Binding ImportProgressPercentage, Mode=OneWay}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Setter Property="IsIndeterminate"
+                                            Value="False" />
 
-                            <TextBlock Margin="0,18,0,0"
-                                       HorizontalAlignment="Center"
-                                       Foreground="#7F919D"
-                                       FontSize="11"
-                                       Text="{x:Static properties:Resources.ImportRunningProgressNotice}" />
-                        </Grid>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsProgressIndeterminate, Mode=OneWay}"
+                                                     Value="True">
+                                            <Setter Property="IsIndeterminate"
+                                                    Value="True" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+
+                        <TextBlock Margin="0,8,0,0"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#AFC0CB"
+                                   FontSize="12"
+                                   Text="{Binding ImportProgressText, Mode=OneWay}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
@@ -209,7 +229,7 @@
                         BorderBrush="#334550"
                         BorderThickness="1"
                         CornerRadius="6"
-                        Visibility="{Binding HasResult, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        Visibility="{Binding HasResult, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <TextBlock Foreground="#F1F6F9"
                                    FontSize="15"
@@ -219,27 +239,34 @@
                         <TextBlock Margin="0,6,0,18"
                                    Foreground="#C7D4DC"
                                    FontSize="13"
-                                   Text="{Binding Result.Message}"
+                                   Text="{Binding Result.Message, Mode=OneWay}"
                                    TextWrapping="Wrap" />
 
-                        <UniformGrid Columns="3">
-                            <StackPanel>
+                        <UniformGrid Columns="4">
+                            <StackPanel Margin="4,0">
                                 <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.ImportedFiles}" />
+                                           Text="{Binding Result.ImportedFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
                                            Text="{x:Static properties:Resources.ImportedFilesLabel}" />
                             </StackPanel>
 
-                            <StackPanel>
+                            <StackPanel Margin="4,0">
                                 <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.SkippedFiles}" />
+                                           Text="{Binding Result.ExistingFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.SkippedFilesLabel}" />
+                                           Text="{x:Static properties:Resources.ExistingFilesLabel}" />
                             </StackPanel>
 
-                            <StackPanel>
+                            <StackPanel Margin="4,0">
                                 <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.FailedFiles}" />
+                                           Text="{Binding Result.OtherSkippedFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}"
+                                           Text="{x:Static properties:Resources.OtherSkippedFilesLabel}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="4,0">
+                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
+                                           Text="{Binding Result.FailedFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
                                            Text="{x:Static properties:Resources.FailedFilesLabel}" />
                             </StackPanel>
@@ -253,7 +280,7 @@
                             <StackPanel>
                                 <TextBlock HorizontalAlignment="Center"
                                            Foreground="#C8D4DB"
-                                           Text="{Binding Result.DiscoveredFiles}" />
+                                           Text="{Binding Result.DiscoveredFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
                                            Text="{x:Static properties:Resources.DiscoveredFilesLabel}" />
                             </StackPanel>
@@ -261,7 +288,7 @@
                             <StackPanel>
                                 <TextBlock HorizontalAlignment="Center"
                                            Foreground="#C8D4DB"
-                                           Text="{Binding Result.ValidDicomFiles}" />
+                                           Text="{Binding Result.ValidDicomFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
                                            Text="{x:Static properties:Resources.ValidDicomFilesLabel}" />
                             </StackPanel>
@@ -269,7 +296,7 @@
                             <StackPanel>
                                 <TextBlock HorizontalAlignment="Center"
                                            Foreground="#C8D4DB"
-                                           Text="{Binding Result.ImportableFiles}" />
+                                           Text="{Binding Result.ImportableFiles, Mode=OneWay}" />
                                 <TextBlock Style="{StaticResource MetricLabelStyle}"
                                            Text="{x:Static properties:Resources.ImportableFilesLabel}" />
                             </StackPanel>
@@ -299,7 +326,7 @@
                             Command="{Binding CancelImportCommand}"
                             Content="{x:Static properties:Resources.CancelImportButton}"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            Visibility="{Binding IsImporting, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            Visibility="{Binding IsImporting, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                     <Button Margin="0,0,10,0"
                             Command="{Binding CloseDialogCommand}"

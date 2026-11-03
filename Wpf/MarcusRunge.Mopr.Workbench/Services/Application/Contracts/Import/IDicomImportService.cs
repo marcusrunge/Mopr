@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {
@@ -14,5 +14,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
         /// <param name="cancellationToken">Cancels the import operation.</param>
         /// <returns>The structured public import result.</returns>
         Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Imports DICOM data and reports non-sensitive progress.
+        /// </summary>
+        Task<DicomImportResult> ImportAsync(DicomImportRequest request, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken = default);
     }
 }

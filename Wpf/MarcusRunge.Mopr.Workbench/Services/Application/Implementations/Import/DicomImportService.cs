@@ -1,8 +1,8 @@
 using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
-using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
@@ -10,6 +10,7 @@ using System.IO;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
 using RepositoryDicomImportRequest = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportRequest;
 using RepositoryDicomImportResult = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportResult;
+using RepositoryDicomImportProgress = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportProgress;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
 {
@@ -31,7 +32,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         private IDicomImportSourceResolver SourceResolver => Base.DicomImportSourceResolver ?? throw new InvalidOperationException("The DICOM import source resolver has not been initialized.");
 
         /// <inheritdoc/>
-        public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
+        public Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default) => ImportAsync(request, null, cancellationToken);
+
+        /// <inheritdoc/>
+        public async Task<DicomImportResult> ImportAsync(DicomImportRequest request, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -96,7 +100,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                     SourceType = repositorySourceType
                 };
 
-                var repositoryResult = await repositoryImporter.ImportAsync(repositoryRequest, cancellationToken).ConfigureAwait(false);
+                IProgress<RepositoryDicomImportProgress>? repositoryProgress = progress is null ? null : new Progress<RepositoryDicomImportProgress>(value => progress.Report(new DicomImportProgress(value.TotalFiles, value.ProcessedFiles, value.ImportedFiles, value.ExistingFiles, value.SkippedFiles, value.FailedFiles)));
+                /*
+                 * Repository import combines asynchronous operations with synchronous DICOM and
+                 * file-system work. The explicit worker boundary prevents any implementation
+                 * detail below this application use case from blocking the WPF dispatcher.
+                 */
+                var repositoryResult = await repositoryImporter.ImportAsync(repositoryRequest, repositoryProgress, cancellationToken).ConfigureAwait(false);
                 return MapResult(repositoryResult);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -121,7 +131,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         {
             ArgumentNullException.ThrowIfNull(result);
             var status = result.FailedFiles > 0 || result.Errors.Count > 0 ? DicomImportStatus.CompletedWithErrors : result.SkippedFiles > 0 ? DicomImportStatus.CompletedWithSkippedFiles : DicomImportStatus.Completed;
-            return new DicomImportResult(status, result.DiscoveredFiles, result.ValidDicomFiles, result.ImportableFiles, result.ImportedFiles, result.ExistingFiles, result.SkippedFiles, result.FailedFiles, result.Errors);
+            return new DicomImportResult(status: status, discoveredFiles: result.DiscoveredFiles, validDicomFiles: result.ValidDicomFiles, importableFiles: result.ImportableFiles, importedFiles: result.ImportedFiles, existingFiles: result.ExistingFiles, skippedFiles: result.SkippedFiles, failedFiles: result.FailedFiles, technicalErrors: result.Errors);
         }
 
         private static bool TryMapSourceType(DicomImportSourceType sourceType, out ImportSourceType repositorySourceType)

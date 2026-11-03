@@ -1,8 +1,9 @@
-﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
+using System.Windows.Threading;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 {
@@ -14,8 +15,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         private readonly IDicomImportService _dicomImportService;
         private readonly IFileDialogService _fileDialogService;
         private CancellationTokenSource? _importCancellation;
+        private double _importProgressPercentage;
         private bool _isImporting;
+        private int _processedFiles;
         private ImportResultViewModel? _result;
+        private int _totalFiles;
 
         public ImportViewModel(IApplication application)
         {
@@ -33,11 +37,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             CloseDialogCommand = new DelegateCommand(CloseDialog, CanCloseDialog);
         }
 
+        public static string Title => Properties.Resources.ImportTitle;
         public DelegateCommand CancelImportCommand { get; }
 
         public DelegateCommand CloseDialogCommand { get; }
 
+        public int DiscoveredFiles => IsProgressIndeterminate ? ProcessedFiles : TotalFiles;
         public bool HasResult => Result is not null;
+
+        public double ImportProgressPercentage
+        {
+            get => _importProgressPercentage;
+            private set => SetProperty(ref _importProgressPercentage, value);
+        }
+
+        public string ImportProgressText => IsProgressIndeterminate ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveredFiles) : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
 
         public bool IsImporting
         {
@@ -52,6 +66,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                 RaiseCommandState();
             }
         }
+
+        public bool IsProgressIndeterminate => TotalFiles <= 0;
+
+        public int ProcessedFiles
+        {
+            get => _processedFiles;
+            private set
+            {
+                if (!SetProperty(ref _processedFiles, value)) return;
+
+                RaisePropertyChanged(nameof(DiscoveredFiles));
+                RaisePropertyChanged(nameof(ImportProgressText));
+            }
+        }
+
+        /// <inheritdoc/>
+        public DialogCloseListener RequestClose { get; }
 
         public ImportResultViewModel? Result
         {
@@ -68,18 +99,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
         }
 
-        /// <inheritdoc/>
-        public DialogCloseListener RequestClose { get; }
-
         public DelegateCommand SelectSourceCommand { get; }
 
         public ImportSourceViewModel Source { get; }
 
         public DelegateCommand StartImportCommand { get; }
-
         public DelegateCommand StartNewImportCommand { get; }
 
-        public static string Title => Properties.Resources.ImportTitle;
+        public int TotalFiles
+        {
+            get => _totalFiles;
+            private set
+            {
+                if (!SetProperty(ref _totalFiles, value)) return;
+
+                RaisePropertyChanged(nameof(IsProgressIndeterminate));
+                RaisePropertyChanged(nameof(DiscoveredFiles));
+                RaisePropertyChanged(nameof(ImportProgressText));
+            }
+        }
 
         /// <inheritdoc/>
         public bool CanCloseDialog() => !IsImporting;
@@ -104,13 +142,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         private bool CanCancelImport() => IsImporting;
 
+        private void CancelImport() => _importCancellation?.Cancel();
+
         private bool CanSelectSource() => !IsImporting;
 
         private bool CanStartImport() => !IsImporting && Source.HasSelection;
 
         private bool CanStartNewImport() => !IsImporting && HasResult;
-
-        private void CancelImport() => _importCancellation?.Cancel();
 
         private void CloseDialog()
         {
@@ -178,24 +216,43 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             Result = null;
             RaiseCommandState();
         }
-
         private async Task StartImportAsync()
         {
-            if (!CanStartImport())
-            {
-                return;
-            }
+            if (!CanStartImport()) return;
 
             ReleaseImportCancellation(cancel: false);
             _importCancellation = new CancellationTokenSource();
 
             IsImporting = true;
             Result = null;
+            ImportProgressPercentage = 0d;
+            ProcessedFiles = 0;
+            TotalFiles = 0;
+
+            /*
+             * Complete the current dispatcher cycle before starting any DICOM or file-system
+             * work. This guarantees that the progress section and cancellation command become
+             * visible and interactive before the worker operation begins.
+             */
+            await Dispatcher.Yield(DispatcherPriority.Background);
 
             try
             {
                 var request = new DicomImportRequest(Source.Path, Source.SourceType);
-                var result = await _dicomImportService.ImportAsync(request, _importCancellation.Token);
+                var progress = new Progress<DicomImportProgress>(UpdateProgress);
+                var cancellationToken = _importCancellation.Token;
+
+                /*
+                 * DICOM parsing and repository processing contain synchronous CPU and file-system
+                 * operations. A dedicated long-running worker prevents those operations from
+                 * occupying the WPF dispatcher or depending on immediate ThreadPool availability.
+                 */
+                var result = await Task.Factory.StartNew(
+                    () => _dicomImportService.ImportAsync(request, progress, cancellationToken),
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default).Unwrap();
+
                 var resultViewModel = new ImportResultViewModel();
                 resultViewModel.Apply(result);
                 Result = resultViewModel;
@@ -206,7 +263,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                 ReleaseImportCancellation(cancel: false);
             }
         }
-
         private void StartNewImport()
         {
             if (IsImporting)
@@ -217,6 +273,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             Result = null;
             Source.Clear();
             RaiseCommandState();
+        }
+
+        private void UpdateProgress(DicomImportProgress progress)
+        {
+            ArgumentNullException.ThrowIfNull(progress);
+            TotalFiles = progress.TotalFiles;
+            ProcessedFiles = progress.ProcessedFiles;
+            ImportProgressPercentage = progress.Percentage;
         }
     }
 }

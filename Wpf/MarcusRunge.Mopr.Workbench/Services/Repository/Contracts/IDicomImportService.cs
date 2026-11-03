@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
 {
@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
     /// Provides functionality for importing DICOM data from external sources.
     /// </summary>
     public interface IDicomImportService
-    {    
+    {
         /// <summary>
         /// Imports DICOM data from the specified source.
         /// </summary>
@@ -20,5 +20,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Contracts
         /// The import result.
         /// </returns>
         Task<DicomImportResult> ImportAsync(DicomImportRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Imports DICOM data and reports non-sensitive progress.
+        /// </summary>
+        Task<DicomImportResult> ImportAsync(DicomImportRequest request, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken = default);
     }
 }

@@ -17,8 +17,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
         /// <param name="validDicomFiles">The number of valid DICOM files.</param>
         /// <param name="importableFiles">The number of importable DICOM files.</param>
         /// <param name="importedFiles">The number of imported files.</param>
-        /// <param name="skippedFiles">The number of skipped files.</param>
         /// <param name="existingFiles">The number of valid DICOM files already present unchanged.</param>
+        /// <param name="skippedFiles">The total number of skipped files, including files already present unchanged.</param>
         /// <param name="failedFiles">The number of files that failed to import.</param>
         /// <param name="technicalErrors">Technical diagnostics that must not be displayed as unfiltered user messages.</param>
         public DicomImportResult(DicomImportStatus status, int discoveredFiles = 0, int validDicomFiles = 0, int importableFiles = 0, int importedFiles = 0, int existingFiles = 0, int skippedFiles = 0, int failedFiles = 0, IEnumerable<string>? technicalErrors = null)
