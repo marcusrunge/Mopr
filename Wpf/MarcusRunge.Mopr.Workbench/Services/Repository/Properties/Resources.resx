@@ -156,4 +156,19 @@
   <data name="RepositoryLocationValidationFailureKind_Unavailable" xml:space="preserve">
     <value>Repository infrastructure unavailable</value>
   </data>
+	<data name="ImportProgressDiscovering" xml:space="preserve">
+  <value>Determining files</value>
+</data>
+
+	<data name="ImportProgressDiscoveredFormat" xml:space="preserve">
+  <value>{0} files determined</value>
+</data>
+
+	<data name="ImportProgressInspectingFormat" xml:space="preserve">
+  <value>File {0} of {1} is being checked</value>
+</data>
+
+	<data name="ImportProgressProcessingFormat" xml:space="preserve">
+  <value>{0} of {1} files processed</value>
+</data>
 </root>

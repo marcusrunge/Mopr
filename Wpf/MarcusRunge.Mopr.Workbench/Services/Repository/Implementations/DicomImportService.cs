@@ -118,13 +118,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                     continue;
                 }
 
-                await ImportFileAsync(
-                    fileInfo,
-                    result,
-                    repositoryLocation,
-                    request.AllowOverwrite,
-                    request.CreatedByUserId,
-                    cancellationToken).ConfigureAwait(false);
+                await ImportFileAsync(fileInfo, result, repositoryLocation, request.AllowOverwrite, request.CreatedByUserId, cancellationToken).ConfigureAwait(false);
 
                 processedFiles++;
                 progress?.Report(CreateProgress(result, processedFiles));
@@ -246,9 +240,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             List<string> filePaths = [];
 
             /*
-             * Recursive enumeration may take a noticeable amount of time on network,
-             * optical or synchronized sources. Report every discovered path immediately
-             * instead of waiting until the complete source tree has been materialized.
+             * Recursive enumeration may take a noticeable amount of time on synchronized,
+             * optical or network sources. Every path is reported immediately when the file
+             * system supplies it. The final total remains unknown during this phase.
              */
             foreach (var filePath in Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories))
             {
@@ -260,8 +254,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             }
 
             /*
-             * The stable total is now known. Reset the processed count before DICOM
-             * inspection starts so the UI can distinguish discovery from validation.
+             * File enumeration has completed. The stable total is now known and DICOM
+             * inspection starts as a determinate progress phase.
              */
             progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: 0, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
 
@@ -272,9 +266,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 cancellationToken.ThrowIfCancellationRequested();
 
                 /*
-                 * Report the current candidate before opening it. DICOM parsing can take a
-                 * noticeable amount of time, especially for synchronized, optical or network
-                 * sources. The UI must therefore show which candidate is currently being checked.
+                 * Report the current candidate before opening it. Reading and parsing one
+                 * DICOM file can itself take noticeable time on synchronized or remote
+                 * sources.
                  */
                 progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: index + 1, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
 

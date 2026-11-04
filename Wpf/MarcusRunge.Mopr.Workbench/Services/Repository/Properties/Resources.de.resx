@@ -156,4 +156,19 @@
   <data name="RepositoryLocationValidationFailureKind_Unavailable" xml:space="preserve">
     <value>Repository ist schreibgeschützt</value>
   </data>
+	<data name="ImportProgressDiscovering" xml:space="preserve">
+  <value>Dateien werden ermittelt</value>
+</data>
+
+	<data name="ImportProgressDiscoveredFormat" xml:space="preserve">
+  <value>{0} Dateien ermittelt</value>
+</data>
+
+	<data name="ImportProgressInspectingFormat" xml:space="preserve">
+  <value>Datei {0} von {1} wird geprüft</value>
+</data>
+
+	<data name="ImportProgressProcessingFormat" xml:space="preserve">
+  <value>{0} von {1} Dateien verarbeitet</value>
+</data>
 </root>

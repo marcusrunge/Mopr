@@ -61,6 +61,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} files determined ähnelt.
+        /// </summary>
+        public static string ImportProgressDiscoveredFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressDiscoveredFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Determining files ähnelt.
+        /// </summary>
+        public static string ImportProgressDiscovering {
+            get {
+                return ResourceManager.GetString("ImportProgressDiscovering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die File {0} of {1} is being checked ähnelt.
+        /// </summary>
+        public static string ImportProgressInspectingFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressInspectingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} of {1} files processed ähnelt.
+        /// </summary>
+        public static string ImportProgressProcessingFormat {
+            get {
+                return ResourceManager.GetString("ImportProgressProcessingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die CD-ROM ähnelt.
         /// </summary>
         public static string ImportSourceType_CdRom {

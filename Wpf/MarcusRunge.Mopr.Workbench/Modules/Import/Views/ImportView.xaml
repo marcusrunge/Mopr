@@ -324,10 +324,9 @@
                             Orientation="Horizontal">
                     <Button Margin="0,0,10,0"
                             Command="{Binding CancelImportCommand}"
-                            Content="{x:Static properties:Resources.CancelImportButton}"
+                            Content="{Binding CancelImportButtonText, Mode=OneWay}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             Visibility="{Binding IsImporting, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
                     <Button Margin="0,0,10,0"
                             Command="{Binding CloseDialogCommand}"
                             Content="{x:Static properties:Resources.CloseDialogButton}"

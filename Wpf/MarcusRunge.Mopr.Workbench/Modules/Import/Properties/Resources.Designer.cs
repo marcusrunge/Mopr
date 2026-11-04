@@ -124,6 +124,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancellation requested ähnelt.
+        /// </summary>
+        public static string ImportCancellationRequestedButton {
+            get {
+                return ResourceManager.GetString("ImportCancellationRequestedButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The import is being cancelled. The current file-system operation is still being completed safely. ähnelt.
+        /// </summary>
+        public static string ImportCancellationRequestedMessage {
+            get {
+                return ResourceManager.GetString("ImportCancellationRequestedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Imported ähnelt.
         /// </summary>
         public static string ImportedFilesLabel {

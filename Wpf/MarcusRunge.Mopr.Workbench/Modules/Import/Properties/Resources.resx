@@ -237,4 +237,11 @@
   <data name="ImportProgressDiscoveredFormat" xml:space="preserve">
     <value>{0} files found</value>
   </data>
+	<data name="ImportCancellationRequestedButton" xml:space="preserve">
+  <value>Cancellation requested</value>
+</data>
+
+	<data name="ImportCancellationRequestedMessage" xml:space="preserve">
+  <value>The import is being cancelled. The current file-system operation is still being completed safely.</value>
+</data>
 </root>
