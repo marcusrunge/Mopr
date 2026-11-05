@@ -151,7 +151,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die {0} files found ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Files determined: {0} ähnelt.
         /// </summary>
         public static string ImportProgressDiscoveredFormat {
             get {
@@ -169,7 +169,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die {0} files found and checked ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Determining files · {0} s ähnelt.
         /// </summary>
         public static string ImportProgressDiscoveringFormat {
             get {
@@ -178,7 +178,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die File {0} of {1} is being checked ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} of {1} files checked ähnelt.
         /// </summary>
         public static string ImportProgressInspectingFormat {
             get {

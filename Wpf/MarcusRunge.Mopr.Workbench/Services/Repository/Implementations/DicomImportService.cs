@@ -233,16 +233,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             return fileInfo;
         }
 
-        private static Task<IList<DicomImportFileInfo>> CreateFileInfosAsync(string sourcePath, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken) => Task.Run<IList<DicomImportFileInfo>>(() =>
+        private static Task<IList<DicomImportFileInfo>> CreateFileInfosAsync(string sourcePath, IProgress<DicomImportProgress>? progress, CancellationToken cancellationToken) => Task.Run<IList<DicomImportFileInfo>>(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             List<string> filePaths = [];
 
             /*
-             * Recursive enumeration may take a noticeable amount of time on synchronized,
-             * optical or network sources. Every path is reported immediately when the file
-             * system supplies it. The final total remains unknown during this phase.
+             * File enumeration remains sequential because the file-system provider controls
+             * when each path becomes available. Every returned path is reported immediately.
              */
             foreach (var filePath in Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories))
             {
@@ -253,27 +252,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 progress?.Report(new DicomImportProgress(TotalFiles: 0, ProcessedFiles: filePaths.Count, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
             }
 
-            /*
-             * File enumeration has completed. The stable total is now known and DICOM
-             * inspection starts as a determinate progress phase.
-             */
             progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: 0, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
 
-            List<DicomImportFileInfo> fileInfos = new(filePaths.Count);
-
-            for (var index = 0; index < filePaths.Count; index++)
+            if (filePaths.Count == 0)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                /*
-                 * Report the current candidate before opening it. Reading and parsing one
-                 * DICOM file can itself take noticeable time on synchronized or remote
-                 * sources.
-                 */
-                progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: index + 1, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
-
-                fileInfos.Add(CreateFileInfo(filePaths[index]));
+                return Array.Empty<DicomImportFileInfo>();
             }
+
+            var fileInfos = new DicomImportFileInfo[filePaths.Count];
+            var processedFiles = 0;
+
+            /*
+             * DICOM metadata inspection is independent for every source file. Bounded
+             * parallelism improves local-source performance without saturating synchronized,
+             * optical or network sources.
+             */
+            var parallelOptions = new ParallelOptions
+            {
+                CancellationToken = cancellationToken,
+                MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount / 2, 2, 4)
+            };
+
+            await Parallel.ForEachAsync(
+                Enumerable.Range(0, filePaths.Count),
+                parallelOptions,
+                (index, token) =>
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    fileInfos[index] = CreateFileInfo(filePaths[index]);
+
+                    var completedFiles = Interlocked.Increment(ref processedFiles);
+
+                    progress?.Report(new DicomImportProgress(TotalFiles: filePaths.Count, ProcessedFiles: completedFiles, ImportedFiles: 0, ExistingFiles: 0, SkippedFiles: 0, FailedFiles: 0, IsInspectingSource: true));
+
+                    return ValueTask.CompletedTask;
+                }).ConfigureAwait(false);
 
             return fileInfos;
         }, cancellationToken);

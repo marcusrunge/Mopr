@@ -13,7 +13,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
     public sealed class ImportViewModel : ViewModelBase, IDialogAware
     {
         private readonly IDicomImportService _dicomImportService;
+        private readonly DispatcherTimer _discoveryTimer;
         private readonly IFileDialogService _fileDialogService;
+        private int _discoveryElapsedSeconds;
         private CancellationTokenSource? _importCancellation;
         private double _importProgressPercentage;
         private bool _isCancellationRequested;
@@ -38,6 +40,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             CancelImportCommand = new DelegateCommand(CancelImport, CanCancelImport);
             StartNewImportCommand = new DelegateCommand(StartNewImport, CanStartNewImport);
             CloseDialogCommand = new DelegateCommand(CloseDialog, CanCloseDialog);
+
+            _discoveryTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+
+            _discoveryTimer.Tick += OnDiscoveryTimerTick;
         }
 
         public static string Title => Properties.Resources.ImportTitle;
@@ -49,6 +58,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         public DelegateCommand CloseDialogCommand { get; }
 
         public int DiscoveredFiles => IsProgressIndeterminate ? ProcessedFiles : TotalFiles;
+
+        public int DiscoveryElapsedSeconds
+        {
+            get => _discoveryElapsedSeconds;
+            private set
+            {
+                if (!SetProperty(ref _discoveryElapsedSeconds, value))
+                {
+                    return;
+                }
+
+                RaisePropertyChanged(nameof(ImportProgressText));
+            }
+        }
 
         public bool HasResult => Result is not null;
 
@@ -67,14 +90,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                     return Properties.Resources.ImportCancellationRequestedMessage;
                 }
 
-                /*
-                 * The final number remains unknown while the directory tree is being
-                 * enumerated. ProcessedFiles contains the number of paths returned by
-                 * the file system so far.
-                 */
                 if (TotalFiles <= 0)
                 {
-                    return ProcessedFiles <= 0 ? Properties.Resources.ImportProgressDiscovering : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
+                    return ProcessedFiles <= 0 ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveryElapsedSeconds) : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
                 }
 
                 return IsInspectingSource ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles) : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
@@ -190,12 +208,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         /// <inheritdoc/>
         public override void Destroy()
         {
+            _discoveryTimer.Stop();
             ReleaseImportCancellation(cancel: true);
             base.Destroy();
         }
 
         /// <inheritdoc/>
-        public void OnDialogClosed() => ReleaseImportCancellation(cancel: true);
+        public void OnDialogClosed()
+        {
+            _discoveryTimer.Stop();
+            ReleaseImportCancellation(cancel: true);
+        }
 
         /// <inheritdoc/>
         public void OnDialogOpened(IDialogParameters parameters)
@@ -261,6 +284,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
         }
 
+        private void OnDiscoveryTimerTick(object? sender, EventArgs e) => DiscoveryElapsedSeconds++;
+
         private void RaiseCommandState()
         {
             CancelImportCommand.RaiseCanExecuteChanged();
@@ -319,6 +344,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             ImportProgressPercentage = 0d;
             ProcessedFiles = 0;
             TotalFiles = 0;
+            DiscoveryElapsedSeconds = 0;
+            _discoveryTimer.Start();
             Result = null;
 
             /*
@@ -354,6 +381,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
             finally
             {
+                _discoveryTimer.Stop();
                 IsImporting = false;
                 ReleaseImportCancellation(cancel: false);
             }
@@ -380,14 +408,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         {
             ArgumentNullException.ThrowIfNull(progress);
 
-            /*
-             * Ignore late worker reports after cancellation was requested. The UI must
-             * continue to display the cancellation state instead of reverting to an
-             * earlier discovery or processing message.
-             */
             if (IsCancellationRequested)
             {
                 return;
+            }
+
+            if (progress.ProcessedFiles > 0 || progress.TotalFiles > 0)
+            {
+                _discoveryTimer.Stop();
             }
 
             TotalFiles = progress.TotalFiles;
@@ -395,10 +423,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             IsInspectingSource = progress.IsInspectingSource;
             ImportProgressPercentage = progress.Percentage;
 
-            /*
-             * The displayed text depends on the complete progress snapshot. Raise the
-             * dependent properties after all values have been assigned.
-             */
             RaisePropertyChanged(nameof(IsProgressIndeterminate));
             RaisePropertyChanged(nameof(DiscoveredFiles));
             RaisePropertyChanged(nameof(ImportProgressText));
