@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contexts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Data.SqlClient;
@@ -21,6 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         protected IRepositoryLocationRepository? _repositoryLocation;
         protected ISeriesRepository? _series;
         protected IStudyRepository? _study;
+        protected IStudyCatalogRepository? _studyCatalog;
         protected IUnrealObjectRepository? _unrealObject;
         protected IUserRepository? _user;
 
@@ -102,6 +103,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IStudyRepository? Study => _study;
+
+        /// <inheritdoc/>
+        public IStudyCatalogRepository? StudyCatalog => _studyCatalog;
 
         /// <inheritdoc/>
         public IUnrealObjectRepository? UnrealObject => _unrealObject;
@@ -235,49 +239,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
             }
         }
 
-        private async Task ApplyConfigurationAfterAsync(Task previousInitialization, PersistenceConfiguration configuration, CancellationToken cancellationToken)
-        {
-            try
-            {
-                // Configuration changes are applied in publication order. Waiting
-                // also prevents disposal while the earlier provider is still used.
-                try
-                {
-                    await previousInitialization.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-                catch
-                {
-                    // A failed earlier configuration must not permanently prevent
-                    // a later valid configuration from restoring Persistence.
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (string.IsNullOrWhiteSpace(configuration.ConnectionString) || IsCurrentConfiguration(configuration)) return;
-
-                RebuildDbContextFactory(configuration);
-
-                // A configuration becomes current only after its database schema
-                // has been initialized successfully. Failed or canceled migrations
-                // must remain retryable with the same configuration.
-                await ((IPersistenceBase)this).InitializeDatabaseAsync(cancellationToken).ConfigureAwait(false);
-                _persistenceConfiguration = configuration;
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                ((IPersistenceBase)this).OnExceptionThrown(exception);
-                throw;
-            }
-        }
-
         private static void ConfigureDatabase(DbContextOptionsBuilder options, PersistenceConfiguration configuration)
         {
             switch (configuration.Mode)
@@ -335,6 +296,49 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
             var isSuccessful = await context.Database.CanConnectAsync(cancellationToken).ConfigureAwait(false);
             return CreateConnectionTestResult(isSuccessful);
+        }
+
+        private async Task ApplyConfigurationAfterAsync(Task previousInitialization, PersistenceConfiguration configuration, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Configuration changes are applied in publication order. Waiting
+                // also prevents disposal while the earlier provider is still used.
+                try
+                {
+                    await previousInitialization.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+                catch
+                {
+                    // A failed earlier configuration must not permanently prevent
+                    // a later valid configuration from restoring Persistence.
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (string.IsNullOrWhiteSpace(configuration.ConnectionString) || IsCurrentConfiguration(configuration)) return;
+
+                RebuildDbContextFactory(configuration);
+
+                // A configuration becomes current only after its database schema
+                // has been initialized successfully. Failed or canceled migrations
+                // must remain retryable with the same configuration.
+                await ((IPersistenceBase)this).InitializeDatabaseAsync(cancellationToken).ConfigureAwait(false);
+                _persistenceConfiguration = configuration;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                ((IPersistenceBase)this).OnExceptionThrown(exception);
+                throw;
+            }
         }
 
         private void DisposePersistenceInfrastructure()

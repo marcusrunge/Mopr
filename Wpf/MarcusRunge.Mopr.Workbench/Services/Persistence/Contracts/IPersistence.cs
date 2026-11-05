@@ -1,4 +1,4 @@
-﻿namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
+namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
 {
     /// <summary>
     /// Defines the public contract of the Persistence module.
@@ -11,6 +11,11 @@
         event Action<Exception> ExceptionThrown;
 
         /// <summary>
+        /// Gets the atomic DICOM import Persistence service.
+        /// </summary>
+        IDicomImportPersistenceService? DicomImport { get; }
+
+        /// <summary>
         /// Gets the task representing the initialization of the most recently
         /// received Persistence configuration.
         /// </summary>
@@ -19,11 +24,6 @@
         /// using Persistence-dependent application services.
         /// </remarks>
         Task Initialization { get; }
-
-        /// <summary>
-        /// Gets the atomic DICOM import Persistence service.
-        /// </summary>
-        IDicomImportPersistenceService? DicomImport { get; }
 
         /// <summary>
         /// Gets the instance repository.
@@ -56,13 +56,9 @@
         IStudyRepository? Study { get; }
 
         /// <summary>
-        /// Tests whether the supplied Persistence configuration can establish a
-        /// database connection without replacing the active configuration.
+        /// Gets the read-only study catalog repository.
         /// </summary>
-        /// <param name="configuration">The Persistence configuration to test.</param>
-        /// <param name="cancellationToken">Cancels the connection test.</param>
-        /// <returns>The connection test result.</returns>
-        Task<PersistenceConnectionTestResult> TestConnectionAsync(PersistenceConfiguration configuration, CancellationToken cancellationToken = default);
+        IStudyCatalogRepository? StudyCatalog { get; }
 
         /// <summary>
         /// Gets the Unreal object repository.
@@ -73,5 +69,14 @@
         /// Gets the user repository.
         /// </summary>
         IUserRepository? User { get; }
+
+        /// <summary>
+        /// Tests whether the supplied Persistence configuration can establish a
+        /// database connection without replacing the active configuration.
+        /// </summary>
+        /// <param name="configuration">The Persistence configuration to test.</param>
+        /// <param name="cancellationToken">Cancels the connection test.</param>
+        /// <returns>The connection test result.</returns>
+        Task<PersistenceConnectionTestResult> TestConnectionAsync(PersistenceConfiguration configuration, CancellationToken cancellationToken = default);
     }
 }

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Bases;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -24,6 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             _repositoryLocation = RepositoryLocationRepository.Create(this);
             _series = SeriesRepository.Create(this);
             _study = StudyRepository.Create(this);
+            _studyCatalog = StudyCatalogRepository.Create(this);
             _unrealObject = UnrealObjectRepository.Create(this);
             _user = UserRepository.Create(this);
             _dicomImport = DicomImportPersistenceService.Create(this);
