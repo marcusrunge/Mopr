@@ -7,6 +7,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Repository
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.SystemCheck;
+using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,7 @@ internal sealed class Application : ApplicationBase
         _repositoryRecovery = RepositoryRecoveryActionService.Create(this, CreationLifetime.Scoped);
         _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
         _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);
+        _studyCatalog = StudyCatalogService.Create(this, CreationLifetime.Scoped);
         _importService = Import.ImportService.Create(this);
     }
 }

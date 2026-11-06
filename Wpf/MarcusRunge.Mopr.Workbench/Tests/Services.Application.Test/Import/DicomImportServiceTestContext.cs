@@ -10,6 +10,7 @@ using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Moq;
 using RepositoryContract = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IRepository;
+using RepositoryImportProgress = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportProgress;
 using RepositoryImportRequest = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportRequest;
 using RepositoryImportResult = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportResult;
 using RepositoryImportService = MarcusRunge.Mopr.Workbench.Services.Repository.Contracts.IDicomImportService;
@@ -119,16 +120,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             ArgumentNullException.ThrowIfNull(result);
 
-            RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
+            RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         }
 
         public void VerifyDefaultRepositoryRequestedOnce(CancellationToken cancellationToken) => RepositoryLocationRepository.Verify(repository => repository.GetDefaultAsync(cancellationToken), Times.Once);
 
         public void VerifyNoPrerequisiteServicesCalled() => Persistence.VerifyGet(persistence => persistence.RepositoryLocation, Times.Never);
 
-        public void VerifyRepositoryImporterCalledOnce() => RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        public void VerifyRepositoryImporterCalledOnce() => RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), It.IsAny<CancellationToken>()), Times.Once);
 
-        public void VerifyRepositoryImporterNotCalled() => RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        public void VerifyRepositoryImporterNotCalled() => RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), It.IsAny<CancellationToken>()), Times.Never);
 
         private static void EnsureDirectoryExists(string directoryPath)
         {

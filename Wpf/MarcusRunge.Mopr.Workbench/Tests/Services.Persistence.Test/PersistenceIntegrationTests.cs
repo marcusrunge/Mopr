@@ -1,7 +1,8 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Models;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Models.Studies;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
 {
@@ -17,6 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.NotNull(_fixture.Persistence!.DicomImport);
             Assert.NotNull(_fixture.Persistence.Integrity);
             Assert.NotNull(_fixture.Persistence.Study);
+            Assert.NotNull(_fixture.Persistence.StudyCatalog);
             Assert.NotNull(_fixture.Persistence.Series);
             Assert.NotNull(_fixture.Persistence.Instance);
             Assert.NotNull(_fixture.Persistence.Measurement);
@@ -704,5 +706,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             Assert.Empty(result.Issues);
             Assert.Empty(result.Errors);
         }
+
+        [Fact, Priority(35)]
+        public async Task StudyCatalog_Should_Project_Existing_Study_Series_And_Images()
+        {
+            IReadOnlyList<PersistedStudyCatalogItem> catalog = await _fixture.Persistence!.StudyCatalog!.GetAllAsync(TestContext.Current.CancellationToken);
+            PersistedStudyCatalogItem study = Assert.Single(catalog, item => item.StudyId == _fixture.StudyId);
+            PersistedSeriesCatalogItem series = Assert.Single(study.Series, item => item.SeriesId == _fixture.SeriesId);
+
+            Assert.Equal(_fixture.StudyInstanceUid, study.StudyInstanceUid);
+            Assert.Equal(1, study.SeriesCount);
+            Assert.Equal(2, study.ImageCount);
+            Assert.Equal(_fixture.SeriesInstanceUid, series.SeriesInstanceUid);
+            Assert.Equal(2, series.ImageCount);
+            Assert.Equal(1, series.AvailableImageCount);
+            Assert.False(series.IsAvailable);
+        }
+
+        [Fact, Priority(36)]
+        public async Task StudyCatalog_Should_Propagate_Cancellation()
+        {
+            using var cancellation = new CancellationTokenSource();
+            await cancellation.CancelAsync();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => _fixture.Persistence!.StudyCatalog!.GetAllAsync(cancellation.Token));
+        }
+
     }
 }

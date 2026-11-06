@@ -4,6 +4,7 @@ using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using Moq;
 using RepositoryImportFileInfo = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportFileInfo;
+using RepositoryImportProgress = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportProgress;
 using RepositoryImportRequest = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportRequest;
 using RepositoryImportResult = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportResult;
 
@@ -244,11 +245,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportServiceTestContext();
 
             using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), cancellationSource.Token)).Callback(cancellationSource.Cancel).ThrowsAsync(new OperationCanceledException(cancellationSource.Token));
+            context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), cancellationSource.Token)).Callback(cancellationSource.Cancel).ThrowsAsync(new OperationCanceledException(cancellationSource.Token));
             var result = await context.Service.ImportAsync(context.CreateRequest(), cancellationSource.Token);
             Assert.Equal(DicomImportStatus.Canceled, result.Status);
             Assert.False(result.IsSuccessful);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), cancellationSource.Token), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), cancellationSource.Token), Times.Once);
         }
 
         [Fact]
@@ -378,7 +379,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportServiceTestContext();
 
             const string technicalError = @"Access to C:\Sensitive\Repository was denied.";
-            context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), TestContext.Current.CancellationToken)).ThrowsAsync(new IOException(technicalError));
+            context.RepositoryImportService.Setup(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken)).ThrowsAsync(new IOException(technicalError));
             var result = await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
             Assert.Equal(DicomImportStatus.Failed, result.Status);
             Assert.False(result.IsSuccessful);
@@ -393,7 +394,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             context.Reset(auditUserId: 73);
             await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 73), TestContext.Current.CancellationToken), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 73), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
@@ -403,7 +404,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             context.Reset(repositoryLocationId: 91);
             await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.RepositoryLocationId == 91), TestContext.Current.CancellationToken), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.RepositoryLocationId == 91), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
@@ -412,7 +413,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportServiceTestContext();
 
             await context.Service.ImportAsync(context.CreateRequest(allowOverwrite: true), TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.AllowOverwrite && request.CreatedByUserId == context.AuditUserId && request.RepositoryLocationId == context.RepositoryLocationId && request.SourcePath == context.SourceDirectoryPath && request.SourceType == ImportSourceType.Directory), TestContext.Current.CancellationToken), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => request.AllowOverwrite && request.CreatedByUserId == context.AuditUserId && request.RepositoryLocationId == context.RepositoryLocationId && request.SourcePath == context.SourceDirectoryPath && request.SourceType == ImportSourceType.Directory), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
@@ -421,7 +422,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportServiceTestContext();
 
             await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => !request.AllowOverwrite), TestContext.Current.CancellationToken), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.Is<RepositoryImportRequest>(request => !request.AllowOverwrite), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
@@ -432,7 +433,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             await context.Service.ImportAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
             context.VerifyDefaultRepositoryRequestedOnce(TestContext.Current.CancellationToken);
-            context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), TestContext.Current.CancellationToken), Times.Once);
+            context.RepositoryImportService.Verify(service => service.ImportAsync(It.IsAny<RepositoryImportRequest>(), It.IsAny<IProgress<RepositoryImportProgress>?>(), TestContext.Current.CancellationToken), Times.Once);
         }
 
         [Fact]
@@ -468,16 +469,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 secondContext.Service.ImportAsync(secondContext.CreateRequest(), TestContext.Current.CancellationToken));
 
             firstContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 && request.RepositoryLocationId == 81),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 && request.RepositoryLocationId == 81), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
             secondContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 && request.RepositoryLocationId == 82),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 && request.RepositoryLocationId == 82), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
             firstContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 || request.RepositoryLocationId == 82),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 || request.RepositoryLocationId == 82), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 It.IsAny<CancellationToken>()), Times.Never);
             secondContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 || request.RepositoryLocationId == 81),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 || request.RepositoryLocationId == 81), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -493,5 +494,3 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         }
     }
 }
-
-

@@ -2,6 +2,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 using Moq;
+using RepositoryImportProgress = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportProgress;
 using RepositoryImportRequest = MarcusRunge.Mopr.Workbench.Services.Repository.Models.DicomImportRequest;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
@@ -30,7 +31,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             context.RepositoryImportService.Verify(service => service.ImportAsync(
                 It.Is<RepositoryImportRequest>(repositoryRequest =>
                     repositoryRequest.SourcePath == context.SourceDirectoryPath &&
-                    repositoryRequest.SourceType == expectedRepositorySourceType),
+                    repositoryRequest.SourceType == expectedRepositorySourceType), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
         }
 
@@ -43,7 +44,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             Assert.Equal(DicomImportStatus.Completed, result.Status);
             context.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.SourceType == ImportSourceType.Directory),
+                It.Is<RepositoryImportRequest>(request => request.SourceType == ImportSourceType.Directory), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
         }
 
@@ -58,7 +59,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             Assert.Equal(DicomImportStatus.Completed, result.Status);
             context.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(repositoryRequest => repositoryRequest.SourcePath == context.SourceDirectoryPath),
+                It.Is<RepositoryImportRequest>(repositoryRequest => repositoryRequest.SourcePath == context.SourceDirectoryPath), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
         }
 
@@ -118,10 +119,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                 secondContext.Service.ImportAsync(new DicomImportRequest(secondContext.SourceDirectoryPath, DicomImportSourceType.NetworkShare), TestContext.Current.CancellationToken));
 
             firstContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 && request.RepositoryLocationId == 81 && request.SourceType == ImportSourceType.UsbDrive),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 71 && request.RepositoryLocationId == 81 && request.SourceType == ImportSourceType.UsbDrive), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
             secondContext.RepositoryImportService.Verify(service => service.ImportAsync(
-                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 && request.RepositoryLocationId == 82 && request.SourceType == ImportSourceType.NetworkShare),
+                It.Is<RepositoryImportRequest>(request => request.CreatedByUserId == 72 && request.RepositoryLocationId == 82 && request.SourceType == ImportSourceType.NetworkShare), It.IsAny<IProgress<RepositoryImportProgress>?>(),
                 TestContext.Current.CancellationToken), Times.Once);
         }
     }

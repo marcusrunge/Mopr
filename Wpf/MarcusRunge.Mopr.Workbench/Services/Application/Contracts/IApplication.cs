@@ -6,6 +6,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdmini
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 
@@ -27,6 +28,8 @@ public interface IApplication
     IRepositoryLocationAdministrationService? RepositoryAdministration { get; }
 
     IRepositoryRecoveryActionService? RepositoryRecovery { get; }
+
+    IStudyCatalogService? StudyCatalog { get; }
 
     ISystemCheckService? SystemCheck { get; }
 
