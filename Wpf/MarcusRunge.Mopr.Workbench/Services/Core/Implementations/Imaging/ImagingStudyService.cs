@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
@@ -16,10 +16,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 {
     internal sealed class ImagingStudyService : CreateableBindableBase<IImagingStudyService, ImagingStudyService, IImagingServiceBase>, IImagingStudyService
     {
-        private readonly List<SeriesInfo> _currentSeries = new List<SeriesInfo>();
+        private readonly List<SeriesInfo> _currentSeries = [];
 
-        private readonly Dictionary<string, IReadOnlyList<DicomFileMetadata>> _seriesDicomMetadata = new Dictionary<string, IReadOnlyList<DicomFileMetadata>>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IReadOnlyList<DicomFileMetadata>> _seriesDicomMetadata = [with(StringComparer.OrdinalIgnoreCase)];
+        private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = [with(StringComparer.OrdinalIgnoreCase)];
         private IImagingServiceBase? _base;
         private StudyInfo? _currentStudy;
 
@@ -46,20 +46,20 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         {
             if (string.IsNullOrWhiteSpace(seriesId))
             {
-                return Array.Empty<DicomFileMetadata>();
+                return [];
             }
 
-            return _seriesDicomMetadata.TryGetValue(seriesId, out var metadata) ? metadata : Array.Empty<DicomFileMetadata>();
+            return _seriesDicomMetadata.TryGetValue(seriesId, out var metadata) ? metadata : [];
         }
 
         public IReadOnlyList<string> GetFilesForSeries(string seriesId)
         {
             if (string.IsNullOrWhiteSpace(seriesId))
             {
-                return Array.Empty<string>();
+                return [];
             }
 
-            return _seriesFiles.TryGetValue(seriesId, out var files) ? files : Array.Empty<string>();
+            return _seriesFiles.TryGetValue(seriesId, out var files) ? files : [];
         }
 
         public DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId)
@@ -67,6 +67,45 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             var metadata = GetDicomMetadataForSeries(seriesId);
 
             return metadata.Count > 0 ? metadata[0] : null;
+        }
+
+        public async Task LoadStudyFromFilesAsync(string studyInstanceUid, string seriesInstanceUid, IReadOnlyList<string> files, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(studyInstanceUid)) throw new ArgumentException("The study instance UID must not be empty.", nameof(studyInstanceUid));
+            if (string.IsNullOrWhiteSpace(seriesInstanceUid)) throw new ArgumentException("The series instance UID must not be empty.", nameof(seriesInstanceUid));
+            if (files is null) throw new ArgumentNullException(nameof(files));
+            if (files.Count == 0) throw new ArgumentException("At least one validated DICOM file is required.", nameof(files));
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var metadataService = _base?.CoreBase?.Dicom?.MetadataService ?? throw new InvalidOperationException("The DICOM metadata service has not been initialized.");
+            List<DicomFileMetadata> metadata = [with(files.Count)];
+            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: 0, totalFiles: files.Count));
+
+            for (var index = 0; index < files.Count; index++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var filePath = files[index];
+                if (string.IsNullOrWhiteSpace(filePath) || !metadataService.IsDicomFile(filePath)) throw new InvalidDataException($"Validated repository file at index '{index}' is not a readable DICOM file.");
+                DicomFileMetadata? item = await metadataService.ReadMetadataAsync(filePath, cancellationToken).ConfigureAwait(false) ?? throw new InvalidDataException($"DICOM metadata could not be read for validated repository file at index '{index}'.");
+                if (!string.Equals(item.StudyInstanceUid, studyInstanceUid, StringComparison.Ordinal) || !string.Equals(item.SeriesInstanceUid, seriesInstanceUid, StringComparison.Ordinal)) throw new InvalidDataException($"Validated repository file at index '{index}' does not belong to the selected study and series.");
+                metadata.Add(item);
+                progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: index + 1, totalFiles: files.Count));
+            }
+
+            DicomFileMetadata first = metadata[0];
+            var seriesId = CreateSeriesId(studyInstanceUid, seriesInstanceUid, first.SeriesNumber ?? 0);
+            var seriesName = string.IsNullOrWhiteSpace(first.SeriesDescription) ? first.Modality ?? seriesInstanceUid : first.SeriesDescription;
+            var studyName = string.IsNullOrWhiteSpace(first.StudyDescription) ? first.PatientName ?? studyInstanceUid : first.StudyDescription;
+            var study = new StudyInfo(id: studyInstanceUid, name: studyName, description: first.StudyDescription ?? string.Empty, studyDate: first.StudyDate, patientDisplayName: first.PatientName, accessionNumber: first.AccessionNumber);
+            var series = new SeriesInfo(id: seriesId, modality: first.Modality ?? "DICOM", name: seriesName, description: first.SeriesDescription ?? string.Empty, imageCount: files.Count, studyId: studyInstanceUid, seriesNumber: first.SeriesNumber);
+
+            _seriesFiles.Clear();
+            _seriesDicomMetadata.Clear();
+            _seriesFiles[seriesId] = [.. files];
+            _seriesDicomMetadata[seriesId] = metadata;
+            _lastScanSummary = null;
+            ApplyStudy(study, [series]);
+            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_ScanCompletedProgress, processedFiles: files.Count, totalFiles: files.Count));
         }
 
         public async Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)
@@ -166,7 +205,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             RaiseStudyLoaded();
         }
 
-        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, _currentSeries.ToArray(), _lastScanSummary));
+        private void RaiseStudyLoaded() => StudyLoaded?.Invoke(this, new ImagingStudyLoadedEventArgs(_currentStudy, [.. _currentSeries], _lastScanSummary));
 
         private async Task<FolderScanResult> ScanFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress, CancellationToken cancellationToken)
         {
@@ -234,8 +273,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
                     series.Add(new SeriesInfo(id: seriesId, modality: modality, name: name, description: description, imageCount: importedSeries.InstanceCount, studyId: studyId, seriesNumber: seriesNumber));
 
-                    seriesFiles[seriesId] = importedSeries.Files.Select(item => item.FilePath).ToArray();
-                    seriesDicomMetadata[seriesId] = importedSeries.Files.ToArray();
+                    seriesFiles[seriesId] = [.. importedSeries.Files.Select(item => item.FilePath)];
+                    seriesDicomMetadata[seriesId] = [.. importedSeries.Files];
 
                     seriesNumber++;
                 }
@@ -247,7 +286,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
                 series.Add(new SeriesInfo(id: seriesId, modality: "IMG", name: Resources.ImagingStudyService_ImageFiles, description: $"{imageFiles.Count} {Resources.ImagingStudyService_ImageFiles} {Resources.ImagingStudyService_Found}", imageCount: imageFiles.Count, studyId: studyId, seriesNumber: seriesNumber++));
 
-                seriesFiles[seriesId] = imageFiles.ToArray();
+                seriesFiles[seriesId] = [.. imageFiles];
             }
 
             if (series.Count == 0 && allFiles.Count > 0)
@@ -256,7 +295,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 
                 series.Add(new SeriesInfo(id: seriesId, modality: "FILES", name: Resources.ImagingStudyService_FolderContent, description: $"{allFiles.Count} {Resources.ImagingStudyService_Files} {Resources.ImagingStudyService_InSelectedFolder}", imageCount: allFiles.Count, studyId: studyId, seriesNumber: seriesNumber));
 
-                seriesFiles[seriesId] = allFiles.ToArray();
+                seriesFiles[seriesId] = [.. allFiles];
             }
 
             var dicomFileSet = new HashSet<string>(seriesFiles.Where(item => item.Key.IndexOf("images", StringComparison.OrdinalIgnoreCase) < 0).SelectMany(item => item.Value), StringComparer.OrdinalIgnoreCase);

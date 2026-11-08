@@ -18,6 +18,7 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Import;
 using MarcusRunge.Mopr.Workbench.Modules.Miras;
 using MarcusRunge.Mopr.Workbench.Modules.Setup;
+using MarcusRunge.Mopr.Workbench.Modules.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core;
@@ -64,6 +65,7 @@ namespace MarcusRunge.Mopr.Workbench
             moduleCatalog.AddModule<MirasModule>();
             moduleCatalog.AddModule<ImportModule>();
             moduleCatalog.AddModule<SetupModule>();
+            moduleCatalog.AddModule<StudiesModule>();
         }
 
         protected override Window CreateShell() => Container.Resolve<MainWindow>();
@@ -526,24 +528,17 @@ namespace MarcusRunge.Mopr.Workbench
 
             var mirasFlow = Container.Resolve<IMiras>().Flow ?? throw new InvalidOperationException("The MIRAS flow has not been initialized.");
             var mirasResult = await mirasFlow.StartAsync(cancellationToken).ConfigureAwait(false);
-
             _startupDiagnostics!.WriteInformation($"The initial MIRAS check completed with status '{mirasResult.Status}', inspected {mirasResult.ScannedItems} items, detected {mirasResult.Issues.Count} issues and reported {mirasResult.TechnicalErrors.Count} technical errors.");
-
             var navigationTarget = ResolveMirasNavigationTarget(mirasResult);
-
             await NavigateAsync(navigationTarget, cancellationToken).ConfigureAwait(false);
-
             _startupDiagnostics.WriteInformation($"MOPR startup navigation completed with target '{navigationTarget}'.");
         }
 
         private void SubscribeProtectedStartupEvents()
         {
             var eventAggregator = Container.Resolve<IEventAggregator>();
-
             _machineSetupCompletedSubscription = eventAggregator.GetEvent<MachineSetupCompletedEvent>().Subscribe(HandleMachineSetupCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
-
             _initialUserProvisioningCompletedSubscription = eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Subscribe(HandleInitialUserProvisioningCompleted, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
-
             _mirasSessionReleaseRequestedSubscription = eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Subscribe(HandleMirasSessionReleaseRequested, ThreadOption.UIThread, keepSubscriberReferenceAlive: true);
         }
 
@@ -552,7 +547,6 @@ namespace MarcusRunge.Mopr.Workbench
             try
             {
                 _singleInstanceCoordinator = new SingleInstanceCoordinator(SingleInstanceOptions.CreateDefault(Process.GetCurrentProcess().SessionId), _startupDiagnostics!, new ForegroundPermission());
-
                 return true;
             }
             catch (Exception exception)
@@ -575,20 +569,17 @@ namespace MarcusRunge.Mopr.Workbench
             if (_machineSetupCompletedSubscription is not null)
             {
                 eventAggregator.GetEvent<MachineSetupCompletedEvent>().Unsubscribe(_machineSetupCompletedSubscription);
-
                 _machineSetupCompletedSubscription = null;
             }
 
             if (_initialUserProvisioningCompletedSubscription is not null)
             {
                 eventAggregator.GetEvent<InitialUserProvisioningCompletedEvent>().Unsubscribe(_initialUserProvisioningCompletedSubscription);
-
                 _initialUserProvisioningCompletedSubscription = null;
             }
             if (_mirasSessionReleaseRequestedSubscription is not null)
             {
                 eventAggregator.GetEvent<MirasSessionReleaseRequestedEvent>().Unsubscribe(_mirasSessionReleaseRequestedSubscription);
-
                 _mirasSessionReleaseRequestedSubscription = null;
             }
         }

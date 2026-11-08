@@ -31,6 +31,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         IInstanceRepository? Instance { get; }
 
         /// <summary>
+        /// Gets the read-only imported-series repository.
+        /// </summary>
+        IImportedSeriesRepository? ImportedSeries { get; }
+
+        /// <summary>
         /// Gets the Persistence integrity service.
         /// </summary>
         IPersistenceIntegrityService? Integrity { get; }

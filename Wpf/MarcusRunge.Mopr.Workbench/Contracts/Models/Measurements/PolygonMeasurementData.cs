@@ -5,6 +5,6 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Models.Measurements
 {
     public class PolygonMeasurementData : MeasurementData
     {
-        public IList<Point2D> Points { get; set; } = new List<Point2D>();
+        public IList<Point2D> Points { get; set; } = [];
     }
 }

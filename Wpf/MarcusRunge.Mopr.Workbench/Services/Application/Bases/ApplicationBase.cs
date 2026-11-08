@@ -9,9 +9,8 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -28,6 +27,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         protected IMediaService? _mediaService;
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
         protected IRepositoryRecoveryActionService? _repositoryRecovery;
+        protected IImportedSeriesLoadService? _importedSeriesLoader;
+        protected IStudyCatalogService? _studyCatalog;
+        protected ISystemCheckService? _systemCheck;
+        protected IUserAdministrationService? _userAdministration;
         protected IStudyCatalogService? _studyCatalog;
         protected ISystemCheckService? _systemCheck;
         protected IUserAdministrationService? _userAdministration;
@@ -61,13 +64,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         public IIdentityService? IdentityService => _identityService;
 
         public IImportService? ImportService => _importService;
-
         ILogger? IApplicationBase.Logger => logger;
 
         IMachineConfigurationService IApplicationBase.MachineConfigurationService => machineConfigurationService;
 
         public IMediaService? MediaService => _mediaService;
+
         IMiras IApplicationBase.Miras => miras;
+
         IOperatingSystemIdentityProvider? IApplicationBase.OperatingSystemIdentityProvider => operatingSystemIdentityProvider;
 
         IPersistence? IApplicationBase.Persistence => persistence;
@@ -80,7 +84,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IRepositoryRecoveryActionService? RepositoryRecovery => _repositoryRecovery;
 
-        public IStudyCatalogService? StudyCatalog => _studyCatalog;
         public ISystemCheckService? SystemCheck => _systemCheck;
 
         public IUserAdministrationService? UserAdministration => _userAdministration;

@@ -148,6 +148,8 @@ public sealed class RepositoryLocationAdministrationServiceTests
 
         context.RepositoryLocation.Setup(repository => repository.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(location);
 
+        Assert.NotNull(location?.RowVersion);
+
         var result = await context.Service.DeleteAsync(new(1, [.. location.RowVersion]), Xunit.TestContext.Current.CancellationToken);
 
         Assert.True(result.IsDefaultRepository);

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
@@ -23,6 +23,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
         IReadOnlyList<string> GetFilesForSeries(string seriesId);
 
         DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId);
+
+        Task LoadStudyFromFilesAsync(string studyInstanceUid, string seriesInstanceUid, IReadOnlyList<string> files, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
 
         Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
     }

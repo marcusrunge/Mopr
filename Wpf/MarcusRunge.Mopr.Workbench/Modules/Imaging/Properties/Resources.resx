@@ -169,7 +169,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="CommandBar_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="CommandBar_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -250,7 +250,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="Viewer_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -430,10 +430,10 @@
     <value>Pixel: -</value>
   </data>
   <data name="Status_PixelCtFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · HU={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· HU={2:0}</value>
   </data>
   <data name="Status_PixelValueFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · Value={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· Value={2:0}</value>
   </data>
   <data name="ViewportTile_ClearViewport" xml:space="preserve">
     <value>Clear viewport</value>
@@ -494,5 +494,14 @@
   </data>
   <data name="Workbench_SettingsAndAdministration" xml:space="preserve">
     <value>Settings and administration</value>
+  </data>
+  <data name="CommandBar_OpenImportedSeries" xml:space="preserve">
+    <value>Open imported series</value>
+  </data>
+  <data name="CommandBar_ImportedSeriesSelected" xml:space="preserve">
+    <value>Imported series selected. Safe repository loading is not yet connected.</value>
+  </data>
+  <data name="CommandBar_ImportedSeriesSelectionInvalid" xml:space="preserve">
+    <value>The selected imported series could not be identified.</value>
   </data>
 </root>

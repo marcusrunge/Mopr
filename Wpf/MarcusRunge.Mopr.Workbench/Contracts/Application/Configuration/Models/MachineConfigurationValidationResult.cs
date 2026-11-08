@@ -10,12 +10,12 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models
     /// </summary>
     public sealed class MachineConfigurationValidationResult(IEnumerable<MachineConfigurationIssue> issues)
     {
-        private readonly IReadOnlyList<MachineConfigurationIssue> _issues = (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct().ToArray();
+        private readonly IReadOnlyList<MachineConfigurationIssue> _issues = [.. (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct()];
 
         /// <summary>
         /// Gets a successful result without structural configuration issues.
         /// </summary>
-        public static MachineConfigurationValidationResult Success { get; } = new(Array.Empty<MachineConfigurationIssue>());
+        public static MachineConfigurationValidationResult Success { get; } = new([]);
 
         /// <summary>
         /// Gets a value indicating whether the machine configuration is structurally valid.

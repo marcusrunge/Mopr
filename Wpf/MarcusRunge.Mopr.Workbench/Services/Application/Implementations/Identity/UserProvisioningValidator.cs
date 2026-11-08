@@ -101,7 +101,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Identi
             LastName = lastName;
             PersonnelNumber = personnelNumber;
             ShortName = shortName;
-            _issues = (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct().ToArray();
+            _issues = [.. (issues ?? throw new ArgumentNullException(nameof(issues))).Distinct()];
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
@@ -17,6 +17,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
         private const string ImportDialogName = "ImportView";
+        private const string StudySelectionDialogName = "StudySelectionView";
+        private const string SelectedSeriesIdParameterName = "SelectedSeriesId";
+        private const string SelectedSeriesInstanceUidParameterName = "SelectedSeriesInstanceUid";
 
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
@@ -33,6 +36,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private DelegateCommand? _measureCommand;
         private DelegateCommand? _moreCommand;
         private DelegateCommand? _openCommand;
+        private DelegateCommand? _openImportedSeriesCommand;
         private DelegateCommand? _panCommand;
         private DelegateCommand? _resetViewCommand;
         private DelegateCommand? _resetWindowLevelToDefaultCommand;
@@ -96,6 +100,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public DelegateCommand ImportCommand => _importCommand ??= new DelegateCommand(OpenImport, CanOpenImport);
 
+        public DelegateCommand OpenImportedSeriesCommand => _openImportedSeriesCommand ??= new DelegateCommand(OpenImportedSeries, CanOpenImportedSeries);
+
         public bool IsBusy
         {
             get => _isBusy;
@@ -107,6 +113,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
 
                 _openCommand?.RaiseCanExecuteChanged();
+                _openImportedSeriesCommand?.RaiseCanExecuteChanged();
                 _importCommand?.RaiseCanExecuteChanged();
                 _cancelOpenCommand?.RaiseCanExecuteChanged();
                 RaisePropertyChanged(nameof(OpenButtonText));
@@ -200,6 +207,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool CanCancelOpen() => IsBusy;
 
         private bool CanOpen() => !IsBusy;
+        private bool CanOpenImportedSeries() => !IsBusy;
 
         private bool CanOpenImport() => !IsBusy;
 
@@ -270,6 +278,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _openCancellationTokenSource = null;
                 IsBusy = false;
             }
+        }
+
+        private void OpenImportedSeries()
+        {
+            if (!CanOpenImportedSeries()) return;
+
+            _dialogService.ShowDialog(StudySelectionDialogName, result =>
+            {
+                if (result.Result != ButtonResult.OK) return;
+                var seriesId = result.Parameters.GetValue<int>(SelectedSeriesIdParameterName);
+                var seriesInstanceUid = result.Parameters.GetValue<string>(SelectedSeriesInstanceUidParameterName);
+                StatusText = seriesId > 0 && !string.IsNullOrWhiteSpace(seriesInstanceUid) ? Resources.CommandBar_ImportedSeriesSelected : Resources.CommandBar_ImportedSeriesSelectionInvalid;
+            });
         }
 
         private void OpenImport()
