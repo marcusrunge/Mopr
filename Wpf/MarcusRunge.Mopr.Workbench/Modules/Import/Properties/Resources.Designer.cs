@@ -178,7 +178,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die {0} of {1} files checked ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die File {0} of {1} is being checked ähnelt.
         /// </summary>
         public static string ImportProgressInspectingFormat {
             get {

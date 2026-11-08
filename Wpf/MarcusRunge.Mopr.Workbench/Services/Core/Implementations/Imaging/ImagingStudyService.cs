@@ -17,9 +17,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
     internal sealed class ImagingStudyService : CreateableBindableBase<IImagingStudyService, ImagingStudyService, IImagingServiceBase>, IImagingStudyService
     {
         private readonly List<SeriesInfo> _currentSeries = [];
-
-        private readonly Dictionary<string, IReadOnlyList<DicomFileMetadata>> _seriesDicomMetadata = [with(StringComparer.OrdinalIgnoreCase)];
-        private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = [with(StringComparer.OrdinalIgnoreCase)];
+        private readonly Dictionary<string, IReadOnlyList<DicomFileMetadata>> _seriesDicomMetadata = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IReadOnlyList<string>> _seriesFiles = new(StringComparer.OrdinalIgnoreCase);
         private IImagingServiceBase? _base;
         private StudyInfo? _currentStudy;
 
@@ -52,20 +51,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             return _seriesDicomMetadata.TryGetValue(seriesId, out var metadata) ? metadata : [];
         }
 
-        public IReadOnlyList<string> GetFilesForSeries(string seriesId)
-        {
-            if (string.IsNullOrWhiteSpace(seriesId))
-            {
-                return [];
-            }
-
-            return _seriesFiles.TryGetValue(seriesId, out var files) ? files : [];
-        }
+        public IReadOnlyList<string> GetFilesForSeries(string seriesId) => string.IsNullOrWhiteSpace(seriesId) ? Array.Empty<string>() : _seriesFiles.TryGetValue(seriesId, out var files) ? files : Array.Empty<string>();
 
         public DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId)
         {
             var metadata = GetDicomMetadataForSeries(seriesId);
-
             return metadata.Count > 0 ? metadata[0] : null;
         }
 
@@ -78,7 +68,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             cancellationToken.ThrowIfCancellationRequested();
 
             var metadataService = _base?.CoreBase?.Dicom?.MetadataService ?? throw new InvalidOperationException("The DICOM metadata service has not been initialized.");
-            List<DicomFileMetadata> metadata = [with(files.Count)];
+            List<DicomFileMetadata> metadata = new(files.Count);
             progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: 0, totalFiles: files.Count));
 
             for (var index = 0; index < files.Count; index++)

@@ -7,7 +7,6 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Repository
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.SystemCheck;
-using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;

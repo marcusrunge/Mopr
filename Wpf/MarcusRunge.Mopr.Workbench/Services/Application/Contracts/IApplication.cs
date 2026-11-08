@@ -7,8 +7,6 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecove
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
 
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
-
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts;

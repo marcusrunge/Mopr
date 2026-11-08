@@ -48,11 +48,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies
         /// <summary>
         /// Creates a failed result without exposing technical diagnostics to the UI directly.
         /// </summary>
-        public static ImportedSeriesLoadResult Failed(int seriesId, string? seriesInstanceUid, params string[] technicalErrors) => new(false, seriesId, seriesInstanceUid, null, [], [.. technicalErrors.Where(error => !string.IsNullOrWhiteSpace(error))]);
+        public static ImportedSeriesLoadResult Failed(int seriesId, string? seriesInstanceUid, params string[] technicalErrors) => new(false, seriesId, seriesInstanceUid, null, Array.Empty<string>(), technicalErrors.Where(error => !string.IsNullOrWhiteSpace(error)).ToArray());
 
         /// <summary>
         /// Creates a successful result for a completely validated series.
         /// </summary>
-        public static ImportedSeriesLoadResult Succeeded(int seriesId, string seriesInstanceUid, string studyInstanceUid, IReadOnlyList<string> files) => new(true, seriesId, seriesInstanceUid, studyInstanceUid, files, []);
+        public static ImportedSeriesLoadResult Succeeded(int seriesId, string seriesInstanceUid, string studyInstanceUid, IReadOnlyList<string> files) => new(true, seriesId, seriesInstanceUid, studyInstanceUid, files, Array.Empty<string>());
     }
 }

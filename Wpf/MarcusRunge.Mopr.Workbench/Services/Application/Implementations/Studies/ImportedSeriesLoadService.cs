@@ -27,6 +27,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
             var repository = Persistence.ImportedSeries ?? throw new InvalidOperationException("The imported-series repository has not been initialized.");
             PersistedImportedSeries? series = await repository.GetAsync(request.SeriesId, request.SeriesInstanceUid, cancellationToken).ConfigureAwait(false);
             if (series is null) return ImportedSeriesLoadResult.Failed(request.SeriesId, request.SeriesInstanceUid, "No persisted series matches both supplied identifiers.");
+            if (string.IsNullOrWhiteSpace(series.StudyInstanceUid)) return ImportedSeriesLoadResult.Failed(series.SeriesId, series.SeriesInstanceUid, "The persisted series has no valid parent study identity.");
             if (series.Instances.Count == 0) return ImportedSeriesLoadResult.Failed(series.SeriesId, series.SeriesInstanceUid, "The persisted series contains no DICOM instances.");
 
             List<string> files = new(series.Instances.Count);
