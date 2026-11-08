@@ -6,7 +6,9 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdmini
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
+
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
+
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -32,6 +34,11 @@ public interface IApplication
     IIdentityService? IdentityService { get; }
 
     /// <summary>
+    /// Gets the read-only imported-study catalog service.
+    /// </summary>
+    IImportedSeriesLoadService? ImportedSeriesLoader { get; }
+
+    /// <summary>
     /// Gets the import service.
     /// </summary>
     IImportService? ImportService { get; }
@@ -52,17 +59,13 @@ public interface IApplication
     IRepositoryRecoveryActionService? RepositoryRecovery { get; }
 
     /// <summary>
-    /// Gets the read-only imported-study catalog service.
+    /// Gets the system-check service.
     /// </summary>
-    IImportedSeriesLoadService? ImportedSeriesLoader { get; }
-
     IStudyCatalogService? StudyCatalog { get; }
 
     /// <summary>
     /// Gets the system-check service.
     /// </summary>
-    IStudyCatalogService? StudyCatalog { get; }
-
     ISystemCheckService? SystemCheck { get; }
 
     /// <summary>

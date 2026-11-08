@@ -11,6 +11,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdmini
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -23,17 +24,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
+        protected IImportedSeriesLoadService? _importedSeriesLoader;
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
         protected IRepositoryRecoveryActionService? _repositoryRecovery;
-        protected IImportedSeriesLoadService? _importedSeriesLoader;
         protected IStudyCatalogService? _studyCatalog;
         protected ISystemCheckService? _systemCheck;
         protected IUserAdministrationService? _userAdministration;
-        protected IStudyCatalogService? _studyCatalog;
-        protected ISystemCheckService? _systemCheck;
-        protected IUserAdministrationService? _userAdministration;
+
         private readonly Lock _exceptionThrownLock = new();
         private Action<Exception>? _exceptionThrown;
 
@@ -63,6 +62,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IIdentityService? IdentityService => _identityService;
 
+        public IImportedSeriesLoadService? ImportedSeriesLoader => _importedSeriesLoader;
         public IImportService? ImportService => _importService;
         ILogger? IApplicationBase.Logger => logger;
 
@@ -84,6 +84,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IRepositoryRecoveryActionService? RepositoryRecovery => _repositoryRecovery;
 
+        public IStudyCatalogService? StudyCatalog => throw new NotImplementedException();
         public ISystemCheckService? SystemCheck => _systemCheck;
 
         public IUserAdministrationService? UserAdministration => _userAdministration;
