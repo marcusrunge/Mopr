@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
@@ -10,13 +9,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
     /// <summary>
     /// Provides the read-only application catalog of imported DICOM studies and series.
     /// </summary>
-    internal sealed class StudyCatalogService : CreateableBindableBase<IStudyCatalogService, StudyCatalogService, IApplicationBase>, IStudyCatalogService
+    internal sealed class StudyCatalogService : CreateableBindableBase<IStudyCatalogService, StudyCatalogService, IStudiesServiceBase>, IStudyCatalogService
     {
-        private IApplicationBase? _base;
+        private IStudiesServiceBase? _base;
 
-        private IApplicationBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+        private IStudiesServiceBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
 
-        private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
+        private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
 
         /// <inheritdoc/>
         public async Task<IReadOnlyList<StudyCatalogItem>> GetStudiesAsync(CancellationToken cancellationToken = default)
@@ -35,10 +34,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
         }
 
         /// <inheritdoc/>
-        protected override void OnCreate(IApplicationBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
+        protected override void OnCreate(IStudiesServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
         /// <inheritdoc/>
-        protected override Task OnCreateAsync(IApplicationBase @base, CancellationToken cancellationToken)
+        protected override Task OnCreateAsync(IStudiesServiceBase @base, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(@base);
             cancellationToken.ThrowIfCancellationRequested();

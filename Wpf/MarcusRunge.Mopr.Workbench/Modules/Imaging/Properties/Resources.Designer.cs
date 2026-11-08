@@ -106,6 +106,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Imported series loaded ähnelt.
+        /// </summary>
+        public static string CommandBar_ImportedSeriesLoaded {
+            get {
+                return ResourceManager.GetString("CommandBar_ImportedSeriesLoaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Validating imported series... ähnelt.
+        /// </summary>
+        public static string CommandBar_ImportedSeriesResolving {
+            get {
+                return ResourceManager.GetString("CommandBar_ImportedSeriesResolving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Imported series selected. Safe repository loading is not yet connected. ähnelt.
         /// </summary>
         public static string CommandBar_ImportedSeriesSelected {
@@ -120,6 +138,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string CommandBar_ImportedSeriesSelectionInvalid {
             get {
                 return ResourceManager.GetString("CommandBar_ImportedSeriesSelectionInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The series cannot currently be opened safely. MIRAS action required. ähnelt.
+        /// </summary>
+        public static string CommandBar_ImportedSeriesUnavailable {
+            get {
+                return ResourceManager.GetString("CommandBar_ImportedSeriesUnavailable", resourceCulture);
             }
         }
         
@@ -160,7 +187,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -655,7 +682,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -673,7 +700,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -763,7 +790,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

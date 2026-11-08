@@ -445,4 +445,13 @@
   <data name="CommandBar_ImportedSeriesSelectionInvalid" xml:space="preserve">
     <value>Die ausgewählte importierte Serie konnte nicht eindeutig erkannt werden.</value>
   </data>
+  <data name="CommandBar_ImportedSeriesResolving" xml:space="preserve">
+    <value>Importierte Serie wird geprüft...</value>
+  </data>
+  <data name="CommandBar_ImportedSeriesLoaded" xml:space="preserve">
+    <value>Importierte Serie geladen</value>
+  </data>
+  <data name="CommandBar_ImportedSeriesUnavailable" xml:space="preserve">
+    <value>Die Serie kann derzeit nicht sicher geöffnet werden. MIRAS Aktion erforderlich.</value>
+  </data>
 </root>

@@ -24,12 +24,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
-        protected IImportedSeriesLoadService? _importedSeriesLoader;
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
         protected IRepositoryRecoveryActionService? _repositoryRecovery;
-        protected IStudyCatalogService? _studyCatalog;
+        protected IStudiesService? _studiesService;
         protected ISystemCheckService? _systemCheck;
         protected IUserAdministrationService? _userAdministration;
 
@@ -62,8 +61,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IIdentityService? IdentityService => _identityService;
 
-        public IImportedSeriesLoadService? ImportedSeriesLoader => _importedSeriesLoader;
         public IImportService? ImportService => _importService;
+
         ILogger? IApplicationBase.Logger => logger;
 
         IMachineConfigurationService IApplicationBase.MachineConfigurationService => machineConfigurationService;
@@ -84,7 +83,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IRepositoryRecoveryActionService? RepositoryRecovery => _repositoryRecovery;
 
-        public IStudyCatalogService? StudyCatalog => throw new NotImplementedException();
+        public IStudiesService? StudiesService => _studiesService;
         public ISystemCheckService? SystemCheck => _systemCheck;
 
         public IUserAdministrationService? UserAdministration => _userAdministration;

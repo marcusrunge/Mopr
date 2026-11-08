@@ -26,7 +26,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         public StudySelectionViewModel(IApplication application)
         {
             ArgumentNullException.ThrowIfNull(application);
-            _studyCatalogService = application.StudyCatalog ?? throw new InvalidOperationException("The study catalog service has not been initialized.");
+            _studyCatalogService = application?.StudiesService?.StudyCatalog ?? throw new InvalidOperationException("The study catalog service has not been initialized.");
             CancelCommand = new DelegateCommand(Cancel, CanCancel);
             ConfirmCommand = new DelegateCommand(Confirm, CanConfirm);
             Studies = [];

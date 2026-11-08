@@ -11,11 +11,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
     /// <summary>
     /// Resolves imported DICOM series while enforcing repository boundaries and complete physical availability.
     /// </summary>
-    internal sealed class ImportedSeriesLoadService : CreateableBindableBase<IImportedSeriesLoadService, ImportedSeriesLoadService, IApplicationBase>, IImportedSeriesLoadService
+    internal sealed class ImportedSeriesLoadService : CreateableBindableBase<IImportedSeriesLoadService, ImportedSeriesLoadService, IStudiesServiceBase>, IImportedSeriesLoadService
     {
-        private IApplicationBase? _base;
-        private IApplicationBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
-        private IPersistence Persistence => Base.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
+        private IStudiesServiceBase? _base;
+        private IStudiesServiceBase Base => _base ?? throw new InvalidOperationException("Service has not been initialized.");
+        private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
 
         /// <inheritdoc/>
         public async Task<ImportedSeriesLoadResult> ResolveAsync(ImportedSeriesLoadRequest request, CancellationToken cancellationToken = default)
@@ -45,10 +45,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
         }
 
         /// <inheritdoc/>
-        protected override void OnCreate(IApplicationBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
+        protected override void OnCreate(IStudiesServiceBase @base) => _base = @base ?? throw new ArgumentNullException(nameof(@base));
 
         /// <inheritdoc/>
-        protected override Task OnCreateAsync(IApplicationBase @base, CancellationToken cancellationToken)
+        protected override Task OnCreateAsync(IStudiesServiceBase @base, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(@base);
             cancellationToken.ThrowIfCancellationRequested();

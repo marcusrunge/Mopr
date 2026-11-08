@@ -29,10 +29,8 @@ internal sealed class Application : ApplicationBase
         _repositoryAdministration = RepositoryLocationAdministrationService.Create(this, CreationLifetime.Scoped);
         _repositoryRecovery = RepositoryRecoveryActionService.Create(this, CreationLifetime.Scoped);
         _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
-        _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);
-        _studyCatalog = StudyCatalogService.Create(this, CreationLifetime.Scoped);
-        _importedSeriesLoader = ImportedSeriesLoadService.Create(this, CreationLifetime.Scoped);
-        _studyCatalog = StudyCatalogService.Create(this, CreationLifetime.Scoped);
+        _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);        
         _importService = Import.ImportService.Create(this);
+        _studiesService = Studies.StudiesService.Create(this);
     }
 }

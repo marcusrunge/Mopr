@@ -3,6 +3,8 @@ using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
@@ -23,6 +25,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
+        private readonly IImportedSeriesLoadService _importedSeriesLoader;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
         private DelegateCommand? _applyCtBoneWindowCommand;
@@ -52,6 +55,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core = core ?? throw new ArgumentNullException(nameof(core));
             _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _importedSeriesLoader = _wpf.StudiesService?.ImportedSeriesLoader ?? throw new InvalidOperationException("The imported-series loader has not been initialized.");
 
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
             _core.ImagingService.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
@@ -287,10 +291,74 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _dialogService.ShowDialog(StudySelectionDialogName, result =>
             {
                 if (result.Result != ButtonResult.OK) return;
-                var seriesId = result.Parameters.GetValue<int>(SelectedSeriesIdParameterName);
-                var seriesInstanceUid = result.Parameters.GetValue<string>(SelectedSeriesInstanceUidParameterName);
-                StatusText = seriesId > 0 && !string.IsNullOrWhiteSpace(seriesInstanceUid) ? Resources.CommandBar_ImportedSeriesSelected : Resources.CommandBar_ImportedSeriesSelectionInvalid;
+                ExecuteOpenImportedSeries(result);
             });
+        }
+
+        private async void ExecuteOpenImportedSeries(IDialogResult dialogResult)
+        {
+            try
+            {
+                await OpenImportedSeriesAsync(dialogResult);
+            }
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_LoadError;
+                System.Diagnostics.Debug.WriteLine(exception);
+            }
+        }
+
+        private async Task OpenImportedSeriesAsync(IDialogResult dialogResult)
+        {
+            if (IsBusy) return;
+
+            var seriesId = dialogResult.Parameters.GetValue<int>(SelectedSeriesIdParameterName);
+            var seriesInstanceUid = dialogResult.Parameters.GetValue<string>(SelectedSeriesInstanceUidParameterName);
+            if (seriesId <= 0 || string.IsNullOrWhiteSpace(seriesInstanceUid))
+            {
+                StatusText = Resources.CommandBar_ImportedSeriesSelectionInvalid;
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+                StatusText = Resources.CommandBar_ImportedSeriesResolving;
+                _openCancellationTokenSource = new CancellationTokenSource();
+                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.Message);
+                ImportedSeriesLoadResult loadResult = await _importedSeriesLoader.ResolveAsync(new ImportedSeriesLoadRequest(seriesId, seriesInstanceUid), _openCancellationTokenSource.Token);
+
+                if (_openCancellationTokenSource.IsCancellationRequested)
+                {
+                    StatusText = Resources.CommandBar_LoadCanceled;
+                    return;
+                }
+
+                if (!loadResult.IsSuccessful || string.IsNullOrWhiteSpace(loadResult.StudyInstanceUid) || string.IsNullOrWhiteSpace(loadResult.SeriesInstanceUid))
+                {
+                    foreach (var technicalError in loadResult.TechnicalErrors) System.Diagnostics.Debug.WriteLine(technicalError);
+                    StatusText = Resources.CommandBar_ImportedSeriesUnavailable;
+                    return;
+                }
+
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFilesAsync(loadResult.StudyInstanceUid, loadResult.SeriesInstanceUid, loadResult.Files, progress, _openCancellationTokenSource.Token);
+                StatusText = Resources.CommandBar_ImportedSeriesLoaded;
+            }
+            catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)
+            {
+                StatusText = Resources.CommandBar_LoadCanceled;
+            }
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_LoadError;
+                System.Diagnostics.Debug.WriteLine(exception);
+            }
+            finally
+            {
+                _openCancellationTokenSource?.Dispose();
+                _openCancellationTokenSource = null;
+                IsBusy = false;
+            }
         }
 
         private void OpenImport()
