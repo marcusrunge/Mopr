@@ -59,43 +59,65 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             return metadata.Count > 0 ? metadata[0] : null;
         }
 
-        public async Task LoadStudyFromFilesAsync(string studyInstanceUid, string seriesInstanceUid, IReadOnlyList<string> files, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)
+        public Task LoadStudyFromFilesAsync(string studyInstanceUid, string seriesInstanceUid, IReadOnlyList<string> files, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default) => LoadStudyFromSeriesAsync(studyInstanceUid, new[] { new ImagingSeriesLoadRequest(seriesInstanceUid, files) }, progress, cancellationToken);
+
+        public async Task LoadStudyFromSeriesAsync(string studyInstanceUid, IReadOnlyList<ImagingSeriesLoadRequest> series, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(studyInstanceUid)) throw new ArgumentException("The study instance UID must not be empty.", nameof(studyInstanceUid));
-            if (string.IsNullOrWhiteSpace(seriesInstanceUid)) throw new ArgumentException("The series instance UID must not be empty.", nameof(seriesInstanceUid));
-            if (files is null) throw new ArgumentNullException(nameof(files));
-            if (files.Count == 0) throw new ArgumentException("At least one validated DICOM file is required.", nameof(files));
+            if (series is null) throw new ArgumentNullException(nameof(series));
+            if (series.Count == 0) throw new ArgumentException("At least one validated DICOM series is required.", nameof(series));
             cancellationToken.ThrowIfCancellationRequested();
 
             var metadataService = _base?.CoreBase?.Dicom?.MetadataService ?? throw new InvalidOperationException("The DICOM metadata service has not been initialized.");
-            List<DicomFileMetadata> metadata = new(files.Count);
-            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: 0, totalFiles: files.Count));
+            Dictionary<string, IReadOnlyList<string>> validatedFiles = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, IReadOnlyList<DicomFileMetadata>> validatedMetadata = new(StringComparer.OrdinalIgnoreCase);
+            List<SeriesInfo> validatedSeries = new(series.Count);
+            HashSet<string> seriesInstanceUids = new(StringComparer.Ordinal);
+            DicomFileMetadata? firstStudyMetadata = null;
+            var totalFiles = series.Sum(item => item.Files?.Count ?? 0);
+            var processedFiles = 0;
+            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: 0, totalFiles: totalFiles));
 
-            for (var index = 0; index < files.Count; index++)
+            foreach (ImagingSeriesLoadRequest request in series)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var filePath = files[index];
-                if (string.IsNullOrWhiteSpace(filePath) || !metadataService.IsDicomFile(filePath)) throw new InvalidDataException($"Validated repository file at index '{index}' is not a readable DICOM file.");
-                DicomFileMetadata? item = await metadataService.ReadMetadataAsync(filePath, cancellationToken).ConfigureAwait(false) ?? throw new InvalidDataException($"DICOM metadata could not be read for validated repository file at index '{index}'.");
-                if (!string.Equals(item.StudyInstanceUid, studyInstanceUid, StringComparison.Ordinal) || !string.Equals(item.SeriesInstanceUid, seriesInstanceUid, StringComparison.Ordinal)) throw new InvalidDataException($"Validated repository file at index '{index}' does not belong to the selected study and series.");
-                metadata.Add(item);
-                progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: index + 1, totalFiles: files.Count));
+                if (string.IsNullOrWhiteSpace(request.SeriesInstanceUid)) throw new ArgumentException("A series instance UID must not be empty.", nameof(series));
+                if (request.Files is null || request.Files.Count == 0) throw new ArgumentException("Every selected series must contain at least one validated DICOM file.", nameof(series));
+                if (!seriesInstanceUids.Add(request.SeriesInstanceUid)) throw new InvalidDataException($"Series instance UID '{request.SeriesInstanceUid}' occurs more than once in the imaging request.");
+
+                List<DicomFileMetadata> metadata = new(request.Files.Count);
+                for (var index = 0; index < request.Files.Count; index++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var filePath = request.Files[index];
+                    if (string.IsNullOrWhiteSpace(filePath) || !metadataService.IsDicomFile(filePath)) throw new InvalidDataException($"Validated repository file at index '{index}' is not a readable DICOM file.");
+                    DicomFileMetadata? item = await metadataService.ReadMetadataAsync(filePath, cancellationToken).ConfigureAwait(false) ?? throw new InvalidDataException($"DICOM metadata could not be read for validated repository file at index '{index}'.");
+                    if (!string.Equals(item.StudyInstanceUid, studyInstanceUid, StringComparison.Ordinal) || !string.Equals(item.SeriesInstanceUid, request.SeriesInstanceUid, StringComparison.Ordinal)) throw new InvalidDataException($"Validated repository file at index '{index}' does not belong to the selected study and series.");
+                    metadata.Add(item);
+                    firstStudyMetadata ??= item;
+                    processedFiles++;
+                    progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_DicomMetadataReadProgress, processedFiles: processedFiles, totalFiles: totalFiles));
+                }
+
+                DicomFileMetadata first = metadata[0];
+                var seriesId = CreateSeriesId(studyInstanceUid, request.SeriesInstanceUid, first.SeriesNumber ?? validatedSeries.Count + 1);
+                var seriesName = string.IsNullOrWhiteSpace(first.SeriesDescription) ? first.Modality ?? request.SeriesInstanceUid : first.SeriesDescription;
+                validatedSeries.Add(new SeriesInfo(id: seriesId, modality: first.Modality ?? "DICOM", name: seriesName, description: first.SeriesDescription ?? string.Empty, imageCount: request.Files.Count, studyId: studyInstanceUid, seriesNumber: first.SeriesNumber));
+                validatedFiles[seriesId] = [.. request.Files];
+                validatedMetadata[seriesId] = metadata;
             }
 
-            DicomFileMetadata first = metadata[0];
-            var seriesId = CreateSeriesId(studyInstanceUid, seriesInstanceUid, first.SeriesNumber ?? 0);
-            var seriesName = string.IsNullOrWhiteSpace(first.SeriesDescription) ? first.Modality ?? seriesInstanceUid : first.SeriesDescription;
-            var studyName = string.IsNullOrWhiteSpace(first.StudyDescription) ? first.PatientName ?? studyInstanceUid : first.StudyDescription;
-            var study = new StudyInfo(id: studyInstanceUid, name: studyName, description: first.StudyDescription ?? string.Empty, studyDate: first.StudyDate, patientDisplayName: first.PatientName, accessionNumber: first.AccessionNumber);
-            var series = new SeriesInfo(id: seriesId, modality: first.Modality ?? "DICOM", name: seriesName, description: first.SeriesDescription ?? string.Empty, imageCount: files.Count, studyId: studyInstanceUid, seriesNumber: first.SeriesNumber);
+            if (firstStudyMetadata is null) throw new InvalidDataException("No DICOM metadata was resolved for the selected study.");
+            var studyName = string.IsNullOrWhiteSpace(firstStudyMetadata.StudyDescription) ? firstStudyMetadata.PatientName ?? studyInstanceUid : firstStudyMetadata.StudyDescription;
+            var study = new StudyInfo(id: studyInstanceUid, name: studyName, description: firstStudyMetadata.StudyDescription ?? string.Empty, studyDate: firstStudyMetadata.StudyDate, patientDisplayName: firstStudyMetadata.PatientName, accessionNumber: firstStudyMetadata.AccessionNumber);
 
             _seriesFiles.Clear();
+            foreach (var item in validatedFiles) _seriesFiles[item.Key] = item.Value;
             _seriesDicomMetadata.Clear();
-            _seriesFiles[seriesId] = [.. files];
-            _seriesDicomMetadata[seriesId] = metadata;
+            foreach (var item in validatedMetadata) _seriesDicomMetadata[item.Key] = item.Value;
             _lastScanSummary = null;
-            ApplyStudy(study, [series]);
-            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_ScanCompletedProgress, processedFiles: files.Count, totalFiles: files.Count));
+            ApplyStudy(study, validatedSeries);
+            progress?.Report(new ImagingStudyLoadProgress(message: Resources.ImagingStudyService_ScanCompletedProgress, processedFiles: totalFiles, totalFiles: totalFiles));
         }
 
         public async Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default)

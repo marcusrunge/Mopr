@@ -70,6 +70,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Clear selection ähnelt.
+        /// </summary>
+        public static string ClearSeriesSelectionButton {
+            get {
+                return ResourceManager.GetString("ClearSeriesSelectionButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die images ähnelt.
         /// </summary>
         public static string ImageCountLabel {
@@ -79,7 +88,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Loading imported studies… ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading imported studiesâ€¦ ähnelt.
         /// </summary>
         public static string LoadingStudies {
             get {
@@ -97,11 +106,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Open selected series ähnelt.
+        /// </summary>
+        public static string OpenSelectedSeriesButton {
+            get {
+                return ResourceManager.GetString("OpenSelectedSeriesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Open series ähnelt.
         /// </summary>
         public static string OpenSeriesButton {
             get {
                 return ResourceManager.GetString("OpenSeriesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select all ähnelt.
+        /// </summary>
+        public static string SelectAllSeriesButton {
+            get {
+                return ResourceManager.GetString("SelectAllSeriesButton", resourceCulture);
             }
         }
         
@@ -124,11 +151,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die {0} · {1} · {2} images ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} Â· {1} Â· {2} images ähnelt.
         /// </summary>
         public static string SeriesDisplayFormat {
             get {
                 return ResourceManager.GetString("SeriesDisplayFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} of {1} available series selected ähnelt.
+        /// </summary>
+        public static string SeriesSelectionSummaryFormat {
+            get {
+                return ResourceManager.GetString("SeriesSelectionSummaryFormat", resourceCulture);
             }
         }
         
@@ -142,7 +178,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Select an imported study and one available series. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select an imported study and one or more available series. ähnelt.
         /// </summary>
         public static string StudySelectionSubtitle {
             get {

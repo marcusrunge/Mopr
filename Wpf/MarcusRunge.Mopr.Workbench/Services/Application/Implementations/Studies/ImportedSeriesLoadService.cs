@@ -18,6 +18,41 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studie
         private IPersistence Persistence => Base.ApplicationBase?.Persistence ?? throw new InvalidOperationException("Persistence has not been initialized.");
 
         /// <inheritdoc/>
+        public async Task<ImportedStudyLoadResult> ResolveAsync(IReadOnlyList<ImportedSeriesLoadRequest> requests, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(requests);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (requests.Count == 0) return ImportedStudyLoadResult.Failed("At least one imported series must be selected.");
+            HashSet<string> uniqueIdentities = new(StringComparer.Ordinal);
+            foreach (ImportedSeriesLoadRequest request in requests)
+            {
+                if (!uniqueIdentities.Add($"{request.SeriesId}:{request.SeriesInstanceUid}")) return ImportedStudyLoadResult.Failed("The imported-series selection contains duplicate identities.");
+            }
+
+            List<ImportedSeriesLoadResult> resolvedSeries = new(requests.Count);
+            HashSet<string> uniqueFiles = new(StringComparer.OrdinalIgnoreCase);
+            string? studyInstanceUid = null;
+
+            foreach (ImportedSeriesLoadRequest request in requests)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                ImportedSeriesLoadResult result = await ResolveAsync(request, cancellationToken).ConfigureAwait(false);
+                if (!result.IsSuccessful || string.IsNullOrWhiteSpace(result.StudyInstanceUid) || string.IsNullOrWhiteSpace(result.SeriesInstanceUid)) return ImportedStudyLoadResult.Failed([.. result.TechnicalErrors]);
+                if (studyInstanceUid is null) studyInstanceUid = result.StudyInstanceUid;
+                else if (!string.Equals(studyInstanceUid, result.StudyInstanceUid, StringComparison.Ordinal)) return ImportedStudyLoadResult.Failed("The selected series do not belong to the same persisted study.");
+
+                foreach (string file in result.Files)
+                {
+                    if (!uniqueFiles.Add(file)) return ImportedStudyLoadResult.Failed($"Multiple selected series resolve to the same repository file '{file}'.");
+                }
+
+                resolvedSeries.Add(result);
+            }
+
+            return ImportedStudyLoadResult.Succeeded(studyInstanceUid!, resolvedSeries);
+        }
+
+        /// <inheritdoc/>
         public async Task<ImportedSeriesLoadResult> ResolveAsync(ImportedSeriesLoadRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);

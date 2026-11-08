@@ -17,15 +17,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
         ImagingFolderScanSummary? LastScanSummary { get; }
 
         void Clear();
-
         IReadOnlyList<DicomFileMetadata> GetDicomMetadataForSeries(string seriesId);
-
         IReadOnlyList<string> GetFilesForSeries(string seriesId);
-
         DicomFileMetadata? GetFirstDicomMetadataForSeries(string seriesId);
-
         Task LoadStudyFromFilesAsync(string studyInstanceUid, string seriesInstanceUid, IReadOnlyList<string> files, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
-
         Task LoadStudyFromFolderAsync(string folderPath, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
+        Task LoadStudyFromSeriesAsync(string studyInstanceUid, IReadOnlyList<ImagingSeriesLoadRequest> series, IProgress<ImagingStudyLoadProgress>? progress = null, CancellationToken cancellationToken = default);
     }
 }

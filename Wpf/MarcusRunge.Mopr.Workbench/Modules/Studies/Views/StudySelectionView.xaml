@@ -6,13 +6,13 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Studies.Properties"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels"
-             Width="920" MinWidth="760" d:DataContext="{d:DesignInstance Type=viewmodels:StudySelectionViewModel}" d:DesignHeight="620" d:DesignWidth="920" mc:Ignorable="d" prism:ViewModelLocator.AutoWireViewModel="True">
+             Width="960" MinWidth="800" d:DataContext="{d:DesignInstance Type=viewmodels:StudySelectionViewModel}" d:DesignHeight="660" d:DesignWidth="960" mc:Ignorable="d" prism:ViewModelLocator.AutoWireViewModel="True">
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
-            <Setter Property="Width" Value="920" />
-            <Setter Property="MinWidth" Value="760" />
-            <Setter Property="MinHeight" Value="520" />
-            <Setter Property="Height" Value="620" />
+            <Setter Property="Width" Value="960" />
+            <Setter Property="MinWidth" Value="800" />
+            <Setter Property="MinHeight" Value="560" />
+            <Setter Property="Height" Value="660" />
             <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
             <Setter Property="ResizeMode" Value="CanResize" />
             <Setter Property="ShowInTaskbar" Value="False" />
@@ -55,9 +55,12 @@
                 <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
             <ListBox Grid.Column="0" ItemsSource="{Binding Studies, Mode=OneWay}" SelectedItem="{Binding SelectedStudy}" Background="#182129" BorderBrush="#334550" Foreground="#F1F6F9">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="8">
+                        <StackPanel Margin="12,10">
                             <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding PatientName, Mode=OneWay}" />
                             <TextBlock Margin="0,4,0,0" Foreground="#AFC0CB" Text="{Binding StudyDescription, Mode=OneWay}" />
                             <TextBlock Margin="0,3,0,0" Foreground="#718796">
@@ -67,32 +70,49 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <ListBox Grid.Column="2" ItemsSource="{Binding SelectedStudy.Series, Mode=OneWay}" SelectedItem="{Binding SelectedStudy.SelectedSeries}" Background="#182129" BorderBrush="#334550" Foreground="#F1F6F9">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="MinHeight" Value="76" />
-                        <Setter Property="Padding" Value="0" />
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="14,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="150" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding Description, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Margin="0,5,0,0" Foreground="#AFC0CB" Text="{Binding DisplayName, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
-                            <Border Grid.Column="1" Margin="16,0,0,0" Padding="10,5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#22303A" CornerRadius="4">
-                                <TextBlock HorizontalAlignment="Center" Foreground="#AFC0CB" Text="{Binding StatusText, Mode=OneWay}" TextAlignment="Center" />
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" Foreground="#C9D5DC" FontWeight="SemiBold" Text="{Binding SelectionSummary, Mode=OneWay}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Margin="0,0,8,0" Command="{Binding SelectAllCommand}" Content="{x:Static properties:Resources.SelectAllSeriesButton}" Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Command="{Binding ClearSelectionCommand}" Content="{x:Static properties:Resources.ClearSeriesSelectionButton}" Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+                <ListBox Grid.Row="1" ItemsSource="{Binding SelectedStudy.Series, Mode=OneWay}" Background="#182129" BorderBrush="#334550" Foreground="#F1F6F9" SelectionMode="Single">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="MinHeight" Value="76" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="IsTabStop" Value="False" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="14,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="150" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Margin="0,0,12,0" VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsAvailable, Mode=OneWay}" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding Description, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Margin="0,5,0,0" Foreground="#AFC0CB" Text="{Binding DisplayName, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <Border Grid.Column="2" Margin="16,0,0,0" Padding="10,5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#22303A" CornerRadius="4">
+                                    <TextBlock HorizontalAlignment="Center" Foreground="#AFC0CB" Text="{Binding StatusText, Mode=OneWay}" TextAlignment="Center" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
             <StackPanel Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ProgressBar Width="260" Height="10" IsIndeterminate="True" />
                 <TextBlock Margin="0,10,0,0" Foreground="#AFC0CB" Text="{x:Static properties:Resources.LoadingStudies}" />
@@ -101,7 +121,7 @@
         <Border Grid.Row="2" MinHeight="68" Padding="20,12" Background="#182129" BorderBrush="#2F3E49" BorderThickness="0,1,0,0">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button Margin="0,0,10,0" Command="{Binding CancelCommand}" Content="{x:Static properties:Resources.CancelButton}" Style="{StaticResource SecondaryButtonStyle}" />
-                <Button Command="{Binding ConfirmCommand}" Content="{x:Static properties:Resources.OpenSeriesButton}" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" />
+                <Button Command="{Binding ConfirmCommand}" Content="{x:Static properties:Resources.OpenSelectedSeriesButton}" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" />
             </StackPanel>
         </Border>
     </Grid>

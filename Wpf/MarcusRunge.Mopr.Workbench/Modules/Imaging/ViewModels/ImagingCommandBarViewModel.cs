@@ -10,6 +10,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using Prism.Dialogs;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PrismDialogService = Prism.Dialogs.IDialogService;
@@ -20,8 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private const string ImportDialogName = "ImportView";
         private const string StudySelectionDialogName = "StudySelectionView";
-        private const string SelectedSeriesIdParameterName = "SelectedSeriesId";
-        private const string SelectedSeriesInstanceUidParameterName = "SelectedSeriesInstanceUid";
+        private const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
 
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
@@ -312,9 +312,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             if (IsBusy) return;
 
-            var seriesId = dialogResult.Parameters.GetValue<int>(SelectedSeriesIdParameterName);
-            var seriesInstanceUid = dialogResult.Parameters.GetValue<string>(SelectedSeriesInstanceUidParameterName);
-            if (seriesId <= 0 || string.IsNullOrWhiteSpace(seriesInstanceUid))
+            ImportedSeriesLoadRequest[] requests = dialogResult.Parameters.GetValue<ImportedSeriesLoadRequest[]>(SelectedSeriesRequestsParameterName) ?? [];
+            if (requests.Length == 0)
             {
                 StatusText = Resources.CommandBar_ImportedSeriesSelectionInvalid;
                 return;
@@ -326,7 +325,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 StatusText = Resources.CommandBar_ImportedSeriesResolving;
                 _openCancellationTokenSource = new CancellationTokenSource();
                 var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.Message);
-                ImportedSeriesLoadResult loadResult = await _importedSeriesLoader.ResolveAsync(new ImportedSeriesLoadRequest(seriesId, seriesInstanceUid), _openCancellationTokenSource.Token);
+                ImportedStudyLoadResult loadResult = await _importedSeriesLoader.ResolveAsync(requests, _openCancellationTokenSource.Token);
 
                 if (_openCancellationTokenSource.IsCancellationRequested)
                 {
@@ -334,14 +333,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     return;
                 }
 
-                if (!loadResult.IsSuccessful || string.IsNullOrWhiteSpace(loadResult.StudyInstanceUid) || string.IsNullOrWhiteSpace(loadResult.SeriesInstanceUid))
+                if (!loadResult.IsSuccessful || string.IsNullOrWhiteSpace(loadResult.StudyInstanceUid) || loadResult.Series.Count == 0)
                 {
                     foreach (var technicalError in loadResult.TechnicalErrors) System.Diagnostics.Debug.WriteLine(technicalError);
                     StatusText = Resources.CommandBar_ImportedSeriesUnavailable;
                     return;
                 }
 
-                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFilesAsync(loadResult.StudyInstanceUid, loadResult.SeriesInstanceUid, loadResult.Files, progress, _openCancellationTokenSource.Token);
+                ImagingSeriesLoadRequest[] imagingRequests = [.. loadResult.Series.Select(series => new ImagingSeriesLoadRequest(series.SeriesInstanceUid!, series.Files))];
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromSeriesAsync(loadResult.StudyInstanceUid, imagingRequests, progress, _openCancellationTokenSource.Token);
                 StatusText = Resources.CommandBar_ImportedSeriesLoaded;
             }
             catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)

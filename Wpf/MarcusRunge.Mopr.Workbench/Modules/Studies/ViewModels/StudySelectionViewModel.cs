@@ -1,10 +1,12 @@
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using Prism.Commands;
 using Prism.Dialogs;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,12 +14,13 @@ using System.Threading.Tasks;
 namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
 {
     /// <summary>
-    /// Loads imported studies and returns one safely selectable series.
+    /// Loads imported studies and returns one or more safely selectable series.
     /// </summary>
     public sealed class StudySelectionViewModel : ViewModelBase, IDialogAware
     {
         public const string SelectedSeriesIdParameterName = "SelectedSeriesId";
         public const string SelectedSeriesInstanceUidParameterName = "SelectedSeriesInstanceUid";
+        public const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
         private readonly IStudyCatalogService _studyCatalogService;
         private CancellationTokenSource? _loadCancellation;
         private bool _isLoading;
@@ -25,14 +28,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
 
         public StudySelectionViewModel(IApplication application)
         {
-            ArgumentNullException.ThrowIfNull(application);
             _studyCatalogService = application?.StudiesService?.StudyCatalog ?? throw new InvalidOperationException("The study catalog service has not been initialized.");
             CancelCommand = new DelegateCommand(Cancel, CanCancel);
+            ClearSelectionCommand = new DelegateCommand(ClearSelection, CanChangeSelection);
             ConfirmCommand = new DelegateCommand(Confirm, CanConfirm);
+            SelectAllCommand = new DelegateCommand(SelectAll, CanChangeSelection);
             Studies = [];
         }
 
         public DelegateCommand CancelCommand { get; }
+        public DelegateCommand ClearSelectionCommand { get; }
         public DelegateCommand ConfirmCommand { get; }
         public bool HasStudies => Studies.Count > 0;
 
@@ -46,8 +51,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             }
         }
 
-        /// <inheritdoc/>
         public DialogCloseListener RequestClose { get; }
+        public DelegateCommand SelectAllCommand { get; }
 
         public StudyItemViewModel? SelectedStudy
         {
@@ -57,27 +62,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
                 _selectedStudy?.PropertyChanged -= OnSelectedStudyPropertyChanged;
                 if (!SetProperty(ref _selectedStudy, value)) return;
                 _selectedStudy?.PropertyChanged += OnSelectedStudyPropertyChanged;
+                RaisePropertyChanged(nameof(SelectionSummary));
                 RaiseCommandState();
             }
         }
 
+        public string SelectionSummary => SelectedStudy?.SelectionSummary ?? string.Format(Properties.Resources.SeriesSelectionSummaryFormat, 0, 0);
         public ObservableCollection<StudyItemViewModel> Studies { get; }
         public static string Title => Properties.Resources.StudySelectionTitle;
 
-        /// <inheritdoc/>
         public bool CanCloseDialog() => !IsLoading;
 
-        /// <inheritdoc/>
         public override void Destroy()
         {
             ReleaseLoadCancellation(cancel: true);
             base.Destroy();
         }
 
-        /// <inheritdoc/>
         public void OnDialogClosed() => ReleaseLoadCancellation(cancel: true);
 
-        /// <inheritdoc/>
         public async void OnDialogOpened(IDialogParameters parameters)
         {
             try
@@ -96,16 +99,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         }
 
         private bool CanCancel() => !IsLoading;
-        private bool CanConfirm() => !IsLoading && SelectedStudy?.SelectedSeries?.IsAvailable == true;
+        private bool CanChangeSelection() => !IsLoading && SelectedStudy is not null && SelectedStudy.AvailableSeriesCount > 0;
+        private bool CanConfirm() => !IsLoading && SelectedStudy?.HasSelectedSeries == true;
+
+        private void ClearSelection()
+        {
+            if (!CanChangeSelection()) return;
+            SelectedStudy!.ClearSelection();
+        }
 
         private void Confirm()
         {
             if (!CanConfirm()) return;
-            var selectedSeries = SelectedStudy!.SelectedSeries!;
+
+            ImportedSeriesLoadRequest[] requests = [.. SelectedStudy!.Series.Where(series => series.IsSelected).Select(series => new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid))];
             var parameters = new DialogParameters
             {
-                { SelectedSeriesIdParameterName, selectedSeries.SeriesId },
-                { SelectedSeriesInstanceUidParameterName, selectedSeries.SeriesInstanceUid }
+                { SelectedSeriesRequestsParameterName, requests },
+                /*
+                 * The legacy single-series parameters remain available until every dialog
+                 * consumer has moved to the atomic multi-series contract.
+                 */
+                { SelectedSeriesIdParameterName, requests[0].SeriesId },
+                { SelectedSeriesInstanceUidParameterName, requests[0].SeriesInstanceUid }
             };
             RequestClose.Invoke(parameters, ButtonResult.OK);
         }
@@ -133,15 +149,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             }
         }
 
-        private void OnSelectedStudyPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnSelectedStudyPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(StudyItemViewModel.SelectedSeries)) RaiseCommandState();
+            if (e.PropertyName is not (nameof(StudyItemViewModel.HasSelectedSeries) or nameof(StudyItemViewModel.SelectedSeriesCount) or nameof(StudyItemViewModel.SelectionSummary))) return;
+            RaisePropertyChanged(nameof(SelectionSummary));
+            RaiseCommandState();
         }
 
         private void RaiseCommandState()
         {
             CancelCommand.RaiseCanExecuteChanged();
+            ClearSelectionCommand.RaiseCanExecuteChanged();
             ConfirmCommand.RaiseCanExecuteChanged();
+            SelectAllCommand.RaiseCanExecuteChanged();
         }
 
         private void ReleaseLoadCancellation(bool cancel)
@@ -151,6 +171,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             if (cancellation is null) return;
             if (cancel) cancellation.Cancel();
             cancellation.Dispose();
+        }
+
+        private void SelectAll()
+        {
+            if (!CanChangeSelection()) return;
+            SelectedStudy!.SelectAllAvailable();
         }
     }
 }

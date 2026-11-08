@@ -5,10 +5,12 @@ using System;
 namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
 {
     /// <summary>
-    /// Exposes one imported DICOM series to the study-selection dialog.
+    /// Exposes one imported DICOM series and its selection state to the study-selection dialog.
     /// </summary>
     public sealed class SeriesItemViewModel : BindableBase
     {
+        private bool _isSelected;
+
         public SeriesItemViewModel(SeriesCatalogItem model)
         {
             ArgumentNullException.ThrowIfNull(model);
@@ -19,6 +21,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         public string DisplayName => string.Format(Properties.Resources.SeriesDisplayFormat, Description, Modality, ImageCount);
         public int ImageCount => Model.ImageCount;
         public bool IsAvailable => Model.IsAvailable;
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                var normalizedValue = IsAvailable && value;
+                SetProperty(ref _isSelected, normalizedValue);
+            }
+        }
+
         public string Modality => string.IsNullOrWhiteSpace(Model.Modality) ? Properties.Resources.UnknownModality : Model.Modality;
         public SeriesCatalogItem Model { get; }
         public int SeriesId => Model.SeriesId;
