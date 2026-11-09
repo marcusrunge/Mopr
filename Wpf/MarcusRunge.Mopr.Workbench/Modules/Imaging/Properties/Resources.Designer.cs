@@ -151,6 +151,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import new study ähnelt.
+        /// </summary>
+        public static string CommandBar_ImportNewStudy {
+            get {
+                return ResourceManager.GetString("CommandBar_ImportNewStudy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Layout ähnelt.
         /// </summary>
         public static string CommandBar_Layout {
@@ -187,7 +196,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -250,11 +259,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Open from folder ähnelt.
+        /// </summary>
+        public static string CommandBar_OpenFromFolder {
+            get {
+                return ResourceManager.GetString("CommandBar_OpenFromFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Open imported series ähnelt.
         /// </summary>
         public static string CommandBar_OpenImportedSeries {
             get {
                 return ResourceManager.GetString("CommandBar_OpenImportedSeries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Open imported study ähnelt.
+        /// </summary>
+        public static string CommandBar_OpenImportedStudy {
+            get {
+                return ResourceManager.GetString("CommandBar_OpenImportedStudy", resourceCulture);
             }
         }
         
@@ -291,6 +318,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string CommandBar_Status {
             get {
                 return ResourceManager.GetString("CommandBar_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Study ähnelt.
+        /// </summary>
+        public static string CommandBar_Study {
+            get {
+                return ResourceManager.GetString("CommandBar_Study", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die IMPORT ähnelt.
+        /// </summary>
+        public static string CommandBar_StudyImportSection {
+            get {
+                return ResourceManager.GetString("CommandBar_StudyImportSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die OPEN ähnelt.
+        /// </summary>
+        public static string CommandBar_StudyOpenSection {
+            get {
+                return ResourceManager.GetString("CommandBar_StudyOpenSection", resourceCulture);
             }
         }
         
@@ -682,7 +736,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -700,7 +754,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -790,7 +844,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

@@ -82,17 +82,59 @@
                     VerticalAlignment="Center"
                     Orientation="Horizontal">
 
-            <Button Margin="0,0,8,0"
-                    Command="{Binding OpenCommand}"
-                    Content="{Binding OpenButtonText}" />
+            <ToggleButton x:Name="StudyMenuToggleButton"
+                          MinWidth="126"
+                          Margin="0,0,8,0"
+                          IsChecked="{Binding IsOpen, ElementName=StudyMenuPopup, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Static properties:Resources.CommandBar_Study}" />
+                    <TextBlock Margin="8,0,0,0" Text="▼" />
+                </StackPanel>
+            </ToggleButton>
 
-            <Button Margin="0,0,8,0"
-                    Command="{Binding OpenImportedSeriesCommand}"
-                    Content="{x:Static properties:Resources.CommandBar_OpenImportedSeries}" />
+            <Popup x:Name="StudyMenuPopup"
+                   AllowsTransparency="True"
+                   Placement="Bottom"
+                   PlacementTarget="{Binding ElementName=StudyMenuToggleButton}"
+                   PopupAnimation="Fade"
+                   StaysOpen="False">
+                <Border MinWidth="260"
+                        Padding="4"
+                        Background="#10161C"
+                        BorderBrush="#2A3944"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <StackPanel>
+                        <TextBlock Margin="12,8,12,5"
+                                   Foreground="#7890A0"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.CommandBar_StudyOpenSection}" />
 
-            <Button Margin="0,0,8,0"
-                    Command="{Binding ImportCommand}"
-                    Content="{x:Static properties:Resources.CommandBar_Import}" />
+                        <Button Command="{Binding OpenImportedSeriesCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_OpenImportedStudy}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Button Command="{Binding OpenCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_OpenFromFolder}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Border Height="1"
+                                Margin="4,6"
+                                Background="#2A3944" />
+
+                        <TextBlock Margin="12,5,12,5"
+                                   Foreground="#7890A0"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.CommandBar_StudyImportSection}" />
+
+                        <Button Command="{Binding ImportCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_ImportNewStudy}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                    </StackPanel>
+                </Border>
+            </Popup>
 
             <Button Margin="0,0,8,0"
                     Command="{Binding CancelOpenCommand}"
@@ -110,7 +152,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{x:Static properties:Resources.WindowLevel_Presets}" />
                     <TextBlock Margin="6,0,0,0"
-                               Text="▾" />
+                               Text="▼" />
                 </StackPanel>
             </ToggleButton>
 
