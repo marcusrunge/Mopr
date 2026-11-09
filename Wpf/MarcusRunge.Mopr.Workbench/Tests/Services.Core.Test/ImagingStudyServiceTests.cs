@@ -36,7 +36,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
         {
             var context = CreateContext();
 
-            await Assert.ThrowsAsync<ArgumentException>(() => context.Service.LoadStudyFromFilesAsync(studyInstanceUid, seriesInstanceUid, new[] { "1.dcm" }, cancellationToken: TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<ArgumentException>(() => context.Service.LoadStudyFromFilesAsync(studyInstanceUid, seriesInstanceUid, ["1.dcm"], cancellationToken: TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             var context = CreateContext();
             context.MetadataService.Setup(value => value.IsDicomFile("invalid.txt")).Returns(false);
 
-            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", new[] { "invalid.txt" }, cancellationToken: TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", ["invalid.txt"], cancellationToken: TestContext.Current.CancellationToken));
         }
 
         [Theory]
@@ -64,7 +64,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             var context = CreateContext();
             SetupMetadata(context.MetadataService, "1.dcm", actualStudyInstanceUid, actualSeriesInstanceUid, 1);
 
-            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", new[] { "1.dcm" }, cancellationToken: TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", ["1.dcm"], cancellationToken: TestContext.Current.CancellationToken));
             Assert.Null(context.Service.CurrentStudy);
             Assert.Empty(context.Service.CurrentSeries);
         }
@@ -74,11 +74,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
         {
             var context = CreateContext();
             SetupMetadata(context.MetadataService, "valid.dcm", "study", "series", 1);
-            await context.Service.LoadStudyFromFilesAsync("study", "series", new[] { "valid.dcm" }, cancellationToken: TestContext.Current.CancellationToken);
+            await context.Service.LoadStudyFromFilesAsync("study", "series", ["valid.dcm"], cancellationToken: TestContext.Current.CancellationToken);
             var currentStudy = context.Service.CurrentStudy;
             context.MetadataService.Setup(value => value.IsDicomFile("invalid.dcm")).Returns(false);
 
-            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("other-study", "other-series", new[] { "invalid.dcm" }, cancellationToken: TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(() => context.Service.LoadStudyFromFilesAsync("other-study", "other-series", ["invalid.dcm"], cancellationToken: TestContext.Current.CancellationToken));
 
             Assert.Same(currentStudy, context.Service.CurrentStudy);
             Assert.Single(context.Service.CurrentSeries);
@@ -91,7 +91,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             using var cancellation = new CancellationTokenSource();
             await cancellation.CancelAsync();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", new[] { "1.dcm" }, cancellationToken: cancellation.Token));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", ["1.dcm"], cancellationToken: cancellation.Token));
         }
 
         private static TestContextData CreateContext()

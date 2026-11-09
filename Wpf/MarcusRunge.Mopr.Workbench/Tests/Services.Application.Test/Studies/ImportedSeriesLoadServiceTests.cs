@@ -12,14 +12,14 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
             using var context = new ImportedSeriesLoadServiceTestContext();
             var secondPath = context.CreateFile(Path.Combine("study", "series", "2.dcm"));
             var firstPath = context.CreateFile(Path.Combine("study", "series", "1.dcm"));
-            PersistedImportedSeries series = context.CreateSeries(new[] { context.CreateInstance(2, Path.Combine("study", "series", "2.dcm"), 2), context.CreateInstance(1, Path.Combine("study", "series", "1.dcm"), 1) });
+            PersistedImportedSeries series = context.CreateSeries([context.CreateInstance(2, Path.Combine("study", "series", "2.dcm"), 2), context.CreateInstance(1, Path.Combine("study", "series", "1.dcm"), 1)]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
 
             Assert.True(result.IsSuccessful);
             Assert.Equal(series.StudyInstanceUid, result.StudyInstanceUid);
-            Assert.Equal(new[] { secondPath, firstPath }, result.Files);
+            Assert.Equal([secondPath, firstPath], result.Files);
             Assert.Empty(result.TechnicalErrors);
         }
 
@@ -82,7 +82,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
             PersistedImportedSeriesInstance instance = context.CreateInstance(1, "1.dcm", repositoryLocationIsEnabled: false);
-            PersistedImportedSeries series = context.CreateSeries(new[] { instance });
+            PersistedImportedSeries series = context.CreateSeries([instance]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
@@ -96,7 +96,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
             PersistedImportedSeriesInstance instance = new(1, "1.2.3", 1, 5, true, null, "1.dcm");
-            PersistedImportedSeries series = context.CreateSeries(new[] { instance });
+            PersistedImportedSeries series = context.CreateSeries([instance]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
@@ -110,7 +110,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
             PersistedImportedSeriesInstance instance = new(1, "1.2.3", 1, 5, true, context.RepositoryRootPath, null);
-            PersistedImportedSeries series = context.CreateSeries(new[] { instance });
+            PersistedImportedSeries series = context.CreateSeries([instance]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
@@ -123,7 +123,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         public async Task ResolveAsync_Should_Reject_Path_Traversal()
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
-            PersistedImportedSeries series = context.CreateSeries(new[] { context.CreateInstance(1, Path.Combine("..", "outside.dcm")) });
+            PersistedImportedSeries series = context.CreateSeries([context.CreateInstance(1, Path.Combine("..", "outside.dcm"))]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
@@ -136,7 +136,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         public async Task ResolveAsync_Should_Reject_Missing_File()
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
-            PersistedImportedSeries series = context.CreateSeries(new[] { context.CreateInstance(1, "missing.dcm") });
+            PersistedImportedSeries series = context.CreateSeries([context.CreateInstance(1, "missing.dcm")]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
@@ -150,7 +150,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Studies
         {
             using var context = new ImportedSeriesLoadServiceTestContext();
             context.CreateFile("same.dcm");
-            PersistedImportedSeries series = context.CreateSeries(new[] { context.CreateInstance(1, "same.dcm", 1), context.CreateInstance(2, "same.dcm", 2) });
+            PersistedImportedSeries series = context.CreateSeries([context.CreateInstance(1, "same.dcm", 1), context.CreateInstance(2, "same.dcm", 2)]);
             context.SetupSeries(series);
 
             ImportedSeriesLoadResult result = await context.Service.ResolveAsync(new ImportedSeriesLoadRequest(series.SeriesId, series.SeriesInstanceUid), TestContext.Current.CancellationToken);
