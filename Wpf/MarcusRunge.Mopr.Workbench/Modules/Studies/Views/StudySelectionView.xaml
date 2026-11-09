@@ -113,10 +113,51 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </Grid>
-            <StackPanel Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ProgressBar Width="260" Height="10" IsIndeterminate="True" />
-                <TextBlock Margin="0,10,0,0" Foreground="#AFC0CB" Text="{x:Static properties:Resources.LoadingStudies}" />
-            </StackPanel>
+            <Border Grid.ColumnSpan="3" Background="#E610161C">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoading}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Width="260" Height="10" IsIndeterminate="True" />
+                    <TextBlock Margin="0,10,0,0" Foreground="#AFC0CB" Text="{x:Static properties:Resources.LoadingStudies}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.ColumnSpan="3" Background="#F210161C">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasLoadError}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Foreground="#F3F7FA" FontSize="18" FontWeight="SemiBold" Text="{x:Static properties:Resources.StudyCatalogLoadErrorTitle}" TextAlignment="Center" />
+                    <TextBlock Margin="0,10,0,0" Foreground="#AFC0CB" Text="{Binding ErrorMessage, Mode=OneWay}" TextAlignment="Center" TextWrapping="Wrap" />
+                    <Button Margin="0,18,0,0" Command="{Binding RetryCommand}" Content="{x:Static properties:Resources.RetryButton}" Style="{StaticResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.ColumnSpan="3" Background="#F210161C">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShowEmptyState}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Foreground="#F3F7FA" FontSize="18" FontWeight="SemiBold" Text="{x:Static properties:Resources.EmptyStudyCatalogTitle}" TextAlignment="Center" />
+                    <TextBlock Margin="0,10,0,0" Foreground="#AFC0CB" Text="{x:Static properties:Resources.EmptyStudyCatalogMessage}" TextAlignment="Center" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
         </Grid>
         <Border Grid.Row="2" MinHeight="68" Padding="20,12" Background="#182129" BorderBrush="#2F3E49" BorderThickness="0,1,0,0">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">

@@ -24,9 +24,10 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Desktop.Test/MarcusRunge.Mopr.Workbench.Test.csproj" Id="1da94cd5-83e8-4c6c-9ea3-df1e25c7847c" />
-    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Miras.Test/MarcusRunge.Mopr.Workbench.Modules.Miras.Test.csproj" Id="1af0332d-b903-4638-a0f9-871a32ad36c7" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Studies.Test/MarcusRunge.Mopr.Workbench.Modules.Studies.Test.csproj" Id="de856f69-f810-436a-b1c0-f88143ecf594" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Identity.Test/MarcusRunge.Mopr.Workbench.Modules.Identity.Test.csproj" Id="aff5aa45-3509-4a5c-ac49-d6f98dac9c13" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Imaging.Test/MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj" />
+    <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Miras.Test/MarcusRunge.Mopr.Workbench.Modules.Miras.Test.csproj" Id="1af0332d-b903-4638-a0f9-871a32ad36c7" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Modules.Setup.Test/MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj" Id="ab808657-cd7f-4d1c-817a-459f0f998c91" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Application.Test/MarcusRunge.Mopr.Workbench.Services.Application.Test.csproj" Id="bbbf1d2d-49ea-4a5c-9632-23d78f904a15" />
     <Project Path="MarcusRunge.Mopr.Workbench/Tests/Services.Core.Test/MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj" Id="8136d28c-da09-4956-9db5-83fabb43cb89" />

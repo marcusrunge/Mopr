@@ -23,6 +23,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         public const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
         private readonly IStudyCatalogService _studyCatalogService;
         private CancellationTokenSource? _loadCancellation;
+        private string _errorMessage = string.Empty;
+        private bool _hasLoadError;
         private bool _isLoading;
         private StudyItemViewModel? _selectedStudy;
 
@@ -32,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             CancelCommand = new DelegateCommand(Cancel, CanCancel);
             ClearSelectionCommand = new DelegateCommand(ClearSelection, CanChangeSelection);
             ConfirmCommand = new DelegateCommand(Confirm, CanConfirm);
+            RetryCommand = new DelegateCommand(ExecuteLoad, CanRetry);
             SelectAllCommand = new DelegateCommand(SelectAll, CanChangeSelection);
             Studies = [];
         }
@@ -39,6 +42,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         public DelegateCommand CancelCommand { get; }
         public DelegateCommand ClearSelectionCommand { get; }
         public DelegateCommand ConfirmCommand { get; }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set => SetProperty(ref _errorMessage, value);
+        }
+
+        public bool HasLoadError
+        {
+            get => _hasLoadError;
+            private set
+            {
+                if (!SetProperty(ref _hasLoadError, value)) return;
+                RaisePropertyChanged(nameof(ShowEmptyState));
+            }
+        }
+
         public bool HasStudies => Studies.Count > 0;
 
         public bool IsLoading
@@ -47,12 +67,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             private set
             {
                 if (!SetProperty(ref _isLoading, value)) return;
+                RaisePropertyChanged(nameof(ShowEmptyState));
                 RaiseCommandState();
             }
         }
 
         public DialogCloseListener RequestClose { get; }
+        public DelegateCommand RetryCommand { get; }
         public DelegateCommand SelectAllCommand { get; }
+        public bool ShowEmptyState => !IsLoading && !HasLoadError && !HasStudies;
 
         public StudyItemViewModel? SelectedStudy
         {
@@ -81,16 +104,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
 
         public void OnDialogClosed() => ReleaseLoadCancellation(cancel: true);
 
-        public async void OnDialogOpened(IDialogParameters parameters)
-        {
-            try
-            {
-                await LoadAsync();
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
+        public void OnDialogOpened(IDialogParameters parameters) => ExecuteLoad();
 
         private void Cancel()
         {
@@ -101,6 +115,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         private bool CanCancel() => !IsLoading;
         private bool CanChangeSelection() => !IsLoading && SelectedStudy is not null && SelectedStudy.AvailableSeriesCount > 0;
         private bool CanConfirm() => !IsLoading && SelectedStudy?.HasSelectedSeries == true;
+        private bool CanRetry() => !IsLoading && HasLoadError;
 
         private void ClearSelection()
         {
@@ -126,14 +141,38 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             RequestClose.Invoke(parameters, ButtonResult.OK);
         }
 
+        private async void ExecuteLoad()
+        {
+            try
+            {
+                await LoadAsync();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                HasLoadError = true;
+                ErrorMessage = Properties.Resources.StudyCatalogLoadError;
+                System.Diagnostics.Debug.WriteLine(exception);
+            }
+            finally
+            {
+                RaiseCommandState();
+            }
+        }
+
         private async Task LoadAsync()
         {
             ReleaseLoadCancellation(cancel: true);
             _loadCancellation = new CancellationTokenSource();
+            HasLoadError = false;
+            ErrorMessage = string.Empty;
             IsLoading = true;
             SelectedStudy = null;
             Studies.Clear();
             RaisePropertyChanged(nameof(HasStudies));
+            RaisePropertyChanged(nameof(ShowEmptyState));
 
             try
             {
@@ -141,6 +180,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
                 foreach (var study in studies) Studies.Add(new StudyItemViewModel(study));
                 SelectedStudy = Studies.FirstOrDefault();
                 RaisePropertyChanged(nameof(HasStudies));
+                RaisePropertyChanged(nameof(ShowEmptyState));
             }
             finally
             {
@@ -161,6 +201,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
             CancelCommand.RaiseCanExecuteChanged();
             ClearSelectionCommand.RaiseCanExecuteChanged();
             ConfirmCommand.RaiseCanExecuteChanged();
+            RetryCommand.RaiseCanExecuteChanged();
             SelectAllCommand.RaiseCanExecuteChanged();
         }
 

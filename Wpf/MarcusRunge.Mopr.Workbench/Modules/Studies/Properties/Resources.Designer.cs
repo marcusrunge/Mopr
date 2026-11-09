@@ -79,6 +79,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No imported studies are available. Import a study first, then open this dialog again. ähnelt.
+        /// </summary>
+        public static string EmptyStudyCatalogMessage {
+            get {
+                return ResourceManager.GetString("EmptyStudyCatalogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No imported studies ähnelt.
+        /// </summary>
+        public static string EmptyStudyCatalogTitle {
+            get {
+                return ResourceManager.GetString("EmptyStudyCatalogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die images ähnelt.
         /// </summary>
         public static string ImageCountLabel {
@@ -88,7 +106,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Loading imported studiesâ€¦ ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Loading imported studies… ähnelt.
         /// </summary>
         public static string LoadingStudies {
             get {
@@ -124,6 +142,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Try again ähnelt.
+        /// </summary>
+        public static string RetryButton {
+            get {
+                return ResourceManager.GetString("RetryButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select all ähnelt.
         /// </summary>
         public static string SelectAllSeriesButton {
@@ -151,7 +178,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die {0} Â· {1} Â· {2} images ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die {0} · {1} · {2} images ähnelt.
         /// </summary>
         public static string SeriesDisplayFormat {
             get {
@@ -174,6 +201,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         public static string SeriesUnavailable {
             get {
                 return ResourceManager.GetString("SeriesUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The imported studies could not be loaded. Please try again. ähnelt.
+        /// </summary>
+        public static string StudyCatalogLoadError {
+            get {
+                return ResourceManager.GetString("StudyCatalogLoadError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Studies could not be loaded ähnelt.
+        /// </summary>
+        public static string StudyCatalogLoadErrorTitle {
+            get {
+                return ResourceManager.GetString("StudyCatalogLoadErrorTitle", resourceCulture);
             }
         }
         
