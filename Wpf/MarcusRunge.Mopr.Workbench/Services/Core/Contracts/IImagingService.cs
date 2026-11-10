@@ -1,10 +1,12 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts
 {
     public interface IImagingService
     {
         IImagingLayoutService? ImagingLayoutService { get; }
+        IImagingSessionChangeTracker? ImagingSessionChangeTracker { get; }
+        IImagingSessionService? ImagingSessionService { get; }
         IImagingSelectionService? ImagingSelectionService { get; }
         IImagingStudyService? ImagingStudyService { get; }
         IImagingToolService? ImagingToolService { get; }

@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
@@ -6,6 +6,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
     internal class ImagingServiceBase(ICoreBase? coreBase) : IImagingServiceBase, IImagingService
     {
         protected IImagingLayoutService? _imagingLayoutService;
+        protected IImagingSessionChangeTracker? _imagingSessionChangeTracker;
+        protected IImagingSessionService? _imagingSessionService;
         protected IImagingSelectionService? _imagingSelectionService;
         protected IImagingStudyService? _imagingStudyService;
         protected IImagingToolService? _imagingToolService;
@@ -16,6 +18,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
 
         ICoreBase? IImagingServiceBase.CoreBase => _coreBase;
         public IImagingLayoutService? ImagingLayoutService => _imagingLayoutService;
+        public IImagingSessionChangeTracker? ImagingSessionChangeTracker => _imagingSessionChangeTracker;
+        public IImagingSessionService? ImagingSessionService => _imagingSessionService;
         public IImagingSelectionService? ImagingSelectionService => _imagingSelectionService;
         public IImagingStudyService? ImagingStudyService => _imagingStudyService;
         public IImagingToolService? ImagingToolService => _imagingToolService;
