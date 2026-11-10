@@ -88,11 +88,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Close study ähnelt.
+        /// </summary>
+        public static string CommandBar_CloseStudy {
+            get {
+                return ResourceManager.GetString("CommandBar_CloseStudy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Crosshair ähnelt.
         /// </summary>
         public static string CommandBar_Crosshair {
             get {
                 return ResourceManager.GetString("CommandBar_Crosshair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die CURRENT STUDY ähnelt.
+        /// </summary>
+        public static string CommandBar_CurrentStudySection {
+            get {
+                return ResourceManager.GetString("CommandBar_CurrentStudySection", resourceCulture);
             }
         }
         
@@ -196,7 +214,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -331,6 +349,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Study closed ähnelt.
+        /// </summary>
+        public static string CommandBar_StudyClosed {
+            get {
+                return ResourceManager.GetString("CommandBar_StudyClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die IMPORT ähnelt.
         /// </summary>
         public static string CommandBar_StudyImportSection {
@@ -345,6 +372,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string CommandBar_StudyOpenSection {
             get {
                 return ResourceManager.GetString("CommandBar_StudyOpenSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The study contains unsaved changes and remains open. ähnelt.
+        /// </summary>
+        public static string CommandBar_UnsavedChangesPreventClose {
+            get {
+                return ResourceManager.GetString("CommandBar_UnsavedChangesPreventClose", resourceCulture);
             }
         }
         
@@ -736,7 +772,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -754,7 +790,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -844,7 +880,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

@@ -26,6 +26,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
         private readonly IImportedSeriesLoadService _importedSeriesLoader;
+        private readonly IImagingSessionService _imagingSessionService;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
         private DelegateCommand? _applyCtBoneWindowCommand;
@@ -33,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private DelegateCommand? _applyCtLungWindowCommand;
         private DelegateCommand? _applyCtMediastinumWindowCommand;
         private DelegateCommand? _cancelOpenCommand;
+        private DelegateCommand? _closeStudyCommand;
         private DelegateCommand? _crosshairCommand;
         private DelegateCommand? _importCommand;
         private DelegateCommand? _layoutCommand;
@@ -56,8 +58,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _importedSeriesLoader = _wpf.StudiesService?.ImportedSeriesLoader ?? throw new InvalidOperationException("The imported-series loader has not been initialized.");
+            _imagingSessionService = _core.ImagingService?.ImagingSessionService ?? throw new InvalidOperationException("The imaging session service has not been initialized.");
 
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
+            _imagingSessionService.StateChanged += OnImagingSessionStateChanged;
             _core.ImagingService.ImagingLayoutService!.CurrentLayoutChanged += OnCurrentLayoutChanged;
 
             _activeTool = _core.ImagingService.ImagingToolService.ActiveTool;
@@ -92,6 +96,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public DelegateCommand CancelOpenCommand => _cancelOpenCommand ??= new DelegateCommand(CancelOpen, CanCancelOpen);
 
+        public DelegateCommand CloseStudyCommand => _closeStudyCommand ??= new DelegateCommand(CloseStudy, CanCloseStudy);
+
         public DelegateCommand CrosshairCommand => _crosshairCommand ??= new DelegateCommand(ActivateCrosshair);
 
         public ImagingLayout CurrentLayout
@@ -120,6 +126,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _openImportedSeriesCommand?.RaiseCanExecuteChanged();
                 _importCommand?.RaiseCanExecuteChanged();
                 _cancelOpenCommand?.RaiseCanExecuteChanged();
+                _closeStudyCommand?.RaiseCanExecuteChanged();
                 RaisePropertyChanged(nameof(OpenButtonText));
                 RaisePropertyChanged(nameof(IsCancelVisible));
             }
@@ -173,6 +180,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged -= OnActiveToolChanged;
             _core.ImagingService.ImagingLayoutService!.CurrentLayoutChanged -= OnCurrentLayoutChanged;
+            _imagingSessionService.StateChanged -= OnImagingSessionStateChanged;
 
             _openCancellationTokenSource?.Cancel();
             _openCancellationTokenSource?.Dispose();
@@ -210,6 +218,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private bool CanCancelOpen() => IsBusy;
 
+        private bool CanCloseStudy() => !IsBusy && _imagingSessionService.HasOpenStudy;
+
         private bool CanOpen() => !IsBusy;
         private bool CanOpenImportedSeries() => !IsBusy;
 
@@ -226,7 +236,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _openCancellationTokenSource.Cancel();
         }
 
+        private void CloseStudy()
+        {
+            if (!CanCloseStudy()) return;
+
+            if (_imagingSessionService.HasUnsavedChanges)
+            {
+                StatusText = Resources.CommandBar_UnsavedChangesPreventClose;
+                return;
+            }
+
+            _imagingSessionService.Clear();
+            StatusText = Resources.CommandBar_StudyClosed;
+        }
+
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
+
+        private void OnImagingSessionStateChanged(object? sender, EventArgs e) => _closeStudyCommand?.RaiseCanExecuteChanged();
 
         private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 

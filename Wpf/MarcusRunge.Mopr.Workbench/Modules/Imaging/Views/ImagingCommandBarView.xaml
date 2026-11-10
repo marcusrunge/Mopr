@@ -88,7 +88,13 @@
                           IsChecked="{Binding IsOpen, ElementName=StudyMenuPopup, Mode=TwoWay}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{x:Static properties:Resources.CommandBar_Study}" />
-                    <TextBlock Margin="8,0,0,0" Text="▼" />
+                    <Path Width="9"
+                          Height="5"
+                          Margin="8,1,0,0"
+                          VerticalAlignment="Center"
+                          Data="M 0 0 L 4.5 5 L 9 0 Z"
+                          Fill="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=Foreground}"
+                          Stretch="Fill" />
                 </StackPanel>
             </ToggleButton>
 
@@ -132,6 +138,18 @@
                         <Button Command="{Binding ImportCommand}"
                                 Content="{x:Static properties:Resources.CommandBar_ImportNewStudy}"
                                 Style="{StaticResource CommandBarDropDownButtonStyle}" />
+
+                        <Border Height="1" Margin="4,6" Background="#2A3944" />
+
+                        <TextBlock Margin="12,5,12,5"
+                                   Foreground="#7890A0"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.CommandBar_CurrentStudySection}" />
+
+                        <Button Command="{Binding CloseStudyCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_CloseStudy}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
                     </StackPanel>
                 </Border>
             </Popup>
@@ -151,8 +169,13 @@
                           IsChecked="{Binding IsOpen, ElementName=WindowLevelPresetsPopup, Mode=TwoWay}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{x:Static properties:Resources.WindowLevel_Presets}" />
-                    <TextBlock Margin="6,0,0,0"
-                               Text="▼" />
+                    <Path Width="9"
+                          Height="5"
+                          Margin="6,1,0,0"
+                          VerticalAlignment="Center"
+                          Data="M 0 0 L 4.5 5 L 9 0 Z"
+                          Fill="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=Foreground}"
+                          Stretch="Fill" />
                 </StackPanel>
             </ToggleButton>
 
