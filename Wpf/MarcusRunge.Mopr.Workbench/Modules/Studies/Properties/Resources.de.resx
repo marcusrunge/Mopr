@@ -189,4 +189,16 @@
   <data name="EmptyStudyCatalogMessage" xml:space="preserve">
     <value>Es sind keine importierten Untersuchungen vorhanden. Importieren Sie zuerst eine Untersuchung und öffnen Sie diesen Dialog anschließend erneut.</value>
   </data>
+  <data name="StudySearchHint" xml:space="preserve">
+    <value>Patient, Patienten-ID, Untersuchung, Accession Number, Datum, Serie oder Modalität durchsuchen</value>
+  </data>
+  <data name="ClearSearchButton" xml:space="preserve">
+    <value>Leeren</value>
+  </data>
+  <data name="NoSearchResultsTitle" xml:space="preserve">
+    <value>Keine passenden Untersuchungen</value>
+  </data>
+  <data name="NoSearchResultsMessage" xml:space="preserve">
+    <value>Keine importierte Untersuchung entspricht der aktuellen Suche. Ändern oder leeren Sie den Suchtext.</value>
+  </data>
 </root>

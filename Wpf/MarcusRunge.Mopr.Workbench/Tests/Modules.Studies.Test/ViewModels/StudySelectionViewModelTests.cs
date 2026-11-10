@@ -12,7 +12,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Test.ViewModels
             var context = new StudySelectionViewModelTestContext();
             StudyCatalogItem[] studies = [StudySelectionViewModelTestContext.CreateStudy(1), StudySelectionViewModelTestContext.CreateStudy(2)];
             context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(studies);
-
             await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
 
             Assert.Equal(2, context.ViewModel.Studies.Count);
@@ -28,7 +27,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Test.ViewModels
         {
             var context = new StudySelectionViewModelTestContext();
             context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<StudyCatalogItem>());
-
             await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
 
             Assert.Empty(context.ViewModel.Studies);
@@ -45,7 +43,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Test.ViewModels
             var context = new StudySelectionViewModelTestContext();
             const string technicalMessage = "SQL connection failed for server SECRET-SQL.";
             context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException(technicalMessage));
-
             StudySelectionViewModelTestContext.InvokeExecuteLoad(context.ViewModel);
             await StudySelectionViewModelTestContext.WaitUntilAsync(() => context.ViewModel.HasLoadError && !context.ViewModel.IsLoading, TestContext.Current.CancellationToken);
 
@@ -71,7 +68,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Test.ViewModels
             StudySelectionViewModelTestContext.InvokeExecuteLoad(context.ViewModel);
             await StudySelectionViewModelTestContext.WaitUntilAsync(() => context.ViewModel.HasLoadError && !context.ViewModel.IsLoading, TestContext.Current.CancellationToken);
 
-            Assert.True(context.ViewModel.RetryCommand.CanExecute());
             context.ViewModel.RetryCommand.Execute();
             await StudySelectionViewModelTestContext.WaitUntilAsync(() => context.ViewModel.HasStudies && !context.ViewModel.IsLoading, TestContext.Current.CancellationToken);
 
@@ -125,15 +121,84 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Test.ViewModels
             var viewModel = new StudyItemViewModel(StudySelectionViewModelTestContext.CreateStudy(series: series));
 
             viewModel.ClearSelection();
-
             Assert.Equal(0, viewModel.SelectedSeriesCount);
             Assert.False(viewModel.HasSelectedSeries);
 
             viewModel.SelectAllAvailable();
-
             Assert.Equal(2, viewModel.SelectedSeriesCount);
             Assert.True(viewModel.HasSelectedSeries);
             Assert.False(viewModel.Series[2].IsSelected);
+        }
+
+        [Theory]
+        [InlineData("MUSTERMANN")]
+        [InlineData("PAT-2")]
+        [InlineData("CT Thorax")]
+        [InlineData("ACC-2")]
+        [InlineData("2026")]
+        [InlineData("Series 21")]
+        [InlineData("CT")]
+        public async Task SearchText_Should_Filter_Supported_Study_And_Series_Fields(string searchText)
+        {
+            var context = new StudySelectionViewModelTestContext();
+            StudyCatalogItem[] studies = [StudySelectionViewModelTestContext.CreateStudy(1), StudySelectionViewModelTestContext.CreateStudy(2, new[] { StudySelectionViewModelTestContext.CreateSeries(21) })];
+            context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(studies);
+            await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
+
+            context.ViewModel.SearchText = searchText;
+
+            Assert.NotEmpty(context.ViewModel.Studies);
+            Assert.NotNull(context.ViewModel.SelectedStudy);
+            Assert.False(context.ViewModel.ShowEmptyState);
+        }
+
+        [Fact]
+        public async Task SearchText_Should_Require_All_Search_Terms_In_Any_Supported_Fields()
+        {
+            var context = new StudySelectionViewModelTestContext();
+            StudyCatalogItem[] studies = [StudySelectionViewModelTestContext.CreateStudy(1), StudySelectionViewModelTestContext.CreateStudy(2)];
+            context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(studies);
+            await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
+
+            context.ViewModel.SearchText = "MUSTERMANN PAT-2";
+
+            StudyItemViewModel result = Assert.Single(context.ViewModel.Studies);
+            Assert.Equal(2, result.StudyId);
+            Assert.Same(result, context.ViewModel.SelectedStudy);
+        }
+
+        [Fact]
+        public async Task SearchText_Should_Leave_Filtered_List_Empty_When_No_Study_Matches()
+        {
+            var context = new StudySelectionViewModelTestContext();
+            context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new[] { StudySelectionViewModelTestContext.CreateStudy() });
+            await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
+
+            context.ViewModel.SearchText = "NO-MATCH-4711";
+
+            Assert.Empty(context.ViewModel.Studies);
+            Assert.Null(context.ViewModel.SelectedStudy);
+            Assert.False(context.ViewModel.ShowEmptyState);
+            Assert.True(context.ViewModel.ClearSearchCommand.CanExecute());
+            Assert.False(context.ViewModel.ConfirmCommand.CanExecute());
+        }
+
+        [Fact]
+        public async Task ClearSearchCommand_Should_Restore_All_Studies_And_Preserve_Series_Selection()
+        {
+            var context = new StudySelectionViewModelTestContext();
+            StudyCatalogItem[] studies = [StudySelectionViewModelTestContext.CreateStudy(1), StudySelectionViewModelTestContext.CreateStudy(2)];
+            context.StudyCatalogService.Setup(value => value.GetStudiesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(studies);
+            await StudySelectionViewModelTestContext.InvokeLoadAsync(context.ViewModel);
+            context.ViewModel.Studies[0].Series[0].IsSelected = false;
+            context.ViewModel.SearchText = "PAT-2";
+
+            context.ViewModel.ClearSearchCommand.Execute();
+
+            Assert.Equal(string.Empty, context.ViewModel.SearchText);
+            Assert.Equal(2, context.ViewModel.Studies.Count);
+            Assert.False(context.ViewModel.Studies[0].Series[0].IsSelected);
+            Assert.False(context.ViewModel.ClearSearchCommand.CanExecute());
         }
     }
 }

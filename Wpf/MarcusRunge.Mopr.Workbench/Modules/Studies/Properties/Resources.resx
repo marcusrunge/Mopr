@@ -189,4 +189,16 @@
   <data name="EmptyStudyCatalogMessage" xml:space="preserve">
     <value>No imported studies are available. Import a study first, then open this dialog again.</value>
   </data>
+  <data name="StudySearchHint" xml:space="preserve">
+    <value>Search patient, patient ID, study, accession number, date, series or modality</value>
+  </data>
+  <data name="ClearSearchButton" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="NoSearchResultsTitle" xml:space="preserve">
+    <value>No matching studies</value>
+  </data>
+  <data name="NoSearchResultsMessage" xml:space="preserve">
+    <value>No imported study matches the current search. Change or clear the search text.</value>
+  </data>
 </root>

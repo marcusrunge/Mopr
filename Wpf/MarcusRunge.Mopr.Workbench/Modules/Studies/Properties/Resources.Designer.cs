@@ -70,6 +70,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Clear ähnelt.
+        /// </summary>
+        public static string ClearSearchButton {
+            get {
+                return ResourceManager.GetString("ClearSearchButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Clear selection ähnelt.
         /// </summary>
         public static string ClearSeriesSelectionButton {
@@ -111,6 +120,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         public static string LoadingStudies {
             get {
                 return ResourceManager.GetString("LoadingStudies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No imported study matches the current search. Change or clear the search text. ähnelt.
+        /// </summary>
+        public static string NoSearchResultsMessage {
+            get {
+                return ResourceManager.GetString("NoSearchResultsMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No matching studies ähnelt.
+        /// </summary>
+        public static string NoSearchResultsTitle {
+            get {
+                return ResourceManager.GetString("NoSearchResultsTitle", resourceCulture);
             }
         }
         
@@ -219,6 +246,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.Properties {
         public static string StudyCatalogLoadErrorTitle {
             get {
                 return ResourceManager.GetString("StudyCatalogLoadErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Search patient, patient ID, study, accession number, date, series or modality ähnelt.
+        /// </summary>
+        public static string StudySearchHint {
+            get {
+                return ResourceManager.GetString("StudySearchHint", resourceCulture);
             }
         }
         
