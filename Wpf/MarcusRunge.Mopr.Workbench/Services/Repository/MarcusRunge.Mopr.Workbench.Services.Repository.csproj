@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>    
+    <TargetFramework>net11.0</TargetFramework>    
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Repository</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Repository</AssemblyName></PropertyGroup>
@@ -13,10 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="fo-dicom" Version="5.2.6" />
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
 	<PackageReference Include="System.Reactive" Version="7.0.0" />
-	<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+	<PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>

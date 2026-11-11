@@ -2,16 +2,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net10.0-windows</TargetFramework>
+	<TargetFramework>net11.0-windows</TargetFramework>
 	<UseWPF>true</UseWPF>
 	<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   <RootNamespace>MarcusRunge.Mopr.Workbench.Services.Application</RootNamespace><AssemblyName>MarcusRunge.Mopr.Workbench.Services.Application</AssemblyName></PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarcusRunge.Base" Version="1.0.9" />
-	<PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+    <PackageReference Include="MarcusRunge.Base" Version="1.1.1" />
+	<PackageReference Include="MarcusRunge.Toolbox.Localization.Core" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
