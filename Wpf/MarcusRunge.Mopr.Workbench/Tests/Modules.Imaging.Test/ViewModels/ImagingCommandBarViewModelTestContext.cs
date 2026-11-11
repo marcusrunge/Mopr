@@ -16,11 +16,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             Application.SetupGet(value => value.StudiesService).Returns(StudiesService.Object);
             Core.SetupGet(value => value.ImagingService).Returns(ImagingService.Object);
             ImagingService.SetupGet(value => value.ImagingLayoutService).Returns(ImagingLayoutService.Object);
+            ImagingService.SetupGet(value => value.ImagingSessionService).Returns(ImagingSessionService.Object);
             ImagingService.SetupGet(value => value.ImagingStudyService).Returns(ImagingStudyService.Object);
             ImagingService.SetupGet(value => value.ImagingToolService).Returns(ImagingToolService.Object);
             ImagingService.SetupGet(value => value.ImagingViewportService).Returns(ImagingViewportService.Object);
             ImagingService.SetupGet(value => value.ImagingWindowLevelService).Returns(ImagingWindowLevelService.Object);
             ImagingLayoutService.SetupGet(value => value.CurrentLayout).Returns(ImagingLayout.Single);
+            ImagingSessionService.SetupGet(value => value.HasOpenStudy).Returns(false);
+            ImagingSessionService.SetupGet(value => value.HasUnsavedChanges).Returns(false);
             ImagingToolService.SetupGet(value => value.ActiveTool).Returns(ImagingTool.None);
             StudiesService.SetupGet(value => value.ImportedSeriesLoader).Returns(ImportedSeriesLoader.Object);
             ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object);
@@ -31,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         public Mock<PrismDialogService> DialogService { get; } = new();
         public Mock<IImagingLayoutService> ImagingLayoutService { get; } = new();
         public Mock<IImagingService> ImagingService { get; } = new();
+        public Mock<IImagingSessionService> ImagingSessionService { get; } = new();
         public Mock<IImagingStudyService> ImagingStudyService { get; } = new();
         public Mock<IImagingToolService> ImagingToolService { get; } = new();
         public Mock<IImagingViewportService> ImagingViewportService { get; } = new();
