@@ -5,13 +5,14 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Moq;
+using Prism.Dialogs;
 using PrismDialogService = Prism.Dialogs.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
 {
     internal sealed class ImagingCommandBarViewModelTestContext
     {
-        public ImagingCommandBarViewModelTestContext()
+        public ImagingCommandBarViewModelTestContext(bool hasOpenStudy = false, bool hasUnsavedChanges = false)
         {
             Application.SetupGet(value => value.StudiesService).Returns(StudiesService.Object);
             Core.SetupGet(value => value.ImagingService).Returns(ImagingService.Object);
@@ -22,8 +23,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             ImagingService.SetupGet(value => value.ImagingViewportService).Returns(ImagingViewportService.Object);
             ImagingService.SetupGet(value => value.ImagingWindowLevelService).Returns(ImagingWindowLevelService.Object);
             ImagingLayoutService.SetupGet(value => value.CurrentLayout).Returns(ImagingLayout.Single);
-            ImagingSessionService.SetupGet(value => value.HasOpenStudy).Returns(false);
-            ImagingSessionService.SetupGet(value => value.HasUnsavedChanges).Returns(false);
+            ImagingSessionService.SetupGet(value => value.HasOpenStudy).Returns(hasOpenStudy);
+            ImagingSessionService.SetupGet(value => value.HasUnsavedChanges).Returns(hasUnsavedChanges);
             ImagingToolService.SetupGet(value => value.ActiveTool).Returns(ImagingTool.None);
             StudiesService.SetupGet(value => value.ImportedSeriesLoader).Returns(ImportedSeriesLoader.Object);
             ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object);

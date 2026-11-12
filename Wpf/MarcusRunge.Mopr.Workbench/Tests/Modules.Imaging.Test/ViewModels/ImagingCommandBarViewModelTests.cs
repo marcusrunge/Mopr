@@ -118,6 +118,83 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             context.ImagingStudyService.Verify(value => value.LoadStudyFromSeriesAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<ImagingSeriesLoadRequest>>(), It.IsAny<IProgress<ImagingStudyLoadProgress>?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        [Fact]
+        public void CloseStudyCommand_Should_Be_Disabled_When_No_Study_Is_Open()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: false);
+
+            Assert.False(context.ViewModel.CloseStudyCommand.CanExecute());
+            context.ViewModel.CloseStudyCommand.Execute();
+
+            context.ImagingSessionService.Verify(value => value.Clear(), Times.Never);
+        }
+
+        [Fact]
+        public void CloseStudyCommand_Should_Clear_Open_Clean_Study()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: true, hasUnsavedChanges: false);
+
+            Assert.True(context.ViewModel.CloseStudyCommand.CanExecute());
+            context.ViewModel.CloseStudyCommand.Execute();
+
+            context.ImagingSessionService.Verify(value => value.Clear(), Times.Once);
+        }
+
+        [Fact]
+        public void CloseStudyCommand_Should_Not_Clear_Study_With_Unsaved_Changes()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: true, hasUnsavedChanges: true);
+
+            Assert.True(context.ViewModel.CloseStudyCommand.CanExecute());
+            context.ViewModel.CloseStudyCommand.Execute();
+
+            context.ImagingSessionService.Verify(value => value.Clear(), Times.Never);
+            Assert.True(context.ViewModel.HasStatusText);
+        }
+
+        [Fact]
+        public void CloseStudyCommand_Should_Be_Disabled_While_CommandBar_Is_Busy()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: true);
+
+            SetIsBusy(context.ViewModel, true);
+
+            Assert.False(context.ViewModel.CloseStudyCommand.CanExecute());
+            context.ViewModel.CloseStudyCommand.Execute();
+            context.ImagingSessionService.Verify(value => value.Clear(), Times.Never);
+        }
+
+        [Fact]
+        public void ImagingSessionStateChanged_Should_Refresh_CloseStudyCommand()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: false);
+            var canExecuteChangedCount = 0;
+            context.ViewModel.CloseStudyCommand.CanExecuteChanged += (_, _) => canExecuteChangedCount++;
+
+            context.ImagingSessionService.Raise(value => value.StateChanged += null, EventArgs.Empty);
+
+            Assert.Equal(1, canExecuteChangedCount);
+        }
+
+        [Fact]
+        public void Destroy_Should_Unsubscribe_From_ImagingSessionStateChanged()
+        {
+            var context = new ImagingCommandBarViewModelTestContext(hasOpenStudy: false);
+            var canExecuteChangedCount = 0;
+            context.ViewModel.CloseStudyCommand.CanExecuteChanged += (_, _) => canExecuteChangedCount++;
+
+            context.ViewModel.Destroy();
+            context.ImagingSessionService.Raise(value => value.StateChanged += null, EventArgs.Empty);
+
+            Assert.Equal(0, canExecuteChangedCount);
+        }
+
+        private static void SetIsBusy(ImagingCommandBarViewModel viewModel, bool value)
+        {
+            PropertyInfo property = typeof(ImagingCommandBarViewModel).GetProperty(nameof(ImagingCommandBarViewModel.IsBusy), BindingFlags.Instance | BindingFlags.Public) ?? throw new MissingMemberException(typeof(ImagingCommandBarViewModel).FullName, nameof(ImagingCommandBarViewModel.IsBusy));
+            property.SetValue(viewModel, value);
+        }
+
         private static Task InvokeOpenImportedSeriesAsync(ImagingCommandBarViewModel viewModel, IDialogResult dialogResult)
         {
             MethodInfo method = typeof(ImagingCommandBarViewModel).GetMethod("OpenImportedSeriesAsync", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new MissingMethodException(typeof(ImagingCommandBarViewModel).FullName, "OpenImportedSeriesAsync");
