@@ -5,7 +5,6 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Moq;
-using Prism.Dialogs;
 using PrismDialogService = Prism.Dialogs.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels

@@ -23,8 +23,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
         bool HasUnsavedChanges { get; }
 
         /// <summary>
-        /// Clears the current study and every transient imaging state after the caller has resolved unsaved changes.
+        /// Clears a clean current study and every transient imaging state.
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Explicitly discards every unsaved change and clears the current study and transient imaging state.
+        /// </summary>
+        void DiscardChangesAndClear();
     }
 }

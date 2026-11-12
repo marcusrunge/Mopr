@@ -44,7 +44,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
         {
             var context = CreateContext();
 
-            await Assert.ThrowsAsync<ArgumentException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", Array.Empty<string>(), cancellationToken: TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<ArgumentException>(() => context.Service.LoadStudyFromFilesAsync("study", "series", [], cancellationToken: TestContext.Current.CancellationToken));
         }
 
         [Fact]

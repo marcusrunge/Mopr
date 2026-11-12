@@ -2,8 +2,6 @@ using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using Moq;
-using Prism.Dialogs;
-using System.Linq;
 using System.Reflection;
 using Xunit;
 

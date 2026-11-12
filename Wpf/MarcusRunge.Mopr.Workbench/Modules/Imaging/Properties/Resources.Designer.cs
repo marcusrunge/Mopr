@@ -214,7 +214,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -808,6 +808,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Cancel {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discard changes ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Discard {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Discard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The study contains unsaved changes. ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Message {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Close study? ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Title {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Discarding permanently removes these unsaved changes. ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Warning {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Tool: {0} ähnelt.
         /// </summary>
         public static string Viewer_ActiveToolFormat {
@@ -880,7 +925,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

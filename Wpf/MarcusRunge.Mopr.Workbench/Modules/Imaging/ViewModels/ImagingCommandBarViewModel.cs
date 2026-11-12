@@ -21,6 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private const string ImportDialogName = "ImportView";
         private const string StudySelectionDialogName = "StudySelectionView";
+        private const string UnsavedChangesDialogName = "UnsavedChangesDialogView";
         private const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
 
         private readonly ICore _core;
@@ -242,7 +243,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             if (_imagingSessionService.HasUnsavedChanges)
             {
-                StatusText = Resources.CommandBar_UnsavedChangesPreventClose;
+                _dialogService.ShowDialog(UnsavedChangesDialogName, result =>
+                {
+                    if (result.Result != ButtonResult.OK) return;
+                    _imagingSessionService.DiscardChangesAndClear();
+                    StatusText = Resources.CommandBar_StudyClosed;
+                });
                 return;
             }
 

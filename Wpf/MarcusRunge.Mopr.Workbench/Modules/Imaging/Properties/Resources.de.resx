@@ -1,51 +1,110 @@
-<?xml version='1.0' encoding='utf-8'?>
-<root xmlns:ns1="urn:schemas-microsoft-com:xml-msdata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:schema id="root">
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xs:element name="root" ns1:IsDataSet="true">
-      <xs:complexType>
-        <xs:choice maxOccurs="unbounded">
-          <xs:element name="metadata">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" />
-              </xs:sequence>
-              <xs:attribute name="name" use="required" type="xsd:string" />
-              <xs:attribute name="type" type="xsd:string" />
-              <xs:attribute name="mimetype" type="xsd:string" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="assembly">
-            <xs:complexType>
-              <xs:attribute name="alias" type="xsd:string" />
-              <xs:attribute name="name" type="xsd:string" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="data">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-                <xs:element name="comment" type="xsd:string" minOccurs="0" ns1:Ordinal="2" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" ns1:Ordinal="1" />
-              <xs:attribute name="type" type="xsd:string" ns1:Ordinal="3" />
-              <xs:attribute name="mimetype" type="xsd:string" ns1:Ordinal="4" />
-              <xs:attribute ref="xml:space" />
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="resheader">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="value" type="xsd:string" minOccurs="0" ns1:Ordinal="1" />
-              </xs:sequence>
-              <xs:attribute name="name" type="xsd:string" use="required" />
-            </xs:complexType>
-          </xs:element>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-  </xs:schema>
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
   </resheader>
@@ -101,7 +160,7 @@
     <value>Fadenkreuz</value>
   </data>
   <data name="CommandBar_ResetView" xml:space="preserve">
-    <value>Ansicht zurücksetzen</value>
+    <value>Ansicht zurÃ¼cksetzen</value>
   </data>
   <data name="CommandBar_Status" xml:space="preserve">
     <value>Status</value>
@@ -110,7 +169,7 @@
     <value>Layout: Einzelansicht</value>
   </data>
   <data name="CommandBar_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="CommandBar_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -125,16 +184,16 @@
     <value>Laden...</value>
   </data>
   <data name="CommandBar_Open" xml:space="preserve">
-    <value>Öffnen</value>
+    <value>Ã–ffnen</value>
   </data>
   <data name="CommandBar_Canceling" xml:space="preserve">
     <value>Abbruch wird angefordert...</value>
   </data>
   <data name="CommandBar_SelectFolder" xml:space="preserve">
-    <value>Ordner auswählen...</value>
+    <value>Ordner auswÃ¤hlen...</value>
   </data>
   <data name="CommandBar_Open_DicomFolder" xml:space="preserve">
-    <value>DICOM-Ordner öffnen</value>
+    <value>DICOM-Ordner Ã¶ffnen</value>
   </data>
   <data name="CommandBar_LoadCanceled" xml:space="preserve">
     <value>Laden abgebrochen</value>
@@ -191,7 +250,7 @@
     <value>Layout: Einzelansicht</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="Viewer_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -227,7 +286,7 @@
     <value>Keine Serie aktiv</value>
   </data>
   <data name="Workbench_Study_None" xml:space="preserve">
-    <value>Keine Studie geöffnet</value>
+    <value>Keine Studie geÃ¶ffnet</value>
   </data>
   <data name="PropertiesPanel_Series_None" xml:space="preserve">
     <value>Keine Serie aktiv</value>
@@ -263,7 +322,7 @@
     <value>DICOM-Serie</value>
   </data>
   <data name="PropertiesPanel_Modality" xml:space="preserve">
-    <value>Modalität</value>
+    <value>ModalitÃ¤t</value>
   </data>
   <data name="PropertiesPanel_StudyDescription" xml:space="preserve">
     <value>Studienbeschreibung</value>
@@ -371,10 +430,10 @@
     <value>Pixel: -</value>
   </data>
   <data name="Status_PixelCtFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · HU={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· HU={2:0}</value>
   </data>
   <data name="Status_PixelValueFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · Wert={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· Wert={2:0}</value>
   </data>
   <data name="ViewportTile_ClearViewport" xml:space="preserve">
     <value>Viewport leeren</value>
@@ -416,13 +475,13 @@
     <value>Messungen</value>
   </data>
   <data name="Measurement_Delete" xml:space="preserve">
-    <value>Messung löschen</value>
+    <value>Messung lÃ¶schen</value>
   </data>
   <data name="Measurement_ClearAll" xml:space="preserve">
-    <value>Messungen löschen</value>
+    <value>Messungen lÃ¶schen</value>
   </data>
   <data name="Measurement_SelectedTitle" xml:space="preserve">
-    <value>Ausgewählte Messung</value>
+    <value>AusgewÃ¤hlte Messung</value>
   </data>
   <data name="PropertiesPanel_Tab_Dicom" xml:space="preserve">
     <value>DICOM</value>
@@ -437,34 +496,34 @@
     <value>Einstellungen und Verwaltung</value>
   </data>
   <data name="CommandBar_OpenImportedSeries" xml:space="preserve">
-    <value>Importierte Serie öffnen</value>
+    <value>Importierte Serie Ã¶ffnen</value>
   </data>
   <data name="CommandBar_ImportedSeriesSelected" xml:space="preserve">
-    <value>Importierte Serie ausgewählt. Das sichere Laden aus dem Repository ist noch nicht verbunden.</value>
+    <value>Importierte Serie ausgewÃ¤hlt. Das sichere Laden aus dem Repository ist noch nicht verbunden.</value>
   </data>
   <data name="CommandBar_ImportedSeriesSelectionInvalid" xml:space="preserve">
-    <value>Die ausgewählte importierte Serie konnte nicht eindeutig erkannt werden.</value>
+    <value>Die ausgewÃ¤hlte importierte Serie konnte nicht eindeutig erkannt werden.</value>
   </data>
   <data name="CommandBar_ImportedSeriesResolving" xml:space="preserve">
-    <value>Importierte Serie wird geprüft...</value>
+    <value>Importierte Serie wird geprÃ¼ft...</value>
   </data>
   <data name="CommandBar_ImportedSeriesLoaded" xml:space="preserve">
     <value>Importierte Serie geladen</value>
   </data>
   <data name="CommandBar_ImportedSeriesUnavailable" xml:space="preserve">
-    <value>Die Serie kann derzeit nicht sicher geöffnet werden. MIRAS Aktion erforderlich.</value>
+    <value>Die Serie kann derzeit nicht sicher geÃ¶ffnet werden. MIRAS Aktion erforderlich.</value>
   </data>
   <data name="CommandBar_Study" xml:space="preserve">
     <value>Untersuchung</value>
   </data>
   <data name="CommandBar_StudyOpenSection" xml:space="preserve">
-    <value>ÖFFNEN</value>
+    <value>Ã–FFNEN</value>
   </data>
   <data name="CommandBar_OpenImportedStudy" xml:space="preserve">
-    <value>Importierte Untersuchung öffnen</value>
+    <value>Importierte Untersuchung Ã¶ffnen</value>
   </data>
   <data name="CommandBar_OpenFromFolder" xml:space="preserve">
-    <value>Aus Ordner öffnen</value>
+    <value>Aus Ordner Ã¶ffnen</value>
   </data>
   <data name="CommandBar_StudyImportSection" xml:space="preserve">
     <value>IMPORTIEREN</value>
@@ -476,12 +535,27 @@
     <value>AKTUELLE UNTERSUCHUNG</value>
   </data>
   <data name="CommandBar_CloseStudy" xml:space="preserve">
-    <value>Untersuchung schließen</value>
+    <value>Untersuchung schlieÃŸen</value>
   </data>
   <data name="CommandBar_StudyClosed" xml:space="preserve">
     <value>Untersuchung geschlossen</value>
   </data>
   <data name="CommandBar_UnsavedChangesPreventClose" xml:space="preserve">
-    <value>Die Untersuchung enthält nicht gespeicherte Änderungen und bleibt geöffnet.</value>
+    <value>Die Untersuchung enthÃ¤lt nicht gespeicherte Ã„nderungen und bleibt geÃ¶ffnet.</value>
+  </data>
+  <data name="UnsavedChangesDialog_Title" xml:space="preserve">
+    <value>Untersuchung schlieÃŸen?</value>
+  </data>
+  <data name="UnsavedChangesDialog_Message" xml:space="preserve">
+    <value>Die Untersuchung enthÃ¤lt nicht gespeicherte Ã„nderungen.</value>
+  </data>
+  <data name="UnsavedChangesDialog_Warning" xml:space="preserve">
+    <value>Beim Verwerfen gehen diese nicht gespeicherten Ã„nderungen unwiderruflich verloren.</value>
+  </data>
+  <data name="UnsavedChangesDialog_Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="UnsavedChangesDialog_Discard" xml:space="preserve">
+    <value>Ã„nderungen verwerfen</value>
   </data>
 </root>

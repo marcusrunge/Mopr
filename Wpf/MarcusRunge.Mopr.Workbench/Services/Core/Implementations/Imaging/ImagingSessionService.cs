@@ -1,5 +1,4 @@
 using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using System;
@@ -26,22 +25,24 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         public void Clear()
         {
             if (HasUnsavedChanges) throw new InvalidOperationException("Unsaved imaging changes must be saved or explicitly discarded before the current study can be cleared.");
+            ClearCore(discardUnsavedChanges: false);
+        }
 
-            /*
-             * Suppress forwarded state notifications while the coordinated clear is in
-             * progress. ImagingStudyService.Clear() raises StudyLoaded itself, but the
-             * session must publish exactly one final, fully consistent state change.
-             */
+        public void DiscardChangesAndClear() => ClearCore(discardUnsavedChanges: true);
+
+        private void ClearCore(bool discardUnsavedChanges)
+        {
             _isClearing = true;
 
             try
             {
+                if (discardUnsavedChanges) ImagingService.ImagingSessionChangeTracker?.Clear();
                 ImagingService.ImagingStudyService?.Clear();
                 ImagingService.ImagingSelectionService?.ClearSelection();
                 ImagingService.ImagingViewportService?.Reset();
                 ImagingService.ImagingWindowLevelService?.ResetWindowLevelToDefault();
                 ImagingService.ImagingToolService?.ClearActiveTool();
-                ImagingService.ImagingSessionChangeTracker?.Clear();
+                if (!discardUnsavedChanges) ImagingService.ImagingSessionChangeTracker?.Clear();
             }
             finally
             {

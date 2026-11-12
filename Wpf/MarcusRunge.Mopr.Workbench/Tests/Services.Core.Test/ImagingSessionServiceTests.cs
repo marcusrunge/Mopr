@@ -73,6 +73,35 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
         }
 
         [Fact]
+        public void DiscardChangesAndClear_Should_Clear_Dirty_Session()
+        {
+            var context = new ImagingSessionServiceTestContext(hasOpenStudy: true, hasUnsavedChanges: true);
+            var eventCount = 0;
+            context.Service.StateChanged += (_, _) => eventCount++;
+
+            context.Service.DiscardChangesAndClear();
+
+            context.ChangeTracker.Verify(value => value.Clear(), Times.Once);
+            context.StudyService.Verify(value => value.Clear(), Times.Once);
+            context.SelectionService.Verify(value => value.ClearSelection(), Times.Once);
+            context.ViewportService.Verify(value => value.Reset(), Times.Once);
+            context.WindowLevelService.Verify(value => value.ResetWindowLevelToDefault(), Times.Once);
+            context.ToolService.Verify(value => value.ClearActiveTool(), Times.Once);
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void DiscardChangesAndClear_Should_Also_Clear_Clean_Session_Idempotently()
+        {
+            var context = new ImagingSessionServiceTestContext(hasOpenStudy: true, hasUnsavedChanges: false);
+
+            context.Service.DiscardChangesAndClear();
+
+            context.ChangeTracker.Verify(value => value.Clear(), Times.Once);
+            context.StudyService.Verify(value => value.Clear(), Times.Once);
+        }
+
+        [Fact]
         public void StudyLoaded_Should_Raise_StateChanged()
         {
             var context = new ImagingSessionServiceTestContext();
@@ -80,7 +109,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Test
             context.Service.StateChanged += (_, _) => eventCount++;
             var study = new StudyInfo("study", "Study", "Description");
 
-            context.StudyService.Raise(value => value.StudyLoaded += null, new ImagingStudyLoadedEventArgs(study, Array.Empty<SeriesInfo>(), null));
+            context.StudyService.Raise(value => value.StudyLoaded += null, new ImagingStudyLoadedEventArgs(study, [], null));
 
             Assert.Equal(1, eventCount);
         }
