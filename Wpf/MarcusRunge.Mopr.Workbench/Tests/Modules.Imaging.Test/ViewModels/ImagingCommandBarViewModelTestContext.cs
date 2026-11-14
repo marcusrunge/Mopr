@@ -5,6 +5,8 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Moq;
+using ApplicationDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
+using ApplicationFileDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IFileDialogService;
 using PrismDialogService = Prism.Dialogs.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
@@ -13,7 +15,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
     {
         public ImagingCommandBarViewModelTestContext(bool hasOpenStudy = false, bool hasUnsavedChanges = false)
         {
+            Application.SetupGet(value => value.DialogService).Returns(ApplicationDialogService.Object);
             Application.SetupGet(value => value.StudiesService).Returns(StudiesService.Object);
+            ApplicationDialogService.SetupGet(value => value.FileDialogService).Returns(FileDialogService.Object);
             Core.SetupGet(value => value.ImagingService).Returns(ImagingService.Object);
             ImagingService.SetupGet(value => value.ImagingLayoutService).Returns(ImagingLayoutService.Object);
             ImagingService.SetupGet(value => value.ImagingSessionService).Returns(ImagingSessionService.Object);
@@ -30,8 +34,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         }
 
         public Mock<IApplication> Application { get; } = new();
+        public Mock<ApplicationDialogService> ApplicationDialogService { get; } = new();
         public Mock<ICore> Core { get; } = new();
         public Mock<PrismDialogService> DialogService { get; } = new();
+        public Mock<ApplicationFileDialogService> FileDialogService { get; } = new();
         public Mock<IImagingLayoutService> ImagingLayoutService { get; } = new();
         public Mock<IImagingService> ImagingService { get; } = new();
         public Mock<IImagingSessionService> ImagingSessionService { get; } = new();

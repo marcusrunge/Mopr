@@ -20,37 +20,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ImagingCommandBarViewModel : ViewModelBase
     {
         private const string ImportDialogName = "ImportView";
+        private const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
         private const string StudySelectionDialogName = "StudySelectionView";
         private const string UnsavedChangesDialogName = "UnsavedChangesDialogView";
-        private const string SelectedSeriesRequestsParameterName = "SelectedSeriesRequests";
-
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
-        private readonly IImportedSeriesLoadService _importedSeriesLoader;
         private readonly IImagingSessionService _imagingSessionService;
+        private readonly IImportedSeriesLoadService _importedSeriesLoader;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
-        private DelegateCommand? _applyCtBoneWindowCommand;
-        private DelegateCommand? _applyCtBrainWindowCommand;
-        private DelegateCommand? _applyCtLungWindowCommand;
-        private DelegateCommand? _applyCtMediastinumWindowCommand;
-        private DelegateCommand? _cancelOpenCommand;
-        private DelegateCommand? _closeStudyCommand;
-        private DelegateCommand? _crosshairCommand;
-        private DelegateCommand? _importCommand;
-        private DelegateCommand? _layoutCommand;
-        private DelegateCommand? _measureCommand;
-        private DelegateCommand? _moreCommand;
-        private DelegateCommand? _openCommand;
-        private DelegateCommand? _openImportedSeriesCommand;
-        private DelegateCommand? _panCommand;
-        private DelegateCommand? _resetViewCommand;
-        private DelegateCommand? _resetWindowLevelToDefaultCommand;
-        private DelegateCommand? _windowLevelCommand;
-        private DelegateCommand? _zoomCommand;
+        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _applyCtLungWindowCommand, _applyCtMediastinumWindowCommand, _cancelOpenCommand, _closeStudyCommand, _crosshairCommand, _importCommand, _layoutCommand, _measureCommand, _moreCommand, _openCommand, _openImportedSeriesCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
+
         private bool _isBusy;
+
         private CancellationTokenSource? _openCancellationTokenSource;
+
         private string _statusText = Resources.CommandBar_Status;
 
         public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService)
@@ -111,8 +96,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public DelegateCommand ImportCommand => _importCommand ??= new DelegateCommand(OpenImport, CanOpenImport);
 
-        public DelegateCommand OpenImportedSeriesCommand => _openImportedSeriesCommand ??= new DelegateCommand(OpenImportedSeries, CanOpenImportedSeries);
-
         public bool IsBusy
         {
             get => _isBusy;
@@ -134,27 +117,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         public bool IsCancelVisible => IsBusy;
-
         public bool IsCrosshairActive => ActiveTool == ImagingTool.Crosshair;
-
         public bool IsMeasureActive => ActiveTool == ImagingTool.Measure;
-
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
-
         public bool IsWindowLevelActive => ActiveTool == ImagingTool.WindowLevel;
-
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
-
         public DelegateCommand LayoutCommand => _layoutCommand ??= new DelegateCommand(ChangeLayout);
-
         public DelegateCommand MeasureCommand => _measureCommand ??= new DelegateCommand(ActivateMeasure);
-
         public DelegateCommand MoreCommand => _moreCommand ??= new DelegateCommand(OpenMoreMenu);
-
         public string OpenButtonText => IsBusy ? Resources.CommandBar_Load : Resources.CommandBar_Open;
-
         public DelegateCommand OpenCommand => _openCommand ??= new DelegateCommand(async () => await OpenAsync(), CanOpen);
-
+        public DelegateCommand OpenImportedSeriesCommand => _openImportedSeriesCommand ??= new DelegateCommand(OpenImportedSeries, CanOpenImportedSeries);
         public DelegateCommand PanCommand => _panCommand ??= new DelegateCommand(ActivatePan);
 
         public DelegateCommand ResetViewCommand => _resetViewCommand ??= new DelegateCommand(ResetView);
@@ -219,13 +192,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private bool CanCancelOpen() => IsBusy;
 
-        private bool CanCloseStudy() => !IsBusy && _imagingSessionService.HasOpenStudy;
-
-        private bool CanOpen() => !IsBusy;
-        private bool CanOpenImportedSeries() => !IsBusy;
-
-        private bool CanOpenImport() => !IsBusy;
-
         private void CancelOpen()
         {
             if (_openCancellationTokenSource is null)
@@ -236,6 +202,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             StatusText = Resources.CommandBar_Canceling;
             _openCancellationTokenSource.Cancel();
         }
+
+        private bool CanCloseStudy() => !IsBusy && _imagingSessionService.HasOpenStudy;
+
+        private bool CanOpen() => !IsBusy;
+
+        private bool CanOpenImport() => !IsBusy;
+
+        private bool CanOpenImportedSeries() => !IsBusy;
+
+        private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
         private void CloseStudy()
         {
@@ -256,75 +232,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             StatusText = Resources.CommandBar_StudyClosed;
         }
 
-        private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
-
-        private void OnImagingSessionStateChanged(object? sender, EventArgs e) => _closeStudyCommand?.RaiseCanExecuteChanged();
-
-        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
-
-        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
-
-        private async Task OpenAsync()
+        private async Task<bool> ConfirmDiscardUnsavedChangesAsync()
         {
-            if (IsBusy)
+            if (!_imagingSessionService.HasUnsavedChanges)
             {
-                return;
+                return true;
             }
 
-            try
+            var completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            _dialogService.ShowDialog(UnsavedChangesDialogName, result => completionSource.TrySetResult(result.Result == ButtonResult.OK));
+
+            bool discardConfirmed = await completionSource.Task;
+
+            if (!discardConfirmed)
             {
-                IsBusy = true;
-                StatusText = Resources.CommandBar_SelectFolder;
-
-                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(title: Resources.CommandBar_Open_DicomFolder);
-
-                if (string.IsNullOrWhiteSpace(folderPath))
-                {
-                    StatusText = string.Empty;
-                    return;
-                }
-
-                _openCancellationTokenSource = new CancellationTokenSource();
-
-                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.DisplayText);
-
-                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(folderPath, progress, _openCancellationTokenSource.Token);
-
-                if (_openCancellationTokenSource.IsCancellationRequested)
-                {
-                    StatusText = Resources.CommandBar_LoadCanceled;
-                    return;
-                }
-
-                var summary = _core.ImagingService.ImagingStudyService.LastScanSummary;
-                StatusText = summary?.DisplayText ?? string.Empty;
+                return false;
             }
-            catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)
-            {
-                StatusText = Resources.CommandBar_LoadCanceled;
-            }
-            catch (Exception exception)
-            {
-                StatusText = Resources.CommandBar_LoadError;
-                System.Diagnostics.Debug.WriteLine(exception);
-            }
-            finally
-            {
-                _openCancellationTokenSource?.Dispose();
-                _openCancellationTokenSource = null;
-                IsBusy = false;
-            }
-        }
 
-        private void OpenImportedSeries()
-        {
-            if (!CanOpenImportedSeries()) return;
+            // Discarding is deliberately separated from the normal Clear path.
+            // Only an explicit user confirmation may remove registered changes.
+            _imagingSessionService.DiscardChangesAndClear();
 
-            _dialogService.ShowDialog(StudySelectionDialogName, result =>
-            {
-                if (result.Result != ButtonResult.OK) return;
-                ExecuteOpenImportedSeries(result);
-            });
+            return true;
         }
 
         private async void ExecuteOpenImportedSeries(IDialogResult dialogResult)
@@ -340,24 +270,48 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        private async Task OpenImportedSeriesAsync(IDialogResult dialogResult)
-        {
-            if (IsBusy) return;
+        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
 
-            ImportedSeriesLoadRequest[] requests = dialogResult.Parameters.GetValue<ImportedSeriesLoadRequest[]>(SelectedSeriesRequestsParameterName) ?? [];
-            if (requests.Length == 0)
+        private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
+
+        private void OnImagingSessionStateChanged(object? sender, EventArgs e) => _closeStudyCommand?.RaiseCanExecuteChanged();
+
+        private async Task OpenAsync()
+        {
+            if (IsBusy)
             {
-                StatusText = Resources.CommandBar_ImportedSeriesSelectionInvalid;
                 return;
             }
+
+            string previousStatusText = StatusText;
 
             try
             {
                 IsBusy = true;
-                StatusText = Resources.CommandBar_ImportedSeriesResolving;
+                StatusText = Resources.CommandBar_SelectFolder;
+
+                var folderPath = _wpf.DialogService!.FileDialogService!.SelectFolder(title: Resources.CommandBar_Open_DicomFolder);
+
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    StatusText = string.Empty;
+                    return;
+                }
+
+                if (!await ConfirmDiscardUnsavedChangesAsync())
+                {
+                    StatusText = previousStatusText;
+                    return;
+                }
+
                 _openCancellationTokenSource = new CancellationTokenSource();
-                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.Message);
-                ImportedStudyLoadResult loadResult = await _importedSeriesLoader.ResolveAsync(requests, _openCancellationTokenSource.Token);
+
+                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.DisplayText);
+
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromFolderAsync(
+                    folderPath,
+                    progress,
+                    _openCancellationTokenSource.Token);
 
                 if (_openCancellationTokenSource.IsCancellationRequested)
                 {
@@ -365,16 +319,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     return;
                 }
 
-                if (!loadResult.IsSuccessful || string.IsNullOrWhiteSpace(loadResult.StudyInstanceUid) || loadResult.Series.Count == 0)
-                {
-                    foreach (var technicalError in loadResult.TechnicalErrors) System.Diagnostics.Debug.WriteLine(technicalError);
-                    StatusText = Resources.CommandBar_ImportedSeriesUnavailable;
-                    return;
-                }
+                var summary = _core.ImagingService.ImagingStudyService.LastScanSummary;
 
-                ImagingSeriesLoadRequest[] imagingRequests = [.. loadResult.Series.Select(series => new ImagingSeriesLoadRequest(series.SeriesInstanceUid!, series.Files))];
-                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromSeriesAsync(loadResult.StudyInstanceUid, imagingRequests, progress, _openCancellationTokenSource.Token);
-                StatusText = Resources.CommandBar_ImportedSeriesLoaded;
+                StatusText = summary?.DisplayText ?? string.Empty;
             }
             catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)
             {
@@ -401,6 +348,106 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
 
             _dialogService.ShowDialog(ImportDialogName);
+        }
+
+        private void OpenImportedSeries()
+        {
+            if (!CanOpenImportedSeries()) return;
+
+            _dialogService.ShowDialog(StudySelectionDialogName, result =>
+            {
+                if (result.Result != ButtonResult.OK) return;
+                ExecuteOpenImportedSeries(result);
+            });
+        }
+
+        private async Task OpenImportedSeriesAsync(IDialogResult dialogResult)
+        {
+            if (IsBusy)
+            {
+                return;
+            }
+
+            ImportedSeriesLoadRequest[] requests =
+                dialogResult.Parameters.GetValue<ImportedSeriesLoadRequest[]>(SelectedSeriesRequestsParameterName) ?? [];
+
+            if (requests.Length == 0)
+            {
+                StatusText = Resources.CommandBar_ImportedSeriesSelectionInvalid;
+                return;
+            }
+
+            string previousStatusText = StatusText;
+
+            try
+            {
+                IsBusy = true;
+                StatusText = Resources.CommandBar_ImportedSeriesResolving;
+                _openCancellationTokenSource = new CancellationTokenSource();
+
+                var progress = new Progress<ImagingStudyLoadProgress>(value => StatusText = value.Message);
+
+                ImportedStudyLoadResult loadResult = await _importedSeriesLoader.ResolveAsync(
+                    requests,
+                    _openCancellationTokenSource.Token);
+
+                if (_openCancellationTokenSource.IsCancellationRequested)
+                {
+                    StatusText = Resources.CommandBar_LoadCanceled;
+                    return;
+                }
+
+                if (!loadResult.IsSuccessful ||
+                    string.IsNullOrWhiteSpace(loadResult.StudyInstanceUid) ||
+                    loadResult.Series.Count == 0)
+                {
+                    foreach (var technicalError in loadResult.TechnicalErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine(technicalError);
+                    }
+
+                    StatusText = Resources.CommandBar_ImportedSeriesUnavailable;
+                    return;
+                }
+
+                ImagingSeriesLoadRequest[] imagingRequests =
+                [
+                    .. loadResult.Series.Select(series =>
+                new ImagingSeriesLoadRequest(series.SeriesInstanceUid!, series.Files))
+                ];
+
+                // Resolve and validate the complete target study before asking the user
+                // to discard the current session. Invalid repository data must never
+                // cause existing unsaved changes to be lost.
+                if (!await ConfirmDiscardUnsavedChangesAsync())
+                {
+                    StatusText = previousStatusText;
+                    return;
+                }
+
+                await _core.ImagingService!.ImagingStudyService!.LoadStudyFromSeriesAsync(
+                    loadResult.StudyInstanceUid,
+                    imagingRequests,
+                    progress,
+                    _openCancellationTokenSource.Token);
+
+                StatusText = Resources.CommandBar_ImportedSeriesLoaded;
+            }
+            catch (OperationCanceledException) when (_openCancellationTokenSource?.IsCancellationRequested == true)
+            {
+                StatusText = Resources.CommandBar_LoadCanceled;
+            }
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_LoadError;
+                System.Diagnostics.Debug.WriteLine(exception);
+            }
+            finally
+            {
+                _openCancellationTokenSource?.Dispose();
+                _openCancellationTokenSource = null;
+                IsBusy = false;
+            }
         }
 
         private void OpenMoreMenu()
