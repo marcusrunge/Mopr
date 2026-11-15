@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using Prism.Commands;
 using Prism.Dialogs;
 
@@ -18,11 +19,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public DelegateCommand CancelCommand { get; }
         public DelegateCommand DiscardCommand { get; }
         public DialogCloseListener RequestClose { get; }
-        public static string Title => Properties.Resources.UnsavedChangesDialog_Title;
+        public string Title => Resources.UnsavedChangesDialog_Title;
+
         public bool CanCloseDialog() => true;
+
         public void OnDialogClosed() { }
+
         public void OnDialogOpened(IDialogParameters parameters) { }
+
         private void Cancel() => RequestClose.Invoke(ButtonResult.Cancel);
+
         private void Discard() => RequestClose.Invoke(ButtonResult.OK);
     }
 }

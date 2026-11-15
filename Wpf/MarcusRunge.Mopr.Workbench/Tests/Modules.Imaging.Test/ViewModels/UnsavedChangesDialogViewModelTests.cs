@@ -1,5 +1,6 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
+using Prism.Dialogs;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
@@ -7,7 +8,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
     public sealed class UnsavedChangesDialogViewModelTests
     {
         [Fact]
-        public void Title_Should_Use_Localized_Resource() => Assert.Equal(Resources.UnsavedChangesDialog_Title, UnsavedChangesDialogViewModel.Title);
+        public void Title_Should_Use_Localized_Resource()
+        {
+            var viewModel = new UnsavedChangesDialogViewModel();
+
+            Assert.Equal(Resources.UnsavedChangesDialog_Title, viewModel.Title);
+        }
 
         [Fact]
         public void CanCloseDialog_Should_Return_True()
@@ -36,7 +42,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             Assert.True(viewModel.CanCloseDialog());
             Assert.True(viewModel.CancelCommand.CanExecute());
             Assert.True(viewModel.DiscardCommand.CanExecute());
-            Assert.Equal(Resources.UnsavedChangesDialog_Title, UnsavedChangesDialogViewModel.Title);
+            Assert.Equal(Resources.UnsavedChangesDialog_Title, viewModel.Title);
         }
 
         [Fact]
