@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
@@ -14,17 +14,68 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         private const string DicomDirectoryFileName = "DICOMDIR";
 
         private IImportServiceBase? _base;
-        private IDicomImportDriveProvider _driveProvider => Base.DicomImportDriveProvider ?? throw new InvalidOperationException("The DICOM import drive provider has not been initialized.");
-
+        private IDicomImportDriveProvider DriveProvider => Base.DicomImportDriveProvider ?? throw new InvalidOperationException("The DICOM import drive provider has not been initialized.");
         private IImportServiceBase Base => _base ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
 
         /// <inheritdoc/>
-        public Task<DicomImportSourceResolution> ResolveAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
+        public async Task<DicomImportSourceResolution> ResolveAsync(DicomImportRequest request, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(request);
             cancellationToken.ThrowIfCancellationRequested();
 
-            return Task.FromResult(Resolve(request, cancellationToken));
+            if (string.IsNullOrWhiteSpace(request.SourcePath))
+            {
+                return CreateUnavailableResolution(request, request.SourceType == DicomImportSourceType.AutoDetect ? DicomImportSourceType.Unknown : request.SourceType);
+            }
+
+            var sourcePath = request.SourcePath.Trim();
+
+            if (request.SourceType != DicomImportSourceType.AutoDetect)
+            {
+                return await ResolveExplicitSourceAsync(request, sourcePath, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (IsIsoImagePath(sourcePath))
+            {
+                return await ResolveIsoImageAsync(request, sourcePath, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (IsUncPath(sourcePath))
+            {
+                return await ResolveDirectorySourceAsync(request, sourcePath, DicomImportSourceType.NetworkShare, treatAsReadOnly: true, cancellationToken).ConfigureAwait(false);
+            }
+
+            var drive = await FindContainingDriveAsync(sourcePath, cancellationToken).ConfigureAwait(false);
+
+            if (drive is null)
+            {
+                var directoryExists = await DirectoryExistsAsync(sourcePath, cancellationToken).ConfigureAwait(false);
+                return directoryExists
+                    ? await ResolveDirectorySourceAsync(request, sourcePath, DicomImportSourceType.LocalDirectory, treatAsReadOnly: false, cancellationToken).ConfigureAwait(false)
+                    : CreateUnavailableResolution(request, DicomImportSourceType.Unknown, sourcePath);
+            }
+
+            var sourceType = drive.DriveType switch
+            {
+                DriveType.Network => DicomImportSourceType.MappedNetworkDrive,
+                DriveType.CDRom => DicomImportSourceType.CdRom,
+                DriveType.Removable => DicomImportSourceType.RemovableDrive,
+                DriveType.Fixed => DicomImportSourceType.LocalDirectory,
+                DriveType.Ram => DicomImportSourceType.VirtualDrive,
+                _ => DicomImportSourceType.Unknown
+            };
+
+            if (sourceType == DicomImportSourceType.Unknown)
+            {
+                var directoryExists = await DirectoryExistsAsync(sourcePath, cancellationToken).ConfigureAwait(false);
+                return CreateUnavailableResolution(request, sourceType, sourcePath) with
+                {
+                    Exists = directoryExists,
+                    IsReady = drive.IsReady
+                };
+            }
+
+            return await ResolveDirectorySourceAsync(request, sourcePath, sourceType, IsReadOnlySource(sourceType), cancellationToken, drive.IsReady).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -44,7 +95,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             TreatAsReadOnly = IsReadOnlySource(sourceType)
         };
 
-        private static bool HasDicomDirectoryIndex(string sourcePath)
+        private static Task<bool> DirectoryExistsAsync(string sourcePath, CancellationToken cancellationToken) => Task.Run(() => Directory.Exists(sourcePath), cancellationToken);
+
+        private static Task<bool> FileExistsAsync(string sourcePath, CancellationToken cancellationToken) => Task.Run(() => File.Exists(sourcePath), cancellationToken);
+
+        private static Task<bool> HasDicomDirectoryIndexAsync(string sourcePath, CancellationToken cancellationToken) => Task.Run(() =>
         {
             try
             {
@@ -54,7 +109,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             {
                 return false;
             }
-        }
+        }, cancellationToken);
 
         private static bool IsDirectoryBasedSource(DicomImportSourceType sourceType) => sourceType is DicomImportSourceType.LocalDirectory or DicomImportSourceType.UsbDrive or DicomImportSourceType.RemovableDrive or DicomImportSourceType.ExternalDrive or DicomImportSourceType.SdCard or DicomImportSourceType.CdRom or DicomImportSourceType.Dvd or DicomImportSourceType.NetworkShare or DicomImportSourceType.MappedNetworkDrive or DicomImportSourceType.VirtualDrive;
 
@@ -80,16 +135,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             return normalizedRoot.EndsWith(Path.DirectorySeparatorChar) ? normalizedRoot : $"{normalizedRoot}{Path.DirectorySeparatorChar}";
         }
 
-        private static DicomImportSourceResolution ResolveDirectorySource(DicomImportRequest request, string sourcePath, DicomImportSourceType sourceType, bool treatAsReadOnly, CancellationToken cancellationToken, bool driveReady = true)
+        private static async Task<DicomImportSourceResolution> ResolveDirectorySourceAsync(DicomImportRequest request, string sourcePath, DicomImportSourceType sourceType, bool treatAsReadOnly, CancellationToken cancellationToken, bool driveReady = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var exists = Directory.Exists(sourcePath);
+            var exists = await DirectoryExistsAsync(sourcePath, cancellationToken).ConfigureAwait(false);
             var isReady = driveReady && exists;
+            var containsDicomDirectoryIndex = isReady && await HasDicomDirectoryIndexAsync(sourcePath, cancellationToken).ConfigureAwait(false);
 
             return new DicomImportSourceResolution
             {
-                ContainsDicomDirectoryIndex = isReady && HasDicomDirectoryIndex(sourcePath),
+                ContainsDicomDirectoryIndex = containsDicomDirectoryIndex,
                 EffectiveSourcePath = sourcePath,
                 Exists = exists,
                 IsReady = isReady,
@@ -100,9 +156,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             };
         }
 
-        private static DicomImportSourceResolution ResolveIsoImage(DicomImportRequest request, string sourcePath)
+        private static async Task<DicomImportSourceResolution> ResolveIsoImageAsync(DicomImportRequest request, string sourcePath, CancellationToken cancellationToken)
         {
-            var exists = File.Exists(sourcePath);
+            var exists = await FileExistsAsync(sourcePath, cancellationToken).ConfigureAwait(false);
 
             return new DicomImportSourceResolution
             {
@@ -116,7 +172,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
             };
         }
 
-        private DicomImportDriveInfo? FindContainingDrive(string sourcePath)
+        private async Task<DicomImportDriveInfo?> FindContainingDriveAsync(string sourcePath, CancellationToken cancellationToken)
         {
             string normalizedPath;
 
@@ -129,67 +185,42 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                 return null;
             }
 
-            return _driveProvider.GetDrives().Where(drive => !string.IsNullOrWhiteSpace(drive.RootPath)).OrderByDescending(drive => drive.RootPath.Length).FirstOrDefault(drive => normalizedPath.StartsWith(NormalizeRootPath(drive.RootPath), StringComparison.OrdinalIgnoreCase));
-        }
-
-        private DicomImportSourceResolution Resolve(DicomImportRequest request, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(request.SourcePath))
+            await foreach (var drive in DriveProvider.GetDrivesAsync(cancellationToken).ConfigureAwait(false))
             {
-                return CreateUnavailableResolution(request, request.SourceType == DicomImportSourceType.AutoDetect ? DicomImportSourceType.Unknown : request.SourceType);
-            }
+                cancellationToken.ThrowIfCancellationRequested();
 
-            var sourcePath = request.SourcePath.Trim();
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (request.SourceType != DicomImportSourceType.AutoDetect)
-            {
-                return ResolveExplicitSource(request, sourcePath, cancellationToken);
-            }
-
-            if (IsIsoImagePath(sourcePath))
-            {
-                return ResolveIsoImage(request, sourcePath);
-            }
-
-            if (IsUncPath(sourcePath))
-            {
-                return ResolveDirectorySource(request, sourcePath, DicomImportSourceType.NetworkShare, treatAsReadOnly: true, cancellationToken);
-            }
-
-            var drive = FindContainingDrive(sourcePath);
-            if (drive is null)
-            {
-                return Directory.Exists(sourcePath) ? ResolveDirectorySource(request, sourcePath, DicomImportSourceType.LocalDirectory, treatAsReadOnly: false, cancellationToken) : CreateUnavailableResolution(request, DicomImportSourceType.Unknown, sourcePath);
-            }
-
-            var sourceType = drive.DriveType switch
-            {
-                DriveType.Network => DicomImportSourceType.MappedNetworkDrive,
-                DriveType.CDRom => DicomImportSourceType.CdRom,
-                DriveType.Removable => DicomImportSourceType.RemovableDrive,
-                DriveType.Fixed => DicomImportSourceType.LocalDirectory,
-                DriveType.Ram => DicomImportSourceType.VirtualDrive,
-                _ => DicomImportSourceType.Unknown
-            };
-
-            if (sourceType == DicomImportSourceType.Unknown)
-            {
-                return CreateUnavailableResolution(request, sourceType, sourcePath) with
+                if (string.IsNullOrWhiteSpace(drive.RootPath))
                 {
-                    Exists = Directory.Exists(sourcePath),
-                    IsReady = drive.IsReady
-                };
+                    continue;
+                }
+
+                string normalizedRoot;
+
+                try
+                {
+                    normalizedRoot = NormalizeRootPath(drive.RootPath);
+                }
+                catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+                {
+                    continue;
+                }
+
+                // Windows drive roots do not overlap. Returning the first containing root avoids waiting for
+                // unrelated slow network, optical or removable drives after the required drive was identified.
+                if (normalizedPath.StartsWith(normalizedRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    return drive;
+                }
             }
 
-            return ResolveDirectorySource(request, sourcePath, sourceType, IsReadOnlySource(sourceType), cancellationToken, drive.IsReady);
+            return null;
         }
 
-        private DicomImportSourceResolution ResolveExplicitSource(DicomImportRequest request, string sourcePath, CancellationToken cancellationToken)
+        private async Task<DicomImportSourceResolution> ResolveExplicitSourceAsync(DicomImportRequest request, string sourcePath, CancellationToken cancellationToken)
         {
             if (request.SourceType == DicomImportSourceType.IsoImage)
             {
-                return ResolveIsoImage(request, sourcePath);
+                return await ResolveIsoImageAsync(request, sourcePath, cancellationToken).ConfigureAwait(false);
             }
 
             if (!IsDirectoryBasedSource(request.SourceType))
@@ -197,9 +228,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
                 return CreateUnavailableResolution(request, request.SourceType, sourcePath);
             }
 
-            var drive = FindContainingDrive(sourcePath);
+            var drive = await FindContainingDriveAsync(sourcePath, cancellationToken).ConfigureAwait(false);
             var isReady = drive?.IsReady ?? true;
-            return ResolveDirectorySource(request, sourcePath, request.SourceType, IsReadOnlySource(request.SourceType), cancellationToken, isReady);
+            return await ResolveDirectorySourceAsync(request, sourcePath, request.SourceType, IsReadOnlySource(request.SourceType), cancellationToken, isReady).ConfigureAwait(false);
         }
     }
 }

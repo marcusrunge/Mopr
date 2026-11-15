@@ -243,4 +243,52 @@
   <data name="ImportCancellationRequestedMessage" xml:space="preserve">
     <value>The import is being cancelled. The current file-system operation is still being completed safely.</value>
   </data>
+  <data name="ImportDriveStatusReady" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="ImportDriveStatusNotReady" xml:space="preserve">
+    <value>No accessible medium</value>
+  </data>
+  <data name="ImportDriveTypeOpticalMedia" xml:space="preserve">
+    <value>Optical medium</value>
+  </data>
+  <data name="ImportDriveTypeNetworkDrive" xml:space="preserve">
+    <value>Network drive</value>
+  </data>
+  <data name="ImportDriveTypeVirtualDrive" xml:space="preserve">
+    <value>Virtual drive</value>
+  </data>
+  <data name="ImportDriveTypeRemovableMedia" xml:space="preserve">
+    <value>Removable medium</value>
+  </data>
+  <data name="ImportDriveTypeLocalDrive" xml:space="preserve">
+    <value>Local drive</value>
+  </data>
+  <data name="ImportDriveTypeOther" xml:space="preserve">
+    <value>Other drive</value>
+  </data>
+  <data name="AvailableDrivesTitle" xml:space="preserve">
+    <value>Available drives and media</value>
+  </data>
+  <data name="RefreshDrivesButton" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="SelectDriveButton" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="IsoImageInstruction" xml:space="preserve">
+    <value>ISO images cannot be imported directly yet. Mount the image in Windows and select the resulting virtual drive.</value>
+  </data>
+  <data name="DriveSearchInProgressTitle" xml:space="preserve">
+    <value>Searching for drives and media…</value>
+  </data>
+  <data name="DriveSearchInProgressDescription" xml:space="preserve">
+    <value>Available sources appear as soon as they are detected. You can already select a ready source while MOPR continues searching.</value>
+  </data>
+  <data name="DriveSearchFoundCountFormat" xml:space="preserve">
+    <value>Sources found: {0}</value>
+  </data>
+  <data name="RefreshDrivesWhileSearchingToolTip" xml:space="preserve">
+    <value>Restart drive and media detection</value>
+  </data>
 </root>

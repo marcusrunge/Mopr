@@ -5,6 +5,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using Moq;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 {
@@ -66,7 +67,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         public async Task ResolveAsync_WhenSourceContainsDicomDirectoryIndex_ReportsDicomDirectoryIndex()
         {
             using var context = new DicomImportSourceResolverTestContext();
-            await File.WriteAllTextAsync(Path.Combine(context.SourceDirectoryPath, "DICOMDIR"), string.Empty, TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(
+                Path.Combine(context.SourceDirectoryPath, "DICOMDIR"),
+                string.Empty,
+                TestContext.Current.CancellationToken);
 
             var result = await context.Resolver.ResolveAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
 
@@ -90,7 +94,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             var isoPath = Path.Combine(context.SourceDirectoryPath, "Study.iso");
             await File.WriteAllBytesAsync(isoPath, [], TestContext.Current.CancellationToken);
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(isoPath), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(isoPath),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.IsoImage, result.SourceType);
             Assert.Equal(isoPath, result.OriginalSourcePath);
@@ -108,7 +114,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportSourceResolverTestContext();
             var isoPath = Path.Combine(context.SourceDirectoryPath, "Unavailable.iso");
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(isoPath, DicomImportSourceType.IsoImage), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(isoPath, DicomImportSourceType.IsoImage),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.IsoImage, result.SourceType);
             Assert.False(result.Exists);
@@ -121,7 +129,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         public async Task ResolveAsync_WhenExplicitNetworkShareIsAvailable_ReturnsSupportedReadOnlySource()
         {
             using var context = new DicomImportSourceResolverTestContext();
-            var request = new DicomImportRequest(context.SourceDirectoryPath, DicomImportSourceType.NetworkShare);
+            var request = new DicomImportRequest(
+                context.SourceDirectoryPath,
+                DicomImportSourceType.NetworkShare);
 
             var result = await context.Resolver.ResolveAsync(request, TestContext.Current.CancellationToken);
 
@@ -146,7 +156,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             using var context = new DicomImportSourceResolverTestContext();
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(context.SourceDirectoryPath, sourceType), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(context.SourceDirectoryPath, sourceType),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(sourceType, result.SourceType);
             Assert.True(result.Exists);
@@ -161,7 +173,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportSourceResolverTestContext();
             var unavailablePath = Path.Combine(context.SourceDirectoryPath, "Unavailable");
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(unavailablePath, DicomImportSourceType.LocalDirectory), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(unavailablePath, DicomImportSourceType.LocalDirectory),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.LocalDirectory, result.SourceType);
             Assert.Equal(unavailablePath, result.EffectiveSourcePath);
@@ -175,7 +189,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             using var context = new DicomImportSourceResolverTestContext();
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(string.Empty), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(string.Empty),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.Unknown, result.SourceType);
             Assert.False(result.Exists);
@@ -188,7 +204,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             using var context = new DicomImportSourceResolverTestContext();
 
-            var result = await context.Resolver.ResolveAsync(new DicomImportRequest(context.SourceDirectoryPath, DicomImportSourceType.Unknown), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                new DicomImportRequest(context.SourceDirectoryPath, DicomImportSourceType.Unknown),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.Unknown, result.SourceType);
             Assert.False(result.Exists);
@@ -200,10 +218,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         public async Task ResolveAsync_WhenCancellationWasRequested_ThrowsOperationCanceledException()
         {
             using var context = new DicomImportSourceResolverTestContext();
-            using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+            using var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                TestContext.Current.CancellationToken);
+
             cancellationSource.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Resolver.ResolveAsync(context.CreateRequest(), cancellationSource.Token));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => context.Resolver.ResolveAsync(context.CreateRequest(), cancellationSource.Token));
         }
 
         [Fact]
@@ -212,7 +233,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
             using var context = new DicomImportSourceResolverTestContext();
             context.SetDrive(DriveType.Removable, isReady: false);
 
-            var result = await context.Resolver.ResolveAsync(context.CreateRequest(), TestContext.Current.CancellationToken);
+            var result = await context.Resolver.ResolveAsync(
+                context.CreateRequest(),
+                TestContext.Current.CancellationToken);
 
             Assert.Equal(DicomImportSourceType.RemovableDrive, result.SourceType);
             Assert.True(result.Exists);
@@ -225,7 +248,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             using var context = new DicomImportSourceResolverTestContext();
 
-            var secondResolver = DicomImportSourceResolver.Create(context.ImportServiceBase.Object, CreationLifetime.Scoped);
+            var secondResolver = DicomImportSourceResolver.Create(
+                context.ImportServiceBase.Object,
+                CreationLifetime.Scoped);
 
             Assert.Same(context.Resolver, secondResolver);
         }
@@ -245,27 +270,47 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
         {
             using var firstContext = new DicomImportSourceResolverTestContext();
             using var secondContext = new DicomImportSourceResolverTestContext();
+
             firstContext.SetDrive(DriveType.Removable, isReady: true);
             secondContext.SetDrive(DriveType.Network, isReady: true);
 
             var results = await Task.WhenAll(
-                firstContext.Resolver.ResolveAsync(firstContext.CreateRequest(), TestContext.Current.CancellationToken),
-                secondContext.Resolver.ResolveAsync(secondContext.CreateRequest(), TestContext.Current.CancellationToken));
+                firstContext.Resolver.ResolveAsync(
+                    firstContext.CreateRequest(),
+                    TestContext.Current.CancellationToken),
+                secondContext.Resolver.ResolveAsync(
+                    secondContext.CreateRequest(),
+                    TestContext.Current.CancellationToken));
 
             Assert.Equal(DicomImportSourceType.RemovableDrive, results[0].SourceType);
             Assert.Equal(DicomImportSourceType.MappedNetworkDrive, results[1].SourceType);
-            firstContext.DriveProvider.Verify(provider => provider.GetDrives(), Times.Once);
-            secondContext.DriveProvider.Verify(provider => provider.GetDrives(), Times.Once);
+
+            firstContext.DriveProvider.Verify(
+                provider => provider.GetDrivesAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            secondContext.DriveProvider.Verify(
+                provider => provider.GetDrivesAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         private sealed class DicomImportSourceResolverTestContext : IDisposable
         {
+            private IReadOnlyList<DicomImportDriveInfo> _drives = [];
             private bool _disposed;
 
             public DicomImportSourceResolverTestContext()
             {
-                SourceDirectoryPath = Path.Combine(Path.GetTempPath(), $"mopr-import-source-resolver-{Guid.NewGuid():N}");
+                SourceDirectoryPath = Path.Combine(
+                    Path.GetTempPath(),
+                    $"mopr-import-source-resolver-{Guid.NewGuid():N}");
+
                 Directory.CreateDirectory(SourceDirectoryPath);
+
+                DriveProvider
+                    .Setup(provider => provider.GetDrivesAsync(It.IsAny<CancellationToken>()))
+                    .Returns((CancellationToken cancellationToken) =>
+                        EnumerateDrivesAsync(_drives, cancellationToken));
 
                 SetDrive(DriveType.Fixed, isReady: true);
 
@@ -273,12 +318,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
                     .SetupGet(service => service.DicomImportDriveProvider)
                     .Returns(DriveProvider.Object);
 
-                Resolver = DicomImportSourceResolver.Create(ImportServiceBase.Object, CreationLifetime.Scoped);
+                Resolver = DicomImportSourceResolver.Create(
+                    ImportServiceBase.Object,
+                    CreationLifetime.Scoped);
             }
 
-            public Mock<IDicomImportDriveProvider> DriveProvider { get; } = new(MockBehavior.Strict);
+            public Mock<IDicomImportDriveProvider> DriveProvider { get; } =
+                new(MockBehavior.Strict);
 
-            public Mock<IImportServiceBase> ImportServiceBase { get; } = new(MockBehavior.Strict);
+            public Mock<IImportServiceBase> ImportServiceBase { get; } =
+                new(MockBehavior.Strict);
 
             public IDicomImportSourceResolver Resolver { get; }
 
@@ -300,11 +349,31 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 
             public void SetDrive(DriveType driveType, bool isReady)
             {
-                var rootPath = Path.GetPathRoot(SourceDirectoryPath) ?? SourceDirectoryPath;
+                var rootPath = Path.GetPathRoot(SourceDirectoryPath)
+                    ?? SourceDirectoryPath;
 
-                DriveProvider
-                    .Setup(provider => provider.GetDrives())
-                    .Returns([new DicomImportDriveInfo(rootPath, driveType, isReady)]);
+                _drives =
+                [
+                    new DicomImportDriveInfo(rootPath, driveType, isReady)
+                ];
+            }
+
+            private static async IAsyncEnumerable<DicomImportDriveInfo> EnumerateDrivesAsync(
+                IEnumerable<DicomImportDriveInfo> drives,
+                [EnumeratorCancellation] CancellationToken cancellationToken)
+            {
+                foreach (var drive in drives)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    /*
+                     * Yield control between descriptors so the test double preserves the
+                     * progressive behavior of the production provider instead of silently
+                     * reverting tests to synchronous enumeration semantics.
+                     */
+                    await Task.Yield();
+                    yield return drive;
+                }
             }
 
             private static void TryDeleteDirectory(string directoryPath)

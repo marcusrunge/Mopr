@@ -1,16 +1,21 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
+using System.Runtime.CompilerServices;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {
     /// <summary>
-    /// Provides operating-system drive information required for import-source classification.
+    /// Provides operating-system drive information required for import-source selection and classification.
     /// </summary>
-    internal interface IDicomImportDriveProvider
+    public interface IDicomImportDriveProvider
     {
         /// <summary>
-        /// Gets the available drives visible to the current process.
+        /// Enumerates drives visible to the application process without blocking the caller.
         /// </summary>
-        /// <returns>The available drive descriptors.</returns>
-        IReadOnlyList<DicomImportDriveInfo> GetDrives();
+        /// <param name="cancellationToken">Stops the current enumeration.</param>
+        /// <returns>
+        /// An asynchronous stream of drive descriptors. A descriptor is returned as soon as the corresponding
+        /// drive has been inspected.
+        /// </returns>
+        IAsyncEnumerable<DicomImportDriveInfo> GetDrivesAsync([EnumeratorCancellation] CancellationToken cancellationToken);
     }
 }

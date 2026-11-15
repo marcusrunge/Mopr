@@ -3,6 +3,8 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Threading;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
@@ -12,15 +14,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
     /// </summary>
     public sealed class ImportViewModel : ViewModelBase, IDialogAware
     {
+        private readonly IDicomImportDriveProvider _dicomImportDriveProvider;
         private readonly IDicomImportService _dicomImportService;
         private readonly DispatcherTimer _discoveryTimer;
         private readonly IFileDialogService _fileDialogService;
         private int _discoveryElapsedSeconds;
+        private CancellationTokenSource? _driveRefreshCancellation;
         private CancellationTokenSource? _importCancellation;
         private double _importProgressPercentage;
         private bool _isCancellationRequested;
         private bool _isImporting;
         private bool _isInspectingSource;
+        private bool _isRefreshingDrives;
         private int _processedFiles;
         private ImportResultViewModel? _result;
         private int _totalFiles;
@@ -29,12 +34,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         {
             ArgumentNullException.ThrowIfNull(application);
 
-            _fileDialogService = application.DialogService?.FileDialogService ?? throw new InvalidOperationException("The file dialog service has not been initialized.");
+            _fileDialogService = application.DialogService?.FileDialogService
+                ?? throw new InvalidOperationException("The file dialog service has not been initialized.");
 
-            _dicomImportService = application.ImportService?.DicomImportService ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
+            _dicomImportDriveProvider = application.ImportService?.DicomImportDriveProvider
+                ?? throw new InvalidOperationException("The DICOM import drive provider has not been initialized.");
+
+            _dicomImportService = application.ImportService?.DicomImportService
+                ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
+
+            AvailableDrives = [];
+            AvailableDrives.CollectionChanged += OnAvailableDrivesCollectionChanged;
 
             Source = new ImportSourceViewModel();
 
+            RefreshDrivesCommand = new DelegateCommand(ExecuteRefreshDrives, CanRefreshDrives);
+            SelectDriveCommand = new DelegateCommand<ImportDriveItemViewModel>(SelectDrive, CanSelectDrive);
             SelectSourceCommand = new DelegateCommand(SelectSource, CanSelectSource);
             StartImportCommand = new DelegateCommand(ExecuteStartImport, CanStartImport);
             CancelImportCommand = new DelegateCommand(CancelImport, CanCancelImport);
@@ -51,7 +66,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         public static string Title => Properties.Resources.ImportTitle;
 
-        public string CancelImportButtonText => IsCancellationRequested ? Properties.Resources.ImportCancellationRequestedButton : Properties.Resources.CancelImportButton;
+        public ObservableCollection<ImportDriveItemViewModel> AvailableDrives { get; }
+
+        public string CancelImportButtonText =>
+            IsCancellationRequested
+                ? Properties.Resources.ImportCancellationRequestedButton
+                : Properties.Resources.CancelImportButton;
 
         public DelegateCommand CancelImportCommand { get; }
 
@@ -73,6 +93,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
         }
 
+        public string DriveSearchFoundCountText =>
+            string.Format(Properties.Resources.DriveSearchFoundCountFormat, AvailableDrives.Count);
+
         public bool HasResult => Result is not null;
 
         public double ImportProgressPercentage
@@ -92,10 +115,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
                 if (TotalFiles <= 0)
                 {
-                    return ProcessedFiles <= 0 ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveryElapsedSeconds) : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
+                    return ProcessedFiles <= 0
+                        ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveryElapsedSeconds)
+                        : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
                 }
 
-                return IsInspectingSource ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles) : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
+                return IsInspectingSource
+                    ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles)
+                    : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
             }
         }
 
@@ -145,6 +172,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         public bool IsProgressIndeterminate => TotalFiles <= 0;
 
+        public bool IsRefreshingDrives
+        {
+            get => _isRefreshingDrives;
+            private set
+            {
+                if (!SetProperty(ref _isRefreshingDrives, value))
+                {
+                    return;
+                }
+
+                RaiseCommandState();
+            }
+        }
+
         public int ProcessedFiles
         {
             get => _processedFiles;
@@ -159,6 +200,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                 RaisePropertyChanged(nameof(ImportProgressText));
             }
         }
+
+        public DelegateCommand RefreshDrivesCommand { get; }
 
         /// <inheritdoc/>
         public DialogCloseListener RequestClose { get; }
@@ -177,6 +220,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                 RaiseCommandState();
             }
         }
+
+        public DelegateCommand<ImportDriveItemViewModel> SelectDriveCommand { get; }
 
         public DelegateCommand SelectSourceCommand { get; }
 
@@ -209,6 +254,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         public override void Destroy()
         {
             _discoveryTimer.Stop();
+            _discoveryTimer.Tick -= OnDiscoveryTimerTick;
+            AvailableDrives.CollectionChanged -= OnAvailableDrivesCollectionChanged;
+            ReleaseDriveRefreshCancellation(cancel: true);
             ReleaseImportCancellation(cancel: true);
             base.Destroy();
         }
@@ -217,6 +265,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         public void OnDialogClosed()
         {
             _discoveryTimer.Stop();
+            ReleaseDriveRefreshCancellation(cancel: true);
             ReleaseImportCancellation(cancel: true);
         }
 
@@ -231,9 +280,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             Result = null;
             Source.Clear();
             RaiseCommandState();
+
+            ExecuteRefreshDrives();
         }
 
         private bool CanCancelImport() => IsImporting && !IsCancellationRequested;
+
+        private bool CanRefreshDrives() => !IsImporting;
+
+        private bool CanSelectDrive(ImportDriveItemViewModel? drive) =>
+            CanSelectSource() && drive?.IsReady == true;
+
+        private bool CanSelectSource() => !IsImporting;
+
+        private bool CanStartImport() => !IsImporting && Source.HasSelection;
+
+        private bool CanStartNewImport() => !IsImporting && HasResult;
 
         private void CancelImport()
         {
@@ -250,12 +312,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             _importCancellation?.Cancel();
         }
 
-        private bool CanSelectSource() => !IsImporting;
-
-        private bool CanStartImport() => !IsImporting && Source.HasSelection;
-
-        private bool CanStartNewImport() => !IsImporting && HasResult;
-
         private void CloseDialog()
         {
             if (!CanCloseDialog())
@@ -264,6 +320,28 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
 
             RequestClose.Invoke(ButtonResult.Cancel);
+        }
+
+        private async void ExecuteRefreshDrives()
+        {
+            try
+            {
+                await RefreshDrivesAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Refresh cancellation is expected when the user refreshes again or closes the dialog.
+            }
+            catch (Exception exception)
+            {
+                /*
+                 * Unexpected drive-enumeration failures are converted into the existing
+                 * structured result so technical details do not escape through the WPF surface.
+                 */
+                var resultViewModel = new ImportResultViewModel();
+                resultViewModel.Apply(DicomImportResult.Failed(exception));
+                Result = resultViewModel;
+            }
         }
 
         private async void ExecuteStartImport()
@@ -284,15 +362,88 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
         }
 
+        private void OnAvailableDrivesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) =>
+            RaisePropertyChanged(nameof(DriveSearchFoundCountText));
+
         private void OnDiscoveryTimerTick(object? sender, EventArgs e) => DiscoveryElapsedSeconds++;
 
         private void RaiseCommandState()
         {
             CancelImportCommand.RaiseCanExecuteChanged();
             CloseDialogCommand.RaiseCanExecuteChanged();
+            RefreshDrivesCommand.RaiseCanExecuteChanged();
+            SelectDriveCommand.RaiseCanExecuteChanged();
             SelectSourceCommand.RaiseCanExecuteChanged();
             StartImportCommand.RaiseCanExecuteChanged();
             StartNewImportCommand.RaiseCanExecuteChanged();
+        }
+
+        private async Task RefreshDrivesAsync()
+        {
+            if (!CanRefreshDrives())
+            {
+                return;
+            }
+
+            /*
+             * A new refresh supersedes the previous enumeration. Only one operating-system
+             * scan may update the collection at a time, preventing stale results from a
+             * cancelled scan from reappearing after the user starts a new scan.
+             */
+            ReleaseDriveRefreshCancellation(cancel: true);
+            _driveRefreshCancellation = new CancellationTokenSource();
+
+            var cancellationToken = _driveRefreshCancellation.Token;
+
+            AvailableDrives.Clear();
+            IsRefreshingDrives = true;
+
+            try
+            {
+                await foreach (var drive in _dicomImportDriveProvider.GetDrivesAsync(cancellationToken))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    /*
+                     * The provider yields each inspected drive separately. Adding the item
+                     * immediately keeps the user informed and allows ready sources to be
+                     * selected while slower network or optical drives are still inspected.
+                     */
+                    AvailableDrives.Add(new ImportDriveItemViewModel(drive));
+                    SelectDriveCommand.RaiseCanExecuteChanged();
+                }
+            }
+            finally
+            {
+                /*
+                 * A superseded scan must not reset the state of its replacement scan.
+                 * The token comparison ensures that only the current enumeration owns
+                 * the visible refresh state and its cancellation source.
+                 */
+                if (_driveRefreshCancellation?.Token == cancellationToken)
+                {
+                    IsRefreshingDrives = false;
+                    ReleaseDriveRefreshCancellation(cancel: false);
+                }
+            }
+        }
+
+        private void ReleaseDriveRefreshCancellation(bool cancel)
+        {
+            var cancellation = _driveRefreshCancellation;
+            _driveRefreshCancellation = null;
+
+            if (cancellation is null)
+            {
+                return;
+            }
+
+            if (cancel)
+            {
+                cancellation.Cancel();
+            }
+
+            cancellation.Dispose();
         }
 
         private void ReleaseImportCancellation(bool cancel)
@@ -313,9 +464,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             cancellation.Dispose();
         }
 
+        private void SelectDrive(ImportDriveItemViewModel? drive)
+        {
+            if (!CanSelectDrive(drive))
+            {
+                return;
+            }
+
+            Source.Select(drive!.RootPath);
+            IsCancellationRequested = false;
+            Result = null;
+            RaiseCommandState();
+        }
+
         private void SelectSource()
         {
-            var selectedPath = _fileDialogService.SelectFolder(Properties.Resources.SelectSourceDialogTitle, Source.HasSelection ? Source.Path : null);
+            var selectedPath = _fileDialogService.SelectFolder(
+                Properties.Resources.SelectSourceDialogTitle,
+                Source.HasSelection ? Source.Path : null);
 
             if (string.IsNullOrWhiteSpace(selectedPath))
             {
@@ -334,6 +500,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             {
                 return;
             }
+
+            /*
+             * Drive enumeration is no longer needed after the user starts the import.
+             * Cancelling it avoids unnecessary access to slow or unavailable media while
+             * repository and DICOM processing are active.
+             */
+            ReleaseDriveRefreshCancellation(cancel: true);
+            IsRefreshingDrives = false;
 
             ReleaseImportCancellation(cancel: false);
             _importCancellation = new CancellationTokenSource();
@@ -373,7 +547,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                  * file-system operations. A dedicated worker prevents those operations
                  * from occupying the WPF dispatcher.
                  */
-                var result = await Task.Factory.StartNew(() => _dicomImportService.ImportAsync(request, progress, cancellationToken), cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+                var result = await Task.Factory.StartNew(
+                    () => _dicomImportService.ImportAsync(request, progress, cancellationToken),
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default).Unwrap();
 
                 var resultViewModel = new ImportResultViewModel();
                 resultViewModel.Apply(result);
@@ -402,6 +580,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             Result = null;
             Source.Clear();
             RaiseCommandState();
+
+            ExecuteRefreshDrives();
         }
 
         private void UpdateProgress(DicomImportProgress progress)

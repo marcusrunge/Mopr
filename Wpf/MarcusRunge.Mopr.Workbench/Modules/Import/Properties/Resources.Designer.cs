@@ -61,6 +61,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Available drives and media ähnelt.
+        /// </summary>
+        public static string AvailableDrivesTitle {
+            get {
+                return ResourceManager.GetString("AvailableDrivesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Back to imaging ähnelt.
         /// </summary>
         public static string BackToImagingButton {
@@ -93,6 +102,33 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string DiscoveredFilesLabel {
             get {
                 return ResourceManager.GetString("DiscoveredFilesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sources found: {0} ähnelt.
+        /// </summary>
+        public static string DriveSearchFoundCountFormat {
+            get {
+                return ResourceManager.GetString("DriveSearchFoundCountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Available sources appear as soon as they are detected. You can already select a ready source while MOPR continues searching. ähnelt.
+        /// </summary>
+        public static string DriveSearchInProgressDescription {
+            get {
+                return ResourceManager.GetString("DriveSearchInProgressDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Searching for drives and media… ähnelt.
+        /// </summary>
+        public static string DriveSearchInProgressTitle {
+            get {
+                return ResourceManager.GetString("DriveSearchInProgressTitle", resourceCulture);
             }
         }
         
@@ -138,6 +174,78 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string ImportCancellationRequestedMessage {
             get {
                 return ResourceManager.GetString("ImportCancellationRequestedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No accessible medium ähnelt.
+        /// </summary>
+        public static string ImportDriveStatusNotReady {
+            get {
+                return ResourceManager.GetString("ImportDriveStatusNotReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Ready ähnelt.
+        /// </summary>
+        public static string ImportDriveStatusReady {
+            get {
+                return ResourceManager.GetString("ImportDriveStatusReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Local drive ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeLocalDrive {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeLocalDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Network drive ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeNetworkDrive {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeNetworkDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Optical medium ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeOpticalMedia {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeOpticalMedia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Other drive ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeOther {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Removable medium ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeRemovableMedia {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeRemovableMedia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Virtual drive ähnelt.
+        /// </summary>
+        public static string ImportDriveTypeVirtualDrive {
+            get {
+                return ResourceManager.GetString("ImportDriveTypeVirtualDrive", resourceCulture);
             }
         }
         
@@ -349,6 +457,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ISO images cannot be imported directly yet. Mount the image in Windows and select the resulting virtual drive. ähnelt.
+        /// </summary>
+        public static string IsoImageInstruction {
+            get {
+                return ResourceManager.GetString("IsoImageInstruction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die New import ähnelt.
         /// </summary>
         public static string NewImportButton {
@@ -376,11 +493,38 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Refresh ähnelt.
+        /// </summary>
+        public static string RefreshDrivesButton {
+            get {
+                return ResourceManager.GetString("RefreshDrivesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Restart drive and media detection ähnelt.
+        /// </summary>
+        public static string RefreshDrivesWhileSearchingToolTip {
+            get {
+                return ResourceManager.GetString("RefreshDrivesWhileSearchingToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Import result ähnelt.
         /// </summary>
         public static string ResultSectionTitle {
             get {
                 return ResourceManager.GetString("ResultSectionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select ähnelt.
+        /// </summary>
+        public static string SelectDriveButton {
+            get {
+                return ResourceManager.GetString("SelectDriveButton", resourceCulture);
             }
         }
         

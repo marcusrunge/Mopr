@@ -17,6 +17,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         IDicomImportDriveProvider? IImportServiceBase.DicomImportDriveProvider => _dicomImportDriveProvider;
 
         /// <inheritdoc/>
+        public IDicomImportDriveProvider? DicomImportDriveProvider => _dicomImportDriveProvider;
+
+        /// <inheritdoc/>
         public IDicomImportService? DicomImportService => _dicomImportService;
 
         /// <inheritdoc/>

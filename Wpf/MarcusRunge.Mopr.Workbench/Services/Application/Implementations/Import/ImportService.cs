@@ -14,7 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import
         {
             // Services are created in dependency order so every consumer observes
             // a completely composed import graph during initialization and use.
-            _dicomImportDriveProvider = DicomImportDriveProvider.Create(this, CreationLifetime.Scoped);
+            _dicomImportDriveProvider = Import.DicomImportDriveProvider.Create(this, CreationLifetime.Scoped);
             _dicomImportSourceResolver = DicomImportSourceResolver.Create(this, CreationLifetime.Scoped);
             _dicomImportService = Import.DicomImportService.Create(this, CreationLifetime.Scoped);
         }

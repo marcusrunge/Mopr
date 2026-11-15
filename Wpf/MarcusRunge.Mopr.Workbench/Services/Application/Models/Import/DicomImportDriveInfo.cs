@@ -3,9 +3,9 @@
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
 {
     /// <summary>
-    /// Contains the drive information required for import-source classification.
+    /// Contains the drive information required for import-source selection and classification.
     /// </summary>
-    internal sealed record DicomImportDriveInfo
+    public sealed record DicomImportDriveInfo
     {
         /// <summary>
         /// Initializes a drive descriptor.
@@ -13,7 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
         /// <param name="rootPath">The drive root path.</param>
         /// <param name="driveType">The operating-system drive type.</param>
         /// <param name="isReady">Indicates whether the drive currently contains an accessible medium.</param>
-        internal DicomImportDriveInfo(string rootPath, DriveType driveType, bool isReady)
+        public DicomImportDriveInfo(string rootPath, DriveType driveType, bool isReady)
         {
             RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
             DriveType = driveType;
@@ -23,16 +23,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
         /// <summary>
         /// Gets the operating-system drive type.
         /// </summary>
-        internal DriveType DriveType { get; }
+        public DriveType DriveType { get; }
 
         /// <summary>
         /// Gets a value indicating whether the drive currently contains an accessible medium.
         /// </summary>
-        internal bool IsReady { get; }
+        public bool IsReady { get; }
 
         /// <summary>
         /// Gets the drive root path.
         /// </summary>
-        internal string RootPath { get; }
+        public string RootPath { get; }
     }
 }

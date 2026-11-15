@@ -16,92 +16,55 @@
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
-            <Setter Property="Width"
-                    Value="760" />
-            <Setter Property="MinWidth"
-                    Value="680" />
-            <Setter Property="MaxHeight"
-                    Value="720" />
-            <Setter Property="SizeToContent"
-                    Value="Height" />
-            <Setter Property="prism:Dialog.WindowStartupLocation"
-                    Value="CenterOwner" />
-            <Setter Property="ResizeMode"
-                    Value="CanResize" />
-            <Setter Property="ShowInTaskbar"
-                    Value="False" />
-            <Setter Property="Background"
-                    Value="#10161C" />
+            <Setter Property="Width" Value="760" />
+            <Setter Property="MinWidth" Value="680" />
+            <Setter Property="MaxHeight" Value="720" />
+            <Setter Property="SizeToContent" Value="Height" />
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
+            <Setter Property="ResizeMode" Value="CanResize" />
+            <Setter Property="ShowInTaskbar" Value="False" />
+            <Setter Property="Background" Value="#10161C" />
         </Style>
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <Style x:Key="PrimaryButtonStyle"
-               TargetType="Button">
-            <Setter Property="MinWidth"
-                    Value="130" />
-            <Setter Property="Height"
-                    Value="38" />
-            <Setter Property="Padding"
-                    Value="16,7" />
-            <Setter Property="Background"
-                    Value="#2E78B7" />
-            <Setter Property="Foreground"
-                    Value="White" />
-            <Setter Property="BorderBrush"
-                    Value="#4C96D2" />
-            <Setter Property="BorderThickness"
-                    Value="1" />
-            <Setter Property="FontWeight"
-                    Value="SemiBold" />
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="MinWidth" Value="130" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="16,7" />
+            <Setter Property="Background" Value="#2E78B7" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#4C96D2" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
-        <Style x:Key="SecondaryButtonStyle"
-               TargetType="Button">
-            <Setter Property="MinWidth"
-                    Value="120" />
-            <Setter Property="Height"
-                    Value="38" />
-            <Setter Property="Padding"
-                    Value="16,7" />
-            <Setter Property="Background"
-                    Value="#26333E" />
-            <Setter Property="Foreground"
-                    Value="#ECF3F8" />
-            <Setter Property="BorderBrush"
-                    Value="#506372" />
-            <Setter Property="BorderThickness"
-                    Value="1" />
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="16,7" />
+            <Setter Property="Background" Value="#26333E" />
+            <Setter Property="Foreground" Value="#ECF3F8" />
+            <Setter Property="BorderBrush" Value="#506372" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
 
-        <Style x:Key="PrimaryMetricValueStyle"
-               TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment"
-                    Value="Center" />
-            <Setter Property="Foreground"
-                    Value="#F2F7FA" />
-            <Setter Property="FontSize"
-                    Value="24" />
-            <Setter Property="FontWeight"
-                    Value="SemiBold" />
+        <Style x:Key="PrimaryMetricValueStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#F2F7FA" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
-        <Style x:Key="MetricLabelStyle"
-               TargetType="TextBlock">
-            <Setter Property="Margin"
-                    Value="0,4,0,0" />
-            <Setter Property="HorizontalAlignment"
-                    Value="Center" />
-            <Setter Property="Foreground"
-                    Value="#9FB1BE" />
-            <Setter Property="FontSize"
-                    Value="12" />
-            <Setter Property="TextAlignment"
-                    Value="Center" />
-            <Setter Property="TextWrapping"
-                    Value="Wrap" />
+        <Style x:Key="MetricLabelStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,4,0,0" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#9FB1BE" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
     </UserControl.Resources>
 
@@ -122,7 +85,6 @@
                            FontSize="22"
                            FontWeight="SemiBold"
                            Text="{x:Static properties:Resources.ImportTitle}" />
-
                 <TextBlock Margin="0,6,0,0"
                            Foreground="#AFC0CB"
                            FontSize="13"
@@ -147,17 +109,14 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0"
-                                    Margin="0,0,18,0">
+                        <StackPanel Grid.Column="0" Margin="0,0,18,0">
                             <TextBlock Foreground="#F1F6F9"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Text="{x:Static properties:Resources.SourceSectionTitle}" />
-
                             <TextBlock Margin="0,6,0,0"
                                        Foreground="#C6D2DA"
                                        Text="{Binding Source.DisplayName, Mode=OneWay}" />
-
                             <TextBlock Margin="0,3,0,0"
                                        Foreground="#718796"
                                        FontSize="11"
@@ -179,6 +138,118 @@
                         Background="#182129"
                         BorderBrush="#334550"
                         BorderThickness="1"
+                        CornerRadius="6">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       VerticalAlignment="Center"
+                                       Foreground="#F1F6F9"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Text="{x:Static properties:Resources.AvailableDrivesTitle}" />
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding RefreshDrivesCommand}"
+                                    Content="{x:Static properties:Resources.RefreshDrivesButton}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    ToolTip="{x:Static properties:Resources.RefreshDrivesWhileSearchingToolTip}" />
+                        </Grid>
+
+                        <Border Margin="0,12,0,0"
+                                Padding="12"
+                                Background="#102532"
+                                BorderBrush="#286382"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Visibility="{Binding IsRefreshingDrives, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <ProgressBar Grid.Column="0"
+                                             Width="36"
+                                             Height="6"
+                                             Margin="0,4,14,0"
+                                             VerticalAlignment="Top"
+                                             IsIndeterminate="True" />
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Foreground="#EAF4FA"
+                                               FontWeight="SemiBold"
+                                               Text="{x:Static properties:Resources.DriveSearchInProgressTitle}" />
+                                    <TextBlock Margin="0,4,0,0"
+                                               Foreground="#AFC4D0"
+                                               FontSize="11"
+                                               Text="{x:Static properties:Resources.DriveSearchInProgressDescription}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Margin="0,6,0,0"
+                                               Foreground="#7FC8EC"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding DriveSearchFoundCountText, Mode=OneWay}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <ItemsControl Margin="0,12,0,0"
+                                      ItemsSource="{Binding AvailableDrives, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewmodels:ImportDriveItemViewModel}">
+                                    <Border Margin="0,0,0,8"
+                                            Padding="12"
+                                            Background="#111A21"
+                                            BorderBrush="#2F414D"
+                                            BorderThickness="1"
+                                            CornerRadius="4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                                <TextBlock Foreground="#EAF1F5"
+                                                           FontWeight="SemiBold"
+                                                           Text="{Binding DisplayName, Mode=OneWay}" />
+                                                <TextBlock Margin="0,3,0,0"
+                                                           Foreground="#8296A4"
+                                                           FontSize="11"
+                                                           Text="{Binding StatusText, Mode=OneWay}" />
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    Command="{Binding DataContext.SelectDriveCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="{x:Static properties:Resources.SelectDriveButton}"
+                                                    IsEnabled="{Binding IsReady, Mode=OneWay}"
+                                                    Style="{StaticResource SecondaryButtonStyle}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="#8296A4"
+                                   FontSize="11"
+                                   Text="{x:Static properties:Resources.IsoImageInstruction}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,14,0,0"
+                        Padding="18"
+                        Background="#182129"
+                        BorderBrush="#334550"
+                        BorderThickness="1"
                         CornerRadius="6"
                         Visibility="{Binding IsImporting, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
@@ -186,33 +257,26 @@
                                    FontSize="15"
                                    FontWeight="SemiBold"
                                    Text="{x:Static properties:Resources.ImportRunningTitle}" />
-
                         <TextBlock Margin="0,6,0,13"
                                    Foreground="#AFC0CB"
                                    FontSize="13"
                                    Text="{x:Static properties:Resources.ImportRunningMessage}"
                                    TextWrapping="Wrap" />
-
                         <ProgressBar Height="12"
                                      MinWidth="420"
                                      Maximum="100"
                                      Value="{Binding ImportProgressPercentage, Mode=OneWay}">
                             <ProgressBar.Style>
                                 <Style TargetType="ProgressBar">
-                                    <Setter Property="IsIndeterminate"
-                                            Value="False" />
-
+                                    <Setter Property="IsIndeterminate" Value="False" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsProgressIndeterminate, Mode=OneWay}"
-                                                     Value="True">
-                                            <Setter Property="IsIndeterminate"
-                                                    Value="True" />
+                                        <DataTrigger Binding="{Binding IsProgressIndeterminate, Mode=OneWay}" Value="True">
+                                            <Setter Property="IsIndeterminate" Value="True" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ProgressBar.Style>
                         </ProgressBar>
-
                         <TextBlock Margin="0,8,0,0"
                                    HorizontalAlignment="Center"
                                    Foreground="#AFC0CB"
@@ -235,7 +299,6 @@
                                    FontSize="15"
                                    FontWeight="SemiBold"
                                    Text="{x:Static properties:Resources.ResultSectionTitle}" />
-
                         <TextBlock Margin="0,6,0,18"
                                    Foreground="#C7D4DC"
                                    FontSize="13"
@@ -244,61 +307,37 @@
 
                         <UniformGrid Columns="4">
                             <StackPanel Margin="4,0">
-                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.ImportedFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.ImportedFilesLabel}" />
+                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}" Text="{Binding Result.ImportedFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.ImportedFilesLabel}" />
                             </StackPanel>
-
                             <StackPanel Margin="4,0">
-                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.ExistingFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.ExistingFilesLabel}" />
+                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}" Text="{Binding Result.ExistingFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.ExistingFilesLabel}" />
                             </StackPanel>
-
                             <StackPanel Margin="4,0">
-                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.OtherSkippedFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.OtherSkippedFilesLabel}" />
+                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}" Text="{Binding Result.OtherSkippedFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.OtherSkippedFilesLabel}" />
                             </StackPanel>
-
                             <StackPanel Margin="4,0">
-                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}"
-                                           Text="{Binding Result.FailedFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.FailedFilesLabel}" />
+                                <TextBlock Style="{StaticResource PrimaryMetricValueStyle}" Text="{Binding Result.FailedFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.FailedFilesLabel}" />
                             </StackPanel>
                         </UniformGrid>
 
-                        <Border Height="1"
-                                Margin="0,18,0,14"
-                                Background="#2F3E49" />
+                        <Border Height="1" Margin="0,18,0,14" Background="#2F3E49" />
 
                         <UniformGrid Columns="3">
                             <StackPanel>
-                                <TextBlock HorizontalAlignment="Center"
-                                           Foreground="#C8D4DB"
-                                           Text="{Binding Result.DiscoveredFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.DiscoveredFilesLabel}" />
+                                <TextBlock HorizontalAlignment="Center" Foreground="#C8D4DB" Text="{Binding Result.DiscoveredFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.DiscoveredFilesLabel}" />
                             </StackPanel>
-
                             <StackPanel>
-                                <TextBlock HorizontalAlignment="Center"
-                                           Foreground="#C8D4DB"
-                                           Text="{Binding Result.ValidDicomFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.ValidDicomFilesLabel}" />
+                                <TextBlock HorizontalAlignment="Center" Foreground="#C8D4DB" Text="{Binding Result.ValidDicomFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.ValidDicomFilesLabel}" />
                             </StackPanel>
-
                             <StackPanel>
-                                <TextBlock HorizontalAlignment="Center"
-                                           Foreground="#C8D4DB"
-                                           Text="{Binding Result.ImportableFiles, Mode=OneWay}" />
-                                <TextBlock Style="{StaticResource MetricLabelStyle}"
-                                           Text="{x:Static properties:Resources.ImportableFilesLabel}" />
+                                <TextBlock HorizontalAlignment="Center" Foreground="#C8D4DB" Text="{Binding Result.ImportableFiles, Mode=OneWay}" />
+                                <TextBlock Style="{StaticResource MetricLabelStyle}" Text="{x:Static properties:Resources.ImportableFilesLabel}" />
                             </StackPanel>
                         </UniformGrid>
                     </StackPanel>
@@ -313,15 +352,13 @@
                 BorderBrush="#2F3E49"
                 BorderThickness="0,1,0,0">
             <Grid VerticalAlignment="Center">
-                <StackPanel HorizontalAlignment="Left"
-                            Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                     <Button Command="{Binding StartNewImportCommand}"
                             Content="{x:Static properties:Resources.NewImportButton}"
                             Style="{StaticResource SecondaryButtonStyle}" />
                 </StackPanel>
 
-                <StackPanel HorizontalAlignment="Right"
-                            Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Margin="0,0,10,0"
                             Command="{Binding CancelImportCommand}"
                             Content="{Binding CancelImportButtonText, Mode=OneWay}"
@@ -331,7 +368,6 @@
                             Command="{Binding CloseDialogCommand}"
                             Content="{x:Static properties:Resources.CloseDialogButton}"
                             Style="{StaticResource SecondaryButtonStyle}" />
-
                     <Button Command="{Binding StartImportCommand}"
                             Content="{x:Static properties:Resources.StartImportButton}"
                             IsDefault="True"
