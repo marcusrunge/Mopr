@@ -2,6 +2,7 @@ using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -15,17 +16,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
     public sealed class ImportViewModel : ViewModelBase, IDialogAware
     {
         private readonly IDicomImportDriveProvider _dicomImportDriveProvider;
+        private readonly IImportService _importService;
         private readonly IDicomImportService _dicomImportService;
         private readonly DispatcherTimer _discoveryTimer;
         private readonly IFileDialogService _fileDialogService;
         private int _discoveryElapsedSeconds;
         private CancellationTokenSource? _driveRefreshCancellation;
         private CancellationTokenSource? _importCancellation;
+        private CancellationTokenSource? _networkPathCancellation;
         private double _importProgressPercentage;
         private bool _isCancellationRequested;
         private bool _isImporting;
         private bool _isInspectingSource;
+        private bool _isCheckingNetworkPath;
         private bool _isRefreshingDrives;
+        private string _networkPath = string.Empty;
+        private string _networkPathStatusText = string.Empty;
         private int _processedFiles;
         private ImportResultViewModel? _result;
         private int _totalFiles;
@@ -34,14 +40,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         {
             ArgumentNullException.ThrowIfNull(application);
 
-            _fileDialogService = application.DialogService?.FileDialogService
-                ?? throw new InvalidOperationException("The file dialog service has not been initialized.");
+            _fileDialogService = application.DialogService?.FileDialogService ?? throw new InvalidOperationException("The file dialog service has not been initialized.");
 
-            _dicomImportDriveProvider = application.ImportService?.DicomImportDriveProvider
-                ?? throw new InvalidOperationException("The DICOM import drive provider has not been initialized.");
-
-            _dicomImportService = application.ImportService?.DicomImportService
-                ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
+            _importService = application.ImportService ?? throw new InvalidOperationException("The import service has not been initialized.");
+            _dicomImportDriveProvider = _importService.DicomImportDriveProvider ?? throw new InvalidOperationException("The DICOM import drive provider has not been initialized.");
+            _dicomImportService = _importService.DicomImportService ?? throw new InvalidOperationException("The DICOM import service has not been initialized.");
 
             AvailableDrives = [];
             AvailableDrives.CollectionChanged += OnAvailableDrivesCollectionChanged;
@@ -55,6 +58,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             CancelImportCommand = new DelegateCommand(CancelImport, CanCancelImport);
             StartNewImportCommand = new DelegateCommand(StartNewImport, CanStartNewImport);
             CloseDialogCommand = new DelegateCommand(CloseDialog, CanCloseDialog);
+            CheckNetworkPathCommand = new DelegateCommand(ExecuteCheckNetworkPath, CanCheckNetworkPath);
 
             _discoveryTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
@@ -68,12 +72,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         public ObservableCollection<ImportDriveItemViewModel> AvailableDrives { get; }
 
-        public string CancelImportButtonText =>
-            IsCancellationRequested
-                ? Properties.Resources.ImportCancellationRequestedButton
-                : Properties.Resources.CancelImportButton;
+        public string CancelImportButtonText => IsCancellationRequested ? Properties.Resources.ImportCancellationRequestedButton : Properties.Resources.CancelImportButton;
 
         public DelegateCommand CancelImportCommand { get; }
+
+        public DelegateCommand CheckNetworkPathCommand { get; }
 
         public DelegateCommand CloseDialogCommand { get; }
 
@@ -93,8 +96,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
         }
 
-        public string DriveSearchFoundCountText =>
-            string.Format(Properties.Resources.DriveSearchFoundCountFormat, AvailableDrives.Count);
+        public string DriveSearchFoundCountText => string.Format(Properties.Resources.DriveSearchFoundCountFormat, AvailableDrives.Count);
 
         public bool HasResult => Result is not null;
 
@@ -115,14 +117,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
                 if (TotalFiles <= 0)
                 {
-                    return ProcessedFiles <= 0
-                        ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveryElapsedSeconds)
-                        : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
+                    return ProcessedFiles <= 0 ? string.Format(Properties.Resources.ImportProgressDiscoveringFormat, DiscoveryElapsedSeconds) : string.Format(Properties.Resources.ImportProgressDiscoveredFormat, ProcessedFiles);
                 }
 
-                return IsInspectingSource
-                    ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles)
-                    : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
+                return IsInspectingSource ? string.Format(Properties.Resources.ImportProgressInspectingFormat, ProcessedFiles, TotalFiles) : string.Format(Properties.Resources.ImportProgressProcessingFormat, ProcessedFiles, TotalFiles);
             }
         }
 
@@ -184,6 +182,41 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
                 RaiseCommandState();
             }
+        }
+
+        public bool IsCheckingNetworkPath
+        {
+            get => _isCheckingNetworkPath;
+            private set
+            {
+                if (!SetProperty(ref _isCheckingNetworkPath, value))
+                {
+                    return;
+                }
+
+                RaiseCommandState();
+            }
+        }
+
+        public string NetworkPath
+        {
+            get => _networkPath;
+            set
+            {
+                if (!SetProperty(ref _networkPath, value))
+                {
+                    return;
+                }
+
+                NetworkPathStatusText = string.Empty;
+                CheckNetworkPathCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        public string NetworkPathStatusText
+        {
+            get => _networkPathStatusText;
+            private set => SetProperty(ref _networkPathStatusText, value);
         }
 
         public int ProcessedFiles
@@ -258,6 +291,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             AvailableDrives.CollectionChanged -= OnAvailableDrivesCollectionChanged;
             ReleaseDriveRefreshCancellation(cancel: true);
             ReleaseImportCancellation(cancel: true);
+            ReleaseNetworkPathCancellation(cancel: true);
             base.Destroy();
         }
 
@@ -267,6 +301,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             _discoveryTimer.Stop();
             ReleaseDriveRefreshCancellation(cancel: true);
             ReleaseImportCancellation(cancel: true);
+            ReleaseNetworkPathCancellation(cancel: true);
         }
 
         /// <inheritdoc/>
@@ -278,6 +313,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             ProcessedFiles = 0;
             TotalFiles = 0;
             Result = null;
+            NetworkPath = string.Empty;
+            NetworkPathStatusText = string.Empty;
             Source.Clear();
             RaiseCommandState();
 
@@ -286,10 +323,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         private bool CanCancelImport() => IsImporting && !IsCancellationRequested;
 
+        private bool CanCheckNetworkPath() => !IsImporting && !IsCheckingNetworkPath && !string.IsNullOrWhiteSpace(NetworkPath);
+
         private bool CanRefreshDrives() => !IsImporting;
 
-        private bool CanSelectDrive(ImportDriveItemViewModel? drive) =>
-            CanSelectSource() && drive?.IsReady == true;
+        private bool CanSelectDrive(ImportDriveItemViewModel? drive) => CanSelectSource() && drive?.IsReady == true;
 
         private bool CanSelectSource() => !IsImporting;
 
@@ -320,6 +358,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             }
 
             RequestClose.Invoke(ButtonResult.Cancel);
+        }
+
+        private async void ExecuteCheckNetworkPath()
+        {
+            try
+            {
+                await CheckNetworkPathAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Network-path cancellation is expected when the user checks another path or closes the dialog.
+            }
+            catch (Exception)
+            {
+                NetworkPathStatusText = Properties.Resources.NetworkPathCheckFailed;
+            }
         }
 
         private async void ExecuteRefreshDrives()
@@ -370,12 +424,54 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
         private void RaiseCommandState()
         {
             CancelImportCommand.RaiseCanExecuteChanged();
+            CheckNetworkPathCommand.RaiseCanExecuteChanged();
             CloseDialogCommand.RaiseCanExecuteChanged();
             RefreshDrivesCommand.RaiseCanExecuteChanged();
             SelectDriveCommand.RaiseCanExecuteChanged();
             SelectSourceCommand.RaiseCanExecuteChanged();
             StartImportCommand.RaiseCanExecuteChanged();
             StartNewImportCommand.RaiseCanExecuteChanged();
+        }
+
+        private async Task CheckNetworkPathAsync()
+        {
+            if (!CanCheckNetworkPath())
+            {
+                return;
+            }
+
+            ReleaseNetworkPathCancellation(cancel: true);
+            _networkPathCancellation = new CancellationTokenSource();
+            var cancellationToken = _networkPathCancellation.Token;
+            var networkPath = NetworkPath.Trim();
+
+            IsCheckingNetworkPath = true;
+            NetworkPathStatusText = Properties.Resources.NetworkPathChecking;
+
+            try
+            {
+                var resolution = await _importService.ResolveSourceAsync(new DicomImportRequest(networkPath, DicomImportSourceType.NetworkShare), cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (resolution.Exists && resolution.IsReady && resolution.IsRepositoryImportSupported)
+                {
+                    Source.Select(resolution.EffectiveSourcePath);
+                    NetworkPathStatusText = Properties.Resources.NetworkPathAvailable;
+                    Result = null;
+                    RaiseCommandState();
+                    return;
+                }
+
+                NetworkPathStatusText = Properties.Resources.NetworkPathUnavailable;
+            }
+            finally
+            {
+                if (_networkPathCancellation?.Token == cancellationToken)
+                {
+                    IsCheckingNetworkPath = false;
+                    ReleaseNetworkPathCancellation(cancel: false);
+                }
+            }
         }
 
         private async Task RefreshDrivesAsync()
@@ -446,6 +542,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             cancellation.Dispose();
         }
 
+        private void ReleaseNetworkPathCancellation(bool cancel)
+        {
+            var cancellation = _networkPathCancellation;
+            _networkPathCancellation = null;
+
+            if (cancellation is null)
+            {
+                return;
+            }
+
+            if (cancel)
+            {
+                cancellation.Cancel();
+            }
+
+            cancellation.Dispose();
+        }
+
         private void ReleaseImportCancellation(bool cancel)
         {
             var cancellation = _importCancellation;
@@ -479,9 +593,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 
         private void SelectSource()
         {
-            var selectedPath = _fileDialogService.SelectFolder(
-                Properties.Resources.SelectSourceDialogTitle,
-                Source.HasSelection ? Source.Path : null);
+            var selectedPath = _fileDialogService.SelectFolder(Properties.Resources.SelectSourceDialogTitle, Source.HasSelection ? Source.Path : null);
 
             if (string.IsNullOrWhiteSpace(selectedPath))
             {
@@ -507,6 +619,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
              * repository and DICOM processing are active.
              */
             ReleaseDriveRefreshCancellation(cancel: true);
+            ReleaseNetworkPathCancellation(cancel: true);
             IsRefreshingDrives = false;
 
             ReleaseImportCancellation(cancel: false);
@@ -547,11 +660,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
                  * file-system operations. A dedicated worker prevents those operations
                  * from occupying the WPF dispatcher.
                  */
-                var result = await Task.Factory.StartNew(
-                    () => _dicomImportService.ImportAsync(request, progress, cancellationToken),
-                    cancellationToken,
-                    TaskCreationOptions.LongRunning,
-                    TaskScheduler.Default).Unwrap();
+                var result = await Task.Factory.StartNew(() => _dicomImportService.ImportAsync(request, progress, cancellationToken), cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
                 var resultViewModel = new ImportResultViewModel();
                 resultViewModel.Apply(result);
@@ -578,9 +687,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
             ProcessedFiles = 0;
             TotalFiles = 0;
             Result = null;
+            NetworkPath = string.Empty;
+            NetworkPathStatusText = string.Empty;
             Source.Clear();
             RaiseCommandState();
-
             ExecuteRefreshDrives();
         }
 

@@ -88,6 +88,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Check path ähnelt.
+        /// </summary>
+        public static string CheckNetworkPathButton {
+            get {
+                return ResourceManager.GetString("CheckNetworkPathButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Close ähnelt.
         /// </summary>
         public static string CloseDialogButton {
@@ -462,6 +471,60 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Import.Properties {
         public static string IsoImageInstruction {
             get {
                 return ResourceManager.GetString("IsoImageInstruction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The network source is available and ready for import. ähnelt.
+        /// </summary>
+        public static string NetworkPathAvailable {
+            get {
+                return ResourceManager.GetString("NetworkPathAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The network source could not be checked. Verify the path and your network connection. ähnelt.
+        /// </summary>
+        public static string NetworkPathCheckFailed {
+            get {
+                return ResourceManager.GetString("NetworkPathCheckFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Checking the network path… ähnelt.
+        /// </summary>
+        public static string NetworkPathChecking {
+            get {
+                return ResourceManager.GetString("NetworkPathChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter an accessible UNC path, for example \\\\server\\share. MOPR checks the source before it can be used. ähnelt.
+        /// </summary>
+        public static string NetworkPathDescription {
+            get {
+                return ResourceManager.GetString("NetworkPathDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Network path ähnelt.
+        /// </summary>
+        public static string NetworkPathTitle {
+            get {
+                return ResourceManager.GetString("NetworkPathTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The network source is not available or cannot currently be used for import. ähnelt.
+        /// </summary>
+        public static string NetworkPathUnavailable {
+            get {
+                return ResourceManager.GetString("NetworkPathUnavailable", resourceCulture);
             }
         }
         

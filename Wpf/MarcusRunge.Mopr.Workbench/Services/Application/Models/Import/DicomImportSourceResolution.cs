@@ -5,46 +5,46 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Import
     /// <summary>
     /// Describes the classified and validated source of a DICOM import operation.
     /// </summary>
-    internal sealed record DicomImportSourceResolution
+    public sealed record DicomImportSourceResolution
     {
         /// <summary>
         /// Gets a value indicating whether the source contains a DICOMDIR index in its root directory.
         /// </summary>
-        internal bool ContainsDicomDirectoryIndex { get; init; }
+        public bool ContainsDicomDirectoryIndex { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether the selected source currently exists.
+        /// Gets the effective path that may be passed to the repository import operation.
         /// </summary>
-        internal bool Exists { get; init; }
+        public string EffectiveSourcePath { get; init; } = string.Empty;
 
         /// <summary>
-        /// Gets the effective path that can be passed to a directory-based importer.
+        /// Gets a value indicating whether the selected source exists.
         /// </summary>
-        internal string EffectiveSourcePath { get; init; } = string.Empty;
+        public bool Exists { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether the source is currently ready for import.
+        /// Gets a value indicating whether the source is currently ready for access.
         /// </summary>
-        internal bool IsReady { get; init; }
+        public bool IsReady { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether the source can use the existing directory import pipeline.
+        /// Gets a value indicating whether the source can be processed by the repository importer.
         /// </summary>
-        internal bool IsRepositoryImportSupported { get; init; }
+        public bool IsRepositoryImportSupported { get; init; }
 
         /// <summary>
-        /// Gets the source path originally supplied by the application.
+        /// Gets the source path originally supplied by the caller.
         /// </summary>
-        internal string OriginalSourcePath { get; init; } = string.Empty;
+        public string OriginalSourcePath { get; init; } = string.Empty;
 
         /// <summary>
-        /// Gets the resolved source type.
+        /// Gets the classified source type.
         /// </summary>
-        internal DicomImportSourceType SourceType { get; init; } = DicomImportSourceType.Unknown;
+        public DicomImportSourceType SourceType { get; init; }
 
         /// <summary>
-        /// Gets a value indicating whether the source should be treated as read-only.
+        /// Gets a value indicating whether the source must be treated as read-only.
         /// </summary>
-        internal bool TreatAsReadOnly { get; init; }
+        public bool TreatAsReadOnly { get; init; }
     }
 }

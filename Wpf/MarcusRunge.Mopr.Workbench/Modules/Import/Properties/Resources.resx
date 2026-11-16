@@ -291,4 +291,25 @@
   <data name="RefreshDrivesWhileSearchingToolTip" xml:space="preserve">
     <value>Restart drive and media detection</value>
   </data>
+  <data name="NetworkPathTitle" xml:space="preserve">
+    <value>Network path</value>
+  </data>
+  <data name="NetworkPathDescription" xml:space="preserve">
+    <value>Enter an accessible UNC path, for example \\\\server\\share. MOPR checks the source before it can be used.</value>
+  </data>
+  <data name="CheckNetworkPathButton" xml:space="preserve">
+    <value>Check path</value>
+  </data>
+  <data name="NetworkPathChecking" xml:space="preserve">
+    <value>Checking the network path…</value>
+  </data>
+  <data name="NetworkPathAvailable" xml:space="preserve">
+    <value>The network source is available and ready for import.</value>
+  </data>
+  <data name="NetworkPathUnavailable" xml:space="preserve">
+    <value>The network source is not available or cannot currently be used for import.</value>
+  </data>
+  <data name="NetworkPathCheckFailed" xml:space="preserve">
+    <value>The network source could not be checked. Verify the path and your network connection.</value>
+  </data>
 </root>

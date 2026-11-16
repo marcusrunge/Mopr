@@ -291,4 +291,25 @@
   <data name="RefreshDrivesWhileSearchingToolTip" xml:space="preserve">
     <value>Suche nach Laufwerken und Medien neu starten</value>
   </data>
+  <data name="NetworkPathTitle" xml:space="preserve">
+    <value>Netzwerkpfad</value>
+  </data>
+  <data name="NetworkPathDescription" xml:space="preserve">
+    <value>Geben Sie einen erreichbaren UNC-Pfad ein, zum Beispiel \\\\server\\freigabe. MOPR prüft die Quelle, bevor sie verwendet werden kann.</value>
+  </data>
+  <data name="CheckNetworkPathButton" xml:space="preserve">
+    <value>Netzwerkpfad prüfen</value>
+  </data>
+  <data name="NetworkPathChecking" xml:space="preserve">
+    <value>Der Netzwerkpfad wird geprüft…</value>
+  </data>
+  <data name="NetworkPathAvailable" xml:space="preserve">
+    <value>Die Netzwerkquelle ist verfügbar und für den Import bereit.</value>
+  </data>
+  <data name="NetworkPathUnavailable" xml:space="preserve">
+    <value>Die Netzwerkquelle ist nicht verfügbar oder kann derzeit nicht für den Import verwendet werden.</value>
+  </data>
+  <data name="NetworkPathCheckFailed" xml:space="preserve">
+    <value>Die Netzwerkquelle konnte nicht geprüft werden. Prüfen Sie den Pfad und die Netzwerkverbindung.</value>
+  </data>
 </root>

@@ -140,6 +140,50 @@
                         BorderThickness="1"
                         CornerRadius="6">
                     <StackPanel>
+                        <TextBlock Foreground="#F1F6F9"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Text="{x:Static properties:Resources.NetworkPathTitle}" />
+                        <TextBlock Margin="0,5,0,0"
+                                   Foreground="#8296A4"
+                                   FontSize="11"
+                                   Text="{x:Static properties:Resources.NetworkPathDescription}"
+                                   TextWrapping="Wrap" />
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Height="38"
+                                     Padding="10,7"
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding NetworkPath, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1"
+                                    Margin="10,0,0,0"
+                                    Command="{Binding CheckNetworkPathCommand}"
+                                    Content="{x:Static properties:Resources.CheckNetworkPathButton}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                        </Grid>
+                        <ProgressBar Height="6"
+                                     Margin="0,10,0,0"
+                                     IsIndeterminate="True"
+                                     Visibility="{Binding IsCheckingNetworkPath, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Margin="0,8,0,0"
+                                   Foreground="#AFC4D0"
+                                   FontSize="11"
+                                   Text="{Binding NetworkPathStatusText, Mode=OneWay}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,14,0,0"
+                        Padding="18"
+                        Background="#182129"
+                        BorderBrush="#334550"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
