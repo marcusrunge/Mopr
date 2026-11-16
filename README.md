@@ -14,8 +14,8 @@ The current solution combines a Prism-based WPF desktop shell with dedicated fea
 >
 > MOPR is intended for visualization, research, prototyping, and educational use. It is not intended for diagnostic use, treatment planning, clinical reporting, or medical decision-making.
 
-> **Documentation snapshot:** 2026-10-23  
-> This README reflects the source export, solution structure, and verified green test state available on that date.
+> **Documentation snapshot:** 2026-11-16  
+> This README reflects the current source export, solution structure, completed DICOM import-source work, and verified green test state available on that date.
 
 ## Purpose and Context
 
@@ -44,8 +44,10 @@ The current implementation includes:
 - selection and clearing of individual viewports
 - window and level presets plus interactive mouse dragging
 - pixel inspection and measurement overlays
-- a dedicated import module with source selection, cancellation, and structured result presentation
-- import-source resolution for local folders, removable media, optical media, virtual drives, ISO images, mapped drives, and network locations
+- a dedicated import module with local-folder selection, progressive asynchronous drive discovery, direct UNC network-path validation, cancellation, and structured result presentation
+- responsive import-source discovery that displays each drive as soon as it is inspected and keeps slow or unavailable network, optical, and removable drives off the WPF dispatcher
+- import-source resolution for local folders, removable media, optical media, mounted virtual drives, mapped drives, and UNC network shares
+- transparent ISO handling: ISO files are recognized but must currently be mounted in Windows and selected as a virtual drive before import
 - application-level DICOM import coordination with current-user audit identity resolution
 - repository-level DICOM import with persistence integration, rollback, and file-system compensation
 - Entity Framework Core persistence with SQL Server and in-memory test support
@@ -62,9 +64,9 @@ The current implementation includes:
 - startup routing for machine setup, user provisioning, blocked users, unavailable identity, MIRAS action requirements, and the imaging workbench
 - application-wide single-instance protection, request forwarding, and foreground activation
 - English default resources and German localization
-- isolated test projects for desktop, identity, imaging, setup, application services, Core, MIRAS, persistence, and repository functionality
+- isolated test projects for desktop, identity, imaging, import, MIRAS, setup, studies, application services, Core, persistence, and repository functionality
 
-Advanced volumetric reconstruction, segmentation, local machine-learning workflows, and Unreal-based artifact generation remain separate later work packages. Unreal artifacts are not part of repository or MIRAS integrity processing and may only be created from validated DICOM and persistence data.
+Persistable imaging-session change management for measurements, reports, findings, annotations, segmentations, and later 3D/Unreal artifacts remains a separate work package. Advanced volumetric reconstruction, segmentation, local machine-learning workflows, and Unreal-based artifact generation also remain separate later work packages. Unreal artifacts are not part of repository or MIRAS integrity processing and may only be created from validated DICOM and persistence data.
 
 ## Architecture
 
@@ -88,7 +90,7 @@ A small `IsExternalInit` compatibility type allows records and init-only propert
 
 ### Core WPF and MVVM Infrastructure
 
-`MarcusRunge.Mopr.Workbench.Core` targets `.NET 10 for Windows` and contains shared Prism and WPF infrastructure, including:
+`MarcusRunge.Mopr.Workbench.Core` targets `.NET 11 for Windows` and contains shared Prism and WPF infrastructure, including:
 
 - navigation-aware view-model base classes
 - region-aware view-model base classes
@@ -147,13 +149,29 @@ The module consumes identity services from `Services.Application`. It does not d
 
 `MarcusRunge.Mopr.Workbench.Modules.Import` provides the guided DICOM import user interface. It includes:
 
-- source selection and source discovery
-- import execution and cancellation
-- structured import-result presentation
-- Prism module registration and navigation
-- localized English and German resources
+- local-folder selection through the application file-dialog abstraction
+- progressive asynchronous enumeration of local, removable, optical, mapped-network, and virtual drives
+- immediate display of each inspected drive through an observable collection while slower sources continue loading
+- visible search state, refresh cancellation, readiness status, and disabled selection for unavailable media
+- direct UNC network-path entry and validation through `IImportService.ResolveSourceAsync(...)`
+- import execution, progress reporting, cancellation, and structured result presentation
+- explicit distinction between new imports, existing files, other skipped files, invalid input, cancellation, and failed operations
+- guidance that ISO images must currently be mounted in Windows and selected as virtual drives
+- Prism module registration and localized English and German resources
 
-The module delegates operating-system integration and workflow coordination to `Services.Application` and does not directly own DICOM parsing, persistence, or repository storage.
+The module consumes the `IApplication → IImportService` facade. It does not query `DriveInfo`, validate DICOM content, mount ISO images, establish network connections, access persistence, or write repository files directly.
+
+### Studies Module
+
+`MarcusRunge.Mopr.Workbench.Modules.Studies` provides the study and series selection dialog used to reopen imported examinations. It includes:
+
+- study catalog presentation
+- series selection within one study
+- validation that selected series belong to the same study
+- localized English and German resources
+- isolated view-model tests
+
+The module consumes application-level study catalog and imported-series loading contracts rather than reading persistence or repository data directly.
 
 ### Setup Module
 
@@ -183,12 +201,12 @@ The module owns its views, view models, shared setup styles, and English/German 
 
 ### Application Services
 
-`MarcusRunge.Mopr.Workbench.Services.Application` targets `.NET 10 for Windows` and contains desktop-bound application workflows for:
+`MarcusRunge.Mopr.Workbench.Services.Application` targets `.NET 11 for Windows` and contains desktop-bound application workflows for:
 
 - dialogs, file dialogs, image sources, and media handling
 - current-user context management, user provisioning, and local sign-in
 - mapping the current user to a persistent audit identity
-- DICOM import orchestration and source resolution
+- DICOM import orchestration, asynchronous drive discovery, source classification, UNC validation, and structured import-result mapping
 - repository-location administration and explicit recovery actions
 - persistent user administration
 - read-only workstation system checks
@@ -226,7 +244,7 @@ This assembly owns DICOM parsing and image decoding. It does not own managed rep
 
 MIRAS is the **Medical Image Recovery and Assurance System**.
 
-`MarcusRunge.Mopr.Workbench.Services.Miras` targets `.NET 10` and is responsible for:
+`MarcusRunge.Mopr.Workbench.Services.Miras` targets `.NET 11` and is responsible for:
 
 - orchestrating persistence and repository integrity checks
 - mapping technical findings to MIRAS issues
@@ -242,7 +260,7 @@ MIRAS does not silently repair repository data and does not automatically create
 
 ### Persistence
 
-`MarcusRunge.Mopr.Workbench.Services.Persistence` targets `.NET 10` and contains:
+`MarcusRunge.Mopr.Workbench.Services.Persistence` targets `.NET 11` and contains:
 
 - Entity Framework Core database contexts and context factories
 - SQL Server and in-memory provider configuration
@@ -261,7 +279,7 @@ The persistence layer includes auditable entities and dedicated Entity Framework
 
 ### Repository
 
-`MarcusRunge.Mopr.Workbench.Services.Repository` targets `.NET 10` and contains:
+`MarcusRunge.Mopr.Workbench.Services.Repository` targets `.NET 11` and contains:
 
 - managed DICOM import and file placement
 - repository scanning across configured locations
@@ -275,7 +293,7 @@ Repository verification and repair remain separate operations. A MIRAS check rep
 
 ## Project Structure
 
-The following tree summarizes the source-controlled solution areas. Build output, IDE state, generated compiler files, temporary files, local exports, backup files, and user-specific project settings are intentionally omitted.
+The following tree summarizes the current source-controlled solution areas. Build output, IDE state, generated compiler files, temporary files, local exports, backup files, and user-specific project settings are intentionally omitted.
 
 ```text
 Wpf/
@@ -284,30 +302,15 @@ Wpf/
 ├── MarcusRunge.Mopr.Workbench.slnx
 └── MarcusRunge.Mopr.Workbench/
     ├── Contracts/
-    │   ├── Application/
-    │   │   ├── Administration/Services/
-    │   │   ├── Configuration/{Models,Services}/
-    │   │   ├── Identity/{Models,Services}/
-    │   │   ├── Lifetime/Services/
-    │   │   └── Security/Services/
+    │   ├── Application/{Administration,Configuration,Identity,Lifetime,Security}/
     │   ├── Compatibility/
     │   ├── Enums/
     │   ├── Imaging/
     │   ├── Models/{Configuration,Geometry,Measurements,Unreal}/
     │   └── Properties/
-    ├── Core/
-    │   ├── Events/
-    │   ├── Mvvm/
-    │   └── Themes/
+    ├── Core/{Events,Mvvm,Themes}/
     ├── Desktop/
-    │   ├── Application/
-    │   │   ├── Administration/
-    │   │   ├── Configuration/
-    │   │   ├── Diagnostics/
-    │   │   ├── Identity/
-    │   │   ├── Lifetime/
-    │   │   ├── SingleInstance/
-    │   │   └── Startup/
+    │   ├── Application/{Administration,Configuration,Diagnostics,Identity,Lifetime,SingleInstance,Startup}/
     │   ├── Assets/
     │   ├── Behaviors/
     │   ├── Properties/
@@ -318,17 +321,12 @@ Wpf/
     │   ├── Imaging/{Behaviors,Infrastructure,Properties,Services,ViewModels,Views}/
     │   ├── Import/{Properties,ViewModels,Views}/
     │   ├── Miras/{Properties,ViewModels,Views}/
-    │   └── Setup/{Converters,Properties,Themes,ViewModels,Views}/
+    │   ├── Setup/{Converters,Properties,Themes,ViewModels,Views}/
+    │   └── Studies/{Properties,ViewModels,Views}/
     ├── Services/
-    │   ├── Application/
-    │   │   ├── Bases/
-    │   │   ├── Contracts/{Dialog,Identity,Import,Media,RepositoryAdministration,RepositoryRecovery,SystemCheck,UserAdministration}/
-    │   │   ├── Enums/
-    │   │   ├── Implementations/{Dialog,Identity,Import,Media,RepositoryAdministration,RepositoryRecovery,SystemCheck,UserAdministration}/
-    │   │   ├── Models/{RepositoryAdministration,RepositoryRecovery,SystemCheck,UserAdministration}/
-    │   │   └── Properties/
+    │   ├── Application/{Bases,Contracts,Enums,Implementations,Models,Properties}/
     │   ├── Core/{Bases,Contracts,Implementations,Properties}/
-    │   ├── Dicom/{Bases,Contracts,Implementations,Properties}/
+    │   ├── Dicom/{Bases,Contracts,Implementations,Models,Properties}/
     │   ├── Miras/{Bases,Contracts,Enums,Implementations,Models,Properties}/
     │   ├── Persistence/{Bases,Configurations,Contexts,Contracts,Entities,Enums,Implementations,Migrations,Models,Properties,Serialization}/
     │   └── Repository/{Bases,Contracts,Enums,Implementations,Models,Properties}/
@@ -336,9 +334,11 @@ Wpf/
         ├── Desktop.Test/Application/{Administration,Configuration,Identity,Startup}/
         ├── Modules.Identity.Test/ViewModels/
         ├── Modules.Imaging.Test/ViewModels/
+        ├── Modules.Import.Test/ViewModels/
         ├── Modules.Miras.Test/ViewModels/
         ├── Modules.Setup.Test/ViewModels/
-        ├── Services.Application.Test/{Identity,Import,RepositoryAdministration,RepositoryRecovery,SystemCheck,UserAdministration}/
+        ├── Modules.Studies.Test/ViewModels/
+        ├── Services.Application.Test/{Identity,Import,RepositoryAdministration,RepositoryRecovery,Studies,SystemCheck,UserAdministration}/
         ├── Services.Core.Test/
         ├── Services.Miras.Test/
         ├── Services.Persistence.Test/
@@ -346,28 +346,29 @@ Wpf/
         └── Test.Shared/Application/
 ```
 
-The solution currently contains 25 projects: three root projects, five feature modules, six service projects, and eleven test/support projects.
+The solution currently contains **28 projects**: three root projects, six feature modules, six service projects, and thirteen test/support projects.
 
-Excluded content includes `bin`, `obj`, `.vs`, `TestResults`, `artifacts`, `ref`, `refint`, generated `*.g.cs` and `*.g.i.cs` files, caches, temporary and backup files, `*.csproj.user`, and `MOPR-Backend-Source.txt`.
+Excluded content includes `bin`, `obj`, `.vs`, `TestResults`, `artifacts`, `ref`, `refint`, generated `*.g.cs` and `*.g.i.cs` files, caches, temporary and backup files, `*.csproj.user`, local source exports, and local repair scripts.
 
 ## Dependency Direction
 
 The principal dependency direction is:
 
 ```text
-Desktop (.NET 10 for Windows)
+Desktop (.NET 11 for Windows)
 ├── Contracts (.NET Standard 2.1)
-├── Core (.NET 10 for Windows)
-├── Modules.Identity (.NET 10 for Windows)
-├── Modules.Imaging (.NET 10 for Windows)
-├── Modules.Import (.NET 10 for Windows)
-├── Modules.Setup (.NET 10 for Windows)
-├── Services.Application (.NET 10 for Windows)
+├── Core (.NET 11 for Windows)
+├── Modules.Identity (.NET 11 for Windows)
+├── Modules.Imaging (.NET 11 for Windows)
+├── Modules.Import (.NET 11 for Windows)
+├── Modules.Setup (.NET 11 for Windows)
+├── Modules.Studies (.NET 11 for Windows)
+├── Services.Application (.NET 11 for Windows)
 ├── Services.Core (.NET Standard 2.1)
 ├── Services.Dicom (.NET Standard 2.1)
-├── Services.Miras (.NET 10)
-├── Services.Persistence (.NET 10)
-└── Services.Repository (.NET 10)
+├── Services.Miras (.NET 11)
+├── Services.Persistence (.NET 11)
+└── Services.Repository (.NET 11)
 
 Modules.Identity
 ├── Contracts
@@ -385,6 +386,10 @@ Modules.Import
 
 Modules.Setup
 ├── Contracts
+├── Core
+└── Services.Application
+
+Modules.Studies
 ├── Core
 └── Services.Application
 
@@ -439,6 +444,9 @@ IApplication
 │   ├── IUserProvisioningService
 │   └── IUserSignInService
 ├── IImportService
+│   ├── IDicomImportDriveProvider
+│   ├── IDicomImportService
+│   └── ResolveSourceAsync(...)
 ├── IMediaService
 ├── IRepositoryLocationAdministrationService
 ├── IRepositoryRecoveryActionService
@@ -552,7 +560,7 @@ The import path is deliberately separated into distinct responsibilities:
 
 ```text
 Modules.Import
-    ↓ user interaction
+    ↓ local folder, discovered drive, or validated UNC source
 Services.Application
     ↓ source resolution, current-user audit identity, workflow mapping
 Services.Repository
@@ -563,7 +571,22 @@ Services.Dicom
     ↓ parsing, validation, metadata, and image decoding
 ```
 
-Supported source classifications include local directories, USB and removable drives, SD cards, CD-ROM and DVD media, network shares, mapped network drives, virtual drives, and ISO images. Source detection can be automatic or explicitly selected.
+`IDicomImportDriveProvider.GetDrivesAsync(...)` exposes a cancellable `IAsyncEnumerable<DicomImportDriveInfo>`. The import view adds each result immediately, so unavailable mapped drives or empty optical media do not freeze the WPF dispatcher. Refreshing, closing the dialog, or starting an import cancels superseded discovery work.
+
+`IImportService.ResolveSourceAsync(...)` is the public application facade for source validation. The internal resolver classifies sources without mounting media, creating network connections, or modifying source content. Direct UNC paths are explicitly checked as `NetworkShare`; the selected path remains `AutoDetect` for the actual import so availability and classification are verified again at execution time.
+
+Supported operational source paths are:
+
+- local directories
+- ready removable media and external drives exposed by Windows
+- ready CD-ROM and DVD drives
+- mapped network drives
+- direct UNC network shares
+- mounted virtual drives
+
+ISO files are recognized as `IsoImage`, but MOPR does not currently mount them. Users must mount an ISO in Windows and select the resulting virtual drive.
+
+Import results distinguish imported files, already existing files, other skipped files, failed files, and cancellation. A repeat import with zero new files is presented as no new image data rather than as a successful new import.
 
 ## Configuration and Administration
 
@@ -630,7 +653,7 @@ Technical identifiers, filesystem paths, stack traces, and raw exception details
 ### Requirements
 
 - Windows 10 or Windows 11
-- .NET 10 SDK
+- .NET 11 SDK
 - Visual Studio with the **.NET desktop development** workload
 - SQL Server LocalDB for the default desktop persistence configuration
 
@@ -662,7 +685,10 @@ Run individual test projects:
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Desktop.Test\MarcusRunge.Mopr.Workbench.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Identity.Test\MarcusRunge.Mopr.Workbench.Modules.Identity.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Imaging.Test\MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.csproj --configuration Debug
+dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Import.Test\MarcusRunge.Mopr.Workbench.Modules.Import.Test.csproj --configuration Debug
+dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Miras.Test\MarcusRunge.Mopr.Workbench.Modules.Miras.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Setup.Test\MarcusRunge.Mopr.Workbench.Modules.Setup.Test.csproj --configuration Debug
+dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Modules.Studies.Test\MarcusRunge.Mopr.Workbench.Modules.Studies.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Application.Test\MarcusRunge.Mopr.Workbench.Services.Application.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Core.Test\MarcusRunge.Mopr.Workbench.Services.Core.Test.csproj --configuration Debug
 dotnet test .\MarcusRunge.Mopr.Workbench\Tests\Services.Miras.Test\MarcusRunge.Mopr.Workbench.Services.Miras.Test.csproj --configuration Debug
@@ -682,7 +708,8 @@ The test suites cover:
 - setup and administration view models for database, repository, security, users, and system checks
 - repository-administration authorization, conflicts, validation, invariants, and cancellation
 - user-administration validation and protection rules
-- identity, imaging, import, and MIRAS presentation behavior
+- identity, imaging, import, studies, and MIRAS presentation behavior
+- progressive asynchronous drive discovery, ready/unready media selection, direct UNC validation, and application-facade usage
 - import-source resolution and application-level DICOM import orchestration
 - system-check aggregation and cancellation
 - MIRAS flow state, concurrency, cancellation, restart, shutdown, mapping, localization, and edge cases
