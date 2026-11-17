@@ -3,11 +3,12 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Bases;
+using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.RepositoryRecovery;
-using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.SystemCheck;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.UserAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -19,17 +20,18 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations;
 /// </summary>
 internal sealed class Application : ApplicationBase
 {
-    internal Application(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : base(logger, administrativeAuthorizationService, operatingSystemIdentityProvider, persistence, repository, machineConfigurationService, miras)
+    internal Application(ILogger? logger, IImagingService? imagingService, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, Repository.Contracts.IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : base(logger, imagingService, administrativeAuthorizationService, operatingSystemIdentityProvider, persistence, repository, machineConfigurationService, miras)
     {
         _dialogService = Dialog.DialogService.Create(this);
         _mediaService = Media.MediaService.Create(this);
 
-        // Identity must be created before user-facing administration services because they use the current persistent user as their audit or selection context.
+        // Identity must be created before user-facing services because they use the current persistent user as their audit or selection context.
         _identityService = Identity.IdentityService.Create(this);
+        _imagingSession = ImagingSessionApplicationService.Create(this, CreationLifetime.Scoped);
         _repositoryAdministration = RepositoryLocationAdministrationService.Create(this, CreationLifetime.Scoped);
         _repositoryRecovery = RepositoryRecoveryActionService.Create(this, CreationLifetime.Scoped);
         _userAdministration = UserAdministrationService.Create(this, CreationLifetime.Scoped);
-        _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);        
+        _systemCheck = SystemCheckService.Create(this, CreationLifetime.Scoped);
         _importService = Import.ImportService.Create(this);
         _studiesService = Studies.StudiesService.Create(this);
     }

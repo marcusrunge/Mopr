@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Base;
+using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
@@ -8,11 +8,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
     /// </summary>
     public class Measurement : AuditableEntityBase
     {
+        private string? _dataJson, _description, _title;
+        private Guid _entityId;
         private Instance? _instance;
         private int _instanceId;
         private MeasurementType _measurementType;
-        private string? _title, _dataJson, _description;
-                
+
         /// <summary>
         /// Gets or sets the serialized measurement data.
         /// </summary>
@@ -22,7 +23,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the description of the measurement.
         /// </summary>
         public string? Description { get => _description; set => SetProperty(ref _description, value); }
-               
+
+        /// <summary>
+        /// Gets or sets the stable application identity used by session change management.
+        /// </summary>
+        public Guid EntityId { get => _entityId; set => SetProperty(ref _entityId, value); }
+
         /// <summary>
         /// Gets or sets the instance to which the measurement belongs.
         /// </summary>
@@ -37,7 +43,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the measurement type.
         /// </summary>
         public MeasurementType MeasurementType { get => _measurementType; set => SetProperty(ref _measurementType, value); }
-                
+
         /// <summary>
         /// Gets or sets the title of the measurement.
         /// </summary>

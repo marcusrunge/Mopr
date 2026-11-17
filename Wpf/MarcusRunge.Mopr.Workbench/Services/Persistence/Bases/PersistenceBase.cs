@@ -17,6 +17,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
         protected IDicomImportPersistenceService? _dicomImport;
         protected IInstanceRepository? _instance;
         protected IImportedSeriesRepository? _importedSeries;
+        protected IImagingSessionPersistenceService? _imagingSession;
         protected IPersistenceIntegrityService? _integrity;
         protected IMeasurementRepository? _measurement;
         protected IRepositoryLocationRepository? _repositoryLocation;
@@ -89,6 +90,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Bases
 
         /// <inheritdoc/>
         public IImportedSeriesRepository? ImportedSeries => _importedSeries;
+
+        /// <inheritdoc/>
+        public IImagingSessionPersistenceService? ImagingSession => _imagingSession;
 
         /// <inheritdoc/>
         public IPersistenceIntegrityService? Integrity => _integrity;

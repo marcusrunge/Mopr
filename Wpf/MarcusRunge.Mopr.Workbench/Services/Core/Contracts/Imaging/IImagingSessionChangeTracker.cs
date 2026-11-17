@@ -1,3 +1,4 @@
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using System;
 using System.Collections.Generic;
@@ -5,12 +6,12 @@ using System.Collections.Generic;
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
 {
     /// <summary>
-    /// Tracks persistable imaging changes that must be protected before a study is closed or replaced.
+    /// Tracks typed persistable changes that belong to the currently open imaging study.
     /// </summary>
     public interface IImagingSessionChangeTracker
     {
         /// <summary>
-        /// Occurs when the unsaved-change state changes.
+        /// Occurs when the unsaved-change snapshot changes.
         /// </summary>
         event EventHandler? UnsavedChangesChanged;
 
@@ -20,23 +21,23 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging
         bool HasUnsavedChanges { get; }
 
         /// <summary>
-        /// Gets a snapshot of all currently registered unsaved changes.
+        /// Gets a stable snapshot of all currently registered unsaved changes.
         /// </summary>
-        IReadOnlyList<ImagingUnsavedChange> UnsavedChanges { get; }
+        IReadOnlyList<IImagingSessionChange> UnsavedChanges { get; }
 
         /// <summary>
-        /// Clears every registered change after a successful save or an explicit discard operation.
+        /// Clears every registered change after an explicit discard operation.
         /// </summary>
         void Clear();
 
         /// <summary>
-        /// Registers or replaces one change under a stable owner and change key.
+        /// Registers and merges one typed change under its stable entity identity.
         /// </summary>
-        void MarkUnsaved(string owner, string key, ImagingUnsavedChange change);
+        void MarkChanged<TData>(ImagingSessionChangeIdentity identity, ImagingSessionChangeState state, TData? originalValue, TData? currentValue);
 
         /// <summary>
-        /// Removes one registered change after that change has been saved or reverted.
+        /// Removes a change only when its identity and version still match the successfully saved snapshot.
         /// </summary>
-        bool MarkSaved(string owner, string key);
+        bool MarkSaved(ImagingSessionChangeIdentity identity, long version);
     }
 }

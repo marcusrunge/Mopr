@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Security.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts
         /// Gets the logger used within the application-service graph.
         /// </summary>
         internal ILogger? Logger { get; }
+
+        /// <summary>
+        /// Gets the Core imaging-service facade used by imaging application services.
+        /// </summary>
+        internal IImagingService? ImagingService { get; }
 
         /// <summary>
         /// Gets the machine-configuration service used to access protected workstation settings.

@@ -22,6 +22,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
              */
             _instance = InstanceRepository.Create(this);
             _importedSeries = ImportedSeriesRepository.Create(this);
+            _imagingSession = ImagingSessionPersistenceService.Create(this);
             _measurement = MeasurementRepository.Create(this);
             _repositoryLocation = RepositoryLocationRepository.Create(this);
             _series = SeriesRepository.Create(this);

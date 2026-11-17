@@ -1,5 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
-using System.Runtime.CompilerServices;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
 {
@@ -16,6 +15,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import
         /// An asynchronous stream of drive descriptors. A descriptor is returned as soon as the corresponding
         /// drive has been inspected.
         /// </returns>
-        IAsyncEnumerable<DicomImportDriveInfo> GetDrivesAsync([EnumeratorCancellation] CancellationToken cancellationToken);
+        IAsyncEnumerable<DicomImportDriveInfo> GetDrivesAsync(CancellationToken cancellationToken);
     }
 }

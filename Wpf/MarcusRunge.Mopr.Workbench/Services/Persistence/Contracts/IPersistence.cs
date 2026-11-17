@@ -46,6 +46,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
         IMeasurementRepository? Measurement { get; }
 
         /// <summary>
+        /// Gets the transactional imaging-session persistence service.
+        /// </summary>
+        IImagingSessionPersistenceService? ImagingSession { get; }
+
+        /// <summary>
         /// Gets the repository-location repository.
         /// </summary>
         IRepositoryLocationRepository? RepositoryLocation { get; }

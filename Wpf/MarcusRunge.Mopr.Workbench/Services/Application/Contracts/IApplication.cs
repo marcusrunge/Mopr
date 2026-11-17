@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
@@ -29,6 +30,11 @@ public interface IApplication
     /// Gets the identity service.
     /// </summary>
     IIdentityService? IdentityService { get; }
+
+    /// <summary>
+    /// Gets the imaging-session application service.
+    /// </summary>
+    IImagingSessionApplicationService? ImagingSession { get; }
 
     /// <summary>
     /// Gets the import service.

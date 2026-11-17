@@ -6,12 +6,14 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.SystemCheck;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.UserAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Contracts;
@@ -20,10 +22,11 @@ using System.Reflection;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 {
-    internal abstract class ApplicationBase(ILogger? logger, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : IApplicationBase, IApplication
+    internal abstract class ApplicationBase(ILogger? logger, IImagingService? imagingService, IAdministrativeAuthorizationService? administrativeAuthorizationService, IOperatingSystemIdentityProvider? operatingSystemIdentityProvider, IPersistence? persistence, IRepository? repository, IMachineConfigurationService machineConfigurationService, IMiras miras) : IApplicationBase, IApplication
     {
         protected IDialogService? _dialogService;
         protected IIdentityService? _identityService;
+        protected IImagingSessionApplicationService? _imagingSession;
         protected IImportService? _importService;
         protected IMediaService? _mediaService;
         protected IRepositoryLocationAdministrationService? _repositoryAdministration;
@@ -61,9 +64,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IIdentityService? IdentityService => _identityService;
 
+        public IImagingSessionApplicationService? ImagingSession => _imagingSession;
+
         public IImportService? ImportService => _importService;
 
         ILogger? IApplicationBase.Logger => logger;
+
+        IImagingService? IApplicationBase.ImagingService => imagingService;
 
         IMachineConfigurationService IApplicationBase.MachineConfigurationService => machineConfigurationService;
 

@@ -1,4 +1,5 @@
 using MarcusRunge.Base;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
@@ -10,12 +11,13 @@ using System.Threading.Tasks;
 namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
 {
     /// <summary>
-    /// Maintains the authoritative set of unsaved persistable imaging changes for the current session.
+    /// Maintains the authoritative typed change set for the current imaging session.
     /// </summary>
     internal sealed class ImagingSessionChangeTracker : CreateableBindableBase<IImagingSessionChangeTracker, ImagingSessionChangeTracker, IImagingServiceBase>, IImagingSessionChangeTracker
     {
         private readonly object _syncRoot = new();
-        private readonly Dictionary<string, ImagingUnsavedChange> _unsavedChanges = new(StringComparer.Ordinal);
+        private readonly Dictionary<ImagingSessionChangeIdentity, IImagingSessionChange> _unsavedChanges = [];
+        private long _version;
 
         public event EventHandler? UnsavedChangesChanged;
 
@@ -27,7 +29,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             }
         }
 
-        public IReadOnlyList<ImagingUnsavedChange> UnsavedChanges
+        public IReadOnlyList<IImagingSessionChange> UnsavedChanges
         {
             get
             {
@@ -48,27 +50,30 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             if (changed) UnsavedChangesChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public void MarkUnsaved(string owner, string key, ImagingUnsavedChange change)
+        public void MarkChanged<TData>(ImagingSessionChangeIdentity identity, ImagingSessionChangeState state, TData? originalValue, TData? currentValue)
         {
-            if (string.IsNullOrWhiteSpace(owner)) throw new ArgumentException("The change owner must not be empty.", nameof(owner));
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("The change key must not be empty.", nameof(key));
-            if (change is null) throw new ArgumentNullException(nameof(change));
+            if (identity is null) throw new ArgumentNullException(nameof(identity));
 
-            var compositeKey = CreateCompositeKey(owner, key);
+            bool changed;
 
-            lock (_syncRoot) _unsavedChanges[compositeKey] = change;
+            lock (_syncRoot)
+            {
+                _unsavedChanges.TryGetValue(identity, out var existingChange);
+                var mergedChange = Merge(existingChange, identity, state, originalValue, currentValue, NextVersion());
+                changed = ApplyMergedChange(identity, existingChange, mergedChange);
+            }
 
-            UnsavedChangesChanged?.Invoke(this, EventArgs.Empty);
+            if (changed) UnsavedChangesChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public bool MarkSaved(string owner, string key)
+        public bool MarkSaved(ImagingSessionChangeIdentity identity, long version)
         {
-            if (string.IsNullOrWhiteSpace(owner)) throw new ArgumentException("The change owner must not be empty.", nameof(owner));
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("The change key must not be empty.", nameof(key));
+            if (identity is null) throw new ArgumentNullException(nameof(identity));
+            if (version <= 0) throw new ArgumentOutOfRangeException(nameof(version), "The saved change version must be positive.");
 
             bool removed;
 
-            lock (_syncRoot) removed = _unsavedChanges.Remove(CreateCompositeKey(owner, key));
+            lock (_syncRoot) removed = _unsavedChanges.TryGetValue(identity, out var change) && change.Version == version && _unsavedChanges.Remove(identity);
 
             if (removed) UnsavedChangesChanged?.Invoke(this, EventArgs.Empty);
 
@@ -85,6 +90,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
             return Task.CompletedTask;
         }
 
-        private static string CreateCompositeKey(string owner, string key) => $"{owner.Trim()}\u001F{key.Trim()}";
+        private bool ApplyMergedChange(ImagingSessionChangeIdentity identity, IImagingSessionChange? existingChange, IImagingSessionChange? mergedChange)
+        {
+            if (mergedChange is null) return existingChange is not null && _unsavedChanges.Remove(identity);
+            if (Equals(existingChange, mergedChange)) return false;
+
+            _unsavedChanges[identity] = mergedChange;
+            return true;
+        }
+
+        private static IImagingSessionChange? Merge<TData>(IImagingSessionChange? existingChange, ImagingSessionChangeIdentity identity, ImagingSessionChangeState state, TData? originalValue, TData? currentValue, long version)
+        {
+            if (existingChange is null) return new ImagingSessionChange<TData>(identity, state, originalValue, currentValue, version);
+            if (existingChange is not ImagingSessionChange<TData> typedChange) throw new InvalidOperationException($"The entity '{identity.EntityType}:{identity.EntityId}' was already tracked with payload type '{existingChange.DataType.FullName}' and cannot be changed to '{typeof(TData).FullName}'.");
+
+            return (typedChange.State, state) switch
+            {
+                (ImagingSessionChangeState.Created, ImagingSessionChangeState.Created) => new ImagingSessionChange<TData>(identity, ImagingSessionChangeState.Created, default, currentValue, version),
+                (ImagingSessionChangeState.Created, ImagingSessionChangeState.Modified) => new ImagingSessionChange<TData>(identity, ImagingSessionChangeState.Created, default, currentValue, version),
+                (ImagingSessionChangeState.Created, ImagingSessionChangeState.Deleted) => null,
+                (ImagingSessionChangeState.Modified, ImagingSessionChangeState.Modified) => new ImagingSessionChange<TData>(identity, ImagingSessionChangeState.Modified, typedChange.OriginalValue, currentValue, version),
+                (ImagingSessionChangeState.Modified, ImagingSessionChangeState.Deleted) => new ImagingSessionChange<TData>(identity, ImagingSessionChangeState.Deleted, typedChange.OriginalValue, default, version),
+                (ImagingSessionChangeState.Deleted, ImagingSessionChangeState.Created) => new ImagingSessionChange<TData>(identity, ImagingSessionChangeState.Modified, typedChange.OriginalValue, currentValue, version),
+                _ => throw new InvalidOperationException($"The transition from '{typedChange.State}' to '{state}' is not valid for '{identity.EntityType}:{identity.EntityId}'.")
+            };
+        }
+
+        private long NextVersion() => checked(++_version);
     }
 }

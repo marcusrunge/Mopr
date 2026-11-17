@@ -122,7 +122,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="Viewer_Layout_Unknown" xml:space="preserve">
     <value>Layout: Unknown</value>
@@ -276,5 +276,14 @@
   </data>
   <data name="DatabaseConfigurationUpdateStatus_Failed" xml:space="preserve">
     <value>The database configuration could not be updated</value>
+  </data>
+  <data name="ImagingSessionChangeState_Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="ImagingSessionChangeState_Modified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="ImagingSessionChangeState_Deleted" xml:space="preserve">
+    <value>Deleted</value>
   </data>
 </root>
