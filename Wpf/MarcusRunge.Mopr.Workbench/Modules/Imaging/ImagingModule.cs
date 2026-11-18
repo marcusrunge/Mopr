@@ -31,6 +31,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<IImagingMeasurementContext, ImagingMeasurementContext>();
+            containerRegistry.RegisterSingleton<IImagingMeasurementChangeService, ImagingMeasurementChangeService>();
+            containerRegistry.RegisterSingleton<IImagingMeasurementSessionStore, ImagingMeasurementSessionStore>();
             containerRegistry.RegisterDialog<UnsavedChangesDialogView, UnsavedChangesDialogViewModel>();
             containerRegistry.RegisterForNavigation<ImageViewerView>();
             containerRegistry.RegisterForNavigation<ImagingCommandBarView>();
@@ -40,3 +42,4 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
         }
     }
 }
+

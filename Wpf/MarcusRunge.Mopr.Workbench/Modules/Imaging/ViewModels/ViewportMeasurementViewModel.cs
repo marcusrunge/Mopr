@@ -1,17 +1,37 @@
-﻿using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Geometry;
+using MarcusRunge.Mopr.Workbench.Contracts.Models.Measurements;
+using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using System;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
-    public sealed class ViewportMeasurementViewModel(double startImageX, double startImageY) : ViewModelBase
+    public sealed class ViewportMeasurementViewModel : ViewModelBase
     {
+        private readonly DateTime _createdAt;
+        private readonly Guid _id;
+        private readonly double _startImageX, _startImageY;
+        public ViewportMeasurementViewModel(double startImageX, double startImageY) : this(Guid.NewGuid(), startImageX, startImageY, DateTime.UtcNow, modifiedAtUtc: null)
+        {
+        }
+
+        internal ViewportMeasurementViewModel(Guid id, double startImageX, double startImageY, DateTime createdAtUtc, DateTime? modifiedAtUtc)
+        {
+            if (id == Guid.Empty) throw new ArgumentException("The measurement ID must not be empty.", nameof(id));
+            _id = id;
+            _startImageX = startImageX;
+            _startImageY = startImageY;
+            _createdAt = NormalizeUtc(createdAtUtc);
+            _modifiedAt = modifiedAtUtc.HasValue ? NormalizeUtc(modifiedAtUtc.Value) : null;
+        }
         private string? _description, _title;
         private double? _endImageX, _endImageY, _pixelSpacingX, _pixelSpacingY, _previewEndImageX, _previewEndImageY;
         private bool _isSelected;
         private DateTime? _modifiedAt;
 
-        public DateTime CreatedAt { get; } = DateTime.Now;
+        public DateTime CreatedAt => _createdAt;
 
         public string? Description
         {
@@ -112,7 +132,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool HasPreviewEndPoint => PreviewEndImageX.HasValue && PreviewEndImageY.HasValue;
 
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id => _id;
 
         public bool IsComplete => EndImageX.HasValue && EndImageY.HasValue;
 
@@ -248,9 +268,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public double StartImageX { get; } = startImageX;
+        public double StartImageX => _startImageX;
 
-        public double StartImageY { get; } = startImageY;
+        public double StartImageY => _startImageY;
 
         public string? Title
         {
@@ -275,6 +295,28 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             RaiseMeasurementPropertiesChanged();
             RaisePreviewPropertiesChanged();
+            Touch();
+        }
+
+        internal static ViewportMeasurementViewModel CreateLoaded(Guid id, double startImageX, double startImageY, double endImageX, double endImageY, double? pixelSpacingX, double? pixelSpacingY, string? title, string? description, DateTime createdAtUtc, DateTime? modifiedAtUtc)
+        {
+            var measurement = new ViewportMeasurementViewModel(id, startImageX, startImageY, createdAtUtc, modifiedAtUtc)
+            {
+                _endImageX = endImageX,
+                _endImageY = endImageY,
+                _pixelSpacingX = pixelSpacingX,
+                _pixelSpacingY = pixelSpacingY,
+                _title = title,
+                _description = description
+            };
+            return measurement;
+        }
+
+        public ImagingMeasurementChangeData ToChangeData()
+        {
+            if (!IsComplete) throw new InvalidOperationException($"Measurement '{Id}' is not complete.");
+            var data = new LengthMeasurementData { StartPoint = new Point2D { X = StartImageX, Y = StartImageY }, EndPoint = new Point2D { X = EndImageX!.Value, Y = EndImageY!.Value } };
+            return new ImagingMeasurementChangeData(MeasurementType.Length, data, Title, Description);
         }
 
         public void SetPixelSpacing(double? pixelSpacingX, double? pixelSpacingY)
@@ -323,6 +365,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePropertyChanged(nameof(PreviewLabelText));
         }
 
-        private void Touch() => ModifiedAt = DateTime.Now;
+        private static DateTime NormalizeUtc(DateTime value) => value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
+
+        private void Touch() => ModifiedAt = DateTime.UtcNow;
     }
 }

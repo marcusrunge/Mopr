@@ -53,7 +53,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         /// <inheritdoc/>
         public async Task<ImagingSessionPersistenceSaveResult> SaveAsync(ImagingSessionPersistenceSaveRequest request, CancellationToken cancellationToken = default)
         {
-            if (request is null) throw new ArgumentNullException(nameof(request));
+            ArgumentNullException.ThrowIfNull(request);
 
             cancellationToken.ThrowIfCancellationRequested();
             ValidateRequest(request);
@@ -146,12 +146,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         {
             Measurement? entity = await context.Measurements
                 .Include(measurement => measurement.Instance)!
-                .ThenInclude(instance => instance.Series)!
-                .ThenInclude(series => series.Study)
+                .ThenInclude(instance => instance!.Series)!
+                .ThenInclude(series => series!.Study)
                 .SingleOrDefaultAsync(measurement => measurement.EntityId == change.EntityId, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (entity is null) throw new InvalidOperationException($"Measurement '{change.EntityId}' does not exist.");
+                .ConfigureAwait(false) ?? throw new InvalidOperationException($"Measurement '{change.EntityId}' does not exist.");
             ValidatePersistedLocation(entity, change);
             return entity;
         }
@@ -160,7 +158,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         {
             Instance? instance = await context.Instances
                 .Include(entity => entity.Series)!
-                .ThenInclude(series => series.Study)
+                .ThenInclude(series => series!.Study)
                 .SingleOrDefaultAsync(entity => entity.SopInstanceUid == change.SopInstanceUid, cancellationToken)
                 .ConfigureAwait(false);
 
