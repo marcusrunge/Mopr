@@ -1,5 +1,6 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Prism.Mvvm;
 using System;
@@ -10,8 +11,23 @@ using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
-    public sealed class ViewportTileViewModel(string viewportId, string title) : BindableBase
+    public sealed class ViewportTileViewModel : BindableBase
     {
+        private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
+        private readonly IImagingMeasurementSessionStore _measurementSessionStore;
+        private readonly string _title;
+        private readonly string _viewportId;
+        private ImagingMeasurementInstanceKey? _measurementInstanceKey;
+        private ObservableCollection<ViewportMeasurementViewModel> _measurements = [];
+
+        public ViewportTileViewModel(string viewportId, string title, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver)
+        {
+            if (string.IsNullOrWhiteSpace(viewportId)) throw new ArgumentException("The viewport ID must not be empty.", nameof(viewportId));
+            _viewportId = viewportId;
+            _title = title ?? throw new ArgumentNullException(nameof(title));
+            _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
+            _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
+        }
         private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
@@ -188,7 +204,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public ObservableCollection<ViewportMeasurementViewModel> Measurements { get; } = [];
+        public ObservableCollection<ViewportMeasurementViewModel> Measurements
+        {
+            get => _measurements;
+            private set
+            {
+                if (ReferenceEquals(_measurements, value)) return;
+                _measurements = value;
+                RaisePropertyChanged();
+                RaiseMeasurementPropertiesChanged();
+            }
+        }
 
         public ViewportMeasurementViewModel? SelectedMeasurement
         {
@@ -239,9 +265,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string SliceDisplayText => $"{CurrentSlice}/{SliceCount}";
 
-        public string Title { get; } = title;
+        public string Title => _title;
 
-        public string ViewportId { get; } = viewportId;
+        public string ViewportId => _viewportId;
 
         public double? WindowCenter
         {
@@ -299,7 +325,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             var completedMeasurement = ActiveMeasurementDraft;
 
-            Measurements.Add(completedMeasurement);
+            ImagingMeasurementInstanceKey instanceKey = _measurementInstanceKey ?? throw new InvalidOperationException("The displayed DICOM instance is not resolved for measurement creation.");
+            _measurementSessionStore.Create(instanceKey, completedMeasurement);
 
             ActiveMeasurementDraft = null;
 
@@ -318,10 +345,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public void ClearMeasurements()
         {
             SelectedMeasurement = null;
-
-            Measurements.Clear();
             ActiveMeasurementDraft = null;
-
+            _measurementInstanceKey = null;
+            Measurements = [];
             RaiseMeasurementPropertiesChanged();
         }
 
@@ -352,10 +378,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 SelectedMeasurement = null;
             }
 
-            foreach (var measurement in measurementsToRemove)
-            {
-                Measurements.Remove(measurement);
-            }
+            ImagingMeasurementInstanceKey instanceKey = _measurementInstanceKey ?? throw new InvalidOperationException("The displayed DICOM instance is not resolved for measurement deletion.");
+            foreach (var measurement in measurementsToRemove) _measurementSessionStore.Delete(instanceKey, measurement);
 
             RaiseMeasurementPropertiesChanged();
         }
@@ -430,7 +454,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 CurrentImage = null;
 
                 ClearCurrentPixel();
-                ClearMeasurements();
+                SelectedMeasurement = null;
+                ActiveMeasurementDraft = null;
             }
 
             CurrentSlice = slice;
@@ -454,6 +479,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ActiveMeasurementDraft.SetPreviewEndPoint(imageX, imageY);
 
             RaiseMeasurementPropertiesChanged();
+        }
+
+        private void BindMeasurementsToCurrentInstance()
+        {
+            if (Series is null || string.IsNullOrWhiteSpace(CurrentFilePath))
+            {
+                _measurementInstanceKey = null;
+                Measurements = [];
+                return;
+            }
+
+            _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath);
+            Measurements = _measurementSessionStore.GetMeasurements(_measurementInstanceKey);
         }
 
         private void RaiseMeasurementPropertiesChanged()

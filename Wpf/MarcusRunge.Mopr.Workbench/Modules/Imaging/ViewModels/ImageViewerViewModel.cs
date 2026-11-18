@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
@@ -49,13 +49,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private DelegateCommand<ViewportWindowLevelDragInfo?>? _windowLevelDragCommand;
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
         private readonly IImagingMeasurementContext _measurementContext;
+        private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
+        private readonly IImagingMeasurementSessionStore _measurementSessionStore;
 
-        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver)
         {
             _core = core;
             _wpf = wpf;
             _dicom = dicom;
             _measurementContext = measurementContext;
+            _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
+            _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -1100,7 +1104,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private ViewportTileViewModel RegisterViewport(string viewportId, string title)
         {
-            var tile = new ViewportTileViewModel(viewportId, title);
+            var tile = new ViewportTileViewModel(viewportId, title, _measurementSessionStore, _measurementInstanceResolver);
 
             _viewportTiles[viewportId] = tile;
 

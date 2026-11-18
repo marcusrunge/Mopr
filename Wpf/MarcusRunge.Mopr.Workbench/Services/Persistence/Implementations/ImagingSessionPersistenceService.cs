@@ -53,7 +53,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
         /// <inheritdoc/>
         public async Task<ImagingSessionPersistenceSaveResult> SaveAsync(ImagingSessionPersistenceSaveRequest request, CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(request);
+            if (request is null) throw new ArgumentNullException(nameof(request));
 
             cancellationToken.ThrowIfCancellationRequested();
             ValidateRequest(request);
@@ -102,12 +102,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 case ImagingSessionChangeState.Created:
                     await CreateMeasurementAsync(context, request.AuditUserId, change, cancellationToken).ConfigureAwait(false);
                     return;
+
                 case ImagingSessionChangeState.Modified:
                     await UpdateMeasurementAsync(context, request.AuditUserId, change, cancellationToken).ConfigureAwait(false);
                     return;
+
                 case ImagingSessionChangeState.Deleted:
                     await DeleteMeasurementAsync(context, change, cancellationToken).ConfigureAwait(false);
                     return;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(change), change.State, "The measurement change state is not supported.");
             }
@@ -144,9 +147,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 
         private static async Task<Measurement> FindTrackedMeasurementAsync(PersistenceDbContext context, ImagingMeasurementPersistenceChange change, CancellationToken cancellationToken)
         {
-            Measurement? entity = await context.Measurements
-                .Include(measurement => measurement.Instance)!
-                .ThenInclude(instance => instance!.Series)!
+            Measurement entity = await context.Measurements
+                .Include(measurement => measurement.Instance)
+                .ThenInclude(instance => instance!.Series)
                 .ThenInclude(series => series!.Study)
                 .SingleOrDefaultAsync(measurement => measurement.EntityId == change.EntityId, cancellationToken)
                 .ConfigureAwait(false) ?? throw new InvalidOperationException($"Measurement '{change.EntityId}' does not exist.");
@@ -156,13 +159,15 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 
         private static async Task<Instance> ResolveInstanceAsync(PersistenceDbContext context, ImagingMeasurementPersistenceChange change, CancellationToken cancellationToken)
         {
-            Instance? instance = await context.Instances
-                .Include(entity => entity.Series)!
+            Instance instance = await context.Instances
+                .Include(entity => entity.Series)
                 .ThenInclude(series => series!.Study)
                 .SingleOrDefaultAsync(entity => entity.SopInstanceUid == change.SopInstanceUid, cancellationToken)
-                .ConfigureAwait(false);
+                .ConfigureAwait(false) ?? throw new InvalidOperationException($"The DICOM instance '{change.SopInstanceUid}' does not exist.");
+            Series series = instance.Series ?? throw new InvalidOperationException($"The DICOM instance '{change.SopInstanceUid}' has no series assignment.");
+            Study study = series.Study ?? throw new InvalidOperationException($"The DICOM series '{change.SeriesInstanceUid}' has no study assignment.");
 
-            if (instance?.Series?.Study is null || !string.Equals(instance.Series.SeriesInstanceUid, change.SeriesInstanceUid, StringComparison.Ordinal) || !string.Equals(instance.Series.Study.StudyInstanceUid, change.StudyInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"The DICOM instance '{change.SopInstanceUid}' does not belong to study '{change.StudyInstanceUid}' and series '{change.SeriesInstanceUid}'.");
+            if (!string.Equals(series.SeriesInstanceUid, change.SeriesInstanceUid, StringComparison.Ordinal) || !string.Equals(study.StudyInstanceUid, change.StudyInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"The DICOM instance '{change.SopInstanceUid}' does not belong to study '{change.StudyInstanceUid}' and series '{change.SeriesInstanceUid}'.");
             return instance;
         }
 
