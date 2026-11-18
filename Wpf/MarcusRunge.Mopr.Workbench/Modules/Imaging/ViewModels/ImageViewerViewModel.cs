@@ -39,7 +39,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ImageSource? _currentImage;
         private ImagingLayout _currentLayout;
         private int _currentSlice = 1, _sliceCount = 1;
-        private CancellationTokenSource? _imageLoadCancellationTokenSource;
+        private CancellationTokenSource? _imageLoadCancellationTokenSource, _measurementHydrationCancellationTokenSource;
         private bool _isSynchronizingSelectionFromViewport;
         private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
         private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand, _measurementPreviewCommand;
@@ -49,10 +49,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private DelegateCommand<ViewportWindowLevelDragInfo?>? _windowLevelDragCommand;
         private double _zoomFactor = 1.0, _windowLevelDragStartCenter, _windowLevelDragStartWidth;
         private readonly IImagingMeasurementContext _measurementContext;
+        private readonly IImagingMeasurementHydrationService _measurementHydrationService;
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
 
-        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService)
         {
             _core = core;
             _wpf = wpf;
@@ -60,6 +61,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _measurementContext = measurementContext;
             _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
             _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
+            _measurementHydrationService = measurementHydrationService ?? throw new ArgumentNullException(nameof(measurementHydrationService));
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -356,7 +358,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel TwoByTwoViewport4 { get; }
 
-        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} · {SelectedSeries.Description}";
+        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} Â· {SelectedSeries.Description}";
 
         public string ViewerTitle => SelectedSeries == null ? Resources.Viewer_Title : SelectedSeries.Name;
 
@@ -395,6 +397,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _imageLoadCancellationTokenSource?.Cancel();
             _imageLoadCancellationTokenSource?.Dispose();
             _imageLoadCancellationTokenSource = null;
+            _measurementHydrationCancellationTokenSource?.Cancel();
+            _measurementHydrationCancellationTokenSource?.Dispose();
+            _measurementHydrationCancellationTokenSource = null;
 
             ClearDicomFrameCache();
 
@@ -967,24 +972,38 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ApplySelectedSeries(e.SelectedSeries);
         }
 
-        private void OnStudyLoaded(object? sender, ImagingStudyLoadedEventArgs e)
+        private async void OnStudyLoaded(object? sender, ImagingStudyLoadedEventArgs e)
         {
             _imageLoadCancellationTokenSource?.Cancel();
+            _measurementHydrationCancellationTokenSource?.Cancel();
+            _measurementHydrationCancellationTokenSource?.Dispose();
+            _measurementHydrationCancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _measurementHydrationCancellationTokenSource.Token;
 
             ClearDicomFrameCache();
-
             ClearAllViewports(syncActiveViewport: true, clearSelection: false);
 
-            var activeTile = GetActiveViewportTile();
-
-            if (activeTile == null)
+            try
             {
-                return;
+                if (e.Study is null)
+                {
+                    _measurementSessionStore.Clear();
+                    return;
+                }
+
+                await _measurementHydrationService.HydrateAsync(e.Study.Id, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                ViewportTileViewModel? activeTile = GetActiveViewportTile();
+                if (activeTile is not null && e.Series.Count > 0) AssignSeriesToViewport(activeTile, e.Series[0]);
             }
-
-            if (e.Series.Count > 0)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                AssignSeriesToViewport(activeTile, e.Series[0]);
+                // A newer study-load request or view destruction superseded this hydration operation.
+            }
+            catch (Exception exception)
+            {
+                _measurementSessionStore.Clear();
+                _wpf.ReportException(exception);
             }
         }
 
@@ -1297,3 +1316,4 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
+

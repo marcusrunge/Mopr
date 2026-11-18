@@ -155,6 +155,10 @@
             </Popup>
 
             <Button Margin="0,0,8,0"
+                    Command="{Binding SaveCommand}"
+                    Content="{x:Static properties:Resources.CommandBar_Save}" />
+
+            <Button Margin="0,0,8,0"
                     Command="{Binding CancelOpenCommand}"
                     Content="{x:Static properties:Resources.CommandBar_Cancel}"
                     Visibility="{Binding IsCancelVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />

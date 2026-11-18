@@ -214,7 +214,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -318,6 +318,60 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string CommandBar_ResetView {
             get {
                 return ResourceManager.GetString("CommandBar_ResetView", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
+        /// </summary>
+        public static string CommandBar_Save {
+            get {
+                return ResourceManager.GetString("CommandBar_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving canceled. ähnelt.
+        /// </summary>
+        public static string CommandBar_SaveCanceled {
+            get {
+                return ResourceManager.GetString("CommandBar_SaveCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Changes saved. ähnelt.
+        /// </summary>
+        public static string CommandBar_SaveCompleted {
+            get {
+                return ResourceManager.GetString("CommandBar_SaveCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saved. Newer changes remain unsaved. ähnelt.
+        /// </summary>
+        public static string CommandBar_SaveCompletedWithRemainingChanges {
+            get {
+                return ResourceManager.GetString("CommandBar_SaveCompletedWithRemainingChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Changes could not be saved. ähnelt.
+        /// </summary>
+        public static string CommandBar_SaveFailed {
+            get {
+                return ResourceManager.GetString("CommandBar_SaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Saving changes... ähnelt.
+        /// </summary>
+        public static string CommandBar_Saving {
+            get {
+                return ResourceManager.GetString("CommandBar_Saving", resourceCulture);
             }
         }
         
@@ -772,7 +826,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -790,7 +844,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Â· Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -925,7 +979,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ã— 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

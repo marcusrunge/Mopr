@@ -3,6 +3,7 @@ using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
@@ -27,14 +28,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly PrismDialogService _dialogService;
         private readonly IImagingSessionService _imagingSessionService;
         private readonly IImportedSeriesLoadService _importedSeriesLoader;
+        private readonly IImagingSessionApplicationService _imagingSessionApplicationService;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
-        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _applyCtLungWindowCommand, _applyCtMediastinumWindowCommand, _cancelOpenCommand, _closeStudyCommand, _crosshairCommand, _importCommand, _layoutCommand, _measureCommand, _moreCommand, _openCommand, _openImportedSeriesCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _windowLevelCommand, _zoomCommand;
+        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _applyCtLungWindowCommand, _applyCtMediastinumWindowCommand, _cancelOpenCommand, _closeStudyCommand, _crosshairCommand, _importCommand, _layoutCommand, _measureCommand, _moreCommand, _openCommand, _openImportedSeriesCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _saveCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
 
         private bool _isBusy;
 
-        private CancellationTokenSource? _openCancellationTokenSource;
+        private CancellationTokenSource? _openCancellationTokenSource, _saveCancellationTokenSource;
 
         private string _statusText = Resources.CommandBar_Status;
 
@@ -44,6 +46,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _importedSeriesLoader = _wpf.StudiesService?.ImportedSeriesLoader ?? throw new InvalidOperationException("The imported-series loader has not been initialized.");
+            _imagingSessionApplicationService = _wpf.ImagingSession ?? throw new InvalidOperationException("The imaging session application service has not been initialized.");
             _imagingSessionService = _core.ImagingService?.ImagingSessionService ?? throw new InvalidOperationException("The imaging session service has not been initialized.");
 
             _core.ImagingService!.ImagingToolService!.ActiveToolChanged += OnActiveToolChanged;
@@ -111,6 +114,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 _importCommand?.RaiseCanExecuteChanged();
                 _cancelOpenCommand?.RaiseCanExecuteChanged();
                 _closeStudyCommand?.RaiseCanExecuteChanged();
+                _saveCommand?.RaiseCanExecuteChanged();
                 RaisePropertyChanged(nameof(OpenButtonText));
                 RaisePropertyChanged(nameof(IsCancelVisible));
             }
@@ -133,6 +137,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public DelegateCommand ResetViewCommand => _resetViewCommand ??= new DelegateCommand(ResetView);
 
         public DelegateCommand ResetWindowLevelToDefaultCommand => _resetWindowLevelToDefaultCommand ??= new DelegateCommand(ResetWindowLevelToDefault);
+
+        public DelegateCommand SaveCommand => _saveCommand ??= new DelegateCommand(Save, CanSave);
 
         public string StatusText
         {
@@ -207,6 +213,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private bool CanOpen() => !IsBusy;
 
+        private bool CanSave() => !IsBusy && _imagingSessionService.HasOpenStudy && _imagingSessionService.HasUnsavedChanges;
+
         private bool CanOpenImport() => !IsBusy;
 
         private bool CanOpenImportedSeries() => !IsBusy;
@@ -274,7 +282,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void OnCurrentLayoutChanged(object? sender, ImagingLayoutChangedEventArgs e) => CurrentLayout = e.NewLayout;
 
-        private void OnImagingSessionStateChanged(object? sender, EventArgs e) => _closeStudyCommand?.RaiseCanExecuteChanged();
+        private void OnImagingSessionStateChanged(object? sender, EventArgs e)
+        {
+            _closeStudyCommand?.RaiseCanExecuteChanged();
+            _saveCommand?.RaiseCanExecuteChanged();
+        }
 
         private async Task OpenAsync()
         {
@@ -462,5 +474,39 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         private void ResetWindowLevelToDefault() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
+
+        private async void Save()
+        {
+            if (!CanSave()) return;
+
+            _saveCancellationTokenSource?.Cancel();
+            _saveCancellationTokenSource?.Dispose();
+            _saveCancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _saveCancellationTokenSource.Token;
+            IsBusy = true;
+            StatusText = Resources.CommandBar_Saving;
+
+            try
+            {
+                await _imagingSessionApplicationService.SaveAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                StatusText = _imagingSessionService.HasUnsavedChanges ? Resources.CommandBar_SaveCompletedWithRemainingChanges : Resources.CommandBar_SaveCompleted;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                StatusText = Resources.CommandBar_SaveCanceled;
+            }
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_SaveFailed;
+                _wpf.ReportException(exception);
+            }
+            finally
+            {
+                IsBusy = false;
+                _saveCommand?.RaiseCanExecuteChanged();
+            }
+        }
     }
 }
+

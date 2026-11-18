@@ -70,4 +70,9 @@ public interface IApplication
     /// Gets the user administration service.
     /// </summary>
     IUserAdministrationService? UserAdministration { get; }
+    /// <summary>
+    /// Reports an application-service exception through the central exception channel.
+    /// </summary>
+    void ReportException(Exception exception);
 }
+

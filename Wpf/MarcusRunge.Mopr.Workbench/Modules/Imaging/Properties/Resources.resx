@@ -169,7 +169,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="CommandBar_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 Ã— 2</value>
+    <value>Layout: 2 Ãƒâ€” 2</value>
   </data>
   <data name="CommandBar_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -250,7 +250,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 Ã— 2</value>
+    <value>Layout: 2 Ãƒâ€” 2</value>
   </data>
   <data name="Viewer_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -430,10 +430,10 @@
     <value>Pixel: -</value>
   </data>
   <data name="Status_PixelCtFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} Â· HU={2:0}</value>
+    <value>Pixel: X={0} Y={1} Ã‚Â· HU={2:0}</value>
   </data>
   <data name="Status_PixelValueFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} Â· Value={2:0}</value>
+    <value>Pixel: X={0} Y={1} Ã‚Â· Value={2:0}</value>
   </data>
   <data name="ViewportTile_ClearViewport" xml:space="preserve">
     <value>Clear viewport</value>
@@ -557,5 +557,23 @@
   </data>
   <data name="UnsavedChangesDialog_Discard" xml:space="preserve">
     <value>Discard changes</value>
+  </data>
+  <data name="CommandBar_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="CommandBar_Saving" xml:space="preserve">
+    <value>Saving changes...</value>
+  </data>
+  <data name="CommandBar_SaveCompleted" xml:space="preserve">
+    <value>Changes saved.</value>
+  </data>
+  <data name="CommandBar_SaveCompletedWithRemainingChanges" xml:space="preserve">
+    <value>Saved. Newer changes remain unsaved.</value>
+  </data>
+  <data name="CommandBar_SaveCanceled" xml:space="preserve">
+    <value>Saving canceled.</value>
+  </data>
+  <data name="CommandBar_SaveFailed" xml:space="preserve">
+    <value>Changes could not be saved.</value>
   </data>
 </root>

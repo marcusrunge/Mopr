@@ -34,6 +34,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
             containerRegistry.RegisterSingleton<IImagingMeasurementChangeService, ImagingMeasurementChangeService>();
             containerRegistry.RegisterSingleton<IImagingMeasurementSessionStore, ImagingMeasurementSessionStore>();
             containerRegistry.RegisterSingleton<IImagingMeasurementInstanceResolver, ImagingMeasurementInstanceResolver>();
+            containerRegistry.RegisterSingleton<IImagingMeasurementHydrationService, ImagingMeasurementHydrationService>();
             containerRegistry.RegisterDialog<UnsavedChangesDialogView, UnsavedChangesDialogViewModel>();
             containerRegistry.RegisterForNavigation<ImageViewerView>();
             containerRegistry.RegisterForNavigation<ImagingCommandBarView>();
@@ -43,5 +44,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging
         }
     }
 }
+
 
 

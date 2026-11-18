@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
@@ -17,6 +18,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         {
             Application.SetupGet(value => value.DialogService).Returns(ApplicationDialogService.Object);
             Application.SetupGet(value => value.StudiesService).Returns(StudiesService.Object);
+            Application.SetupGet(value => value.ImagingSession).Returns(ImagingSessionApplicationService.Object);
             ApplicationDialogService.SetupGet(value => value.FileDialogService).Returns(FileDialogService.Object);
             Core.SetupGet(value => value.ImagingService).Returns(ImagingService.Object);
             ImagingService.SetupGet(value => value.ImagingLayoutService).Returns(ImagingLayoutService.Object);
@@ -39,6 +41,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         public Mock<PrismDialogService> DialogService { get; } = new();
         public Mock<ApplicationFileDialogService> FileDialogService { get; } = new();
         public Mock<IImagingLayoutService> ImagingLayoutService { get; } = new();
+        public Mock<IImagingSessionApplicationService> ImagingSessionApplicationService { get; } = new();
         public Mock<IImagingService> ImagingService { get; } = new();
         public Mock<IImagingSessionService> ImagingSessionService { get; } = new();
         public Mock<IImagingStudyService> ImagingStudyService { get; } = new();

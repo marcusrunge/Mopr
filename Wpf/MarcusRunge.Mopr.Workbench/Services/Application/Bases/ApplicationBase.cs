@@ -95,7 +95,10 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
 
         public IUserAdministrationService? UserAdministration => _userAdministration;
 
-        void IApplicationBase.OnExceptionThrown(Exception exception)
+        void IApplicationBase.OnExceptionThrown(Exception exception) => ReportException(exception);
+
+        /// <inheritdoc/>
+        public void ReportException(Exception exception)
         {
             ArgumentNullException.ThrowIfNull(exception);
 
@@ -124,3 +127,4 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Bases
         }
     }
 }
+

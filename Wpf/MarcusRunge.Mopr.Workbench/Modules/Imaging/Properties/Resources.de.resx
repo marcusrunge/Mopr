@@ -160,7 +160,7 @@
     <value>Fadenkreuz</value>
   </data>
   <data name="CommandBar_ResetView" xml:space="preserve">
-    <value>Ansicht zurücksetzen</value>
+    <value>Ansicht zurÃ¼cksetzen</value>
   </data>
   <data name="CommandBar_Status" xml:space="preserve">
     <value>Status</value>
@@ -169,7 +169,7 @@
     <value>Layout: Einzelansicht</value>
   </data>
   <data name="CommandBar_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="CommandBar_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -184,16 +184,16 @@
     <value>Laden...</value>
   </data>
   <data name="CommandBar_Open" xml:space="preserve">
-    <value>Öffnen</value>
+    <value>Ã–ffnen</value>
   </data>
   <data name="CommandBar_Canceling" xml:space="preserve">
     <value>Abbruch wird angefordert...</value>
   </data>
   <data name="CommandBar_SelectFolder" xml:space="preserve">
-    <value>Ordner auswählen...</value>
+    <value>Ordner auswÃ¤hlen...</value>
   </data>
   <data name="CommandBar_Open_DicomFolder" xml:space="preserve">
-    <value>DICOM-Ordner öffnen</value>
+    <value>DICOM-Ordner Ã¶ffnen</value>
   </data>
   <data name="CommandBar_LoadCanceled" xml:space="preserve">
     <value>Laden abgebrochen</value>
@@ -250,7 +250,7 @@
     <value>Layout: Einzelansicht</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 × 2</value>
+    <value>Layout: 2 Ã— 2</value>
   </data>
   <data name="Viewer_Layout_Mpr" xml:space="preserve">
     <value>Layout: MPR</value>
@@ -286,7 +286,7 @@
     <value>Keine Serie aktiv</value>
   </data>
   <data name="Workbench_Study_None" xml:space="preserve">
-    <value>Keine Studie geöffnet</value>
+    <value>Keine Studie geÃ¶ffnet</value>
   </data>
   <data name="PropertiesPanel_Series_None" xml:space="preserve">
     <value>Keine Serie aktiv</value>
@@ -322,7 +322,7 @@
     <value>DICOM-Serie</value>
   </data>
   <data name="PropertiesPanel_Modality" xml:space="preserve">
-    <value>Modalität</value>
+    <value>ModalitÃ¤t</value>
   </data>
   <data name="PropertiesPanel_StudyDescription" xml:space="preserve">
     <value>Studienbeschreibung</value>
@@ -430,10 +430,10 @@
     <value>Pixel: -</value>
   </data>
   <data name="Status_PixelCtFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · HU={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· HU={2:0}</value>
   </data>
   <data name="Status_PixelValueFormat" xml:space="preserve">
-    <value>Pixel: X={0} Y={1} · Wert={2:0}</value>
+    <value>Pixel: X={0} Y={1} Â· Wert={2:0}</value>
   </data>
   <data name="ViewportTile_ClearViewport" xml:space="preserve">
     <value>Viewport leeren</value>
@@ -475,13 +475,13 @@
     <value>Messungen</value>
   </data>
   <data name="Measurement_Delete" xml:space="preserve">
-    <value>Messung löschen</value>
+    <value>Messung lÃ¶schen</value>
   </data>
   <data name="Measurement_ClearAll" xml:space="preserve">
-    <value>Messungen löschen</value>
+    <value>Messungen lÃ¶schen</value>
   </data>
   <data name="Measurement_SelectedTitle" xml:space="preserve">
-    <value>Ausgewählte Messung</value>
+    <value>AusgewÃ¤hlte Messung</value>
   </data>
   <data name="PropertiesPanel_Tab_Dicom" xml:space="preserve">
     <value>DICOM</value>
@@ -496,34 +496,34 @@
     <value>Einstellungen und Verwaltung</value>
   </data>
   <data name="CommandBar_OpenImportedSeries" xml:space="preserve">
-    <value>Importierte Serie öffnen</value>
+    <value>Importierte Serie Ã¶ffnen</value>
   </data>
   <data name="CommandBar_ImportedSeriesSelected" xml:space="preserve">
-    <value>Importierte Serie ausgewählt. Das sichere Laden aus dem Repository ist noch nicht verbunden.</value>
+    <value>Importierte Serie ausgewÃ¤hlt. Das sichere Laden aus dem Repository ist noch nicht verbunden.</value>
   </data>
   <data name="CommandBar_ImportedSeriesSelectionInvalid" xml:space="preserve">
-    <value>Die ausgewählte importierte Serie konnte nicht eindeutig erkannt werden.</value>
+    <value>Die ausgewÃ¤hlte importierte Serie konnte nicht eindeutig erkannt werden.</value>
   </data>
   <data name="CommandBar_ImportedSeriesResolving" xml:space="preserve">
-    <value>Importierte Serie wird geprüft...</value>
+    <value>Importierte Serie wird geprÃ¼ft...</value>
   </data>
   <data name="CommandBar_ImportedSeriesLoaded" xml:space="preserve">
     <value>Importierte Serie geladen</value>
   </data>
   <data name="CommandBar_ImportedSeriesUnavailable" xml:space="preserve">
-    <value>Die Serie kann derzeit nicht sicher geöffnet werden. MIRAS Aktion erforderlich.</value>
+    <value>Die Serie kann derzeit nicht sicher geÃ¶ffnet werden. MIRAS Aktion erforderlich.</value>
   </data>
   <data name="CommandBar_Study" xml:space="preserve">
     <value>Untersuchung</value>
   </data>
   <data name="CommandBar_StudyOpenSection" xml:space="preserve">
-    <value>ÖFFNEN</value>
+    <value>Ã–FFNEN</value>
   </data>
   <data name="CommandBar_OpenImportedStudy" xml:space="preserve">
-    <value>Importierte Untersuchung öffnen</value>
+    <value>Importierte Untersuchung Ã¶ffnen</value>
   </data>
   <data name="CommandBar_OpenFromFolder" xml:space="preserve">
-    <value>Aus Ordner öffnen</value>
+    <value>Aus Ordner Ã¶ffnen</value>
   </data>
   <data name="CommandBar_StudyImportSection" xml:space="preserve">
     <value>IMPORTIEREN</value>
@@ -535,27 +535,45 @@
     <value>AKTUELLE UNTERSUCHUNG</value>
   </data>
   <data name="CommandBar_CloseStudy" xml:space="preserve">
-    <value>Untersuchung schließen</value>
+    <value>Untersuchung schlieÃŸen</value>
   </data>
   <data name="CommandBar_StudyClosed" xml:space="preserve">
     <value>Untersuchung geschlossen</value>
   </data>
   <data name="CommandBar_UnsavedChangesPreventClose" xml:space="preserve">
-    <value>Die Untersuchung enthält nicht gespeicherte Änderungen und bleibt geöffnet.</value>
+    <value>Die Untersuchung enthÃ¤lt nicht gespeicherte Ã„nderungen und bleibt geÃ¶ffnet.</value>
   </data>
   <data name="UnsavedChangesDialog_Title" xml:space="preserve">
-    <value>Untersuchung schließen?</value>
+    <value>Untersuchung schlieÃŸen?</value>
   </data>
   <data name="UnsavedChangesDialog_Message" xml:space="preserve">
-    <value>Die Untersuchung enthält nicht gespeicherte Änderungen.</value>
+    <value>Die Untersuchung enthÃ¤lt nicht gespeicherte Ã„nderungen.</value>
   </data>
   <data name="UnsavedChangesDialog_Warning" xml:space="preserve">
-    <value>Beim Verwerfen gehen diese nicht gespeicherten Änderungen unwiderruflich verloren.</value>
+    <value>Beim Verwerfen gehen diese nicht gespeicherten Ã„nderungen unwiderruflich verloren.</value>
   </data>
   <data name="UnsavedChangesDialog_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
   <data name="UnsavedChangesDialog_Discard" xml:space="preserve">
-    <value>Änderungen verwerfen</value>
+    <value>Ã„nderungen verwerfen</value>
+  </data>
+  <data name="CommandBar_Save" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="CommandBar_Saving" xml:space="preserve">
+    <value>Änderungen werden gespeichert...</value>
+  </data>
+  <data name="CommandBar_SaveCompleted" xml:space="preserve">
+    <value>Änderungen wurden gespeichert.</value>
+  </data>
+  <data name="CommandBar_SaveCompletedWithRemainingChanges" xml:space="preserve">
+    <value>Gespeichert. Neuere Änderungen sind weiterhin ungespeichert.</value>
+  </data>
+  <data name="CommandBar_SaveCanceled" xml:space="preserve">
+    <value>Speichern wurde abgebrochen.</value>
+  </data>
+  <data name="CommandBar_SaveFailed" xml:space="preserve">
+    <value>Änderungen konnten nicht gespeichert werden.</value>
   </data>
 </root>
