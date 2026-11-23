@@ -19,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies
         public IReadOnlyList<string> TechnicalErrors { get; }
 
         public static ImportedStudyLoadResult Failed(params string[] technicalErrors) => new(false, null, [], technicalErrors.Where(error => !string.IsNullOrWhiteSpace(error)).ToArray());
+
         public static ImportedStudyLoadResult Succeeded(string studyInstanceUid, IReadOnlyList<ImportedSeriesLoadResult> series) => new(true, studyInstanceUid, series, Array.Empty<string>());
     }
 }

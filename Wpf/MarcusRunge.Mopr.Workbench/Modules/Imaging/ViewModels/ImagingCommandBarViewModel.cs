@@ -535,6 +535,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
-
-
-

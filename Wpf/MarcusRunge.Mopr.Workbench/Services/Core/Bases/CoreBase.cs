@@ -19,7 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         private readonly IDicom? _dicom = dicom;
         private readonly object _exceptionThrownLock = new();
         private readonly ILogger? _logger = logger;
-        
+
         private Action<Exception>? _exceptionThrown;
 
         /// <inheritdoc/>
@@ -51,7 +51,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Bases
         public IImagingService? ImagingService => _imagingService;
 
         /// <inheritdoc/>
-        ILogger? ICoreBase.Logger => _logger;        
+        ILogger? ICoreBase.Logger => _logger;
 
         /// <inheritdoc/>
         void ICoreBase.OnExceptionThrown(Exception exception)

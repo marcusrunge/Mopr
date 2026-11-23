@@ -2,6 +2,7 @@
 using MarcusRunge.Toolbox.Localization.Core;
 
 using System.ComponentModel;
+
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Enums
 {
     /// <summary>

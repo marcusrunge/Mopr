@@ -1,12 +1,11 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
-using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
-using Moq;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
-using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
+using Moq;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.Test.ViewModels;
 
@@ -267,6 +266,7 @@ public sealed class RepositoryAdministrationViewModelTests
         public Mock<ILifetimeService> LifetimeService { get; } = new(MockBehavior.Strict);
         public IReadOnlyList<RepositoryLocationSummary> Locations { get; }
         public RepositoryAdministrationViewModel ViewModel { get; }
+
         public async Task WaitUntilLoadedAsync(CancellationToken cancellationToken, int? expectedCount = null) => await WaitUntilAsync(() => !ViewModel.IsBusy && ViewModel.Locations.Count == (expectedCount ?? Locations.Count), cancellationToken);
     }
 }

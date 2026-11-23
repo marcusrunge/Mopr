@@ -730,6 +730,5 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Test
             await cancellation.CancelAsync();
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => _fixture.Persistence!.StudyCatalog!.GetAllAsync(cancellation.Token));
         }
-
     }
 }

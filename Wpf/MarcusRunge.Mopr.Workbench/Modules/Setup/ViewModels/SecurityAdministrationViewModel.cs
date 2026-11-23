@@ -1,13 +1,13 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
+using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using Prism.Commands;
 using Prism.Mvvm;
-using System.Threading.Tasks;
-using System.Threading;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
 
@@ -34,11 +34,14 @@ public sealed class SecurityAdministrationViewModel : BindableBase
         _ = LoadAsync(_applicationStopping);
     }
 
-    public bool AllowSelfDeletion { get => _allowSelfDeletion; set { if (!SetProperty(ref _allowSelfDeletion, value)) return; OnSettingChanged(); } }
-    public bool AllowSelfModification { get => _allowSelfModification; set { if (!SetProperty(ref _allowSelfModification, value)) return; OnSettingChanged(); } }
+    public bool AllowSelfDeletion
+    { get => _allowSelfDeletion; set { if (!SetProperty(ref _allowSelfDeletion, value)) return; OnSettingChanged(); } }
+    public bool AllowSelfModification
+    { get => _allowSelfModification; set { if (!SetProperty(ref _allowSelfModification, value)) return; OnSettingChanged(); } }
     public bool CanModify => _configurationService.CanModify;
     public DelegateCommand DiscardCommand => _discardCommand ??= new DelegateCommand(ExecuteDiscard, () => !IsBusy && IsDirty);
-    public bool HideOtherUsersFromRegularUsers { get => _hideOtherUsersFromRegularUsers; set { if (!SetProperty(ref _hideOtherUsersFromRegularUsers, value)) return; OnSettingChanged(); } }
+    public bool HideOtherUsersFromRegularUsers
+    { get => _hideOtherUsersFromRegularUsers; set { if (!SetProperty(ref _hideOtherUsersFromRegularUsers, value)) return; OnSettingChanged(); } }
 
     public bool IsBusy
     {

@@ -191,6 +191,7 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
 
             return issues.Count == 0 ? MachineConfigurationValidationResult.Success : new MachineConfigurationValidationResult(issues);
         }
+
         private sealed class DatabaseConfigurationUpdate(string connectionString) : IDatabaseConfiguration
         {
             public string ConnectionString { get; } = connectionString;
@@ -220,6 +221,5 @@ namespace MarcusRunge.Mopr.Workbench.Application.Configuration
             public ISecurityConfiguration Security { get; } = security;
             public int SetupVersion => source.SetupVersion;
         }
-
     }
 }

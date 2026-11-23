@@ -1,7 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Identity;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Media;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
@@ -70,9 +70,9 @@ public interface IApplication
     /// Gets the user administration service.
     /// </summary>
     IUserAdministrationService? UserAdministration { get; }
+
     /// <summary>
     /// Reports an application-service exception through the central exception channel.
     /// </summary>
     void ReportException(Exception exception);
 }
-

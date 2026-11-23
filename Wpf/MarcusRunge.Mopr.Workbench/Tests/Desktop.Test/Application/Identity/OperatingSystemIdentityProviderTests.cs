@@ -1,10 +1,8 @@
 ﻿using MarcusRunge.Mopr.Workbench.Application.Identity;
-using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using Moq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Test.Application.Identity

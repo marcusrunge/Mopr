@@ -1,5 +1,4 @@
 ﻿using Moq;
-using Prism.Navigation.Regions;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
 {

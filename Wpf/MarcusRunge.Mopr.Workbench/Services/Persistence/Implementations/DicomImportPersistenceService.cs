@@ -270,6 +270,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 throw new InvalidOperationException($"Instance '{request.SopInstanceUid}' belongs to repository location '{instance.RepositoryLocationId}' and cannot be imported into repository location '{repositoryLocation.Id}'.");
             }
         }
+
         private static void ValidatePathSegment(string value, string parameterName)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
@@ -284,6 +285,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 throw new ArgumentException($"Value '{value}' is not a valid DICOM repository path segment.", parameterName);
             }
         }
+
         private static void ValidateRequest(DicomImportPersistenceRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);

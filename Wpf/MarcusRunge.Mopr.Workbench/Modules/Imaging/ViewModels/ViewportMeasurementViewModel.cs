@@ -13,6 +13,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly DateTime _createdAt;
         private readonly Guid _id;
         private readonly double _startImageX, _startImageY;
+
         public ViewportMeasurementViewModel(double startImageX, double startImageY) : this(Guid.NewGuid(), startImageX, startImageY, DateTime.UtcNow, modifiedAtUtc: null)
         {
         }
@@ -26,6 +27,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _createdAt = NormalizeUtc(createdAtUtc);
             _modifiedAt = modifiedAtUtc.HasValue ? NormalizeUtc(modifiedAtUtc.Value) : null;
         }
+
         private string? _description, _title;
         private double? _endImageX, _endImageY, _pixelSpacingX, _pixelSpacingY, _previewEndImageX, _previewEndImageY;
         private bool _isSelected;

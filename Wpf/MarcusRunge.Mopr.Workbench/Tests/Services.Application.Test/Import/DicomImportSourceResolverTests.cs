@@ -4,7 +4,6 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Import;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
 using Moq;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import

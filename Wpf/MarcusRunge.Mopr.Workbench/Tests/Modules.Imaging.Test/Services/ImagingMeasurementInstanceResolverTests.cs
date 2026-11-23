@@ -66,4 +66,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
         }
     }
 }
-

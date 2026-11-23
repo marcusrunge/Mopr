@@ -1,7 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Services.Repository.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
-{    
+{
     /// <summary>
     /// Represents the validation result of a potential DICOM repository location.
     /// </summary>

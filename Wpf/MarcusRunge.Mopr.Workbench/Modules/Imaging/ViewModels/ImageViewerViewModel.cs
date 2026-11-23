@@ -3,9 +3,11 @@ using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -14,8 +16,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
@@ -1316,4 +1316,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
-

@@ -85,7 +85,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         }
 
         protected override void OnCreate(IImagingServiceBase @base)
-        {            
+        {
         }
 
         protected override Task OnCreateAsync(IImagingServiceBase @base, CancellationToken cancellationToken) => Task.CompletedTask;

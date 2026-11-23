@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Enums
         /// </summary>
         [LocalizedDescription("UnrealObjectType_Segmentation", typeof(Resources))]
         Segmentation = 1,
-        
+
         /// <summary>
         /// Gets the type for a point cloud.
         /// </summary>

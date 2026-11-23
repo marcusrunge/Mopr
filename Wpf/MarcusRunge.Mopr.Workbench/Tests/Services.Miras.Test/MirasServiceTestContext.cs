@@ -61,9 +61,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
         }
 
         public void VerifyPersistenceCalledOnce() => PersistenceIntegrityService.Verify(service => service.VerifyAsync(It.Is<PersistenceIntegrityRequest>(request => IsSafePersistenceRequest(request)), It.IsAny<CancellationToken>()), Times.Once);
+
         public void VerifyRepositoryCalledOnce() => RepositoryRepairService.Verify(service => service.RepairAsync(It.Is<DicomRepositoryRepairRequest>(request => IsSafeRepositoryRequest(request)), It.IsAny<CancellationToken>()), Times.Once);
+
         public void VerifyRepositoryNotCalled() => RepositoryRepairService.Verify(service => service.RepairAsync(It.IsAny<DicomRepositoryRepairRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+
         private static bool IsSafePersistenceRequest(PersistenceIntegrityRequest request) => request.VerifyAuditReferences && request.VerifyRelationships && request.VerifyRequiredValues && request.VerifyUniqueValues;
+
         private static bool IsSafeRepositoryRequest(DicomRepositoryRepairRequest request) => request.VerifyFiles && !request.RepairMissingFiles && request.RepositoryLocationId == null;
     }
 }

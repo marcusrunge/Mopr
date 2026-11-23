@@ -1,5 +1,4 @@
-﻿using MarcusRunge.Base.EntityFramework;
-using MarcusRunge.Mopr.Workbench.Services.Persistence.Configurations;
+﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Configurations;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

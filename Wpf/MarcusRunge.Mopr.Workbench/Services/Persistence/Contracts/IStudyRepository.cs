@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     /// Defines the contract for a repository that manages Study entities.
     /// </summary>
     public interface IStudyRepository : IRepository<Study>
-    {       
+    {
         /// <summary>
         /// Gets a study by its instance UID.
         /// </summary>

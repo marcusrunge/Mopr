@@ -1,6 +1,4 @@
-﻿using MarcusRunge.Base;
-
-namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
 {
     /// <summary>
     /// Represents a DICOM SOP instance.
@@ -13,7 +11,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         private Series? _series;
         private int _seriesId;
         private string? _sopInstanceUid, _relativeFilePath;
-
 
         /// <summary>
         /// Gets or sets the instance number.

@@ -1,5 +1,4 @@
 using MarcusRunge.Base;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts;

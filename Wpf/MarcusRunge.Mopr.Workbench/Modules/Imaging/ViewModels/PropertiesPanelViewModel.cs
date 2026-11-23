@@ -20,7 +20,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly ICore _core;
 
         private readonly IImagingMeasurementContext _measurementContext;
-        private int _currentSlice = 1;        
+        private int _currentSlice = 1;
         private DelegateCommand<IList?>? _deleteSelectedMeasurementsCommand;
         private SeriesInfo? _selectedSeries;
         private StudyInfo? _selectedStudy;

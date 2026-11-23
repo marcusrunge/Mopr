@@ -3,8 +3,6 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Imaging;
 using Moq;
-using Prism.Dialogs;
-using System.Reflection;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels

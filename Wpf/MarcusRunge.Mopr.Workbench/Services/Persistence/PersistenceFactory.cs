@@ -22,6 +22,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
     {
         // Reference to the application lifetime, used for managing application shutdown and cancellation.
         private readonly ILifetimeService? _applicationLifetime;
+
         // Stores the  module instance created by this factory (lazy-created).
         private IPersistence? _moduleInstance;
 
@@ -43,7 +44,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence
             _applicationLifetime = applicationLifetime;
             _persistenceConfigurationObservable = persistenceConfigurationObservable;
         }
-
 
         /// <inheritdoc/>
         public IPersistence Create() =>

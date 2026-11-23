@@ -1,12 +1,18 @@
+using MarcusRunge.Mopr.Workbench.Contracts;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Identity.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
+using Prism.Dialogs;
 using Prism.Navigation;
 using Prism.Navigation.Regions;
 using System;
@@ -19,11 +25,14 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
     /// <summary>
     /// Provides application-wide shell state and navigation.
     /// </summary>
-    public sealed class MainWindowViewModel : ViewModelBase
+    public sealed class MainWindowViewModel : ViewModelBase, IWindowClosingGuard
     {
         private readonly IAdministrativeAuthorizationService _administrativeAuthorizationService;
         private readonly CancellationToken _applicationStopping;
         private readonly ICurrentUserContext? _currentUserContext;
+        private readonly Prism.Dialogs.IDialogService _dialogService;
+        private readonly IImagingSessionService _imagingSessionService;
+        private readonly IApplication _application;
         private readonly IRegionManager _regionManager;
         private DelegateCommand? _closeNavigationMenuCommand;
         private string _currentUserDetails = string.Empty;
@@ -37,14 +46,19 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
-        public MainWindowViewModel(IApplication application, ILifetimeService lifetimeService, IAdministrativeAuthorizationService administrativeAuthorizationService, IRegionManager regionManager)
+        public MainWindowViewModel(IApplication application, ICore core, ILifetimeService lifetimeService, IAdministrativeAuthorizationService administrativeAuthorizationService, IRegionManager regionManager, Prism.Dialogs.IDialogService dialogService)
         {
             ArgumentNullException.ThrowIfNull(application);
+            ArgumentNullException.ThrowIfNull(core);
             ArgumentNullException.ThrowIfNull(lifetimeService);
             ArgumentNullException.ThrowIfNull(administrativeAuthorizationService);
             ArgumentNullException.ThrowIfNull(regionManager);
+            ArgumentNullException.ThrowIfNull(dialogService);
 
+            _application = application;
             _administrativeAuthorizationService = administrativeAuthorizationService;
+            _dialogService = dialogService;
+            _imagingSessionService = core.ImagingService?.ImagingSessionService ?? throw new InvalidOperationException("The imaging session service is not available.");
             _applicationStopping = lifetimeService.ApplicationStopping;
             _currentUserContext = application.IdentityService?.CurrentUserContext;
             _regionManager = regionManager;
@@ -74,6 +88,42 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
         public string Title { get => _title; set => SetProperty(ref _title, value); }
 
         /// <inheritdoc/>
+        public async Task<bool> CanCloseWindowAsync(CancellationToken cancellationToken = default)
+        {
+            if (!_imagingSessionService.HasUnsavedChanges) return true;
+
+            var completionSource = new TaskCompletionSource<UnsavedChangesDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _dialogService.ShowDialog("UnsavedChangesDialogView", result =>
+            {
+                UnsavedChangesDecision decision = result.Parameters.TryGetValue(UnsavedChangesDialogViewModel.DecisionParameterName, out UnsavedChangesDecision selectedDecision) ? selectedDecision : UnsavedChangesDecision.Cancel;
+                completionSource.TrySetResult(decision);
+            });
+            UnsavedChangesDecision decision = await completionSource.Task.WaitAsync(cancellationToken);
+
+            if (decision == UnsavedChangesDecision.Cancel) return false;
+            if (decision == UnsavedChangesDecision.Discard)
+            {
+                _imagingSessionService.DiscardChangesAndClear();
+                return true;
+            }
+
+            try
+            {
+                await (_application.ImagingSession ?? throw new InvalidOperationException("The imaging session application service is not available.")).SaveAsync(cancellationToken);
+                return !_imagingSessionService.HasUnsavedChanges;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return false;
+            }
+            catch (Exception exception)
+            {
+                _application.ReportException(exception);
+                return false;
+            }
+        }
+
+        /// <inheritdoc/>
         public override void Destroy()
         {
             _currentUserContext?.CurrentUserChanged -= OnCurrentUserChanged;
@@ -84,7 +134,7 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
         {
             var activeUser = currentUser is { Id: > 0, IsActive: true } ? currentUser : null;
             CurrentUserDisplayName = activeUser?.DisplayName ?? string.Empty;
-            CurrentUserDetails = activeUser is null ? string.Empty : $"{activeUser.ShortName} · {activeUser.LoginName}";
+            CurrentUserDetails = activeUser is null ? string.Empty : $"{activeUser.ShortName} Â· {activeUser.LoginName}";
             HasCurrentUser = activeUser is not null;
             RaisePropertyChanged(nameof(CanOpenAdministration));
             _openAdministrationCommand?.RaiseCanExecuteChanged();

@@ -1,7 +1,5 @@
 ﻿using MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels;
 using MarcusRunge.Mopr.Workbench.Modules.Import.Views;
-using Prism.Ioc;
-using Prism.Modularity;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import
 {

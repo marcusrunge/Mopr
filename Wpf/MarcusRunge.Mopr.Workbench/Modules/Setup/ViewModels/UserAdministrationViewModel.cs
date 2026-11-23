@@ -37,7 +37,8 @@ public sealed class UserAdministrationViewModel : BindableBase
         _ = LoadUsersAsync(_applicationStopping);
     }
 
-    public string AcademicTitle { get => _academicTitle; set { if (!SetProperty(ref _academicTitle, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string AcademicTitle
+    { get => _academicTitle; set { if (!SetProperty(ref _academicTitle, value ?? string.Empty)) return; OnEditorChanged(); } }
     public bool CanChangeActivation => IsEditorEnabled && (IsCreating || SelectedUser is { IsCurrentUser: false });
     public DelegateCommand BeginRemoveCommand => _beginRemoveCommand ??= new DelegateCommand(ExecuteBeginRemove, CanBeginRemove);
     public DelegateCommand CancelRemoveCommand => _cancelRemoveCommand ??= new DelegateCommand(ExecuteCancelRemove, () => !IsBusy && IsRemoveConfirmationVisible);
@@ -46,10 +47,12 @@ public sealed class UserAdministrationViewModel : BindableBase
     public DelegateCommand CancelCreateCommand => _cancelCreateCommand ??= new DelegateCommand(ExecuteCancelCreate, () => !IsBusy && IsCreating);
     public DelegateCommand DiscardCommand => _discardCommand ??= new DelegateCommand(ExecuteDiscard, () => !IsBusy && !IsCreating && IsDirty);
     public DelegateCommand ConfirmRemoveCommand => _confirmRemoveCommand ??= new DelegateCommand(() => _ = RemoveAsync(_applicationStopping), () => !IsBusy && IsRemoveConfirmationVisible && CanRemoveSelectedUser);
-    public string FirstName { get => _firstName; set { if (!SetProperty(ref _firstName, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string FirstName
+    { get => _firstName; set { if (!SetProperty(ref _firstName, value ?? string.Empty)) return; OnEditorChanged(); } }
     public bool HasEditorContext => IsCreating || SelectedUser is not null;
     public bool HasSelectedUser => SelectedUser is not null;
-    public bool IsActive { get => _isActive; set { if (!IsCreating && SelectedUser?.IsCurrentUser == true && !value || !SetProperty(ref _isActive, value)) return; OnEditorChanged(); } }
+    public bool IsActive
+    { get => _isActive; set { if (!IsCreating && SelectedUser?.IsCurrentUser == true && !value || !SetProperty(ref _isActive, value)) return; OnEditorChanged(); } }
 
     public bool IsBusy
     {
@@ -84,14 +87,19 @@ public sealed class UserAdministrationViewModel : BindableBase
 
     public bool IsDirty => IsCreating ? !string.IsNullOrWhiteSpace(LoginName) || !string.IsNullOrWhiteSpace(FirstName) || !string.IsNullOrWhiteSpace(MiddleName) || !string.IsNullOrWhiteSpace(LastName) || !string.IsNullOrWhiteSpace(ShortName) || !string.IsNullOrWhiteSpace(AcademicTitle) || !string.IsNullOrWhiteSpace(Suffix) || !string.IsNullOrWhiteSpace(PersonnelNumber) || !string.IsNullOrWhiteSpace(SecurityIdentifier) || !IsActive : SelectedUser is not null && (!string.Equals(AcademicTitle.Trim(), SelectedUser.AcademicTitle, StringComparison.Ordinal) || !string.Equals(FirstName.Trim(), SelectedUser.FirstName, StringComparison.Ordinal) || !string.Equals(MiddleName.Trim(), SelectedUser.MiddleName, StringComparison.Ordinal) || !string.Equals(LastName.Trim(), SelectedUser.LastName, StringComparison.Ordinal) || !string.Equals(Suffix.Trim(), SelectedUser.Suffix, StringComparison.Ordinal) || !string.Equals(ShortName.Trim(), SelectedUser.ShortName, StringComparison.Ordinal) || !string.Equals(PersonnelNumber.Trim(), SelectedUser.PersonnelNumber, StringComparison.OrdinalIgnoreCase) || !string.Equals(LoginName.Trim(), SelectedUser.LoginName, StringComparison.OrdinalIgnoreCase) || !string.Equals(SecurityIdentifier.Trim(), SelectedUser.SecurityIdentifier, StringComparison.OrdinalIgnoreCase) || IsActive != SelectedUser.IsActive);
     public bool IsEditorEnabled => !IsBusy && (IsCreating || SelectedUser is { IsSystemUser: false });
-    public string LastName { get => _lastName; set { if (!SetProperty(ref _lastName, value ?? string.Empty)) return; OnEditorChanged(); } }
-    public string LoginName { get => _loginName; set { if (!SetProperty(ref _loginName, value ?? string.Empty)) return; OnEditorChanged(); } }
-    public string MiddleName { get => _middleName; set { if (!SetProperty(ref _middleName, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string LastName
+    { get => _lastName; set { if (!SetProperty(ref _lastName, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string LoginName
+    { get => _loginName; set { if (!SetProperty(ref _loginName, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string MiddleName
+    { get => _middleName; set { if (!SetProperty(ref _middleName, value ?? string.Empty)) return; OnEditorChanged(); } }
     public DelegateCommand NewCommand => _newCommand ??= new DelegateCommand(ExecuteNew, () => !IsBusy && !IsCreating && !IsDirty);
-    public string PersonnelNumber { get => _personnelNumber; set { if (!SetProperty(ref _personnelNumber, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string PersonnelNumber
+    { get => _personnelNumber; set { if (!SetProperty(ref _personnelNumber, value ?? string.Empty)) return; OnEditorChanged(); } }
     public DelegateCommand ReloadCommand => _reloadCommand ??= new DelegateCommand(ExecuteReload, () => !IsBusy && !IsCreating && !IsDirty);
     public DelegateCommand SaveCommand => _saveCommand ??= new DelegateCommand(ExecuteSave, CanSave);
-    public string SecurityIdentifier { get => _securityIdentifier; set { if (!SetProperty(ref _securityIdentifier, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string SecurityIdentifier
+    { get => _securityIdentifier; set { if (!SetProperty(ref _securityIdentifier, value ?? string.Empty)) return; OnEditorChanged(); } }
 
     public UserAdministrationItemViewModel? SelectedUser
     {
@@ -104,9 +112,11 @@ public sealed class UserAdministrationViewModel : BindableBase
         }
     }
 
-    public string ShortName { get => _shortName; set { if (!SetProperty(ref _shortName, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string ShortName
+    { get => _shortName; set { if (!SetProperty(ref _shortName, value ?? string.Empty)) return; OnEditorChanged(); } }
     public string StatusText { get => _statusText; private set => SetProperty(ref _statusText, value); }
-    public string Suffix { get => _suffix; set { if (!SetProperty(ref _suffix, value ?? string.Empty)) return; OnEditorChanged(); } }
+    public string Suffix
+    { get => _suffix; set { if (!SetProperty(ref _suffix, value ?? string.Empty)) return; OnEditorChanged(); } }
     public ObservableCollection<UserAdministrationItemViewModel> Users { get; } = [];
 
     private void ApplySelection(UserAdministrationItemViewModel? user)
@@ -175,6 +185,7 @@ public sealed class UserAdministrationViewModel : BindableBase
     }
 
     private void ExecuteReload() => _ = LoadUsersAsync(_applicationStopping, SelectedUser?.Id);
+
     private async void ExecuteSave() => await SaveAsync(_applicationStopping);
 
     private static string GetCreateStatusText(UserAdministrationCreateStatus status) => status switch
@@ -228,6 +239,7 @@ public sealed class UserAdministrationViewModel : BindableBase
     }
 
     private static UserAdministrationItemViewModel Map(UserAdministrationSummary user) => new(user.Id, user.LoginName, user.FirstName, user.MiddleName, user.LastName, user.ShortName, user.IsActive, user.IsCurrentUser, user.AcademicTitle, user.Suffix, user.PersonnelNumber, user.SecurityIdentifier, user.RowVersion);
+
     private static string? NormalizeOptional(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private void OnEditorChanged()

@@ -15,4 +15,4 @@
 /// <param name="SecurityIdentifier">The optional Windows security identifier.</param>
 /// <param name="IsActive">Indicates whether the user may perform authenticated MOPR operations.</param>
 /// <param name="RowVersion">The optimistic-concurrency token loaded with the user.</param>
-public sealed record UserAdministrationUpdateRequest(    int Id,    string LoginName,    string FirstName,    string? MiddleName,    string LastName,    string ShortName,    string? AcademicTitle,    string? Suffix,    string? PersonnelNumber,    string? SecurityIdentifier,    bool IsActive,    byte[] RowVersion);
+public sealed record UserAdministrationUpdateRequest(int Id, string LoginName, string FirstName, string? MiddleName, string LastName, string ShortName, string? AcademicTitle, string? Suffix, string? PersonnelNumber, string? SecurityIdentifier, bool IsActive, byte[] RowVersion);

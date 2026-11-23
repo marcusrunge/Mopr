@@ -1,4 +1,3 @@
-
 <UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Miras.Views.MirasActionRequiredView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -542,4 +541,3 @@
         </Border>
     </Grid>
 </UserControl>
-

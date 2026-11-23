@@ -24,6 +24,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
         }
+
         private void AttachActiveDraft(ViewportMeasurementViewModel? draft)
         {
             if (ReferenceEquals(_attachedActiveDraft, draft))
@@ -47,6 +48,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
             _attachedActiveDraft?.PropertyChanged -= OnMeasurementPropertyChanged;
             _attachedActiveDraft = null;
         }
+
         public ViewportTileViewModel? Tile
         {
             get => (ViewportTileViewModel?)GetValue(TileProperty);
@@ -132,6 +134,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
             Children.Add(border);
         }
+
         private void DrawLine(Point startPoint, Point endPoint, bool isDraft, bool isSelected)
         {
             var line = new Line
@@ -152,6 +155,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
 
             Children.Add(line);
         }
+
         private void DrawMarker(Point point, bool isSelected)
         {
             var size = isSelected ? 10.0 : 8.0;

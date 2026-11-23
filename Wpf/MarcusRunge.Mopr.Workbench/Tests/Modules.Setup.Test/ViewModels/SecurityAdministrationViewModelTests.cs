@@ -1,7 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Models;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Configuration.Services;
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Lifetime.Services;
-using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models.Configuration;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels;
@@ -116,6 +115,7 @@ public sealed class SecurityAdministrationViewModelTests
         internal Mock<IMachineConfigurationService> ConfigurationService { get; } = new(MockBehavior.Strict);
         internal Mock<ILifetimeService> LifetimeService { get; } = new(MockBehavior.Strict);
         internal SecurityAdministrationViewModel ViewModel { get; }
+
         internal async Task WaitUntilLoadedAsync(CancellationToken cancellationToken) => await WaitUntilAsync(() => !ViewModel.IsBusy, cancellationToken);
     }
 }

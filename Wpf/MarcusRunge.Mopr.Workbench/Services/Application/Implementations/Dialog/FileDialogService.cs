@@ -8,7 +8,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Dialog
     {
         public string? SelectFolder(string title, string? initialDirectory = null)
         {
-
             var dialog = new OpenFolderDialog
             {
                 Title = title,
@@ -23,7 +22,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Implementations.Dialog
             var result = dialog.ShowDialog();
 
             return result == true ? dialog.FolderName : null;
-
         }
 
         protected override void OnCreate(IDialogServiceBase @base)

@@ -112,6 +112,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         public string SelectionSummary => SelectedStudy?.SelectionSummary ?? string.Format(Properties.Resources.SeriesSelectionSummaryFormat, 0, 0);
         public ObservableCollection<StudyItemViewModel> Studies { get; }
         public static string Title => Properties.Resources.StudySelectionTitle;
+
         public bool CanCloseDialog() => !IsLoading;
 
         public override void Destroy()
@@ -121,6 +122,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         }
 
         public void OnDialogClosed() => ReleaseLoadCancellation(cancel: true);
+
         public void OnDialogOpened(IDialogParameters parameters) => ExecuteLoad();
 
         private void Cancel()
@@ -130,9 +132,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         }
 
         private bool CanCancel() => !IsLoading;
+
         private bool CanChangeSelection() => !IsLoading && SelectedStudy is not null && SelectedStudy.AvailableSeriesCount > 0;
+
         private bool CanClearSearch() => !IsLoading && HasSearchText;
+
         private bool CanConfirm() => !IsLoading && SelectedStudy?.HasSelectedSeries == true;
+
         private bool CanRetry() => !IsLoading && HasLoadError;
 
         private void ClearSearch()
@@ -220,6 +226,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Studies.ViewModels
         }
 
         private static bool Contains(string? value, string term) => !string.IsNullOrWhiteSpace(value) && value.Contains(term, StringComparison.CurrentCultureIgnoreCase);
+
         private static bool Matches(StudyItemViewModel study, string term) => Contains(study.PatientName, term) || Contains(study.PatientId, term) || Contains(study.StudyDescription, term) || Contains(study.AccessionNumber, term) || Contains(study.StudyDateText, term) || study.Series.Any(series => Contains(series.Description, term) || Contains(series.Modality, term));
 
         private void OnSelectedStudyPropertyChanged(object? sender, PropertyChangedEventArgs e)

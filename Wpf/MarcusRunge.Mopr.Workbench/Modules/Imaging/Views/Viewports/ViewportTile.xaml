@@ -2,7 +2,7 @@
              xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"             
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:properties="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties"
              xmlns:viewmodels="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels"
              xmlns:viewports="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports"
@@ -31,7 +31,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource ViewportBorderStyle}"          
+    <Border Style="{StaticResource ViewportBorderStyle}"
             Tag="{Binding ViewportId, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Border.ContextMenu>
             <ContextMenu>
@@ -77,7 +77,7 @@
 
             <Grid x:Name="ViewportImageHost"
                   Grid.Row="1"
-                  Background="#020405">             
+                  Background="#020405">
 
                 <Grid.Style>
                     <Style TargetType="{x:Type Grid}">
@@ -92,12 +92,10 @@
                     </Style>
                 </Grid.Style>
 
-
                 <Image x:Name="ViewportImage"
                        Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Stretch="Uniform"
                        RenderOptions.BitmapScalingMode="HighQuality" />
-
 
                 <viewports:MeasurementOverlayControl Tile="{Binding Tile, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                      HorizontalAlignment="Stretch"

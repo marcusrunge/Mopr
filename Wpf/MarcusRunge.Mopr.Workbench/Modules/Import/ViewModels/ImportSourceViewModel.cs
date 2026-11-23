@@ -1,5 +1,4 @@
 ﻿using MarcusRunge.Mopr.Workbench.Services.Application.Enums;
-using Prism.Mvvm;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.ViewModels
 {

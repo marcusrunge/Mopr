@@ -42,4 +42,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         }
     }
 }
-

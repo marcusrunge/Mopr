@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
+﻿namespace MarcusRunge.Mopr.Workbench.Application.SingleInstance
 {
     internal sealed record SingleInstanceRequest(string[] Arguments)
     {

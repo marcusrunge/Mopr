@@ -1,6 +1,4 @@
-﻿using MarcusRunge.Base;
-
-namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
+﻿namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
 {
     /// <summary>
     /// Represents an unreal object within the MOPR system.

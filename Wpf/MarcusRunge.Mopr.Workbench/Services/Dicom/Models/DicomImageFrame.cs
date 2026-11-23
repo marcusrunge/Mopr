@@ -13,6 +13,7 @@
             PhotometricInterpretation = photometricInterpretation;
             Modality = modality;
         }
+
         public double? PixelSpacingX { get; set; }
 
         public double? PixelSpacingY { get; set; }

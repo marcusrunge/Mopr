@@ -1,20 +1,18 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Application.Administration.Services;
 using MarcusRunge.Mopr.Workbench.Core;
 using MarcusRunge.Mopr.Workbench.Core.Events;
-using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
-using MarcusRunge.Mopr.Workbench.Services.Application.Models.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Modules.Miras.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryAdministration;
+using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.RepositoryRecovery;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Miras.Models;
 using MarcusRunge.Mopr.Workbench.Test.Shared.Application;
 using Moq;
-using Prism.Events;
-using IDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 using Xunit;
+using IDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
 {
@@ -130,7 +128,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Miras.Test.ViewModels
             Flow.SetupGet(flow => flow.LastResult).Returns(result);
             return issue;
         }
-
 
         internal void ConfigureRecoveryResult(RepositoryInfrastructureRecoveryResult result)
         {

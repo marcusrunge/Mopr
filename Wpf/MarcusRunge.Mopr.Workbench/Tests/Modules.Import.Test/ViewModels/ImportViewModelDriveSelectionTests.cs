@@ -1,6 +1,4 @@
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Import;
-using Prism.Dialogs;
-using System.IO;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Import.Test.ViewModels;

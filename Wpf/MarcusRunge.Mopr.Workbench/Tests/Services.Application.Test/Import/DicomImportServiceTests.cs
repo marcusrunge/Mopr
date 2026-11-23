@@ -12,7 +12,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Application.Test.Import
 {
     public sealed class DicomImportServiceTests
     {
-
         [Fact]
         public async Task ImportAsync_WhenImportCompletesSuccessfully_ReturnsCompletedResult()
         {

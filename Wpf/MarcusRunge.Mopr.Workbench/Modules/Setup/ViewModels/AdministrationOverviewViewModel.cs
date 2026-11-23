@@ -55,8 +55,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
         public Visibility UsersVisibility => GetVisibility(UsersSection);
 
         private static bool CanSelectSection(string? section) => section is OverviewSection or DatabaseSection or RepositorySection or SecuritySection or UsersSection or SystemCheckSection;
+
         private void ApplyRequestedSection(string section) => ExecuteSelectSection(section);
+
         private void ExecuteReturnToImaging() => _regionManager.RequestNavigate(RegionNames.ContentRegion, NavigationNames.Imaging);
+
         private void ExecuteSelectSection(string? section)
         {
             if (!CanSelectSection(section) || string.Equals(_selectedSection, section, StringComparison.Ordinal))
@@ -67,8 +70,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Setup.ViewModels
             _selectedSection = section!;
             RaiseSectionProperties();
         }
+
         private Visibility GetVisibility(string section) => IsSelected(section) ? Visibility.Visible : Visibility.Collapsed;
+
         private bool IsSelected(string section) => string.Equals(_selectedSection, section, StringComparison.Ordinal);
+
         private void RaiseSectionProperties()
         {
             RaisePropertyChanged(nameof(DatabaseVisibility));

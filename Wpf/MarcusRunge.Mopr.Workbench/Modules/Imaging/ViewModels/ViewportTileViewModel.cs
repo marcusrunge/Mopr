@@ -28,6 +28,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
             _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
         }
+
         private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
@@ -528,4 +529,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
-

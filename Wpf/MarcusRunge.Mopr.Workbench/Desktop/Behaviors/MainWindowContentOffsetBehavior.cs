@@ -52,7 +52,7 @@ public static partial class MainWindowContentOffsetBehavior
             element.Margin = state.OriginalMargin;
             return;
         }
-        
+
         var originalMargin = state.OriginalMargin;
         element.Margin = new Thickness(originalMargin.Left, originalMargin.Top + topMargin, originalMargin.Right, originalMargin.Bottom);
     }

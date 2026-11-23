@@ -14,6 +14,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
      * Imports share location access so imports targeting different files remain
      * parallel. Repairs receive exclusive location access.
      */
+
     internal class RepositoryOperationsCoordinator : CreateableBindableBase<IRepositoryOperationsCoordinator, RepositoryOperationsCoordinator, IRepositoryBase>, IRepositoryOperationsCoordinator
     {
         /*

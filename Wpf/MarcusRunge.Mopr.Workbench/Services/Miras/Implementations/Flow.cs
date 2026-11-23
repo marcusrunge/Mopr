@@ -13,11 +13,11 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
     {
         private readonly Lock _synchronization = new();
 
-        private Task<MirasOperationResult>? _activeRun;        
+        private Task<MirasOperationResult>? _activeRun;
         private IMirasBase? _base;
         private MirasFlowState _currentState = MirasFlowState.Idle;
         private MirasOperationResult? _lastResult;
-        private Exception? _lastUnexpectedError;        
+        private Exception? _lastUnexpectedError;
         private CancellationTokenSource? _userCancellation;
 
         /// <inheritdoc/>
@@ -189,7 +189,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Implementations
 
         private async Task<MirasOperationResult> RunAsync(CancellationTokenSource userCancellation, CancellationToken callerCancellation)
         {
-            if(_base?.Operations == null)
+            if (_base?.Operations == null)
             {
                 throw new InvalidOperationException("The MIRAS operations are not available.");
             }

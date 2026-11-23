@@ -72,6 +72,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Models
         /// this repository issue to be acknowledged for the current session.
         /// </summary>
         public bool IsSessionDeferralAllowed { get; set; }
+
         /// <summary>
         /// Gets or sets the issue state.
         /// </summary>

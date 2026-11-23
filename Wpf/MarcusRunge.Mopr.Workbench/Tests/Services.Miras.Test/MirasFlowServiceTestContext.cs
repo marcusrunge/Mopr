@@ -45,7 +45,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
             public IRepository Repository => throw CreateUnavailableDependencyException(nameof(Repository));
             public IRepositoryInfrastructureRecoveryService? RepositoryInfrastructureRecovery => null;
             public ISystemAuditIdentityProvider SystemAuditIdentityProvider => throw CreateUnavailableDependencyException(nameof(SystemAuditIdentityProvider));
+
             public void OnExceptionThrown(Exception exception) => ArgumentNullException.ThrowIfNull(exception);
+
             private static InvalidOperationException CreateUnavailableDependencyException(string dependencyName) => new($"'{dependencyName}' is not available in the isolated MIRAS flow test context.");
         }
     }

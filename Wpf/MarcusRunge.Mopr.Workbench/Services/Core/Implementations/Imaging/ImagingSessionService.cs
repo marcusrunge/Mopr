@@ -19,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Core.Implementations.Imaging
         private IImagingService ImagingService => Base as IImagingService ?? throw new InvalidOperationException("The imaging service contract is not available.");
 
         public event EventHandler? StateChanged;
+
         public bool HasOpenStudy => ImagingService.ImagingStudyService?.CurrentStudy is not null;
         public bool HasUnsavedChanges => ImagingService.ImagingSessionChangeTracker?.HasUnsavedChanges == true;
 

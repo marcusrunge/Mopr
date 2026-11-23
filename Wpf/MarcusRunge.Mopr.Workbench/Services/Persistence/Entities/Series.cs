@@ -1,5 +1,3 @@
-using MarcusRunge.Base;
-
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
 {
     /// <summary>
@@ -31,7 +29,6 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// Gets or sets the series instance UID.
         /// </summary>
         public string? SeriesInstanceUid { get => _seriesInstanceUid; set => SetProperty(ref _seriesInstanceUid, value); }
-
 
         /// <summary>
         /// Gets or sets the series number supplied by DICOM.

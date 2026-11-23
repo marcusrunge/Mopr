@@ -244,7 +244,9 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Test
             public Microsoft.Extensions.Logging.ILogger? Logger => null;
             public IRepositoryOperationsCoordinator? OperationsCoordinator => null;
             public MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts.IPersistence? Persistence => null;
-            public void OnExceptionThrown(Exception exception) { }
+
+            public void OnExceptionThrown(Exception exception)
+            { }
         }
     }
 }

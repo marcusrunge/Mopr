@@ -197,6 +197,7 @@ public sealed class DatabaseAdministrationViewModelTests
         internal Mock<IMachineConfigurationService> ConfigurationService { get; } = new(MockBehavior.Strict);
         internal Mock<ILifetimeService> LifetimeService { get; } = new(MockBehavior.Strict);
         internal DatabaseAdministrationViewModel ViewModel { get; }
+
         internal async Task WaitUntilLoadedAsync(CancellationToken cancellationToken) => await WaitUntilAsync(() => !ViewModel.IsBusy && ViewModel.ConnectionString == OriginalConnectionString, cancellationToken);
     }
 }

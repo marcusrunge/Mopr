@@ -648,7 +648,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         {
                             IssueType = DicomRepositoryIssueType.IdentityMismatch,
                             InstanceId = instance.Id,
-                RepositoryLocationId = instance.RepositoryLocationId,
+                            RepositoryLocationId = instance.RepositoryLocationId,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
                             RecoveryCandidateFilePath = recoveryCandidateFilePath,
@@ -700,7 +700,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                         {
                             IssueType = DicomRepositoryIssueType.InvalidDicomFile,
                             InstanceId = instance.Id,
-                RepositoryLocationId = instance.RepositoryLocationId,
+                            RepositoryLocationId = instance.RepositoryLocationId,
                             ExpectedFilePath = expectedAbsolutePath,
                             ActualFilePath = expectedAbsolutePath,
                             RecoveryCandidateFilePath = recoveryCandidateFilePath,
@@ -742,7 +742,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     IssueType = DicomRepositoryIssueType.MissingFile,
                     InstanceId = instance.Id,
-                RepositoryLocationId = instance.RepositoryLocationId,
+                    RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = expectedAbsolutePath ?? string.Empty,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,
                     CanResolveAutomatically = false,
@@ -855,7 +855,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
                 {
                     IssueType = DicomRepositoryIssueType.MisplacedFile,
                     InstanceId = instance.Id,
-                RepositoryLocationId = instance.RepositoryLocationId,
+                    RepositoryLocationId = instance.RepositoryLocationId,
                     ExpectedFilePath = repairDestinationPath,
                     ActualFilePath = actualFilePath,
                     ExpectedSopInstanceUid = persistedSopInstanceUid,

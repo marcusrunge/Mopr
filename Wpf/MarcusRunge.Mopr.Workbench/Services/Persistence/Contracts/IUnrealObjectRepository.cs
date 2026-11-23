@@ -6,7 +6,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Contracts
     /// Defines the contract for a repository that manages UnrealObject entities.
     /// </summary>
     public interface IUnrealObjectRepository : IRepository<UnrealObject>
-    {       
+    {
         /// <summary>
         /// Gets all Unreal objects belonging to a specific DICOM instance.
         /// </summary>

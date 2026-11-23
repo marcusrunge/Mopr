@@ -27,12 +27,12 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// <summary>
         /// Gets the repository location represented by this context.
         /// </summary>
-        internal required RepositoryLocation RepositoryLocation { get; init; }
+        internal RepositoryLocation RepositoryLocation { get; init; }
 
         /// <summary>
         /// Gets the normalized absolute repository root path.
         /// </summary>
-        internal required string RepositoryRootPath { get; init; }
+        internal string RepositoryRootPath { get; init; }
 
         /// <summary>
         /// Gets the unreadable physical files found while indexing this

@@ -1,4 +1,3 @@
-using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities

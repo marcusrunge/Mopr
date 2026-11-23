@@ -7,6 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:viewModels="clr-namespace:MarcusRunge.Mopr.Workbench.ViewModels"
+        behaviors:WindowClosingGuardBehavior.IsEnabled="True"
         d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
         Height="800"
         mc:Ignorable="d"

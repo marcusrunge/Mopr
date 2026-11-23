@@ -65,6 +65,7 @@ public sealed class RepositoryRecoveryActionServiceTests
             ApplicationBase.SetupGet(value => value.Repository).Returns(Repository.Object);
             Service = RepositoryRecoveryActionService.Create(ApplicationBase.Object, CreationLifetime.Scoped);
         }
+
         internal Mock<IRepositoryLocationAdministrationService> Administration { get; } = new(MockBehavior.Strict);
         internal Mock<IAdministrativeAuthorizationService> Authorization { get; } = new(MockBehavior.Strict);
         internal Mock<IApplicationBase> ApplicationBase { get; } = new(MockBehavior.Strict);
@@ -72,7 +73,10 @@ public sealed class RepositoryRecoveryActionServiceTests
         internal string RepositoryPath { get; }
         internal IRepositoryRecoveryActionService Service { get; }
         internal Mock<IRepositoryLocationValidationService> Validation { get; } = new(MockBehavior.Strict);
+
         internal void ConfigureValidPath() => Validation.Setup(service => service.ValidateAsync(RepositoryPath, It.IsAny<CancellationToken>())).ReturnsAsync(new RepositoryLocationValidationResult { Exists = true, IsReadable = true, IsWritable = true, NormalizedPath = Path.GetFullPath(RepositoryPath) });
-        public void Dispose() { if (Directory.Exists(RepositoryPath)) Directory.Delete(RepositoryPath, recursive: true); }
+
+        public void Dispose()
+        { if (Directory.Exists(RepositoryPath)) Directory.Delete(RepositoryPath, recursive: true); }
     }
 }

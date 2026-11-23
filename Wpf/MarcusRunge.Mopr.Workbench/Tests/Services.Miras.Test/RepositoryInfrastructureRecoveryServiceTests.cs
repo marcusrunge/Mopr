@@ -1,7 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Services.Miras.Enums;
 using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
-using Moq;
 using MarcusRunge.Mopr.Workbench.Services.Repository.Models;
+using Moq;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Miras.Test
 {

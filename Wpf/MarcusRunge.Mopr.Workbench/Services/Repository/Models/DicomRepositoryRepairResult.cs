@@ -71,11 +71,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// Gets or sets the number of repository locations included in this assessment.
         /// </summary>
         public int AssessedRepositoryLocations { get; set; }
+
         /// <summary>
         /// Gets or sets the number of configured repository locations that could not
         /// be accessed or inspected.
         /// </summary>
         public int UnavailableRepositoryLocations { get; set; }
+
         /// <summary>
         /// Gets or sets the number of assessed repository locations that passed
         /// location validation and could be inspected safely.
