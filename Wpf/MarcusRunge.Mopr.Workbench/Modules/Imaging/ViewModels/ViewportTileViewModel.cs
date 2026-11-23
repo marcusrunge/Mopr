@@ -163,7 +163,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} · {Series.ImageCount} {Resources.ViewportTile_Images}";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -461,6 +461,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentSlice = slice;
 
             UpdateCurrentFile();
+            BindMeasurementsToCurrentInstance();
         }
 
         public void SetWindowLevel(double? windowCenter, double? windowWidth)
@@ -527,3 +528,4 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
+

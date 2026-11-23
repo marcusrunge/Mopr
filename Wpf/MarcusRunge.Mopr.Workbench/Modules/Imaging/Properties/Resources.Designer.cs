@@ -214,7 +214,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -826,7 +826,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ãƒâ€šÃ‚Â· HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -844,7 +844,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ã‚Â· Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ãƒâ€šÃ‚Â· Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -885,6 +885,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string UnsavedChangesDialog_Message {
             get {
                 return ResourceManager.GetString("UnsavedChangesDialog_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
+        /// </summary>
+        public static string UnsavedChangesDialog_Save {
+            get {
+                return ResourceManager.GetString("UnsavedChangesDialog_Save", resourceCulture);
             }
         }
         
@@ -979,7 +988,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 Ãƒâ€” 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {

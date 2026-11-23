@@ -1,60 +1,64 @@
-﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
-using Prism.Dialogs;
+using System.Reflection;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
 {
     public sealed class UnsavedChangesDialogViewModelTests
     {
-        [Fact]
-        public void Title_Should_Use_Localized_Resource()
+        [Theory]
+        [InlineData(UnsavedChangesDecision.Save, ButtonResult.OK)]
+        [InlineData(UnsavedChangesDecision.Discard, ButtonResult.OK)]
+        [InlineData(UnsavedChangesDecision.Cancel, ButtonResult.Cancel)]
+        public void Decision_Command_Should_Close_With_Explicit_Decision(UnsavedChangesDecision expectedDecision, ButtonResult expectedResult)
         {
             var viewModel = new UnsavedChangesDialogViewModel();
+            IDialogResult? actualResult = null;
 
-            Assert.Equal(Resources.UnsavedChangesDialog_Title, viewModel.Title);
+            SetRequestCloseListener(viewModel, dialogResult => actualResult = dialogResult);
+
+            ExecuteDecisionCommand(viewModel, expectedDecision);
+
+            Assert.NotNull(actualResult);
+            Assert.Equal(expectedResult, actualResult.Result);
+            Assert.True(actualResult.Parameters.TryGetValue(UnsavedChangesDialogViewModel.DecisionParameterName, out UnsavedChangesDecision actualDecision));
+            Assert.Equal(expectedDecision, actualDecision);
         }
 
-        [Fact]
-        public void CanCloseDialog_Should_Return_True()
+        private static void ExecuteDecisionCommand(UnsavedChangesDialogViewModel viewModel, UnsavedChangesDecision decision)
         {
-            var viewModel = new UnsavedChangesDialogViewModel();
+            switch (decision)
+            {
+                case UnsavedChangesDecision.Save:
+                    viewModel.SaveCommand.Execute();
+                    return;
 
-            Assert.True(viewModel.CanCloseDialog());
+                case UnsavedChangesDecision.Discard:
+                    viewModel.DiscardCommand.Execute();
+                    return;
+
+                case UnsavedChangesDecision.Cancel:
+                    viewModel.CancelCommand.Execute();
+                    return;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(decision), decision, "The unsaved-changes decision is not supported.");
+            }
         }
 
-        [Fact]
-        public void Commands_Should_Be_Executable()
+        private static void SetRequestCloseListener(UnsavedChangesDialogViewModel viewModel, Action<IDialogResult> callback)
         {
-            var viewModel = new UnsavedChangesDialogViewModel();
+            ArgumentNullException.ThrowIfNull(viewModel);
+            ArgumentNullException.ThrowIfNull(callback);
 
-            Assert.True(viewModel.CancelCommand.CanExecute());
-            Assert.True(viewModel.DiscardCommand.CanExecute());
-        }
+            ConstructorInfo constructor = typeof(DialogCloseListener).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, binder: null, [typeof(Action<IDialogResult>)], modifiers: null) ?? throw new MissingMethodException(typeof(DialogCloseListener).FullName, ".ctor(Action<IDialogResult>)");
 
-        [Fact]
-        public void OnDialogOpened_Should_Preserve_State()
-        {
-            var viewModel = new UnsavedChangesDialogViewModel();
+            var listener = (DialogCloseListener)constructor.Invoke([callback]);
 
-            viewModel.OnDialogOpened(new DialogParameters());
+            FieldInfo backingField = typeof(UnsavedChangesDialogViewModel).GetField("<RequestClose>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new MissingFieldException(typeof(UnsavedChangesDialogViewModel).FullName, "<RequestClose>k__BackingField");
 
-            Assert.True(viewModel.CanCloseDialog());
-            Assert.True(viewModel.CancelCommand.CanExecute());
-            Assert.True(viewModel.DiscardCommand.CanExecute());
-            Assert.Equal(Resources.UnsavedChangesDialog_Title, viewModel.Title);
-        }
-
-        [Fact]
-        public void OnDialogClosed_Should_Preserve_State()
-        {
-            var viewModel = new UnsavedChangesDialogViewModel();
-
-            viewModel.OnDialogClosed();
-
-            Assert.True(viewModel.CanCloseDialog());
-            Assert.True(viewModel.CancelCommand.CanExecute());
-            Assert.True(viewModel.DiscardCommand.CanExecute());
+            backingField.SetValue(viewModel, listener);
         }
     }
 }

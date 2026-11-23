@@ -34,10 +34,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             string seriesInstanceUid = metadata.SeriesInstanceUid ?? throw new InvalidOperationException($"Displayed DICOM file '{filePath}' has no Series Instance UID.");
             string sopInstanceUid = metadata.SopInstanceUid ?? throw new InvalidOperationException($"Displayed DICOM file '{filePath}' has no SOP Instance UID.");
 
-            if (!string.Equals(series.Id, seriesInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"Displayed DICOM file '{filePath}' belongs to series '{seriesInstanceUid}' instead of assigned series '{series.Id}'.");
+            // SeriesInfo.Id is the imaging-service lookup key. Folder imports may intentionally use a generated key instead of the DICOM Series Instance UID.
+            // The metadata collection was already resolved through that lookup key, so the DICOM metadata remains authoritative for persisted measurement identity.
             if (!string.IsNullOrWhiteSpace(series.StudyId) && !string.Equals(series.StudyId, studyInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"Displayed DICOM file '{filePath}' belongs to study '{studyInstanceUid}' instead of assigned study '{series.StudyId}'.");
 
             return new ImagingMeasurementInstanceKey(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
         }
     }
 }
+

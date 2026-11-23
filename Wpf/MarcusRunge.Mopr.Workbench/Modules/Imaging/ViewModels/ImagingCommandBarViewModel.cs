@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
@@ -221,48 +222,73 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
-        private void CloseStudy()
+        private async void CloseStudy()
         {
             if (!CanCloseStudy()) return;
 
-            if (_imagingSessionService.HasUnsavedChanges)
-            {
-                _dialogService.ShowDialog(UnsavedChangesDialogName, result =>
-                {
-                    if (result.Result != ButtonResult.OK) return;
-                    _imagingSessionService.DiscardChangesAndClear();
-                    StatusText = Resources.CommandBar_StudyClosed;
-                });
-                return;
-            }
+            if (!await ResolveUnsavedChangesAsync()) return;
+            if (_imagingSessionService.HasUnsavedChanges) return;
 
             _imagingSessionService.Clear();
             StatusText = Resources.CommandBar_StudyClosed;
         }
 
-        private async Task<bool> ConfirmDiscardUnsavedChangesAsync()
+        private async Task<bool> ResolveUnsavedChangesAsync()
         {
-            if (!_imagingSessionService.HasUnsavedChanges)
+            if (!_imagingSessionService.HasUnsavedChanges) return true;
+
+            var completionSource = new TaskCompletionSource<UnsavedChangesDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _dialogService.ShowDialog(UnsavedChangesDialogName, result =>
             {
+                UnsavedChangesDecision decision = result.Parameters.TryGetValue(UnsavedChangesDialogViewModel.DecisionParameterName, out UnsavedChangesDecision selectedDecision) ? selectedDecision : UnsavedChangesDecision.Cancel;
+                completionSource.TrySetResult(decision);
+            });
+            UnsavedChangesDecision decision = await completionSource.Task;
+
+            if (decision == UnsavedChangesDecision.Cancel) return false;
+            if (decision == UnsavedChangesDecision.Discard)
+            {
+                _imagingSessionService.DiscardChangesAndClear();
                 return true;
             }
 
-            var completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _saveCancellationTokenSource?.Cancel();
+            _saveCancellationTokenSource?.Dispose();
+            _saveCancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _saveCancellationTokenSource.Token;
+            IsBusy = true;
+            StatusText = Resources.CommandBar_Saving;
 
-            _dialogService.ShowDialog(UnsavedChangesDialogName, result => completionSource.TrySetResult(result.Result == ButtonResult.OK));
-
-            bool discardConfirmed = await completionSource.Task;
-
-            if (!discardConfirmed)
+            try
             {
+                await _imagingSessionApplicationService.SaveAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (_imagingSessionService.HasUnsavedChanges)
+                {
+                    StatusText = Resources.CommandBar_SaveCompletedWithRemainingChanges;
+                    return false;
+                }
+
+                StatusText = Resources.CommandBar_SaveCompleted;
+                return true;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                StatusText = Resources.CommandBar_SaveCanceled;
                 return false;
             }
-
-            // Discarding is deliberately separated from the normal Clear path.
-            // Only an explicit user confirmation may remove registered changes.
-            _imagingSessionService.DiscardChangesAndClear();
-
-            return true;
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_SaveFailed;
+                _wpf.ReportException(exception);
+                return false;
+            }
+            finally
+            {
+                IsBusy = false;
+                _saveCommand?.RaiseCanExecuteChanged();
+            }
         }
 
         private async void ExecuteOpenImportedSeries(IDialogResult dialogResult)
@@ -310,7 +336,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                     return;
                 }
 
-                if (!await ConfirmDiscardUnsavedChangesAsync())
+                if (!await ResolveUnsavedChangesAsync())
                 {
                     StatusText = previousStatusText;
                     return;
@@ -431,7 +457,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 // Resolve and validate the complete target study before asking the user
                 // to discard the current session. Invalid repository data must never
                 // cause existing unsaved changes to be lost.
-                if (!await ConfirmDiscardUnsavedChangesAsync())
+                if (!await ResolveUnsavedChangesAsync())
                 {
                     StatusText = previousStatusText;
                     return;
@@ -509,4 +535,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
+
+
 

@@ -31,12 +31,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
         }
 
         [Fact]
-        public void Resolve_Should_Reject_Mismatched_Series()
+        public void Resolve_Should_Use_Dicom_Series_Uid_When_Imaging_Series_Has_Generated_Lookup_Key()
         {
             var context = new TestContext();
-            var wrongSeries = new SeriesInfo("9.9.9", "CT", "Wrong", string.Empty, 1, TestContext.StudyInstanceUid);
+            var generatedLookupSeries = new SeriesInfo("generated-series-key", "CT", "Series", string.Empty, 1, TestContext.StudyInstanceUid);
 
-            Assert.Throws<InvalidOperationException>(() => context.Resolver.Resolve(wrongSeries, TestContext.FilePath));
+            ImagingMeasurementInstanceKey result = context.Resolver.Resolve(generatedLookupSeries, TestContext.FilePath);
+
+            Assert.Equal(TestContext.SeriesInstanceUid, result.SeriesInstanceUid);
         }
 
         private sealed class TestContext
@@ -64,3 +66,4 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
         }
     }
 }
+

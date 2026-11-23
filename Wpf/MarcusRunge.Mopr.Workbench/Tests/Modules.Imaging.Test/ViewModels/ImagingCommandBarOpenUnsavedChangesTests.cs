@@ -1,4 +1,5 @@
-﻿using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using Moq;
@@ -150,7 +151,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
 
         private static void ConfigureUnsavedChangesDialog(ImagingCommandBarViewModelTestContext context, ButtonResult buttonResult) => context.DialogService.Setup(service => service.ShowDialog(UnsavedChangesDialogName, It.IsAny<IDialogParameters>(), It.IsAny<DialogCallback>())).Callback<string, IDialogParameters, DialogCallback>((_, _, callback) =>
         {
-            Mock<IDialogResult> result = ImagingCommandBarViewModelTestContext.CreateDialogResult(new DialogParameters(), buttonResult);
+            var parameters = new DialogParameters
+            {
+                { UnsavedChangesDialogViewModel.DecisionParameterName, buttonResult == ButtonResult.OK ? UnsavedChangesDecision.Discard : UnsavedChangesDecision.Cancel }
+            };
+            Mock<IDialogResult> result = ImagingCommandBarViewModelTestContext.CreateDialogResult(parameters, buttonResult);
 
             callback.Invoke(result.Object).GetAwaiter().GetResult();
         });
