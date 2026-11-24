@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net11.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -26,4 +26,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>MarcusRunge.Mopr.Workbench.Modules.Imaging.Test</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

@@ -165,7 +165,7 @@
 
             <Button Margin="0,0,8,0"
                     Command="{Binding LayoutCommand}"
-                    Content="{Binding CurrentLayout, Converter={StaticResource EnumDescriptionValueConverter}}" />
+                    Content="{Binding CurrentLayoutDisplayText}" />
 
             <ToggleButton x:Name="WindowLevelPresetsToggleButton"
                           MinWidth="108"

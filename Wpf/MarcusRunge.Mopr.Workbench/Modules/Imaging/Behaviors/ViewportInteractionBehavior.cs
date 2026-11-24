@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports;
 using Microsoft.Xaml.Behaviors;
@@ -42,7 +42,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return;
             }
 
+            _interactionHost.PreviewKeyDown += OnPreviewKeyDown;
             _interactionHost.PreviewMouseLeftButtonDown += OnPreviewMouseLeftButtonDown;
+            _interactionHost.PreviewMouseWheel += OnPreviewMouseWheel;
             _interactionHost.PreviewMouseMove += OnPreviewMouseMove;
             _interactionHost.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
             _interactionHost.MouseLeave += OnMouseLeave;
@@ -65,7 +67,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return;
             }
 
+            _interactionHost.PreviewKeyDown -= OnPreviewKeyDown;
             _interactionHost.PreviewMouseLeftButtonDown -= OnPreviewMouseLeftButtonDown;
+            _interactionHost.PreviewMouseWheel -= OnPreviewMouseWheel;
             _interactionHost.PreviewMouseMove -= OnPreviewMouseMove;
             _interactionHost.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
             _interactionHost.MouseLeave -= OnMouseLeave;
@@ -91,6 +95,35 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private void OnMouseLeave(object sender, MouseEventArgs e) => ExecutePixelHover(null, null);
 
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!AssociatedObject.IsInteractive || !AssociatedObject.IsActive || !ViewportSliceNavigation.TryNavigate(AssociatedObject.Tile, e.Key))
+            {
+                return;
+            }
+
+            e.Handled = true;
+        }
+
+        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var viewportTile = AssociatedObject;
+
+            if (!viewportTile.IsInteractive || !ViewportSliceNavigation.CanNavigate(viewportTile.Tile))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(viewportTile.ViewportId) && viewportTile.SelectViewportCommand?.CanExecute(viewportTile.ViewportId) == true)
+            {
+                viewportTile.SelectViewportCommand.Execute(viewportTile.ViewportId);
+            }
+
+            _interactionHost?.Focus();
+            ViewportSliceNavigation.MoveByWheelDelta(viewportTile.Tile!, e.Delta);
+            e.Handled = true;
+        }
+
         private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var viewportTile = AssociatedObject;
@@ -100,6 +133,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 e.Handled = true;
                 return;
             }
+
+            _interactionHost?.Focus();
 
             if (!string.IsNullOrWhiteSpace(viewportTile.ViewportId) && viewportTile.SelectViewportCommand?.CanExecute(viewportTile.ViewportId) == true)
             {

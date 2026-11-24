@@ -134,7 +134,7 @@ namespace MarcusRunge.Mopr.Workbench.ViewModels
         {
             var activeUser = currentUser is { Id: > 0, IsActive: true } ? currentUser : null;
             CurrentUserDisplayName = activeUser?.DisplayName ?? string.Empty;
-            CurrentUserDetails = activeUser is null ? string.Empty : $"{activeUser.ShortName} Â· {activeUser.LoginName}";
+            CurrentUserDetails = activeUser is null ? string.Empty : $"{activeUser.ShortName} · {activeUser.LoginName}";
             HasCurrentUser = activeUser is not null;
             RaisePropertyChanged(nameof(CanOpenAdministration));
             _openAdministrationCommand?.RaiseCanExecuteChanged();

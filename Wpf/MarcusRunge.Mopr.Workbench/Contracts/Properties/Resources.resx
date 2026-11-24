@@ -122,7 +122,7 @@
     <value>Layout: Single</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 Ã— 2</value>
+    <value>Layout: 2 × 2</value>
   </data>
   <data name="Viewer_Layout_Unknown" xml:space="preserve">
     <value>Layout: Unknown</value>
@@ -287,3 +287,4 @@
     <value>Deleted</value>
   </data>
 </root>
+

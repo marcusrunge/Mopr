@@ -65,7 +65,7 @@
     <value>Annotation</value>
   </data>
   <data name="MeasurementType_Area" xml:space="preserve">
-    <value>FlÃ¤che</value>
+    <value>FlÃƒÂ¤che</value>
   </data>
   <data name="MeasurementType_Ellipse" xml:space="preserve">
     <value>Ellipse</value>
@@ -74,7 +74,7 @@
     <value>Freihand</value>
   </data>
   <data name="MeasurementType_Length" xml:space="preserve">
-    <value>LÃ¤nge</value>
+    <value>LÃƒÂ¤nge</value>
   </data>
   <data name="MeasurementType_Point" xml:space="preserve">
     <value>Punkt</value>
@@ -122,7 +122,7 @@
     <value>Layout: Einzelansicht</value>
   </data>
   <data name="Viewer_Layout_TwoByTwo" xml:space="preserve">
-    <value>Layout: 2 Ã— 2</value>
+    <value>Layout: 2 × 2</value>
   </data>
   <data name="Viewer_Layout_Unknown" xml:space="preserve">
     <value>Layout: Unbekannt</value>
@@ -170,7 +170,7 @@
     <value>Angemeldet</value>
   </data>
   <data name="UserSignInStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
-    <value>Windows-IdentitÃ¤t nicht verfÃ¼gbar</value>
+    <value>Windows-IdentitÃƒÂ¤t nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="UserSignInStatus_UserUnknown" xml:space="preserve">
     <value>Benutzer-Erstanlage erforderlich</value>
@@ -179,10 +179,10 @@
     <value>Benutzer deaktiviert</value>
   </data>
   <data name="UserSignInStatus_InvalidPersistentUserId" xml:space="preserve">
-    <value>UngÃ¼ltige Benutzerzuordnung</value>
+    <value>UngÃƒÂ¼ltige Benutzerzuordnung</value>
   </data>
   <data name="UserSignInStatus_PersistenceUnavailable" xml:space="preserve">
-    <value>Benutzerdaten nicht verfÃ¼gbar</value>
+    <value>Benutzerdaten nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="UserSignInStatus_Failed" xml:space="preserve">
     <value>Anmeldung fehlgeschlagen</value>
@@ -194,16 +194,16 @@
     <value>Benutzer-Erstanlage abgeschlossen</value>
   </data>
   <data name="UserProvisioningStatus_ValidationFailed" xml:space="preserve">
-    <value>Bitte prÃ¼fen Sie die eingegebenen Benutzerdaten</value>
+    <value>Bitte prÃƒÂ¼fen Sie die eingegebenen Benutzerdaten</value>
   </data>
   <data name="UserProvisioningStatus_OperatingSystemIdentityUnavailable" xml:space="preserve">
-    <value>Windows-IdentitÃ¤t nicht verfÃ¼gbar</value>
+    <value>Windows-IdentitÃƒÂ¤t nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="UserProvisioningStatus_UserAlreadyExists" xml:space="preserve">
     <value>Der Benutzer wurde bereits angelegt</value>
   </data>
   <data name="UserProvisioningStatus_PersistenceUnavailable" xml:space="preserve">
-    <value>Benutzerdaten nicht verfÃ¼gbar</value>
+    <value>Benutzerdaten nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="UserProvisioningStatus_Failed" xml:space="preserve">
     <value>Benutzer-Erstanlage fehlgeschlagen</value>
@@ -227,7 +227,7 @@
     <value>Der Kurzname ist zu lang</value>
   </data>
   <data name="UserProvisioningValidationIssue_ShortNameInvalid" xml:space="preserve">
-    <value>Der Kurzname enthÃ¤lt nicht unterstÃ¼tzte Zeichen</value>
+    <value>Der Kurzname enthÃƒÂ¤lt nicht unterstÃƒÂ¼tzte Zeichen</value>
   </data>
   <data name="UserProvisioningStatus_UserDisabled" xml:space="preserve">
     <value>Benutzer deaktiviert</value>
@@ -248,13 +248,13 @@
     <value>Abgeschlossen</value>
   </data>
   <data name="SecurityConfigurationUpdateStatus_Unauthorized" xml:space="preserve">
-    <value>Eine erhÃ¶hte Administratorberechtigung ist erforderlich</value>
+    <value>Eine erhÃƒÂ¶hte Administratorberechtigung ist erforderlich</value>
   </data>
   <data name="SecurityConfigurationUpdateStatus_ConfigurationUnavailable" xml:space="preserve">
-    <value>Die Maschinenkonfiguration ist nicht verfÃ¼gbar</value>
+    <value>Die Maschinenkonfiguration ist nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="SecurityConfigurationUpdateStatus_ValidationFailed" xml:space="preserve">
-    <value>Die resultierende Maschinenkonfiguration ist ungÃ¼ltig</value>
+    <value>Die resultierende Maschinenkonfiguration ist ungÃƒÂ¼ltig</value>
   </data>
   <data name="SecurityConfigurationUpdateStatus_Failed" xml:space="preserve">
     <value>Die Sicherheitskonfiguration konnte nicht aktualisiert werden</value>
@@ -266,13 +266,13 @@
     <value>Abgeschlossen</value>
   </data>
   <data name="DatabaseConfigurationUpdateStatus_Unauthorized" xml:space="preserve">
-    <value>Eine erhÃ¶hte Administratorberechtigung ist erforderlich</value>
+    <value>Eine erhÃƒÂ¶hte Administratorberechtigung ist erforderlich</value>
   </data>
   <data name="DatabaseConfigurationUpdateStatus_ConfigurationUnavailable" xml:space="preserve">
-    <value>Die Maschinenkonfiguration ist nicht verfÃ¼gbar</value>
+    <value>Die Maschinenkonfiguration ist nicht verfÃƒÂ¼gbar</value>
   </data>
   <data name="DatabaseConfigurationUpdateStatus_ValidationFailed" xml:space="preserve">
-    <value>Die Datenbankkonfiguration ist ungÃ¼ltig</value>
+    <value>Die Datenbankkonfiguration ist ungÃƒÂ¼ltig</value>
   </data>
   <data name="DatabaseConfigurationUpdateStatus_Failed" xml:space="preserve">
     <value>Die Datenbankkonfiguration konnte nicht aktualisiert werden</value>
@@ -281,9 +281,10 @@
     <value>Erstellt</value>
   </data>
   <data name="ImagingSessionChangeState_Modified" xml:space="preserve">
-    <value>Geändert</value>
+    <value>GeÃ¤ndert</value>
   </data>
   <data name="ImagingSessionChangeState_Deleted" xml:space="preserve">
-    <value>Gelöscht</value>
+    <value>GelÃ¶scht</value>
   </data>
 </root>
+

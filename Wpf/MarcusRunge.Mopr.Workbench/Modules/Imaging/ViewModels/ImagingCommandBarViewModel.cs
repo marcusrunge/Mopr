@@ -93,8 +93,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ImagingLayout CurrentLayout
         {
             get => _currentLayout;
-            private set => SetProperty(ref _currentLayout, value);
+            private set
+            {
+                if (SetProperty(ref _currentLayout, value)) RaisePropertyChanged(nameof(CurrentLayoutDisplayText));
+            }
         }
+
+        public string CurrentLayoutDisplayText => CurrentLayout switch
+        {
+            ImagingLayout.Single => Resources.CommandBar_Layout_Single,
+            ImagingLayout.TwoByTwo => Resources.CommandBar_Layout_TwoByTwo,
+            ImagingLayout.Mpr => Resources.CommandBar_Layout_Mpr,
+            ImagingLayout.AxialSagittalCoronal => Resources.CommandBar_Layout_AxialSagittalCoronal,
+            _ => Resources.CommandBar_Layout
+        };
 
         public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
 
