@@ -15,6 +15,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     {
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
+        private readonly ViewportTransformState _transformState = new();
         private readonly string _title;
         private readonly string _viewportId;
         private ImagingMeasurementInstanceKey? _measurementInstanceKey;
@@ -27,6 +28,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _title = title ?? throw new ArgumentNullException(nameof(title));
             _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
             _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
+            _transformState.PropertyChanged += OnTransformStatePropertyChanged;
         }
 
         private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
@@ -38,6 +40,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private SeriesInfo? _series;
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth, _currentPixelValue;
+
+        public bool CanZoomIn => _transformState.CanZoomIn;
+        public bool CanZoomOut => _transformState.CanZoomOut;
+        public double PanOffsetX => _transformState.PanOffsetX;
+        public double PanOffsetY => _transformState.PanOffsetY;
+        public double ZoomFactor => _transformState.ZoomFactor;
 
         public ViewportMeasurementViewModel? ActiveMeasurementDraft
         {
@@ -164,7 +172,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ã‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -385,7 +393,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaiseMeasurementPropertiesChanged();
         }
 
+        public void AddPan(double horizontalDelta, double verticalDelta) => _transformState.AddPan(horizontalDelta, verticalDelta);
+
+        public void FitToView() => _transformState.Reset();
+
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
+
+        public void ResetPan() => _transformState.ResetPan();
+
+        public void ResetViewTransform() => _transformState.Reset();
+
+        public void SetPan(double panOffsetX, double panOffsetY) => _transformState.SetPan(panOffsetX, panOffsetY);
+
+        public void SetZoomAndPan(double zoomFactor, double panOffsetX, double panOffsetY) => _transformState.SetZoomAndPan(zoomFactor, panOffsetX, panOffsetY);
+
+        public void ZoomIn() => _transformState.ZoomIn();
+
+        public void ZoomOut() => _transformState.ZoomOut();
 
         public void ResetWindowLevel()
         {
@@ -412,6 +436,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
         {
+            // A newly assigned series starts from a predictable fit-to-view state without changing persisted imaging data.
+            ResetViewTransform();
             ClearMeasurements();
             ClearCurrentPixel();
 
@@ -494,6 +520,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath);
             Measurements = _measurementSessionStore.GetMeasurements(_measurementInstanceKey);
+        }
+
+        private void OnTransformStatePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs eventArgs)
+        {
+            if (string.IsNullOrWhiteSpace(eventArgs.PropertyName))
+            {
+                RaisePropertyChanged(nameof(ZoomFactor));
+                RaisePropertyChanged(nameof(PanOffsetX));
+                RaisePropertyChanged(nameof(PanOffsetY));
+                RaisePropertyChanged(nameof(CanZoomIn));
+                RaisePropertyChanged(nameof(CanZoomOut));
+                return;
+            }
+
+            RaisePropertyChanged(eventArgs.PropertyName);
         }
 
         private void RaiseMeasurementPropertiesChanged()
