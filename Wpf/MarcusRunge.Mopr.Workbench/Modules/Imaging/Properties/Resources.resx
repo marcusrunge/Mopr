@@ -162,6 +162,27 @@
   <data name="CommandBar_ResetView" xml:space="preserve">
     <value>Reset View</value>
   </data>
+  <data name="CommandBar_Transform" xml:space="preserve">
+    <value>Rotate / Flip</value>
+  </data>
+  <data name="CommandBar_RotateLeft" xml:space="preserve">
+    <value>Rotate Left</value>
+  </data>
+  <data name="CommandBar_RotateRight" xml:space="preserve">
+    <value>Rotate Right</value>
+  </data>
+  <data name="CommandBar_ResetRotation" xml:space="preserve">
+    <value>Reset Rotation</value>
+  </data>
+  <data name="CommandBar_FlipHorizontal" xml:space="preserve">
+    <value>Flip Horizontal</value>
+  </data>
+  <data name="CommandBar_FlipVertical" xml:space="preserve">
+    <value>Flip Vertical</value>
+  </data>
+  <data name="CommandBar_ResetFlip" xml:space="preserve">
+    <value>Reset Flip</value>
+  </data>
   <data name="CommandBar_Status" xml:space="preserve">
     <value>Status</value>
   </data>

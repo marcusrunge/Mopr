@@ -190,6 +190,66 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         }
 
         [Fact]
+        public void RotateRight_Should_Cycle_Through_QuarterTurns_And_Reset()
+        {
+            var state = new ViewportTransformState();
+
+            state.RotateRight();
+            Assert.Equal(ViewportRotation.Clockwise90, state.Rotation);
+            state.RotateRight();
+            Assert.Equal(ViewportRotation.HalfTurn, state.Rotation);
+            state.RotateRight();
+            Assert.Equal(ViewportRotation.CounterClockwise90, state.Rotation);
+            state.ResetRotation();
+
+            Assert.Equal(ViewportRotation.None, state.Rotation);
+        }
+
+        [Fact]
+        public void RotateLeft_Should_Use_CounterClockwise_QuarterTurn()
+        {
+            var state = new ViewportTransformState();
+
+            state.RotateLeft();
+
+            Assert.Equal(ViewportRotation.CounterClockwise90, state.Rotation);
+        }
+
+        [Fact]
+        public void Flips_Should_Toggle_Independently_And_Reset()
+        {
+            var state = new ViewportTransformState();
+
+            state.FlipHorizontal();
+            state.FlipVertical();
+            Assert.True(state.IsFlippedHorizontally);
+            Assert.True(state.IsFlippedVertically);
+            state.ResetFlip();
+
+            Assert.False(state.IsFlippedHorizontally);
+            Assert.False(state.IsFlippedVertically);
+        }
+
+        [Fact]
+        public void Reset_Should_Restore_Rotation_Flips_Zoom_And_Pan()
+        {
+            var state = new ViewportTransformState();
+            state.RotateRight();
+            state.FlipHorizontal();
+            state.FlipVertical();
+            state.SetZoomAndPan(4.0, 250.0, -130.0);
+
+            state.Reset();
+
+            Assert.Equal(ViewportRotation.None, state.Rotation);
+            Assert.False(state.IsFlippedHorizontally);
+            Assert.False(state.IsFlippedVertically);
+            Assert.Equal(ViewportImageGeometryCalculator.DefaultZoomFactor, state.ZoomFactor);
+            Assert.Equal(0.0, state.PanOffsetX);
+            Assert.Equal(0.0, state.PanOffsetY);
+        }
+
+        [Fact]
         public void PropertyChanged_Should_Report_Changed_Transform_Properties()
         {
             var state = new ViewportTransformState();

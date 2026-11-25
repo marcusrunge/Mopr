@@ -16,17 +16,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports
             return Math.Clamp(zoomFactor, MinimumZoomFactor, MaximumZoomFactor);
         }
 
-        public static bool TryCreate(DicomImageFrame? frame, FrameworkElement? host, out ViewportImageGeometry geometry) => TryCreate(frame, host, DefaultZoomFactor, panOffsetX: 0.0, panOffsetY: 0.0, out geometry);
+        public static bool TryCreate(DicomImageFrame? frame, FrameworkElement? host, out ViewportImageGeometry geometry) => TryCreate(frame, host, DefaultZoomFactor, 0.0, 0.0, ViewportRotation.None, false, false, out geometry);
 
-        public static bool TryCreate(DicomImageFrame? frame, FrameworkElement? host, double zoomFactor, double panOffsetX, double panOffsetY, out ViewportImageGeometry geometry)
+        public static bool TryCreate(DicomImageFrame? frame, FrameworkElement? host, double zoomFactor, double panOffsetX, double panOffsetY, out ViewportImageGeometry geometry) => TryCreate(frame, host, zoomFactor, panOffsetX, panOffsetY, ViewportRotation.None, false, false, out geometry);
+
+        public static bool TryCreate(DicomImageFrame? frame, FrameworkElement? host, double zoomFactor, double panOffsetX, double panOffsetY, ViewportRotation rotation, bool isFlippedHorizontally, bool isFlippedVertically, out ViewportImageGeometry geometry)
         {
             geometry = default;
 
             if (frame == null || host == null) return false;
             if (frame.Width <= 0 || frame.Height <= 0 || host.ActualWidth <= 0 || host.ActualHeight <= 0) return false;
             if (!double.IsFinite(panOffsetX) || !double.IsFinite(panOffsetY)) return false;
+            if (rotation is not (ViewportRotation.None or ViewportRotation.Clockwise90 or ViewportRotation.HalfTurn or ViewportRotation.CounterClockwise90)) return false;
 
-            var fitScale = Math.Min(host.ActualWidth / frame.Width, host.ActualHeight / frame.Height);
+            var displayFrameWidth = rotation is ViewportRotation.Clockwise90 or ViewportRotation.CounterClockwise90 ? frame.Height : frame.Width;
+            var displayFrameHeight = rotation is ViewportRotation.Clockwise90 or ViewportRotation.CounterClockwise90 ? frame.Width : frame.Height;
+            var fitScale = Math.Min(host.ActualWidth / displayFrameWidth, host.ActualHeight / displayFrameHeight);
 
             if (!double.IsFinite(fitScale) || fitScale <= 0) return false;
 
@@ -35,14 +40,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports
 
             if (!double.IsFinite(effectiveScale) || effectiveScale <= 0) return false;
 
-            var displayedWidth = frame.Width * effectiveScale;
-            var displayedHeight = frame.Height * effectiveScale;
-
-            // Pan is represented in host coordinates so mouse movement and image movement remain one-to-one at every zoom level.
+            var displayedWidth = displayFrameWidth * effectiveScale;
+            var displayedHeight = displayFrameHeight * effectiveScale;
             var offsetX = ((host.ActualWidth - displayedWidth) / 2.0) + panOffsetX;
             var offsetY = ((host.ActualHeight - displayedHeight) / 2.0) + panOffsetY;
 
-            geometry = new ViewportImageGeometry(fitScale, effectiveZoomFactor, offsetX, offsetY, frame.Width, frame.Height);
+            geometry = new ViewportImageGeometry(fitScale, effectiveZoomFactor, offsetX, offsetY, frame.Width, frame.Height, rotation, isFlippedHorizontally, isFlippedVertically);
             return true;
         }
 
@@ -50,14 +53,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports
         {
             var effectiveTargetZoomFactor = ClampZoomFactor(targetZoomFactor);
             var anchorImagePoint = currentGeometry.HostPointToImagePoint(anchorHostPoint);
+            var anchorDisplayPoint = currentGeometry.ImagePointToDisplayPoint(anchorImagePoint.X, anchorImagePoint.Y);
             var targetScale = currentGeometry.FitScale * effectiveTargetZoomFactor;
-            var targetCenteredOffsetX = (hostWidth - currentGeometry.FrameWidth * targetScale) / 2.0;
-            var targetCenteredOffsetY = (hostHeight - currentGeometry.FrameHeight * targetScale) / 2.0;
+            var targetCenteredOffsetX = (hostWidth - currentGeometry.DisplayFrameWidth * targetScale) / 2.0;
+            var targetCenteredOffsetY = (hostHeight - currentGeometry.DisplayFrameHeight * targetScale) / 2.0;
 
-            // Keeping the image point below the cursor stable prevents the viewport from appearing to jump while zooming.
             return new Vector(
-                anchorHostPoint.X - targetCenteredOffsetX - anchorImagePoint.X * targetScale,
-                anchorHostPoint.Y - targetCenteredOffsetY - anchorImagePoint.Y * targetScale);
+                anchorHostPoint.X - targetCenteredOffsetX - anchorDisplayPoint.X * targetScale,
+                anchorHostPoint.Y - targetCenteredOffsetY - anchorDisplayPoint.Y * targetScale);
         }
     }
 }

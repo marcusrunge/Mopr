@@ -6,6 +6,7 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Moq;
+using Prism.Events;
 using ApplicationDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 using ApplicationFileDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IFileDialogService;
 using PrismDialogService = Prism.Dialogs.IDialogService;
@@ -32,11 +33,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             ImagingSessionService.SetupGet(value => value.HasUnsavedChanges).Returns(hasUnsavedChanges);
             ImagingToolService.SetupGet(value => value.ActiveTool).Returns(ImagingTool.None);
             StudiesService.SetupGet(value => value.ImportedSeriesLoader).Returns(ImportedSeriesLoader.Object);
-            ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object);
+            EventAggregator = new EventAggregator();
+            ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object, EventAggregator);
         }
 
         public Mock<IApplication> Application { get; } = new();
         public Mock<ApplicationDialogService> ApplicationDialogService { get; } = new();
+        public EventAggregator EventAggregator { get; private set; } = null!;
         public Mock<ICore> Core { get; } = new();
         public Mock<PrismDialogService> DialogService { get; } = new();
         public Mock<ApplicationFileDialogService> FileDialogService { get; } = new();

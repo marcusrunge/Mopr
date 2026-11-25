@@ -10,10 +10,30 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private double _panOffsetX;
         private double _panOffsetY;
         private double _zoomFactor = ViewportImageGeometryCalculator.DefaultZoomFactor;
+        private ViewportRotation _rotation;
+        private bool _isFlippedHorizontally, _isFlippedVertically;
 
         public bool CanZoomIn => ZoomFactor < ViewportImageGeometryCalculator.MaximumZoomFactor;
 
         public bool CanZoomOut => ZoomFactor > ViewportImageGeometryCalculator.MinimumZoomFactor;
+
+        public bool IsFlippedHorizontally
+        {
+            get => _isFlippedHorizontally;
+            private set => SetProperty(ref _isFlippedHorizontally, value);
+        }
+
+        public bool IsFlippedVertically
+        {
+            get => _isFlippedVertically;
+            private set => SetProperty(ref _isFlippedVertically, value);
+        }
+
+        public ViewportRotation Rotation
+        {
+            get => _rotation;
+            private set => SetProperty(ref _rotation, value);
+        }
 
         public double PanOffsetX
         {
@@ -50,11 +70,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             PanOffsetY += verticalDelta;
         }
 
+        public void FlipHorizontal() => IsFlippedHorizontally = !IsFlippedHorizontally;
+
+        public void FlipVertical() => IsFlippedVertically = !IsFlippedVertically;
+
         public void Reset()
         {
+            ResetRotation();
+            ResetFlip();
             ZoomFactor = ViewportImageGeometryCalculator.DefaultZoomFactor;
             ResetPan();
         }
+
+        public void ResetFlip()
+        {
+            IsFlippedHorizontally = false;
+            IsFlippedVertically = false;
+        }
+
+        public void ResetRotation() => Rotation = ViewportRotation.None;
+
+        public void RotateLeft() => Rotation = (ViewportRotation)(((int)Rotation + 270) % 360);
+
+        public void RotateRight() => Rotation = (ViewportRotation)(((int)Rotation + 90) % 360);
 
         public void ResetPan()
         {

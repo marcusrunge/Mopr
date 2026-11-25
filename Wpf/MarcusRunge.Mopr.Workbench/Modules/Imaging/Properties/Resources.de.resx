@@ -103,6 +103,27 @@
   <data name="CommandBar_ResetView" xml:space="preserve">
     <value>Ansicht zurücksetzen</value>
   </data>
+  <data name="CommandBar_Transform" xml:space="preserve">
+    <value>Drehen / Spiegeln</value>
+  </data>
+  <data name="CommandBar_RotateLeft" xml:space="preserve">
+    <value>Nach links drehen</value>
+  </data>
+  <data name="CommandBar_RotateRight" xml:space="preserve">
+    <value>Nach rechts drehen</value>
+  </data>
+  <data name="CommandBar_ResetRotation" xml:space="preserve">
+    <value>Drehung zurücksetzen</value>
+  </data>
+  <data name="CommandBar_FlipHorizontal" xml:space="preserve">
+    <value>Horizontal spiegeln</value>
+  </data>
+  <data name="CommandBar_FlipVertical" xml:space="preserve">
+    <value>Vertikal spiegeln</value>
+  </data>
+  <data name="CommandBar_ResetFlip" xml:space="preserve">
+    <value>Spiegelung zurücksetzen</value>
+  </data>
   <data name="CommandBar_Status" xml:space="preserve">
     <value>Status</value>
   </data>

@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using Moq;
@@ -80,6 +81,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             Assert.Equal(1.0, tile.ZoomFactor);
             Assert.Equal(0.0, tile.PanOffsetX);
             Assert.Equal(0.0, tile.PanOffsetY);
+        }
+
+        [Fact]
+        public void Rotation_And_Flips_Should_Be_Independent_Per_Viewport()
+        {
+            var firstTile = CreateTile("viewport-1");
+            var secondTile = CreateTile("viewport-2");
+
+            firstTile.RotateRight();
+            firstTile.FlipHorizontal();
+
+            Assert.Equal(ViewportRotation.Clockwise90, firstTile.Rotation);
+            Assert.True(firstTile.IsFlippedHorizontally);
+            Assert.Equal(ViewportRotation.None, secondTile.Rotation);
+            Assert.False(secondTile.IsFlippedHorizontally);
         }
 
         [Fact]

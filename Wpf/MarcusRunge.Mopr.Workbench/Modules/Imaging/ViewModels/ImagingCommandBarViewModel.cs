@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -11,6 +12,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Prism.Commands;
 using Prism.Dialogs;
+using Prism.Events;
 using System;
 using System.Linq;
 using System.Threading;
@@ -27,12 +29,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private const string UnsavedChangesDialogName = "UnsavedChangesDialogView";
         private readonly ICore _core;
         private readonly PrismDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly IImagingSessionApplicationService _imagingSessionApplicationService;
         private readonly IImagingSessionService _imagingSessionService;
         private readonly IImportedSeriesLoadService _importedSeriesLoader;
-        private readonly IImagingSessionApplicationService _imagingSessionApplicationService;
         private readonly IApplication _wpf;
         private ImagingTool _activeTool;
-        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _applyCtLungWindowCommand, _applyCtMediastinumWindowCommand, _cancelOpenCommand, _closeStudyCommand, _crosshairCommand, _importCommand, _layoutCommand, _measureCommand, _moreCommand, _openCommand, _openImportedSeriesCommand, _panCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _saveCommand, _windowLevelCommand, _zoomCommand;
+        private DelegateCommand? _applyCtBoneWindowCommand, _applyCtBrainWindowCommand, _applyCtLungWindowCommand, _applyCtMediastinumWindowCommand, _cancelOpenCommand, _closeStudyCommand, _crosshairCommand, _flipHorizontalCommand, _flipVerticalCommand, _importCommand, _layoutCommand, _measureCommand, _openCommand, _openImportedSeriesCommand, _panCommand, _resetFlipCommand, _resetRotationCommand, _resetViewCommand, _resetWindowLevelToDefaultCommand, _rotateLeftCommand, _rotateRightCommand, _saveCommand, _windowLevelCommand, _zoomCommand;
         private ImagingLayout _currentLayout;
 
         private bool _isBusy;
@@ -41,11 +44,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private string _statusText = Resources.CommandBar_Status;
 
-        public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService)
+        public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService, IEventAggregator eventAggregator)
         {
             _core = core ?? throw new ArgumentNullException(nameof(core));
             _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             _importedSeriesLoader = _wpf.StudiesService?.ImportedSeriesLoader ?? throw new InvalidOperationException("The imported-series loader has not been initialized.");
             _imagingSessionApplicationService = _wpf.ImagingSession ?? throw new InvalidOperationException("The imaging session application service has not been initialized.");
             _imagingSessionService = _core.ImagingService?.ImagingSessionService ?? throw new InvalidOperationException("The imaging session service has not been initialized.");
@@ -108,6 +112,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _ => Resources.CommandBar_Layout
         };
 
+        public DelegateCommand FlipHorizontalCommand => _flipHorizontalCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.FlipHorizontal));
+        public DelegateCommand FlipVerticalCommand => _flipVerticalCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.FlipVertical));
         public bool HasStatusText => !string.IsNullOrWhiteSpace(StatusText);
 
         public DelegateCommand ImportCommand => _importCommand ??= new DelegateCommand(OpenImport, CanOpenImport);
@@ -141,16 +147,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
         public DelegateCommand LayoutCommand => _layoutCommand ??= new DelegateCommand(ChangeLayout);
         public DelegateCommand MeasureCommand => _measureCommand ??= new DelegateCommand(ActivateMeasure);
-        public DelegateCommand MoreCommand => _moreCommand ??= new DelegateCommand(OpenMoreMenu);
         public string OpenButtonText => IsBusy ? Resources.CommandBar_Load : Resources.CommandBar_Open;
         public DelegateCommand OpenCommand => _openCommand ??= new DelegateCommand(async () => await OpenAsync(), CanOpen);
         public DelegateCommand OpenImportedSeriesCommand => _openImportedSeriesCommand ??= new DelegateCommand(OpenImportedSeries, CanOpenImportedSeries);
         public DelegateCommand PanCommand => _panCommand ??= new DelegateCommand(ActivatePan);
+        public DelegateCommand ResetFlipCommand => _resetFlipCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.ResetFlip));
+
+        public DelegateCommand ResetRotationCommand => _resetRotationCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.ResetRotation));
 
         public DelegateCommand ResetViewCommand => _resetViewCommand ??= new DelegateCommand(ResetView);
 
         public DelegateCommand ResetWindowLevelToDefaultCommand => _resetWindowLevelToDefaultCommand ??= new DelegateCommand(ResetWindowLevelToDefault);
+        public DelegateCommand RotateLeftCommand => _rotateLeftCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.RotateLeft));
 
+        public DelegateCommand RotateRightCommand => _rotateRightCommand ??= new DelegateCommand(() => PublishViewportTransformCommand(ViewportTransformCommand.RotateRight));
         public DelegateCommand SaveCommand => _saveCommand ??= new DelegateCommand(Save, CanSave);
 
         public string StatusText
@@ -244,11 +254,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private bool CanOpen() => !IsBusy;
 
-        private bool CanSave() => !IsBusy && _imagingSessionService.HasOpenStudy && _imagingSessionService.HasUnsavedChanges;
-
         private bool CanOpenImport() => !IsBusy;
 
         private bool CanOpenImportedSeries() => !IsBusy;
+
+        private bool CanSave() => !IsBusy && _imagingSessionService.HasOpenStudy && _imagingSessionService.HasUnsavedChanges;
 
         private void ChangeLayout() => _core.ImagingService!.ImagingLayoutService!.CycleNextLayout();
 
@@ -261,64 +271,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             _imagingSessionService.Clear();
             StatusText = Resources.CommandBar_StudyClosed;
-        }
-
-        private async Task<bool> ResolveUnsavedChangesAsync()
-        {
-            if (!_imagingSessionService.HasUnsavedChanges) return true;
-
-            var completionSource = new TaskCompletionSource<UnsavedChangesDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _dialogService.ShowDialog(UnsavedChangesDialogName, result =>
-            {
-                UnsavedChangesDecision decision = result.Parameters.TryGetValue(UnsavedChangesDialogViewModel.DecisionParameterName, out UnsavedChangesDecision selectedDecision) ? selectedDecision : UnsavedChangesDecision.Cancel;
-                completionSource.TrySetResult(decision);
-            });
-            UnsavedChangesDecision decision = await completionSource.Task;
-
-            if (decision == UnsavedChangesDecision.Cancel) return false;
-            if (decision == UnsavedChangesDecision.Discard)
-            {
-                _imagingSessionService.DiscardChangesAndClear();
-                return true;
-            }
-
-            _saveCancellationTokenSource?.Cancel();
-            _saveCancellationTokenSource?.Dispose();
-            _saveCancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = _saveCancellationTokenSource.Token;
-            IsBusy = true;
-            StatusText = Resources.CommandBar_Saving;
-
-            try
-            {
-                await _imagingSessionApplicationService.SaveAsync(cancellationToken);
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (_imagingSessionService.HasUnsavedChanges)
-                {
-                    StatusText = Resources.CommandBar_SaveCompletedWithRemainingChanges;
-                    return false;
-                }
-
-                StatusText = Resources.CommandBar_SaveCompleted;
-                return true;
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                StatusText = Resources.CommandBar_SaveCanceled;
-                return false;
-            }
-            catch (Exception exception)
-            {
-                StatusText = Resources.CommandBar_SaveFailed;
-                _wpf.ReportException(exception);
-                return false;
-            }
-            finally
-            {
-                IsBusy = false;
-                _saveCommand?.RaiseCanExecuteChanged();
-            }
         }
 
         private async void ExecuteOpenImportedSeries(IDialogResult dialogResult)
@@ -518,18 +470,75 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        private void OpenMoreMenu()
-        {
-        }
+        private void PublishViewportTransformCommand(ViewportTransformCommand command) => _eventAggregator.GetEvent<ViewportTransformCommandRequestedEvent>().Publish(command);
 
         private void ResetView()
         {
+            PublishViewportTransformCommand(ViewportTransformCommand.ResetViewTransform);
             _core.ImagingService!.ImagingViewportService!.Reset();
             _core.ImagingService.ImagingWindowLevelService!.ResetWindowLevelToDefault();
             _core.ImagingService.ImagingToolService!.ClearActiveTool();
         }
 
         private void ResetWindowLevelToDefault() => _core.ImagingService!.ImagingWindowLevelService!.ResetWindowLevelToDefault();
+
+        private async Task<bool> ResolveUnsavedChangesAsync()
+        {
+            if (!_imagingSessionService.HasUnsavedChanges) return true;
+
+            var completionSource = new TaskCompletionSource<UnsavedChangesDecision>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _dialogService.ShowDialog(UnsavedChangesDialogName, result =>
+            {
+                UnsavedChangesDecision decision = result.Parameters.TryGetValue(UnsavedChangesDialogViewModel.DecisionParameterName, out UnsavedChangesDecision selectedDecision) ? selectedDecision : UnsavedChangesDecision.Cancel;
+                completionSource.TrySetResult(decision);
+            });
+            UnsavedChangesDecision decision = await completionSource.Task;
+
+            if (decision == UnsavedChangesDecision.Cancel) return false;
+            if (decision == UnsavedChangesDecision.Discard)
+            {
+                _imagingSessionService.DiscardChangesAndClear();
+                return true;
+            }
+
+            _saveCancellationTokenSource?.Cancel();
+            _saveCancellationTokenSource?.Dispose();
+            _saveCancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _saveCancellationTokenSource.Token;
+            IsBusy = true;
+            StatusText = Resources.CommandBar_Saving;
+
+            try
+            {
+                await _imagingSessionApplicationService.SaveAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (_imagingSessionService.HasUnsavedChanges)
+                {
+                    StatusText = Resources.CommandBar_SaveCompletedWithRemainingChanges;
+                    return false;
+                }
+
+                StatusText = Resources.CommandBar_SaveCompleted;
+                return true;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                StatusText = Resources.CommandBar_SaveCanceled;
+                return false;
+            }
+            catch (Exception exception)
+            {
+                StatusText = Resources.CommandBar_SaveFailed;
+                _wpf.ReportException(exception);
+                return false;
+            }
+            finally
+            {
+                IsBusy = false;
+                _saveCommand?.RaiseCanExecuteChanged();
+            }
+        }
 
         private async void Save()
         {

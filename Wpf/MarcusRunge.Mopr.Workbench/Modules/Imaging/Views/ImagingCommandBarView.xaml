@@ -247,8 +247,49 @@
                     Command="{Binding ResetViewCommand}"
                     Content="{x:Static properties:Resources.CommandBar_ResetView}" />
 
-            <Button Command="{Binding MoreCommand}"
-                    Content="..." />
+            <ToggleButton x:Name="ViewportTransformToggleButton"
+                          Margin="0,0,8,0"
+                          IsChecked="{Binding IsOpen, ElementName=ViewportTransformPopup, Mode=TwoWay}">
+                <TextBlock Text="{x:Static properties:Resources.CommandBar_Transform}" />
+            </ToggleButton>
+
+            <Popup x:Name="ViewportTransformPopup"
+                   AllowsTransparency="True"
+                   Placement="Bottom"
+                   PlacementTarget="{Binding ElementName=ViewportTransformToggleButton}"
+                   PopupAnimation="Fade"
+                   StaysOpen="False">
+                <Border MinWidth="220"
+                        Padding="4"
+                        Background="#10161C"
+                        BorderBrush="#2A3944"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <StackPanel>
+                        <Button Command="{Binding RotateLeftCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_RotateLeft}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                        <Button Command="{Binding RotateRightCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_RotateRight}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                        <Button Command="{Binding ResetRotationCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_ResetRotation}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                        <Border Height="1"
+                                Margin="4"
+                                Background="#2A3944" />
+                        <Button Command="{Binding FlipHorizontalCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_FlipHorizontal}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                        <Button Command="{Binding FlipVerticalCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_FlipVertical}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                        <Button Command="{Binding ResetFlipCommand}"
+                                Content="{x:Static properties:Resources.CommandBar_ResetFlip}"
+                                Style="{StaticResource CommandBarDropDownButtonStyle}" />
+                    </StackPanel>
+                </Border>
+            </Popup>
         </StackPanel>
 
         <Border Grid.Column="2"

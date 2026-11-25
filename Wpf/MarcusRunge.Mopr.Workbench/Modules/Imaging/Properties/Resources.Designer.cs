@@ -320,7 +320,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
                 return ResourceManager.GetString("CommandBar_ResetView", resourceCulture);
             }
         }
-        
+
+        public static string CommandBar_Transform => ResourceManager.GetString("CommandBar_Transform", resourceCulture);
+        public static string CommandBar_RotateLeft => ResourceManager.GetString("CommandBar_RotateLeft", resourceCulture);
+        public static string CommandBar_RotateRight => ResourceManager.GetString("CommandBar_RotateRight", resourceCulture);
+        public static string CommandBar_ResetRotation => ResourceManager.GetString("CommandBar_ResetRotation", resourceCulture);
+        public static string CommandBar_FlipHorizontal => ResourceManager.GetString("CommandBar_FlipHorizontal", resourceCulture);
+        public static string CommandBar_FlipVertical => ResourceManager.GetString("CommandBar_FlipVertical", resourceCulture);
+        public static string CommandBar_ResetFlip => ResourceManager.GetString("CommandBar_ResetFlip", resourceCulture);
+
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
         /// </summary>

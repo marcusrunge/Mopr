@@ -31,6 +31,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             base.OnDetaching();
         }
 
+        private static T? FindVisualAncestor<T>(DependencyObject? dependencyObject) where T : DependencyObject
+        {
+            var current = dependencyObject;
+
+            while (current != null)
+            {
+                if (current is T ancestor) return ancestor;
+                current = VisualTreeHelper.GetParent(current);
+            }
+
+            return null;
+        }
+
         private void AttachHost()
         {
             DetachHost();
@@ -59,19 +72,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             _tile = null;
         }
 
-        private static T? FindVisualAncestor<T>(DependencyObject? dependencyObject) where T : DependencyObject
-        {
-            var current = dependencyObject;
-
-            while (current != null)
-            {
-                if (current is T ancestor) return ancestor;
-                current = VisualTreeHelper.GetParent(current);
-            }
-
-            return null;
-        }
-
         private void OnHostSizeChanged(object sender, SizeChangedEventArgs eventArgs) => UpdatePlacement();
 
         private void OnLoaded(object sender, RoutedEventArgs eventArgs)
@@ -83,7 +83,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
         {
-            if (string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.ZoomFactor), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.PanOffsetX), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.PanOffsetY), StringComparison.Ordinal)) UpdatePlacement();
+            if (string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.ZoomFactor), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.PanOffsetX), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.PanOffsetY), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.Rotation), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.IsFlippedHorizontally), StringComparison.Ordinal) || string.Equals(eventArgs.PropertyName, nameof(ViewportTileViewModel.IsFlippedVertically), StringComparison.Ordinal)) UpdatePlacement();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs eventArgs)
@@ -94,19 +94,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private void UpdatePlacement()
         {
-            if (!ViewportImageGeometryCalculator.TryCreate(_tile?.CurrentDicomFrame, _host, _tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, _tile?.PanOffsetX ?? 0.0, _tile?.PanOffsetY ?? 0.0, out var geometry))
+            if (!ViewportImageGeometryCalculator.TryCreate(_tile?.CurrentDicomFrame, _host, _tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, _tile?.PanOffsetX ?? 0.0, _tile?.PanOffsetY ?? 0.0, _tile?.Rotation ?? ViewportRotation.None, _tile?.IsFlippedHorizontally ?? false, _tile?.IsFlippedVertically ?? false, out var geometry))
             {
-                // Stretch=Fill must never fall back to automatic host sizing because that would distort the DICOM aspect ratio.
                 AssociatedObject.Width = 0.0;
                 AssociatedObject.Height = 0.0;
                 AssociatedObject.Margin = new Thickness();
+                AssociatedObject.RenderTransform = Transform.Identity;
                 return;
             }
 
             var placement = geometry.Placement;
-            AssociatedObject.Width = placement.Width;
-            AssociatedObject.Height = placement.Height;
+            AssociatedObject.Width = placement.ImageWidth;
+            AssociatedObject.Height = placement.ImageHeight;
             AssociatedObject.Margin = new Thickness(placement.OffsetX, placement.OffsetY, 0.0, 0.0);
+            AssociatedObject.RenderTransformOrigin = new Point(0.0, 0.0);
+            AssociatedObject.RenderTransform = new MatrixTransform(placement.ImageTransform);
         }
     }
 }

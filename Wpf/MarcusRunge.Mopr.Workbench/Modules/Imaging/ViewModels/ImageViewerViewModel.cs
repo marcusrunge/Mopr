@@ -10,6 +10,7 @@ using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Prism.Commands;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,6 +28,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private const int RenderThrottleMilliseconds = 40;
         private readonly ICore _core;
         private readonly IDicom _dicom;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly SubscriptionToken _viewportTransformCommandSubscription;
         private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = [with(StringComparer.OrdinalIgnoreCase)];
         private readonly Queue<string> _dicomFrameCacheOrder = new();
         private readonly HashSet<string> _pendingRenderViewportIds = [with(StringComparer.OrdinalIgnoreCase)];
@@ -54,11 +57,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
 
-        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService, IEventAggregator eventAggregator)
         {
             _core = core;
             _wpf = wpf;
             _dicom = dicom;
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             _measurementContext = measurementContext;
             _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
             _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
@@ -81,6 +85,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportChanged += OnActiveViewportChanged;
             _core.ImagingService!.ImagingViewportService!.StateChanged += OnViewportStateChanged;
             _core.ImagingService!.ImagingWindowLevelService!.WindowLevelChanged += OnWindowLevelChanged;
+            _viewportTransformCommandSubscription = _eventAggregator.GetEvent<ViewportTransformCommandRequestedEvent>().Subscribe(OnViewportTransformCommandRequested, ThreadOption.PublisherThread);
             _activeTool = _core.ImagingService!.ImagingToolService!.ActiveTool;
 
             SingleMainViewport = RegisterViewport("Single.Main", Resources.Viewer_ViewPort_Single_Main);
@@ -392,6 +397,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingViewportSelectionService!.ActiveViewportChanged -= OnActiveViewportChanged;
             _core.ImagingService!.ImagingWindowLevelService!.WindowLevelChanged -= OnWindowLevelChanged;
             _core.ImagingService!.ImagingStudyService!.StudyLoaded -= OnStudyLoaded;
+            _eventAggregator.GetEvent<ViewportTransformCommandRequestedEvent>().Unsubscribe(_viewportTransformCommandSubscription);
 
             _imageLoadCancellationTokenSource?.Cancel();
             _imageLoadCancellationTokenSource?.Dispose();
@@ -1002,6 +1008,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
 
         private void OnViewportStateChanged(object? sender, ImagingViewportStateChangedEventArgs e) => ApplyViewportState(e.State);
+
+        private void OnViewportTransformCommandRequested(ViewportTransformCommand command)
+        {
+            var activeTile = GetActiveViewportTile();
+            if (activeTile == null) return;
+
+            switch (command)
+            {
+                case ViewportTransformCommand.RotateLeft: activeTile.RotateLeft(); break;
+                case ViewportTransformCommand.RotateRight: activeTile.RotateRight(); break;
+                case ViewportTransformCommand.ResetRotation: activeTile.ResetRotation(); break;
+                case ViewportTransformCommand.FlipHorizontal: activeTile.FlipHorizontal(); break;
+                case ViewportTransformCommand.FlipVertical: activeTile.FlipVertical(); break;
+                case ViewportTransformCommand.ResetFlip: activeTile.ResetFlip(); break;
+                case ViewportTransformCommand.ResetViewTransform: activeTile.ResetViewTransform(); break;
+            }
+        }
 
         private void OnWindowLevelChanged(object? sender, ImagingWindowLevelChangedEventArgs e)
         {

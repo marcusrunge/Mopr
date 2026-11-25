@@ -37,6 +37,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             base.OnDetaching();
         }
 
+        private static bool IsControlPressed() => (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+
+        private void ApplyZoomAtPointer(ViewportTileViewModel tile, MouseWheelEventArgs e)
+        {
+            var targetZoomFactor = e.Delta > 0 ? tile.ZoomFactor * ViewportTransformState.DefaultZoomStep : tile.ZoomFactor / ViewportTransformState.DefaultZoomStep;
+            targetZoomFactor = ViewportImageGeometryCalculator.ClampZoomFactor(targetZoomFactor);
+
+            if (Math.Abs(targetZoomFactor - tile.ZoomFactor) < 0.0001) return;
+
+            var host = GetInteractionHost();
+
+            if (host == null || !ViewportImageGeometryCalculator.TryCreate(tile.CurrentDicomFrame, host, tile.ZoomFactor, tile.PanOffsetX, tile.PanOffsetY, tile.Rotation, tile.IsFlippedHorizontally, tile.IsFlippedVertically, out var geometry))
+            {
+                // A temporary missing layout geometry must not suppress the user's zoom input.
+                tile.SetZoomAndPan(targetZoomFactor, tile.PanOffsetX, tile.PanOffsetY);
+                return;
+            }
+
+            var anchorHostPoint = e.GetPosition(host);
+            var targetPanOffset = ViewportImageGeometryCalculator.CalculateZoomAnchoredPanOffset(geometry, targetZoomFactor, anchorHostPoint, host.ActualWidth, host.ActualHeight);
+            tile.SetZoomAndPan(targetZoomFactor, targetPanOffset.X, targetPanOffset.Y);
+        }
+
         private void AttachInteractionHost()
         {
             DetachInteractionHost();
@@ -58,6 +81,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
             AssociatedObject.Tile?.PropertyChanged += OnTilePropertyChanged;
             UpdateInteractionCursor();
+        }
+
+        private void CompletePanDrag()
+        {
+            if (!_isPanDragging) return;
+            _isPanDragging = false;
+            if (_interactionHost?.IsMouseCaptured == true) _interactionHost.ReleaseMouseCapture();
         }
 
         private void CompleteWindowLevelDrag()
@@ -104,8 +134,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private FrameworkElement? GetInteractionHost() => _interactionHost;
 
-        private static bool IsControlPressed() => (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
-
         private void OnAssociatedObjectLoaded(object sender, RoutedEventArgs e) => AttachInteractionHost();
 
         private void OnAssociatedObjectUnloaded(object sender, RoutedEventArgs e) => DetachInteractionHost();
@@ -123,24 +151,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             if (e.StagingItem.Input is KeyEventArgs keyEventArgs && (keyEventArgs.Key == Key.LeftCtrl || keyEventArgs.Key == Key.RightCtrl)) UpdateInteractionCursor();
         }
 
-        private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.IsZoomActive), StringComparison.Ordinal)) UpdateInteractionCursor();
-        }
-
-        private void UpdateInteractionCursor()
-        {
-            if (_interactionHost == null) return;
-
-            if (_interactionHost.IsMouseOver && AssociatedObject.Tile?.IsZoomActive == true && IsControlPressed())
-            {
-                _interactionHost.Cursor = Cursors.ScrollNS;
-                return;
-            }
-
-            _interactionHost.ClearValue(FrameworkElement.CursorProperty);
-        }
-
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!AssociatedObject.IsInteractive || !AssociatedObject.IsActive || !ViewportSliceNavigation.TryNavigate(AssociatedObject.Tile, e.Key))
@@ -148,32 +158,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return;
             }
 
-            e.Handled = true;
-        }
-
-        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            var viewportTile = AssociatedObject;
-            var tile = viewportTile.Tile;
-
-            if (!viewportTile.IsInteractive || tile?.CurrentDicomFrame == null) return;
-
-            SelectAndFocusViewport();
-
-            var shouldZoom = IsControlPressed() && tile.IsZoomActive;
-
-            if (shouldZoom)
-            {
-                ApplyZoomAtPointer(tile, e);
-                e.Handled = true;
-                return;
-            }
-
-            var sliceDelta = ViewportSliceNavigation.GetWheelSliceDelta(e.Delta);
-
-            if (sliceDelta == 0) return;
-
-            tile.RequestSliceNavigation(sliceDelta);
             e.Handled = true;
         }
 
@@ -326,38 +310,35 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             e.Handled = true;
         }
 
-        private void ApplyZoomAtPointer(ViewportTileViewModel tile, MouseWheelEventArgs e)
+        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var targetZoomFactor = e.Delta > 0 ? tile.ZoomFactor * ViewportTransformState.DefaultZoomStep : tile.ZoomFactor / ViewportTransformState.DefaultZoomStep;
-            targetZoomFactor = ViewportImageGeometryCalculator.ClampZoomFactor(targetZoomFactor);
+            var viewportTile = AssociatedObject;
+            var tile = viewportTile.Tile;
 
-            if (Math.Abs(targetZoomFactor - tile.ZoomFactor) < 0.0001) return;
+            if (!viewportTile.IsInteractive || tile?.CurrentDicomFrame == null) return;
 
-            var host = GetInteractionHost();
+            SelectAndFocusViewport();
 
-            if (host == null || !ViewportImageGeometryCalculator.TryCreate(tile.CurrentDicomFrame, host, tile.ZoomFactor, tile.PanOffsetX, tile.PanOffsetY, out var geometry))
+            var shouldZoom = IsControlPressed() && tile.IsZoomActive;
+
+            if (shouldZoom)
             {
-                // A temporary missing layout geometry must not suppress the user's zoom input.
-                tile.SetZoomAndPan(targetZoomFactor, tile.PanOffsetX, tile.PanOffsetY);
+                ApplyZoomAtPointer(tile, e);
+                e.Handled = true;
                 return;
             }
 
-            var anchorHostPoint = e.GetPosition(host);
-            var targetPanOffset = ViewportImageGeometryCalculator.CalculateZoomAnchoredPanOffset(geometry, targetZoomFactor, anchorHostPoint, host.ActualWidth, host.ActualHeight);
-            tile.SetZoomAndPan(targetZoomFactor, targetPanOffset.X, targetPanOffset.Y);
+            var sliceDelta = ViewportSliceNavigation.GetWheelSliceDelta(e.Delta);
+
+            if (sliceDelta == 0) return;
+
+            tile.RequestSliceNavigation(sliceDelta);
+            e.Handled = true;
         }
 
-        private void CompletePanDrag()
+        private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (!_isPanDragging) return;
-            _isPanDragging = false;
-            if (_interactionHost?.IsMouseCaptured == true) _interactionHost.ReleaseMouseCapture();
-        }
-
-        private void SelectAndFocusViewport()
-        {
-            if (!string.IsNullOrWhiteSpace(AssociatedObject.ViewportId) && AssociatedObject.SelectViewportCommand?.CanExecute(AssociatedObject.ViewportId) == true) AssociatedObject.SelectViewportCommand.Execute(AssociatedObject.ViewportId);
-            _interactionHost?.Focus();
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.IsZoomActive), StringComparison.Ordinal)) UpdateInteractionCursor();
         }
 
         private void ReportPixelHover(MouseEventArgs e)
@@ -374,6 +355,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             ExecutePixelHover(hoverInfo.PixelX, hoverInfo.PixelY);
         }
 
+        private void SelectAndFocusViewport()
+        {
+            if (!string.IsNullOrWhiteSpace(AssociatedObject.ViewportId) && AssociatedObject.SelectViewportCommand?.CanExecute(AssociatedObject.ViewportId) == true) AssociatedObject.SelectViewportCommand.Execute(AssociatedObject.ViewportId);
+            _interactionHost?.Focus();
+        }
+
         private ViewportMeasurementPointInfo? TryCreateMeasurementPointInfo(MouseEventArgs e)
         {
             var host = GetInteractionHost();
@@ -383,7 +370,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return null;
             }
 
-            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, AssociatedObject.Tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, AssociatedObject.Tile?.PanOffsetX ?? 0.0, AssociatedObject.Tile?.PanOffsetY ?? 0.0, out var geometry))
+            var tile = AssociatedObject.Tile;
+            if (!ViewportImageGeometryCalculator.TryCreate(tile?.CurrentDicomFrame, host, tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, tile?.PanOffsetX ?? 0.0, tile?.PanOffsetY ?? 0.0, tile?.Rotation ?? ViewportRotation.None, tile?.IsFlippedHorizontally ?? false, tile?.IsFlippedVertically ?? false, out var geometry))
             {
                 return null;
             }
@@ -414,7 +402,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return null;
             }
 
-            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, AssociatedObject.Tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, AssociatedObject.Tile?.PanOffsetX ?? 0.0, AssociatedObject.Tile?.PanOffsetY ?? 0.0, out var geometry))
+            var tile = AssociatedObject.Tile;
+            if (!ViewportImageGeometryCalculator.TryCreate(tile?.CurrentDicomFrame, host, tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, tile?.PanOffsetX ?? 0.0, tile?.PanOffsetY ?? 0.0, tile?.Rotation ?? ViewportRotation.None, tile?.IsFlippedHorizontally ?? false, tile?.IsFlippedVertically ?? false, out var geometry))
             {
                 return null;
             }
@@ -442,6 +431,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             }
 
             return new ViewportPixelHoverInfo(AssociatedObject.ViewportId, pixelX, pixelY);
+        }
+
+        private void UpdateInteractionCursor()
+        {
+            if (_interactionHost == null) return;
+
+            if (_interactionHost.IsMouseOver && AssociatedObject.Tile?.IsZoomActive == true && IsControlPressed())
+            {
+                _interactionHost.Cursor = Cursors.ScrollNS;
+                return;
+            }
+
+            _interactionHost.ClearValue(FrameworkElement.CursorProperty);
         }
     }
 }

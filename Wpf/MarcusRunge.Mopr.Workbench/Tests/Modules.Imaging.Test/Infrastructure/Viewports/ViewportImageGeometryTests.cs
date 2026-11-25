@@ -162,8 +162,59 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Infrastructure.Viewpor
             Assert.True(placement.IsValid);
             Assert.Equal(512.0, placement.Width);
             Assert.Equal(256.0, placement.Height);
+            Assert.Equal(512.0, placement.ImageWidth);
+            Assert.Equal(256.0, placement.ImageHeight);
             Assert.Equal(-50.0, placement.OffsetX);
             Assert.Equal(75.0, placement.OffsetY);
+        }
+
+        [Theory]
+        [InlineData(90, 40.0, 10.0, 60.0, 100.0)]
+        [InlineData(180, 90.0, 40.0, 100.0, 60.0)]
+        [InlineData(270, 20.0, 90.0, 60.0, 100.0)]
+        public void Rotation_Should_Map_Source_Points_To_Expected_Display_Coordinates(int rotation, double expectedX, double expectedY, double expectedWidth, double expectedHeight)
+        {
+            var geometry = new ViewportImageGeometry(fitScale: 1.0, zoomFactor: 1.0, offsetX: 0.0, offsetY: 0.0, frameWidth: 100, frameHeight: 60, (ViewportRotation)rotation);
+
+            var displayPoint = geometry.ImagePointToDisplayPoint(10.0, 20.0);
+
+            Assert.Equal(expectedX, displayPoint.X);
+            Assert.Equal(expectedY, displayPoint.Y);
+            Assert.Equal(expectedWidth, geometry.DisplayFrameWidth);
+            Assert.Equal(expectedHeight, geometry.DisplayFrameHeight);
+        }
+
+        [Theory]
+        [InlineData(0, false, false)]
+        [InlineData(90, false, false)]
+        [InlineData(180, true, false)]
+        [InlineData(270, false, true)]
+        [InlineData(90, true, true)]
+        public void Display_Coordinates_And_Render_Transform_Should_Preserve_Source_Pixels(int rotation, bool flipHorizontal, bool flipVertical)
+        {
+            var geometry = new ViewportImageGeometry(fitScale: 2.0, zoomFactor: 1.0, offsetX: 7.0, offsetY: 9.0, frameWidth: 100, frameHeight: 60, (ViewportRotation)rotation, flipHorizontal, flipVertical);
+            var sourcePoint = new Point(12.25, 23.75);
+
+            var hostPoint = geometry.ImagePointToHostPoint(sourcePoint.X, sourcePoint.Y);
+            var restoredPoint = geometry.HostPointToImagePoint(hostPoint);
+            var rasterPoint = geometry.Placement.ImageTransform.Transform(new Point(sourcePoint.X * geometry.Scale, sourcePoint.Y * geometry.Scale));
+
+            Assert.Equal(sourcePoint.X, restoredPoint.X, precision: 10);
+            Assert.Equal(sourcePoint.Y, restoredPoint.Y, precision: 10);
+            Assert.Equal(12, geometry.ToPixelX(restoredPoint.X));
+            Assert.Equal(23, geometry.ToPixelY(restoredPoint.Y));
+            Assert.Equal(hostPoint.X, geometry.OffsetX + rasterPoint.X, precision: 10);
+            Assert.Equal(hostPoint.Y, geometry.OffsetY + rasterPoint.Y, precision: 10);
+        }
+
+        [Fact]
+        public void Horizontal_And_Vertical_Flips_Should_Use_Display_Axes()
+        {
+            var horizontal = new ViewportImageGeometry(1.0, 1.0, 0.0, 0.0, 100, 60, isFlippedHorizontally: true);
+            var vertical = new ViewportImageGeometry(1.0, 1.0, 0.0, 0.0, 100, 60, isFlippedVertically: true);
+
+            Assert.Equal(new Point(90.0, 20.0), horizontal.ImagePointToDisplayPoint(10.0, 20.0));
+            Assert.Equal(new Point(10.0, 40.0), vertical.ImagePointToDisplayPoint(10.0, 20.0));
         }
     }
 }

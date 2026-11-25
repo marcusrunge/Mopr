@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
@@ -61,10 +62,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool CanZoomIn => _transformState.CanZoomIn;
         public bool CanZoomOut => _transformState.CanZoomOut;
+        public bool IsFlippedHorizontally => _transformState.IsFlippedHorizontally;
+        public bool IsFlippedVertically => _transformState.IsFlippedVertically;
         public bool IsPanActive => ActiveTool == ImagingTool.Pan;
         public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
         public double PanOffsetX => _transformState.PanOffsetX;
         public double PanOffsetY => _transformState.PanOffsetY;
+        public ViewportRotation Rotation => _transformState.Rotation;
         public double ZoomFactor => _transformState.ZoomFactor;
 
         public ViewportMeasurementViewModel? ActiveMeasurementDraft
@@ -417,6 +421,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public void FitToView() => _transformState.Reset();
 
+        public void FlipHorizontal() => _transformState.FlipHorizontal();
+
+        public void FlipVertical() => _transformState.FlipVertical();
+
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
 
         public void RequestSliceNavigation(int delta)
@@ -425,9 +433,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SliceNavigationRequested?.Invoke(this, new ViewportSliceNavigationRequestedEventArgs(delta));
         }
 
+        public void ResetFlip() => _transformState.ResetFlip();
+
         public void ResetPan() => _transformState.ResetPan();
 
+        public void ResetRotation() => _transformState.ResetRotation();
+
         public void ResetViewTransform() => _transformState.Reset();
+
+        public void RotateLeft() => _transformState.RotateLeft();
+
+        public void RotateRight() => _transformState.RotateRight();
 
         public void SetPan(double panOffsetX, double panOffsetY) => _transformState.SetPan(panOffsetX, panOffsetY);
 

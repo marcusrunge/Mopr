@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Imaging;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Models.Studies;
 using Moq;
@@ -114,6 +115,27 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
 
             context.ImportedSeriesLoader.Verify(value => value.ResolveAsync(It.IsAny<IReadOnlyList<ImportedSeriesLoadRequest>>(), It.IsAny<CancellationToken>()), Times.Once);
             context.ImagingStudyService.Verify(value => value.LoadStudyFromSeriesAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<ImagingSeriesLoadRequest>>(), It.IsAny<IProgress<ImagingStudyLoadProgress>?>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public void ViewportTransformCommands_Should_Publish_Requested_Transform_And_Reset_View()
+        {
+            var context = new ImagingCommandBarViewModelTestContext();
+            var commands = new List<ViewportTransformCommand>();
+            context.EventAggregator.GetEvent<ViewportTransformCommandRequestedEvent>().Subscribe(commands.Add);
+
+            context.ViewModel.RotateLeftCommand.Execute();
+            context.ViewModel.RotateRightCommand.Execute();
+            context.ViewModel.ResetRotationCommand.Execute();
+            context.ViewModel.FlipHorizontalCommand.Execute();
+            context.ViewModel.FlipVerticalCommand.Execute();
+            context.ViewModel.ResetFlipCommand.Execute();
+            context.ViewModel.ResetViewCommand.Execute();
+
+            Assert.Equal(new[] { ViewportTransformCommand.RotateLeft, ViewportTransformCommand.RotateRight, ViewportTransformCommand.ResetRotation, ViewportTransformCommand.FlipHorizontal, ViewportTransformCommand.FlipVertical, ViewportTransformCommand.ResetFlip, ViewportTransformCommand.ResetViewTransform }, commands);
+            context.ImagingViewportService.Verify(value => value.Reset(), Times.Once);
+            context.ImagingWindowLevelService.Verify(value => value.ResetWindowLevelToDefault(), Times.Once);
+            context.ImagingToolService.Verify(value => value.ClearActiveTool(), Times.Once);
         }
 
         [Fact]
