@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImageViewerView"
+<UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.ImageViewerView"
              xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
@@ -21,10 +21,6 @@
           ClipToBounds="True"
           behaviors:FocusOnMouseDownBehavior.IsEnabled="True">
         <i:Interaction.Triggers>
-            <i:EventTrigger EventName="PreviewMouseWheel">
-                <prism:InvokeCommandAction Command="{Binding MouseWheelCommand}" />
-            </i:EventTrigger>
-
             <i:EventTrigger EventName="PreviewKeyDown">
                 <prism:InvokeCommandAction Command="{Binding KeyDownCommand}" />
             </i:EventTrigger>

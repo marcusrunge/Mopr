@@ -76,6 +76,7 @@
             </Border>
 
             <Grid x:Name="ViewportImageHost"
+                  ClipToBounds="True"
                   Focusable="True"
                   Grid.Row="1"
                   Background="#020405">
@@ -89,14 +90,25 @@
                              Value="True">
                                 <Setter Property="Cursor" Value="Cross" />
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Tile.IsPanActive, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                         Value="True">
+                                <Setter Property="Cursor" Value="SizeAll" />
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
 
                 <Image x:Name="ViewportImage"
-                       Source="{Binding Tile.CurrentImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                       Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality" />
+                       DataContext="{Binding Tile, RelativeSource={RelativeSource AncestorType=viewports:ViewportTile}}"
+                       Source="{Binding CurrentImage}"
+                       Stretch="Fill"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       RenderOptions.BitmapScalingMode="HighQuality">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ViewportImagePlacementBehavior />
+                    </i:Interaction.Behaviors>
+                </Image>
 
                 <viewports:MeasurementOverlayControl Tile="{Binding Tile, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                      HorizontalAlignment="Stretch"

@@ -2,6 +2,8 @@ using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports;
 using Microsoft.Xaml.Behaviors;
+using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
@@ -10,13 +12,16 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
     public sealed class ViewportInteractionBehavior : Behavior<ViewportTile>
     {
         private FrameworkElement? _interactionHost;
+        private bool _isPanDragging;
         private bool _isWindowLevelDragging;
+        private Point _panDragLastPosition;
         private Point _windowLevelDragStartPosition;
 
         protected override void OnAttached()
         {
             base.OnAttached();
 
+            InputManager.Current.PreProcessInput += OnPreProcessInput;
             AssociatedObject.Loaded += OnAssociatedObjectLoaded;
             AssociatedObject.Unloaded += OnAssociatedObjectUnloaded;
         }
@@ -25,6 +30,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
         {
             DetachInteractionHost();
 
+            InputManager.Current.PreProcessInput -= OnPreProcessInput;
             AssociatedObject.Loaded -= OnAssociatedObjectLoaded;
             AssociatedObject.Unloaded -= OnAssociatedObjectUnloaded;
 
@@ -47,7 +53,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             _interactionHost.PreviewMouseWheel += OnPreviewMouseWheel;
             _interactionHost.PreviewMouseMove += OnPreviewMouseMove;
             _interactionHost.PreviewMouseLeftButtonUp += OnPreviewMouseLeftButtonUp;
+            _interactionHost.MouseEnter += OnMouseEnter;
             _interactionHost.MouseLeave += OnMouseLeave;
+
+            AssociatedObject.Tile?.PropertyChanged += OnTilePropertyChanged;
+            UpdateInteractionCursor();
         }
 
         private void CompleteWindowLevelDrag()
@@ -62,6 +72,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private void DetachInteractionHost()
         {
+            CompletePanDrag();
+
             if (_interactionHost == null)
             {
                 return;
@@ -72,8 +84,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             _interactionHost.PreviewMouseWheel -= OnPreviewMouseWheel;
             _interactionHost.PreviewMouseMove -= OnPreviewMouseMove;
             _interactionHost.PreviewMouseLeftButtonUp -= OnPreviewMouseLeftButtonUp;
+            _interactionHost.MouseEnter -= OnMouseEnter;
             _interactionHost.MouseLeave -= OnMouseLeave;
 
+            AssociatedObject.Tile?.PropertyChanged -= OnTilePropertyChanged;
+            _interactionHost.ClearValue(FrameworkElement.CursorProperty);
             _interactionHost = null;
         }
 
@@ -89,11 +104,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private FrameworkElement? GetInteractionHost() => _interactionHost;
 
+        private static bool IsControlPressed() => (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control || Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+
         private void OnAssociatedObjectLoaded(object sender, RoutedEventArgs e) => AttachInteractionHost();
 
         private void OnAssociatedObjectUnloaded(object sender, RoutedEventArgs e) => DetachInteractionHost();
 
-        private void OnMouseLeave(object sender, MouseEventArgs e) => ExecutePixelHover(null, null);
+        private void OnMouseEnter(object sender, MouseEventArgs e) => UpdateInteractionCursor();
+
+        private void OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            ExecutePixelHover(null, null);
+            UpdateInteractionCursor();
+        }
+
+        private void OnPreProcessInput(object sender, PreProcessInputEventArgs e)
+        {
+            if (e.StagingItem.Input is KeyEventArgs keyEventArgs && (keyEventArgs.Key == Key.LeftCtrl || keyEventArgs.Key == Key.RightCtrl)) UpdateInteractionCursor();
+        }
+
+        private void OnTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.IsZoomActive), StringComparison.Ordinal)) UpdateInteractionCursor();
+        }
+
+        private void UpdateInteractionCursor()
+        {
+            if (_interactionHost == null) return;
+
+            if (_interactionHost.IsMouseOver && AssociatedObject.Tile?.IsZoomActive == true && IsControlPressed())
+            {
+                _interactionHost.Cursor = Cursors.ScrollNS;
+                return;
+            }
+
+            _interactionHost.ClearValue(FrameworkElement.CursorProperty);
+        }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -108,19 +154,26 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
         private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var viewportTile = AssociatedObject;
+            var tile = viewportTile.Tile;
 
-            if (!viewportTile.IsInteractive || !ViewportSliceNavigation.CanNavigate(viewportTile.Tile))
+            if (!viewportTile.IsInteractive || tile?.CurrentDicomFrame == null) return;
+
+            SelectAndFocusViewport();
+
+            var shouldZoom = IsControlPressed() && tile.IsZoomActive;
+
+            if (shouldZoom)
             {
+                ApplyZoomAtPointer(tile, e);
+                e.Handled = true;
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(viewportTile.ViewportId) && viewportTile.SelectViewportCommand?.CanExecute(viewportTile.ViewportId) == true)
-            {
-                viewportTile.SelectViewportCommand.Execute(viewportTile.ViewportId);
-            }
+            var sliceDelta = ViewportSliceNavigation.GetWheelSliceDelta(e.Delta);
 
-            _interactionHost?.Focus();
-            ViewportSliceNavigation.MoveByWheelDelta(viewportTile.Tile!, e.Delta);
+            if (sliceDelta == 0) return;
+
+            tile.RequestSliceNavigation(sliceDelta);
             e.Handled = true;
         }
 
@@ -139,6 +192,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             if (!string.IsNullOrWhiteSpace(viewportTile.ViewportId) && viewportTile.SelectViewportCommand?.CanExecute(viewportTile.ViewportId) == true)
             {
                 viewportTile.SelectViewportCommand.Execute(viewportTile.ViewportId);
+            }
+
+            if (viewportTile.Tile?.IsPanActive == true && viewportTile.Tile.CurrentDicomFrame != null)
+            {
+                var host = GetInteractionHost();
+                if (host == null) return;
+                _panDragLastPosition = e.GetPosition(host);
+                _isPanDragging = true;
+                host.CaptureMouse();
+                e.Handled = true;
+                return;
             }
 
             if (viewportTile.IsMeasureActive)
@@ -181,19 +245,41 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
 
         private void OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (!_isWindowLevelDragging)
+            if (_isPanDragging)
             {
+                CompletePanDrag();
+                e.Handled = true;
                 return;
             }
 
-            CompleteWindowLevelDrag();
+            if (!_isWindowLevelDragging) return;
 
+            CompleteWindowLevelDrag();
             e.Handled = true;
         }
 
         private void OnPreviewMouseMove(object sender, MouseEventArgs e)
         {
             ReportPixelHover(e);
+
+            if (_isPanDragging)
+            {
+                var panHost = GetInteractionHost();
+                var tile = AssociatedObject.Tile;
+
+                if (panHost == null || tile == null || e.LeftButton != MouseButtonState.Pressed)
+                {
+                    CompletePanDrag();
+                    e.Handled = true;
+                    return;
+                }
+
+                var panCurrentPosition = e.GetPosition(panHost);
+                tile.AddPan(panCurrentPosition.X - _panDragLastPosition.X, panCurrentPosition.Y - _panDragLastPosition.Y);
+                _panDragLastPosition = panCurrentPosition;
+                e.Handled = true;
+                return;
+            }
 
             if (AssociatedObject.IsMeasureActive)
             {
@@ -240,6 +326,40 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
             e.Handled = true;
         }
 
+        private void ApplyZoomAtPointer(ViewportTileViewModel tile, MouseWheelEventArgs e)
+        {
+            var targetZoomFactor = e.Delta > 0 ? tile.ZoomFactor * ViewportTransformState.DefaultZoomStep : tile.ZoomFactor / ViewportTransformState.DefaultZoomStep;
+            targetZoomFactor = ViewportImageGeometryCalculator.ClampZoomFactor(targetZoomFactor);
+
+            if (Math.Abs(targetZoomFactor - tile.ZoomFactor) < 0.0001) return;
+
+            var host = GetInteractionHost();
+
+            if (host == null || !ViewportImageGeometryCalculator.TryCreate(tile.CurrentDicomFrame, host, tile.ZoomFactor, tile.PanOffsetX, tile.PanOffsetY, out var geometry))
+            {
+                // A temporary missing layout geometry must not suppress the user's zoom input.
+                tile.SetZoomAndPan(targetZoomFactor, tile.PanOffsetX, tile.PanOffsetY);
+                return;
+            }
+
+            var anchorHostPoint = e.GetPosition(host);
+            var targetPanOffset = ViewportImageGeometryCalculator.CalculateZoomAnchoredPanOffset(geometry, targetZoomFactor, anchorHostPoint, host.ActualWidth, host.ActualHeight);
+            tile.SetZoomAndPan(targetZoomFactor, targetPanOffset.X, targetPanOffset.Y);
+        }
+
+        private void CompletePanDrag()
+        {
+            if (!_isPanDragging) return;
+            _isPanDragging = false;
+            if (_interactionHost?.IsMouseCaptured == true) _interactionHost.ReleaseMouseCapture();
+        }
+
+        private void SelectAndFocusViewport()
+        {
+            if (!string.IsNullOrWhiteSpace(AssociatedObject.ViewportId) && AssociatedObject.SelectViewportCommand?.CanExecute(AssociatedObject.ViewportId) == true) AssociatedObject.SelectViewportCommand.Execute(AssociatedObject.ViewportId);
+            _interactionHost?.Focus();
+        }
+
         private void ReportPixelHover(MouseEventArgs e)
         {
             var hoverInfo = TryCreatePixelHoverInfo(e);
@@ -263,7 +383,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return null;
             }
 
-            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, out var geometry))
+            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, AssociatedObject.Tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, AssociatedObject.Tile?.PanOffsetX ?? 0.0, AssociatedObject.Tile?.PanOffsetY ?? 0.0, out var geometry))
             {
                 return null;
             }
@@ -294,7 +414,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
                 return null;
             }
 
-            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, out var geometry))
+            if (!ViewportImageGeometryCalculator.TryCreate(AssociatedObject.Tile?.CurrentDicomFrame, host, AssociatedObject.Tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, AssociatedObject.Tile?.PanOffsetX ?? 0.0, AssociatedObject.Tile?.PanOffsetY ?? 0.0, out var geometry))
             {
                 return null;
             }

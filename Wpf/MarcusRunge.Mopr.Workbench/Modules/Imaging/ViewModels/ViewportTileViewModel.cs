@@ -1,4 +1,6 @@
+using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
@@ -13,6 +15,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel : BindableBase
     {
+        public event EventHandler<ViewportSliceNavigationRequestedEventArgs>? SliceNavigationRequested;
+
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
         private readonly ViewportTransformState _transformState = new();
@@ -31,6 +35,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _transformState.PropertyChanged += OnTransformStatePropertyChanged;
         }
 
+        private ImagingTool _activeTool;
         private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
         private DicomImageFrame? _currentDicomFrame;
         private string? _currentFileName, _currentFilePath;
@@ -41,8 +46,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private IReadOnlyList<string> _seriesFiles = [];
         private double? _windowCenter, _windowWidth, _currentPixelValue;
 
+        public ImagingTool ActiveTool
+        {
+            get => _activeTool;
+            private set
+            {
+                if (SetProperty(ref _activeTool, value))
+                {
+                    RaisePropertyChanged(nameof(IsPanActive));
+                    RaisePropertyChanged(nameof(IsZoomActive));
+                }
+            }
+        }
+
         public bool CanZoomIn => _transformState.CanZoomIn;
         public bool CanZoomOut => _transformState.CanZoomOut;
+        public bool IsPanActive => ActiveTool == ImagingTool.Pan;
+        public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
         public double PanOffsetX => _transformState.PanOffsetX;
         public double PanOffsetY => _transformState.PanOffsetY;
         public double ZoomFactor => _transformState.ZoomFactor;
@@ -172,7 +192,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ã‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -399,6 +419,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
 
+        public void RequestSliceNavigation(int delta)
+        {
+            if (delta == 0 || SeriesFiles.Count == 0) return;
+            SliceNavigationRequested?.Invoke(this, new ViewportSliceNavigationRequestedEventArgs(delta));
+        }
+
         public void ResetPan() => _transformState.ResetPan();
 
         public void ResetViewTransform() => _transformState.Reset();
@@ -426,6 +452,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             SelectedMeasurement = measurement;
         }
+
+        public void SetActiveTool(ImagingTool activeTool) => ActiveTool = activeTool;
 
         public void SetCurrentPixel(int pixelX, int pixelY, double value)
         {

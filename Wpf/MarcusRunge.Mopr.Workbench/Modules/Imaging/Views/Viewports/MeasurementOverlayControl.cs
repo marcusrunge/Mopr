@@ -1,4 +1,4 @@
-﻿using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using System;
 using System.Collections.Specialized;
@@ -219,7 +219,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
                 return;
             }
 
-            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.SelectedMeasurement), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentImage), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentFilePath), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.Measurements), StringComparison.Ordinal))
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.SelectedMeasurement), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentImage), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentDicomFrame), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.CurrentFilePath), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.Measurements), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.ZoomFactor), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.PanOffsetX), StringComparison.Ordinal) || string.Equals(e.PropertyName, nameof(ViewportTileViewModel.PanOffsetY), StringComparison.Ordinal))
             {
                 UpdateOverlay();
             }
@@ -231,7 +231,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports
         {
             position = default;
 
-            if (!ViewportImageGeometryCalculator.TryCreate(Tile?.CurrentDicomFrame, this, out var geometry))
+            if (!ViewportImageGeometryCalculator.TryCreate(Tile?.CurrentDicomFrame, this, Tile?.ZoomFactor ?? ViewportImageGeometryCalculator.DefaultZoomFactor, Tile?.PanOffsetX ?? 0.0, Tile?.PanOffsetY ?? 0.0, out var geometry))
             {
                 return false;
             }

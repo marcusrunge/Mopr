@@ -151,5 +151,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Infrastructure.Viewpor
             Assert.Equal(imagePoint.X, secondGeometry.HostPointToImagePoint(secondHostPoint).X, precision: 10);
             Assert.Equal(imagePoint.Y, secondGeometry.HostPointToImagePoint(secondHostPoint).Y, precision: 10);
         }
+
+        [Fact]
+        public void Placement_Should_Expose_Canonical_Image_Bounds()
+        {
+            var geometry = new ViewportImageGeometry(fitScale: 0.5, zoomFactor: 2.0, offsetX: -50.0, offsetY: 75.0, frameWidth: 512, frameHeight: 256);
+
+            var placement = geometry.Placement;
+
+            Assert.True(placement.IsValid);
+            Assert.Equal(512.0, placement.Width);
+            Assert.Equal(256.0, placement.Height);
+            Assert.Equal(-50.0, placement.OffsetX);
+            Assert.Equal(75.0, placement.OffsetY);
+        }
     }
 }

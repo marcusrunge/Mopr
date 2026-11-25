@@ -195,11 +195,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Measure);
         }
 
-        private void ActivatePan() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Pan);
+        private void ActivatePan()
+        {
+            if (ActiveTool == ImagingTool.Pan)
+            {
+                _core.ImagingService!.ImagingToolService!.ClearActiveTool();
+                return;
+            }
+
+            _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Pan);
+        }
 
         private void ActivateWindowLevel() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.WindowLevel);
 
-        private void ActivateZoom() => _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Zoom);
+        private void ActivateZoom()
+        {
+            if (ActiveTool == ImagingTool.Zoom)
+            {
+                _core.ImagingService!.ImagingToolService!.ClearActiveTool();
+                return;
+            }
+
+            _core.ImagingService!.ImagingToolService!.SetActiveTool(ImagingTool.Zoom);
+        }
 
         private void ApplyBoneWindow() => _core.ImagingService!.ImagingWindowLevelService!.SetWindowLevel(windowCenter: 300, windowWidth: 1500);
 

@@ -1,6 +1,7 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -12,6 +13,7 @@ using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -25,11 +27,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private const int RenderThrottleMilliseconds = 40;
         private readonly ICore _core;
         private readonly IDicom _dicom;
-        private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DicomImageFrame> _dicomFrameCache = [with(StringComparer.OrdinalIgnoreCase)];
         private readonly Queue<string> _dicomFrameCacheOrder = new();
-        private readonly HashSet<string> _pendingRenderViewportIds = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _pendingRenderViewportIds = [with(StringComparer.OrdinalIgnoreCase)];
         private readonly System.Windows.Threading.DispatcherTimer _renderThrottleTimer = new();
-        private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, ViewportTileViewModel> _viewportTiles = [with(StringComparer.OrdinalIgnoreCase)];
         private readonly IApplication _wpf;
         private IReadOnlyList<string> _activeSeriesFiles = [];
         private ImagingTool _activeTool;
@@ -43,7 +45,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool _isSynchronizingSelectionFromViewport;
         private DelegateCommand<KeyEventArgs?>? _keyDownCommand;
         private DelegateCommand<ViewportMeasurementPointInfo?>? _measurementPointCommand, _measurementPreviewCommand;
-        private DelegateCommand<MouseWheelEventArgs?>? _mouseWheelCommand;
         private DelegateCommand<ViewportPixelHoverInfo?>? _pixelHoverCommand;
         private SeriesInfo? _selectedSeries;
         private DelegateCommand<ViewportWindowLevelDragInfo?>? _windowLevelDragCommand;
@@ -286,8 +287,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public DelegateCommand<ViewportMeasurementPointInfo?> MeasurementPreviewCommand => _measurementPreviewCommand ??= new DelegateCommand<ViewportMeasurementPointInfo?>(OnMeasurementPreview);
 
-        public DelegateCommand<MouseWheelEventArgs?> MouseWheelCommand => _mouseWheelCommand ??= new DelegateCommand<MouseWheelEventArgs?>(OnMouseWheel);
-
         public ViewportTileViewModel MprAxialViewport { get; }
 
         public ViewportTileViewModel MprCoronalViewport { get; }
@@ -358,7 +357,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel TwoByTwoViewport4 { get; }
 
-        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} Â· {SelectedSeries.Description}";
+        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {SelectedSeries.Description}";
 
         public string ViewerTitle => SelectedSeries == null ? Resources.Viewer_Title : SelectedSeries.Name;
 
@@ -623,17 +622,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private void MoveSlice(int delta)
         {
             var activeTile = GetActiveViewportTile();
+            if (activeTile == null) return;
+            MoveSlice(activeTile, delta);
+        }
 
-            if (activeTile == null)
-            {
-                return;
-            }
-
-            activeTile.MoveSlice(delta);
-
-            SyncActiveViewportToViewerState(activeTile);
-
-            TryLoadCurrentImageForViewport(activeTile);
+        private void MoveSlice(ViewportTileViewModel tile, int delta)
+        {
+            tile.MoveSlice(delta);
+            SyncActiveViewportToViewerState(tile);
+            TryLoadCurrentImageForViewport(tile);
         }
 
         private void MoveToFirstSlice()
@@ -668,7 +665,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             TryLoadCurrentImageForViewport(activeTile);
         }
 
-        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e) => ActiveTool = e.NewTool;
+        private void OnViewportTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not ViewportTileViewModel tile || !string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal)) return;
+            if (string.Equals(e.PropertyName, nameof(ViewportTileViewModel.ZoomFactor), StringComparison.Ordinal)) ZoomFactor = tile.ZoomFactor;
+        }
+
+        private void OnSliceNavigationRequested(object? sender, ViewportSliceNavigationRequestedEventArgs e)
+        {
+            if (sender is not ViewportTileViewModel tile || e.Delta == 0) return;
+            MoveSlice(tile, e.Delta);
+        }
+
+        private void OnActiveToolChanged(object? sender, ImagingToolChangedEventArgs e)
+        {
+            ActiveTool = e.NewTool;
+
+            // Every tile receives the same selected tool while retaining its own independent transform state.
+            foreach (var tile in _viewportTiles.Values) tile.SetActiveTool(e.NewTool);
+        }
 
         private void OnActiveViewportChanged(object? sender, ImagingViewportSelectionChangedEventArgs e)
         {
@@ -852,27 +867,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 RaisePropertyChanged(nameof(MeasurementDisplayText));
             }
-        }
-
-        private void OnMouseWheel(MouseWheelEventArgs? e)
-        {
-            if (e == null)
-            {
-                return;
-            }
-
-            var step = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ? 10 : 1;
-
-            if (e.Delta > 0)
-            {
-                MoveSlice(step);
-            }
-            else if (e.Delta < 0)
-            {
-                MoveSlice(-step);
-            }
-
-            e.Handled = true;
         }
 
         private void OnPixelHover(ViewportPixelHoverInfo? hoverInfo)
@@ -1124,6 +1118,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private ViewportTileViewModel RegisterViewport(string viewportId, string title)
         {
             var tile = new ViewportTileViewModel(viewportId, title, _measurementSessionStore, _measurementInstanceResolver);
+            tile.SetActiveTool(ActiveTool);
+            tile.PropertyChanged += OnViewportTilePropertyChanged;
+            tile.SliceNavigationRequested += OnSliceNavigationRequested;
 
             _viewportTiles[viewportId] = tile;
 
@@ -1204,6 +1201,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentFileName = tile.CurrentFileName;
             CurrentFilePath = tile.CurrentFilePath;
             CurrentImage = tile.CurrentImage;
+            ZoomFactor = tile.ZoomFactor;
 
             RaisePropertyChanged(nameof(WindowDisplayText));
             RaisePropertyChanged(nameof(PixelDisplayText));
@@ -1233,11 +1231,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 tile.CurrentDicomFrame = null;
                 tile.CurrentImage = null;
 
-                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
-                {
-                    SyncActiveViewportToViewerState(tile);
-                }
-
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal)) SyncActiveViewportToViewerState(tile);
                 return;
             }
 
@@ -1251,67 +1245,37 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             try
             {
-                var imageSource = _wpf.MediaService?.ImageSourceService?.LoadImageSource(requestedFilePath);
+                // Every displayed DICOM slice requires its frame for rendering, hover, measurements and the canonical viewport geometry.
+                var frame = await GetOrLoadDicomFrameAsync(requestedFilePath, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                if (imageSource != null)
+                if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase)) return;
+
+                tile.CurrentDicomFrame = frame;
+
+                if (frame == null)
                 {
-                    tile.CurrentDicomFrame = null;
+                    tile.CurrentImage = null;
                 }
                 else
                 {
-                    var frame = tile.CurrentDicomFrame;
-
-                    if (frame == null || !string.Equals(frame.FilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
-                    {
-                        frame = await GetOrLoadDicomFrameAsync(requestedFilePath, cancellationToken);
-
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return;
-                        }
-
-                        tile.CurrentDicomFrame = frame;
-                    }
-
-                    if (frame != null)
-                    {
-                        var dicomImage = _dicom.ImageService!.RenderGrayscaleImage(frame, tile.WindowCenter, tile.WindowWidth);
-
-                        if (dicomImage != null)
-                        {
-                            imageSource = _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
-                        }
-                    }
+                    var dicomImage = _dicom.ImageService!.RenderGrayscaleImage(frame, tile.WindowCenter, tile.WindowWidth);
+                    tile.CurrentImage = dicomImage == null ? null : _wpf.MediaService?.ImageSourceService?.CreateImageSource(dicomImage);
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
-
-                tile.CurrentImage = imageSource;
-
-                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
-                {
-                    SyncActiveViewportToViewerState(tile);
-                }
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal)) SyncActiveViewportToViewerState(tile);
             }
             catch (OperationCanceledException)
             {
-                // Ein neuer Slice, Viewport oder Ladevorgang hat diesen Auftrag abgebrochen.
             }
             catch
             {
+                if (!string.Equals(tile.CurrentFilePath, requestedFilePath, StringComparison.OrdinalIgnoreCase)) return;
+
+                tile.CurrentDicomFrame = null;
                 tile.CurrentImage = null;
 
-                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal))
-                {
-                    SyncActiveViewportToViewerState(tile);
-                }
+                if (string.Equals(tile.ViewportId, ActiveViewportId, StringComparison.Ordinal)) SyncActiveViewportToViewerState(tile);
             }
         }
     }

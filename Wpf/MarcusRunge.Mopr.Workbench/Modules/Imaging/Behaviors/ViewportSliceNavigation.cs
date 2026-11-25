@@ -7,10 +7,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
     {
         internal static bool CanNavigate(ViewportTileViewModel? tile) => tile?.Series != null && tile.SeriesFiles.Count > 0 && tile.SliceCount > 0;
 
+        internal static int GetWheelSliceDelta(int wheelDelta) => wheelDelta > 0 ? 1 : wheelDelta < 0 ? -1 : 0;
+
         internal static void MoveByWheelDelta(ViewportTileViewModel tile, int wheelDelta)
         {
-            if (!CanNavigate(tile) || wheelDelta == 0) return;
-            tile.MoveSlice(wheelDelta > 0 ? 1 : -1);
+            if (!CanNavigate(tile)) return;
+
+            var delta = GetWheelSliceDelta(wheelDelta);
+            if (delta != 0) tile.MoveSlice(delta);
         }
 
         internal static bool TryNavigate(ViewportTileViewModel? tile, Key key)

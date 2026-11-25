@@ -12,6 +12,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports
         public int FrameWidth { get; } = frameWidth;
         public double OffsetX { get; } = offsetX;
         public double OffsetY { get; } = offsetY;
+        public ViewportImagePlacement Placement => new(DisplayedWidth, DisplayedHeight, OffsetX, OffsetY);
         public double Scale => FitScale * ZoomFactor;
         public double ZoomFactor { get; } = zoomFactor;
 
