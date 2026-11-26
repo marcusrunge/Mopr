@@ -115,6 +115,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Flip Horizontal ähnelt.
+        /// </summary>
+        public static string CommandBar_FlipHorizontal {
+            get {
+                return ResourceManager.GetString("CommandBar_FlipHorizontal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Flip Vertical ähnelt.
+        /// </summary>
+        public static string CommandBar_FlipVertical {
+            get {
+                return ResourceManager.GetString("CommandBar_FlipVertical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Import ähnelt.
         /// </summary>
         public static string CommandBar_Import {
@@ -214,7 +232,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 × 2 ähnelt.
         /// </summary>
         public static string CommandBar_Layout_TwoByTwo {
             get {
@@ -313,6 +331,24 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset Flip ähnelt.
+        /// </summary>
+        public static string CommandBar_ResetFlip {
+            get {
+                return ResourceManager.GetString("CommandBar_ResetFlip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset Rotation ähnelt.
+        /// </summary>
+        public static string CommandBar_ResetRotation {
+            get {
+                return ResourceManager.GetString("CommandBar_ResetRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Reset View ähnelt.
         /// </summary>
         public static string CommandBar_ResetView {
@@ -320,15 +356,25 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
                 return ResourceManager.GetString("CommandBar_ResetView", resourceCulture);
             }
         }
-
-        public static string CommandBar_Transform => ResourceManager.GetString("CommandBar_Transform", resourceCulture);
-        public static string CommandBar_RotateLeft => ResourceManager.GetString("CommandBar_RotateLeft", resourceCulture);
-        public static string CommandBar_RotateRight => ResourceManager.GetString("CommandBar_RotateRight", resourceCulture);
-        public static string CommandBar_ResetRotation => ResourceManager.GetString("CommandBar_ResetRotation", resourceCulture);
-        public static string CommandBar_FlipHorizontal => ResourceManager.GetString("CommandBar_FlipHorizontal", resourceCulture);
-        public static string CommandBar_FlipVertical => ResourceManager.GetString("CommandBar_FlipVertical", resourceCulture);
-        public static string CommandBar_ResetFlip => ResourceManager.GetString("CommandBar_ResetFlip", resourceCulture);
-
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rotate Left ähnelt.
+        /// </summary>
+        public static string CommandBar_RotateLeft {
+            get {
+                return ResourceManager.GetString("CommandBar_RotateLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rotate Right ähnelt.
+        /// </summary>
+        public static string CommandBar_RotateRight {
+            get {
+                return ResourceManager.GetString("CommandBar_RotateRight", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
         /// </summary>
@@ -434,6 +480,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string CommandBar_StudyOpenSection {
             get {
                 return ResourceManager.GetString("CommandBar_StudyOpenSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rotate / Flip ähnelt.
+        /// </summary>
+        public static string CommandBar_Transform {
+            get {
+                return ResourceManager.GetString("CommandBar_Transform", resourceCulture);
             }
         }
         
@@ -834,7 +889,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ãƒâ€šÃ‚Â· HU={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · HU={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelCtFormat {
             get {
@@ -852,7 +907,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} Ãƒâ€šÃ‚Â· Value={2:0} ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pixel: X={0} Y={1} · Value={2:0} ähnelt.
         /// </summary>
         public static string Status_PixelValueFormat {
             get {
@@ -996,7 +1051,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 ÃƒÆ’Ã¢â‚¬â€ 2 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Layout: 2 × 2 ähnelt.
         /// </summary>
         public static string Viewer_Layout_TwoByTwo {
             get {
@@ -1226,6 +1281,96 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string Viewer_WindowLevel {
             get {
                 return ResourceManager.GetString("Viewer_WindowLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Local ähnelt.
+        /// </summary>
+        public static string ViewportStateChangeOrigin_Local {
+            get {
+                return ResourceManager.GetString("ViewportStateChangeOrigin_Local", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Synchronization ähnelt.
+        /// </summary>
+        public static string ViewportStateChangeOrigin_Synchronization {
+            get {
+                return ResourceManager.GetString("ViewportStateChangeOrigin_Synchronization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Horizontal flip ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_HorizontalFlip {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_HorizontalFlip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die None ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_None {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pan ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_Pan {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_Pan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rotation ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_Rotation {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_Rotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Slice ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_Slice {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_Slice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Vertical flip ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_VerticalFlip {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_VerticalFlip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Window/Level ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_WindowLevel {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_WindowLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Zoom ähnelt.
+        /// </summary>
+        public static string ViewportSynchronization_Zoom {
+            get {
+                return ResourceManager.GetString("ViewportSynchronization_Zoom", resourceCulture);
             }
         }
         

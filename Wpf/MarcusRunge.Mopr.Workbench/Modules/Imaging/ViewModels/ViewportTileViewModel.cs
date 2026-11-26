@@ -1,7 +1,9 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Enums;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Infrastructure.Viewports;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
@@ -17,6 +19,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
     public sealed class ViewportTileViewModel : BindableBase
     {
         public event EventHandler<ViewportSliceNavigationRequestedEventArgs>? SliceNavigationRequested;
+        public event EventHandler<ViewportStateChangedEventArgs>? ViewportStateChanged;
 
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
@@ -196,7 +199,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ã‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -302,42 +305,11 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public string ViewportId => _viewportId;
 
-        public double? WindowCenter
-        {
-            get => _windowCenter;
-            private set
-            {
-                if (SetProperty(ref _windowCenter, value))
-                {
-                    RaisePropertyChanged(nameof(WindowDisplayText));
-                }
-            }
-        }
+        public double? WindowCenter => _windowCenter;
 
-        public string WindowDisplayText
-        {
-            get
-            {
-                if (!WindowCenter.HasValue || !WindowWidth.HasValue)
-                {
-                    return $"{Resources.ViewportTile_WindowLevel}: {Resources.ViewportTile_Default}";
-                }
+        public string WindowDisplayText => !WindowCenter.HasValue || !WindowWidth.HasValue ? $"{Resources.ViewportTile_WindowLevel}: {Resources.ViewportTile_Default}" : $"{Resources.ViewportTile_WindowLevel}: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
 
-                return $"{Resources.ViewportTile_WindowLevel}: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
-            }
-        }
-
-        public double? WindowWidth
-        {
-            get => _windowWidth;
-            private set
-            {
-                if (SetProperty(ref _windowWidth, value))
-                {
-                    RaisePropertyChanged(nameof(WindowDisplayText));
-                }
-            }
-        }
+        public double? WindowWidth => _windowWidth;
 
         public void BeginOrCompleteMeasurement(double imageX, double imageY)
         {
@@ -417,13 +389,22 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaiseMeasurementPropertiesChanged();
         }
 
-        public void AddPan(double horizontalDelta, double verticalDelta) => _transformState.AddPan(horizontalDelta, verticalDelta);
+        public void AddPan(double horizontalDelta, double verticalDelta)
+        {
+            if (_transformState.AddPan(horizontalDelta, verticalDelta)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
 
-        public void FitToView() => _transformState.Reset();
+        public void FitToView() => ResetViewTransform();
 
-        public void FlipHorizontal() => _transformState.FlipHorizontal();
+        public void FlipHorizontal()
+        {
+            if (_transformState.FlipHorizontal()) PublishLocal(new ViewportHorizontalFlipChange(ViewportId, IsFlippedHorizontally, ViewportStateChangeOrigin.Local));
+        }
 
-        public void FlipVertical() => _transformState.FlipVertical();
+        public void FlipVertical()
+        {
+            if (_transformState.FlipVertical()) PublishLocal(new ViewportVerticalFlipChange(ViewportId, IsFlippedVertically, ViewportStateChangeOrigin.Local));
+        }
 
         public void MoveSlice(int delta) => SetSlice(CurrentSlice + delta);
 
@@ -433,31 +414,57 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             SliceNavigationRequested?.Invoke(this, new ViewportSliceNavigationRequestedEventArgs(delta));
         }
 
-        public void ResetFlip() => _transformState.ResetFlip();
-
-        public void ResetPan() => _transformState.ResetPan();
-
-        public void ResetRotation() => _transformState.ResetRotation();
-
-        public void ResetViewTransform() => _transformState.Reset();
-
-        public void RotateLeft() => _transformState.RotateLeft();
-
-        public void RotateRight() => _transformState.RotateRight();
-
-        public void SetPan(double panOffsetX, double panOffsetY) => _transformState.SetPan(panOffsetX, panOffsetY);
-
-        public void SetZoomAndPan(double zoomFactor, double panOffsetX, double panOffsetY) => _transformState.SetZoomAndPan(zoomFactor, panOffsetX, panOffsetY);
-
-        public void ZoomIn() => _transformState.ZoomIn();
-
-        public void ZoomOut() => _transformState.ZoomOut();
-
-        public void ResetWindowLevel()
+        public void ResetFlip()
         {
-            WindowCenter = null;
-            WindowWidth = null;
+            if (_transformState.SetHorizontalFlip(false)) PublishLocal(new ViewportHorizontalFlipChange(ViewportId, false, ViewportStateChangeOrigin.Local));
+            if (_transformState.SetVerticalFlip(false)) PublishLocal(new ViewportVerticalFlipChange(ViewportId, false, ViewportStateChangeOrigin.Local));
         }
+
+        public void ResetPan()
+        {
+            if (_transformState.ResetPan()) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ResetRotation()
+        {
+            if (_transformState.ResetRotation()) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ResetViewTransform() => ResetViewTransformCore(true);
+
+        public void RotateLeft()
+        {
+            if (_transformState.RotateLeft()) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
+        }
+
+        public void RotateRight()
+        {
+            if (_transformState.RotateRight()) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
+        }
+
+        public void SetPan(double panOffsetX, double panOffsetY)
+        {
+            if (_transformState.SetPan(panOffsetX, panOffsetY)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void SetZoomAndPan(double zoomFactor, double panOffsetX, double panOffsetY)
+        {
+            var result = _transformState.SetZoomAndPan(zoomFactor, panOffsetX, panOffsetY);
+            if (result.ZoomChanged) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+            if (result.PanChanged) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ZoomIn()
+        {
+            if (_transformState.ZoomIn()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ZoomOut()
+        {
+            if (_transformState.ZoomOut()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ResetWindowLevel() => ApplyWindowLevel(null, null, true);
 
         public void SelectMeasurement(ViewportMeasurementViewModel? measurement)
         {
@@ -481,7 +488,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
         {
             // A newly assigned series starts from a predictable fit-to-view state without changing persisted imaging data.
-            ResetViewTransform();
+            ResetViewTransformCore(false);
             ClearMeasurements();
             ClearCurrentPixel();
 
@@ -535,10 +542,23 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             BindMeasurementsToCurrentInstance();
         }
 
-        public void SetWindowLevel(double? windowCenter, double? windowWidth)
+        public void SetWindowLevel(double? windowCenter, double? windowWidth) => ApplyWindowLevel(windowCenter, windowWidth, true);
+
+        public void ApplySynchronizedStateChange(ViewportStateChange change)
         {
-            WindowCenter = windowCenter;
-            WindowWidth = windowWidth;
+            ArgumentNullException.ThrowIfNull(change);
+            if (change.Origin != ViewportStateChangeOrigin.Synchronization) throw new ArgumentException("Only synchronization-origin changes may be applied to a target viewport.", nameof(change));
+            if (string.Equals(change.SourceViewportId, ViewportId, StringComparison.Ordinal)) throw new ArgumentException("A viewport cannot apply its own synchronized state change.", nameof(change));
+            switch (change)
+            {
+                case ViewportWindowLevelChange value: ApplyWindowLevel(value.WindowCenter, value.WindowWidth, false); break;
+                case ViewportZoomChange value: _transformState.SetZoom(value.ZoomFactor); break;
+                case ViewportPanChange value: _transformState.SetPan(value.PanOffsetX, value.PanOffsetY); break;
+                case ViewportRotationChange value: _transformState.SetRotation(value.Rotation); break;
+                case ViewportHorizontalFlipChange value: _transformState.SetHorizontalFlip(value.IsFlippedHorizontally); break;
+                case ViewportVerticalFlipChange value: _transformState.SetVerticalFlip(value.IsFlippedVertically); break;
+                default: throw new ArgumentOutOfRangeException(nameof(change), change, "The viewport state change type is not supported.");
+            }
         }
 
         public void UpdateMeasurementDraft(double imageX, double imageY)
@@ -587,6 +607,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaisePropertyChanged(nameof(ActiveMeasurementDraft));
             RaisePropertyChanged(nameof(Measurements));
             RaisePropertyChanged(nameof(SelectedMeasurement));
+        }
+
+        private bool ApplyWindowLevel(double? windowCenter, double? windowWidth, bool publish)
+        {
+            if (windowCenter.HasValue != windowWidth.HasValue) throw new ArgumentException("Window center and width must either both be set or both be null.");
+            if (windowCenter.HasValue && !double.IsFinite(windowCenter.Value)) throw new ArgumentOutOfRangeException(nameof(windowCenter));
+            if (windowWidth.HasValue && (!double.IsFinite(windowWidth.Value) || windowWidth.Value <= 0.0)) throw new ArgumentOutOfRangeException(nameof(windowWidth));
+            var centerChanged = _windowCenter != windowCenter;
+            var widthChanged = _windowWidth != windowWidth;
+            if (!centerChanged && !widthChanged) return false;
+            // Commit the pair before notifying observers so rendering never sees a mixed window/level state.
+            _windowCenter = windowCenter;
+            _windowWidth = windowWidth;
+            if (centerChanged) RaisePropertyChanged(nameof(WindowCenter));
+            if (widthChanged) RaisePropertyChanged(nameof(WindowWidth));
+            RaisePropertyChanged(nameof(WindowDisplayText));
+            if (publish) PublishLocal(new ViewportWindowLevelChange(ViewportId, WindowCenter, WindowWidth, ViewportStateChangeOrigin.Local));
+            return true;
+        }
+
+        private void PublishLocal(ViewportStateChange change) => ViewportStateChanged?.Invoke(this, new ViewportStateChangedEventArgs(change));
+
+        private void ResetViewTransformCore(bool publish)
+        {
+            var before = _transformState.Snapshot;
+            _transformState.SetZoom(ViewportImageGeometryCalculator.DefaultZoomFactor);
+            _transformState.SetPan(0.0, 0.0);
+            _transformState.SetRotation(ViewportRotation.None);
+            _transformState.SetHorizontalFlip(false);
+            _transformState.SetVerticalFlip(false);
+            if (!publish) return;
+            if (before.ZoomFactor != ZoomFactor) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+            if (before.PanOffsetX != PanOffsetX || before.PanOffsetY != PanOffsetY) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+            if (before.Rotation != Rotation) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
+            if (before.IsFlippedHorizontally != IsFlippedHorizontally) PublishLocal(new ViewportHorizontalFlipChange(ViewportId, IsFlippedHorizontally, ViewportStateChangeOrigin.Local));
+            if (before.IsFlippedVertically != IsFlippedVertically) PublishLocal(new ViewportVerticalFlipChange(ViewportId, IsFlippedVertically, ViewportStateChangeOrigin.Local));
         }
 
         private void UpdateCurrentFile()

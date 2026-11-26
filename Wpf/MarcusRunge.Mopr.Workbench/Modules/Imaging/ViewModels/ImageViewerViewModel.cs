@@ -1,7 +1,9 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
 using MarcusRunge.Mopr.Workbench.Contracts.Models;
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Enums;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Events;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
@@ -56,8 +58,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly IImagingMeasurementHydrationService _measurementHydrationService;
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
+        private readonly IViewportSynchronizationService _viewportSynchronizationService;
 
-        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService, IEventAggregator eventAggregator)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService, IViewportSynchronizationService viewportSynchronizationService, IEventAggregator eventAggregator)
         {
             _core = core;
             _wpf = wpf;
@@ -67,6 +70,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _measurementSessionStore = measurementSessionStore ?? throw new ArgumentNullException(nameof(measurementSessionStore));
             _measurementInstanceResolver = measurementInstanceResolver ?? throw new ArgumentNullException(nameof(measurementInstanceResolver));
             _measurementHydrationService = measurementHydrationService ?? throw new ArgumentNullException(nameof(measurementHydrationService));
+            _viewportSynchronizationService = viewportSynchronizationService ?? throw new ArgumentNullException(nameof(viewportSynchronizationService));
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -362,7 +366,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel TwoByTwoViewport4 { get; }
 
-        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {SelectedSeries.Description}";
+        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {SelectedSeries.Description}";
 
         public string ViewerTitle => SelectedSeries == null ? Resources.Viewer_Title : SelectedSeries.Name;
 
@@ -411,6 +415,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _renderThrottleTimer.Stop();
             _renderThrottleTimer.Tick -= OnRenderThrottleTimerTick;
             _pendingRenderViewportIds.Clear();
+
+            foreach (var tile in _viewportTiles.Values)
+            {
+                tile.PropertyChanged -= OnViewportTilePropertyChanged;
+                tile.SliceNavigationRequested -= OnSliceNavigationRequested;
+                tile.ViewportStateChanged -= OnViewportStateChangeRequested;
+            }
 
             base.Destroy();
         }
@@ -670,6 +681,29 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             TryLoadCurrentImageForViewport(activeTile);
         }
+
+        private void OnViewportStateChangeRequested(object? sender, ViewportStateChangedEventArgs e)
+        {
+            if (sender is not ViewportTileViewModel sourceTile || e.Change.Origin != ViewportStateChangeOrigin.Local || !string.Equals(sourceTile.ViewportId, e.Change.SourceViewportId, StringComparison.Ordinal)) return;
+
+            foreach (var route in _viewportSynchronizationService.GetRoutes(sourceTile.ViewportId, e.Change.SynchronizationType))
+            {
+                if (!_viewportTiles.TryGetValue(route.TargetViewportId, out var targetTile)) continue;
+                targetTile.ApplySynchronizedStateChange(CreateSynchronizedChange(e.Change));
+                if (e.Change.SynchronizationType == ViewportSynchronizationFlags.WindowLevel) RequestRenderCurrentFrameForViewport(targetTile);
+            }
+        }
+
+        private static ViewportStateChange CreateSynchronizedChange(ViewportStateChange change) => change switch
+        {
+            ViewportWindowLevelChange value => new ViewportWindowLevelChange(value.SourceViewportId, value.WindowCenter, value.WindowWidth, ViewportStateChangeOrigin.Synchronization),
+            ViewportZoomChange value => new ViewportZoomChange(value.SourceViewportId, value.ZoomFactor, ViewportStateChangeOrigin.Synchronization),
+            ViewportPanChange value => new ViewportPanChange(value.SourceViewportId, value.PanOffsetX, value.PanOffsetY, ViewportStateChangeOrigin.Synchronization),
+            ViewportRotationChange value => new ViewportRotationChange(value.SourceViewportId, value.Rotation, ViewportStateChangeOrigin.Synchronization),
+            ViewportHorizontalFlipChange value => new ViewportHorizontalFlipChange(value.SourceViewportId, value.IsFlippedHorizontally, ViewportStateChangeOrigin.Synchronization),
+            ViewportVerticalFlipChange value => new ViewportVerticalFlipChange(value.SourceViewportId, value.IsFlippedVertically, ViewportStateChangeOrigin.Synchronization),
+            _ => throw new ArgumentOutOfRangeException(nameof(change), change, "The viewport state change type is not supported.")
+        };
 
         private void OnViewportTilePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -1144,6 +1178,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             tile.SetActiveTool(ActiveTool);
             tile.PropertyChanged += OnViewportTilePropertyChanged;
             tile.SliceNavigationRequested += OnSliceNavigationRequested;
+            tile.ViewportStateChanged += OnViewportStateChangeRequested;
 
             _viewportTiles[viewportId] = tile;
 

@@ -12,32 +12,32 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         /// Gets the physical file paths already associated with persisted
         /// instances in this location.
         /// </summary>
-        internal HashSet<string> AssociatedFilePaths { get; } = new(StringComparer.OrdinalIgnoreCase);
+        internal HashSet<string> AssociatedFilePaths { get; } = [with(StringComparer.OrdinalIgnoreCase)];
 
         /// <summary>
         /// Gets the temporary files left by incomplete imports.
         /// </summary>
-        internal HashSet<string> IncompleteImportFilePaths { get; } = new(StringComparer.OrdinalIgnoreCase);
+        internal HashSet<string> IncompleteImportFilePaths { get; } = [with(StringComparer.OrdinalIgnoreCase)];
 
         /// <summary>
         /// Gets the SOP-instance-based file index for this location.
         /// </summary>
-        internal Dictionary<string, DicomRepositoryFileIndexEntry> RepositoryFiles { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, DicomRepositoryFileIndexEntry> RepositoryFiles { get; } = [with(StringComparer.Ordinal)];
 
         /// <summary>
         /// Gets the repository location represented by this context.
         /// </summary>
-        internal RepositoryLocation RepositoryLocation { get; init; }
+        internal RepositoryLocation? RepositoryLocation { get; init; }
 
         /// <summary>
         /// Gets the normalized absolute repository root path.
         /// </summary>
-        internal string RepositoryRootPath { get; init; }
+        internal string? RepositoryRootPath { get; init; }
 
         /// <summary>
         /// Gets the unreadable physical files found while indexing this
         /// location.
         /// </summary>
-        internal HashSet<string> UnreadableFilePaths { get; } = new(StringComparer.OrdinalIgnoreCase);
+        internal HashSet<string> UnreadableFilePaths { get; } = [with(StringComparer.OrdinalIgnoreCase)];
     }
 }

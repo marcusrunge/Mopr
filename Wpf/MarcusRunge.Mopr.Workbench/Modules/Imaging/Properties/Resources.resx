@@ -624,4 +624,10 @@
   <data name="ViewportSynchronization_VerticalFlip" xml:space="preserve">
     <value>Vertical flip</value>
   </data>
+  <data name="ViewportStateChangeOrigin_Local" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="ViewportStateChangeOrigin_Synchronization" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
 </root>
