@@ -541,4 +541,28 @@
   <data name="UnsavedChangesDialog_Save" xml:space="preserve">
     <value>Speichern</value>
   </data>
+  <data name="ViewportSynchronization_None" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="ViewportSynchronization_Slice" xml:space="preserve">
+    <value>Slice</value>
+  </data>
+  <data name="ViewportSynchronization_WindowLevel" xml:space="preserve">
+    <value>Fensterung/Niveau</value>
+  </data>
+  <data name="ViewportSynchronization_Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="ViewportSynchronization_Pan" xml:space="preserve">
+    <value>Verschieben</value>
+  </data>
+  <data name="ViewportSynchronization_Rotation" xml:space="preserve">
+    <value>Drehung</value>
+  </data>
+  <data name="ViewportSynchronization_HorizontalFlip" xml:space="preserve">
+    <value>Horizontal spiegeln</value>
+  </data>
+  <data name="ViewportSynchronization_VerticalFlip" xml:space="preserve">
+    <value>Vertikal spiegeln</value>
+  </data>
 </root>
