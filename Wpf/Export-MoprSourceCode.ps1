@@ -1,16 +1,18 @@
-﻿param(
+param(
     [string]$RootPath = $PSScriptRoot
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path -LiteralPath $RootPath -PathType Container)) {
+if (-not (Test-Path -LiteralPath $RootPath -PathType Container))
+{
     throw "Das Wurzelverzeichnis wurde nicht gefunden: $RootPath"
 }
 
 $rootPathFull = (Resolve-Path -LiteralPath $RootPath).Path.TrimEnd([char[]]@('\', '/'))
 $outputPath = Join-Path -Path $rootPathFull -ChildPath "MOPR-Backend-Source.txt"
+$utf8Encoding = [System.Text.UTF8Encoding]::new($false, $true)
 
 $excludedDirectoryNames = @(
     ".git", ".idea", ".vs", ".vscode", "artifacts", "BenchmarkDotNet.Artifacts",
@@ -27,17 +29,21 @@ $includedFileNames = @(
     ".gitignore", ".gitattributes", "global.json", "nuget.config"
 )
 
-function Get-RelativeExportPath {
+function Get-RelativeExportPath
+{
     param([Parameter(Mandatory)][string]$FullPath)
 
     return $FullPath.Substring($rootPathFull.Length).TrimStart([char[]]@('\', '/'))
 }
 
-function Test-IsExcludedPath {
+function Test-IsExcludedPath
+{
     param([Parameter(Mandatory)][string]$RelativePath)
 
-    foreach ($pathPart in ($RelativePath -split "[\\/]")) {
-        if ($excludedDirectoryNames -icontains $pathPart) {
+    foreach ($pathPart in ($RelativePath -split "[\\/]"))
+    {
+        if ($excludedDirectoryNames -icontains $pathPart)
+        {
             return $true
         }
     }
@@ -49,11 +55,11 @@ Write-Host "MOPR-Quellcodeexport" -ForegroundColor Cyan
 Write-Host "Wurzelverzeichnis: $rootPathFull"
 Write-Host "Ausgabedatei:      $outputPath"
 
-# Die Ausgabedatei wird vor der Suche angelegt, damit Ausgabeort und Schreibzugriff
-# sofort eindeutig geprüft sind.
-"MOPR SOURCE EXPORT`r`n" | Set-Content -LiteralPath $outputPath -Encoding utf8 -Force
+# Create the output before discovery so the destination and write access are validated immediately.
+[System.IO.File]::WriteAllText($outputPath, "MOPR SOURCE EXPORT`r`n", $utf8Encoding)
 
-if (-not (Test-Path -LiteralPath $outputPath -PathType Leaf)) {
+if (-not (Test-Path -LiteralPath $outputPath -PathType Leaf))
+{
     throw "Die Ausgabedatei konnte nicht angelegt werden: $outputPath"
 }
 
@@ -64,7 +70,6 @@ $files = @(
             $isOutputFile = $_.FullName -ieq $outputPath
             $isExcludedPath = Test-IsExcludedPath -RelativePath $relativePath
             $isIncludedType = ($includedExtensions -icontains $_.Extension) -or ($includedFileNames -icontains $_.Name)
-
             -not $isOutputFile -and -not $isExcludedPath -and $isIncludedType
         } |
         Sort-Object { Get-RelativeExportPath -FullPath $_.FullName }
@@ -79,71 +84,75 @@ Created: $createdAt
 Discovered files: $($files.Count)
 XAML included: Yes
 XAML code-behind included: Yes
-
 "@
 
-$header | Set-Content -LiteralPath $outputPath -Encoding utf8 -Force
+[System.IO.File]::WriteAllText($outputPath, "$header`r`n", $utf8Encoding)
 
 $processedCount = 0
 $successfulCount = 0
 $xamlCount = 0
-$failedFiles = New-Object "System.Collections.Generic.List[string]"
+$failedFiles = [System.Collections.Generic.List[string]]::new()
+$separator = "=" * 120
 
-foreach ($file in $files) {
+foreach ($file in $files)
+{
     $processedCount++
     $relativePath = Get-RelativeExportPath -FullPath $file.FullName
     $percentComplete = if ($files.Count -eq 0) { 100 } else { $processedCount / $files.Count * 100 }
 
     Write-Progress -Activity "MOPR-Quellcodeexport" -Status "$processedCount von $($files.Count): $relativePath" -PercentComplete $percentComplete
 
-    if ($file.Extension -ieq ".xaml" -or $file.Name -ilike "*.xaml.cs") {
+    if ($file.Extension -ieq ".xaml" -or $file.Name -ilike "*.xaml.cs")
+    {
         $xamlCount++
     }
 
-    $separator = "=" * 120
     $fileHeader = @"
 $separator
 BEGIN FILE: $relativePath
 SIZE: $($file.Length) bytes
 LAST WRITE UTC: $($file.LastWriteTimeUtc.ToString("yyyy-MM-dd HH:mm:ss"))
 $separator
-
 "@
 
-    $fileHeader | Add-Content -LiteralPath $outputPath -Encoding utf8
+    [System.IO.File]::AppendAllText($outputPath, "$fileHeader`r`n", $utf8Encoding)
 
-    try {
-        # Jede Projektdatei wird ausschließlich gelesen. Lesefehler werden sichtbar
-        # protokolliert, damit die Backend-Abschlussprüfung keine unbemerkte Lücke hat.
-        $content = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
+    try
+    {
+        # Decode every source file as strict UTF-8. Invalid input is reported instead of being silently converted to mojibake.
+        $content = [System.IO.File]::ReadAllText($file.FullName, $utf8Encoding)
 
-        if ($null -ne $content) {
-            $content | Add-Content -LiteralPath $outputPath -Encoding utf8
+        if ($null -ne $content)
+        {
+            [System.IO.File]::AppendAllText($outputPath, $content, $utf8Encoding)
+
+            if (-not $content.EndsWith("`n"))
+            {
+                [System.IO.File]::AppendAllText($outputPath, "`r`n", $utf8Encoding)
+            }
         }
 
         $successfulCount++
     }
-    catch {
+    catch
+    {
         $failure = "$relativePath | $($_.Exception.Message)"
         $failedFiles.Add($failure)
-        "[FILE COULD NOT BE READ]`r`n$($_.Exception.Message)" | Add-Content -LiteralPath $outputPath -Encoding utf8
+        [System.IO.File]::AppendAllText($outputPath, "[FILE COULD NOT BE READ]`r`n$($_.Exception.Message)`r`n", $utf8Encoding)
     }
 
     $fileFooter = @"
-
 $separator
 END FILE: $relativePath
 $separator
-
 "@
 
-    $fileFooter | Add-Content -LiteralPath $outputPath -Encoding utf8
+    [System.IO.File]::AppendAllText($outputPath, "$fileFooter`r`n", $utf8Encoding)
 }
 
 Write-Progress -Activity "MOPR-Quellcodeexport" -Completed
 
 $summary = @"
-
 EXPORT SUMMARY
 ==============
 Discovered files:      $($files.Count)
@@ -153,13 +162,15 @@ XAML files:            $xamlCount
 Output path:           $outputPath
 "@
 
-$summary | Add-Content -LiteralPath $outputPath -Encoding utf8
+[System.IO.File]::AppendAllText($outputPath, "$summary`r`n", $utf8Encoding)
 
-if ($failedFiles.Count -gt 0) {
-    "`r`nFAILED FILES`r`n------------" | Add-Content -LiteralPath $outputPath -Encoding utf8
+if ($failedFiles.Count -gt 0)
+{
+    [System.IO.File]::AppendAllText($outputPath, "`r`nFAILED FILES`r`n------------`r`n", $utf8Encoding)
 
-    foreach ($failedFile in $failedFiles) {
-        $failedFile | Add-Content -LiteralPath $outputPath -Encoding utf8
+    foreach ($failedFile in $failedFiles)
+    {
+        [System.IO.File]::AppendAllText($outputPath, "$failedFile`r`n", $utf8Encoding)
     }
 }
 

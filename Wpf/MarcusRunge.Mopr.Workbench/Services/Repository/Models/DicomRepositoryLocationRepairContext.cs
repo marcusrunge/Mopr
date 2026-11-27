@@ -1,16 +1,14 @@
-﻿using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
+using MarcusRunge.Mopr.Workbench.Services.Persistence.Entities;
 
 namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
 {
     /// <summary>
-    /// Holds the isolated file index and scan state for one repository
-    /// location during a repair operation.
+    /// Holds the isolated file index and scan state for one repository location during a repair operation.
     /// </summary>
     internal sealed class DicomRepositoryLocationRepairContext
     {
         /// <summary>
-        /// Gets the physical file paths already associated with persisted
-        /// instances in this location.
+        /// Gets the physical file paths already associated with persisted instances in this location.
         /// </summary>
         internal HashSet<string> AssociatedFilePaths { get; } = [with(StringComparer.OrdinalIgnoreCase)];
 
@@ -25,18 +23,17 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Models
         internal Dictionary<string, DicomRepositoryFileIndexEntry> RepositoryFiles { get; } = [with(StringComparer.Ordinal)];
 
         /// <summary>
-        /// Gets the repository location represented by this context.
+        /// Gets the repository location represented by this fully initialized context.
         /// </summary>
-        internal RepositoryLocation? RepositoryLocation { get; init; }
+        internal required RepositoryLocation RepositoryLocation { get; init; }
 
         /// <summary>
-        /// Gets the normalized absolute repository root path.
+        /// Gets the normalized absolute repository root path of this fully initialized context.
         /// </summary>
-        internal string? RepositoryRootPath { get; init; }
+        internal required string RepositoryRootPath { get; init; }
 
         /// <summary>
-        /// Gets the unreadable physical files found while indexing this
-        /// location.
+        /// Gets the unreadable physical files found while indexing this location.
         /// </summary>
         internal HashSet<string> UnreadableFilePaths { get; } = [with(StringComparer.OrdinalIgnoreCase)];
     }

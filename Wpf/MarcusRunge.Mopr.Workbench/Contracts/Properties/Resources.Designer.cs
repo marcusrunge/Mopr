@@ -61,6 +61,87 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_Completed {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The machine configuration is unavailable ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_ConfigurationUnavailable {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_ConfigurationUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration could not be updated ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_Failed {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Elevated administrator authorization is required ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_Unauthorized {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The database configuration is invalid ähnelt.
+        /// </summary>
+        public static string DatabaseConfigurationUpdateStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("DatabaseConfigurationUpdateStatus_ValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Created ähnelt.
+        /// </summary>
+        public static string ImagingSessionChangeState_Created {
+            get {
+                return ResourceManager.GetString("ImagingSessionChangeState_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Deleted ähnelt.
+        /// </summary>
+        public static string ImagingSessionChangeState_Deleted {
+            get {
+                return ResourceManager.GetString("ImagingSessionChangeState_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Modified ähnelt.
+        /// </summary>
+        public static string ImagingSessionChangeState_Modified {
+            get {
+                return ResourceManager.GetString("ImagingSessionChangeState_Modified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Angle ähnelt.
         /// </summary>
         public static string MeasurementType_Angle {
@@ -183,6 +264,60 @@ namespace MarcusRunge.Mopr.Workbench.Contracts.Properties {
         public static string MeasurementType_Volume {
             get {
                 return ResourceManager.GetString("MeasurementType_Volume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completed ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_Completed {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The machine configuration is unavailable ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_ConfigurationUnavailable {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_ConfigurationUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The security configuration could not be updated ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_Failed {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Not started ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_NotStarted {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Elevated administrator authorization is required ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_Unauthorized {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_Unauthorized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The resulting machine configuration is invalid ähnelt.
+        /// </summary>
+        public static string SecurityConfigurationUpdateStatus_ValidationFailed {
+            get {
+                return ResourceManager.GetString("SecurityConfigurationUpdateStatus_ValidationFailed", resourceCulture);
             }
         }
         

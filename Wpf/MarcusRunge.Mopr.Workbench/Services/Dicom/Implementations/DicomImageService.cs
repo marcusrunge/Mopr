@@ -1,4 +1,4 @@
-﻿using FellowOakDicom;
+using FellowOakDicom;
 using FellowOakDicom.Imaging;
 using MarcusRunge.Base;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Contracts;
@@ -13,19 +13,39 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
     {
         private IDicomBase? _base;
 
-        public async Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, double? windowCenter = null, double? windowWidth = null, CancellationToken cancellationToken = default)
+        public async Task<int> GetFrameCountAsync(string filePath, CancellationToken cancellationToken = default)
         {
-            var frame = await LoadImageFrameAsync(filePath, cancellationToken);
+            if (string.IsNullOrWhiteSpace(filePath)) return 0;
+            cancellationToken.ThrowIfCancellationRequested();
 
-            if (frame == null)
+            try
             {
-                return null;
+                var dicomFile = await DicomFile.OpenAsync(filePath).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                return GetFrameCount(DicomPixelData.Create(dicomFile.Dataset));
             }
-
-            return RenderGrayscaleImage(frame, windowCenter, windowWidth);
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _base?.OnExceptionThrown(exception);
+                return 0;
+            }
         }
 
-        public async Task<DicomImageFrame?> LoadImageFrameAsync(string filePath, CancellationToken cancellationToken = default)
+        public Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, double? windowCenter = null, double? windowWidth = null, CancellationToken cancellationToken = default) => LoadGrayscaleImageAsync(filePath, 0, windowCenter, windowWidth, cancellationToken);
+
+        public async Task<DicomGrayscaleImage?> LoadGrayscaleImageAsync(string filePath, int frameIndex, double? windowCenter = null, double? windowWidth = null, CancellationToken cancellationToken = default)
+        {
+            var frame = await LoadImageFrameAsync(filePath, frameIndex, cancellationToken).ConfigureAwait(false);
+            return frame == null ? null : RenderGrayscaleImage(frame, windowCenter, windowWidth);
+        }
+
+        public Task<DicomImageFrame?> LoadImageFrameAsync(string filePath, CancellationToken cancellationToken = default) => LoadImageFrameAsync(filePath, 0, cancellationToken);
+
+        public async Task<DicomImageFrame?> LoadImageFrameAsync(string filePath, int frameIndex, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -45,13 +65,16 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
 
                 var width = pixelData.Width;
                 var height = pixelData.Height;
+                var frameCount = GetFrameCount(pixelData);
+
+                if (frameIndex < 0 || frameIndex >= frameCount) throw new ArgumentOutOfRangeException(nameof(frameIndex), frameIndex, $"The frame index must be between 0 and {frameCount - 1}.");
 
                 if (width <= 0 || height <= 0)
                 {
                     return null;
                 }
 
-                var frame = pixelData.GetFrame(0);
+                var frame = pixelData.GetFrame(frameIndex);
                 var frameData = frame.Data;
 
                 if (frameData == null || frameData.Length == 0)
@@ -70,7 +93,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
 
                 var pixelSpacing = GetPixelSpacing(dataset);
 
-                var imageFrame = new DicomImageFrame(filePath: filePath, width: width, height: height, values: values, defaultWindowCenter: defaultWindowCenter, defaultWindowWidth: defaultWindowWidth, photometricInterpretation: photometricInterpretation, modality: modality);
+                var sopInstanceUid = GetString(dataset, DicomTag.SOPInstanceUID);
+                var imageFrame = new DicomImageFrame(filePath: filePath, sopInstanceUid: sopInstanceUid, frameIndex: frameIndex, frameCount: frameCount, width: width, height: height, values: values, defaultWindowCenter: defaultWindowCenter, defaultWindowWidth: defaultWindowWidth, photometricInterpretation: photometricInterpretation, modality: modality);
 
                 if (pixelSpacing.HasValue)
                 {
@@ -224,6 +248,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Dicom.Implementations
 
             return values;
         }
+
+        private static int GetFrameCount(DicomPixelData pixelData) => Math.Max(1, pixelData.NumberOfFrames);
 
         private static double? GetDouble(DicomDataset dataset, DicomTag tag)
         {

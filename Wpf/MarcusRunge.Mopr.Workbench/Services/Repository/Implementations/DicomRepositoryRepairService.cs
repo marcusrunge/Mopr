@@ -88,7 +88,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Repository.Implementations
             RegisterIncompleteImportFiles(context, result, cancellationToken);
             RegisterDuplicateFiles(context, result, cancellationToken);
 
-            HashSet<string> persistedSopInstanceUids = new(StringComparer.Ordinal);
+            HashSet<string> persistedSopInstanceUids = [with(StringComparer.Ordinal)];
 
             /*
              * Persistence is read only after the exclusive location lease has been

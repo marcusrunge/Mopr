@@ -12,22 +12,48 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Media;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportTileViewModel : BindableBase
     {
-        public event EventHandler<ViewportSliceNavigationRequestedEventArgs>? SliceNavigationRequested;
-        public event EventHandler<ViewportStateChangedEventArgs>? ViewportStateChanged;
-
         private readonly IImagingMeasurementInstanceResolver _measurementInstanceResolver;
+
         private readonly IImagingMeasurementSessionStore _measurementSessionStore;
-        private readonly ViewportTransformState _transformState = new();
+
         private readonly string _title;
+
+        private readonly ViewportTransformState _transformState = new();
+
         private readonly string _viewportId;
+
+        private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
+
+        private ImagingTool _activeTool;
+
+        private DicomImageFrame? _currentDicomFrame;
+
+        private string? _currentFileName, _currentFilePath;
+
+        private ImageSource? _currentImage;
+
+        private int? _currentPixelX, _currentPixelY;
+
+        private int _currentSlice = 1, _sliceCount = 1;
+
+        private IReadOnlyList<DicomImagePosition> _imagePositions = [];
+
         private ImagingMeasurementInstanceKey? _measurementInstanceKey;
+
         private ObservableCollection<ViewportMeasurementViewModel> _measurements = [];
+
+        private SeriesInfo? _series;
+
+        private IReadOnlyList<string> _seriesFiles = [];
+
+        private double? _windowCenter, _windowWidth, _currentPixelValue;
 
         public ViewportTileViewModel(string viewportId, string title, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver)
         {
@@ -39,16 +65,21 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _transformState.PropertyChanged += OnTransformStatePropertyChanged;
         }
 
-        private ImagingTool _activeTool;
-        private ViewportMeasurementViewModel? _activeMeasurementDraft, _selectedMeasurement;
-        private DicomImageFrame? _currentDicomFrame;
-        private string? _currentFileName, _currentFilePath;
-        private ImageSource? _currentImage;
-        private int? _currentPixelX, _currentPixelY;
-        private int _currentSlice = 1, _sliceCount = 1;
-        private SeriesInfo? _series;
-        private IReadOnlyList<string> _seriesFiles = [];
-        private double? _windowCenter, _windowWidth, _currentPixelValue;
+        public event EventHandler<ViewportSliceNavigationRequestedEventArgs>? SliceNavigationRequested;
+
+        public event EventHandler<ViewportStateChangedEventArgs>? ViewportStateChanged;
+
+        public ViewportMeasurementViewModel? ActiveMeasurementDraft
+        {
+            get => _activeMeasurementDraft;
+            private set
+            {
+                if (SetProperty(ref _activeMeasurementDraft, value))
+                {
+                    RaisePropertyChanged(nameof(MeasurementDisplayText));
+                }
+            }
+        }
 
         public ImagingTool ActiveTool
         {
@@ -65,26 +96,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public bool CanZoomIn => _transformState.CanZoomIn;
         public bool CanZoomOut => _transformState.CanZoomOut;
-        public bool IsFlippedHorizontally => _transformState.IsFlippedHorizontally;
-        public bool IsFlippedVertically => _transformState.IsFlippedVertically;
-        public bool IsPanActive => ActiveTool == ImagingTool.Pan;
-        public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
-        public double PanOffsetX => _transformState.PanOffsetX;
-        public double PanOffsetY => _transformState.PanOffsetY;
-        public ViewportRotation Rotation => _transformState.Rotation;
-        public double ZoomFactor => _transformState.ZoomFactor;
-
-        public ViewportMeasurementViewModel? ActiveMeasurementDraft
-        {
-            get => _activeMeasurementDraft;
-            private set
-            {
-                if (SetProperty(ref _activeMeasurementDraft, value))
-                {
-                    RaisePropertyChanged(nameof(MeasurementDisplayText));
-                }
-            }
-        }
 
         public DicomImageFrame? CurrentDicomFrame
         {
@@ -132,6 +143,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
             }
         }
+
+        public DicomImagePosition? CurrentImagePosition => CurrentSlice > 0 && CurrentSlice <= ImagePositions.Count ? ImagePositions[CurrentSlice - 1] : null;
 
         public string CurrentPixelDisplayText
         {
@@ -194,16 +207,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _currentSlice, value))
                 {
+                    RaisePropertyChanged(nameof(CurrentImagePosition));
                     RaisePropertyChanged(nameof(SliceDisplayText));
                 }
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ãƒâ€šÃ‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
-
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} · {SliceCount} {Resources.ViewportTile_Images}";
         public string DisplayTitle => Series == null ? Title : Series.Name;
-
+        public IReadOnlyList<DicomImagePosition> ImagePositions { get => _imagePositions; private set => SetProperty(ref _imagePositions, value); }
         public bool IsEmptyViewerVisible => CurrentImage == null;
+        public bool IsFlippedHorizontally => _transformState.IsFlippedHorizontally;
+        public bool IsFlippedVertically => _transformState.IsFlippedVertically;
+        public bool IsPanActive => ActiveTool == ImagingTool.Pan;
+        public bool IsZoomActive => ActiveTool == ImagingTool.Zoom;
 
         public string MeasurementDisplayText
         {
@@ -252,6 +269,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
+        public double PanOffsetX => _transformState.PanOffsetX;
+        public double PanOffsetY => _transformState.PanOffsetY;
+        public ViewportRotation Rotation => _transformState.Rotation;
+
         public ViewportMeasurementViewModel? SelectedMeasurement
         {
             get => _selectedMeasurement;
@@ -294,22 +315,42 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             {
                 if (SetProperty(ref _sliceCount, value))
                 {
+                    RaisePropertyChanged(nameof(DisplaySubtitle));
                     RaisePropertyChanged(nameof(SliceDisplayText));
                 }
             }
         }
 
         public string SliceDisplayText => $"{CurrentSlice}/{SliceCount}";
-
         public string Title => _title;
-
         public string ViewportId => _viewportId;
-
         public double? WindowCenter => _windowCenter;
-
         public string WindowDisplayText => !WindowCenter.HasValue || !WindowWidth.HasValue ? $"{Resources.ViewportTile_WindowLevel}: {Resources.ViewportTile_Default}" : $"{Resources.ViewportTile_WindowLevel}: {WindowWidth.Value:0}/{WindowCenter.Value:0}";
-
         public double? WindowWidth => _windowWidth;
+        public double ZoomFactor => _transformState.ZoomFactor;
+
+        public void AddPan(double horizontalDelta, double verticalDelta)
+        {
+            if (_transformState.AddPan(horizontalDelta, verticalDelta)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ApplySynchronizedStateChange(ViewportStateChange change)
+        {
+            ArgumentNullException.ThrowIfNull(change);
+            if (change.Origin != ViewportStateChangeOrigin.Synchronization) throw new ArgumentException("Only synchronization-origin changes may be applied to a target viewport.", nameof(change));
+            if (string.Equals(change.SourceViewportId, ViewportId, StringComparison.Ordinal)) throw new ArgumentException("A viewport cannot apply its own synchronized state change.", nameof(change));
+            switch (change)
+            {
+                case ViewportSliceChange value: SetSliceCore(value.CurrentSlice); break;
+                case ViewportWindowLevelChange value: ApplyWindowLevel(value.WindowCenter, value.WindowWidth, false); break;
+                case ViewportZoomChange value: _transformState.SetZoom(value.ZoomFactor); break;
+                case ViewportPanChange value: _transformState.SetPan(value.PanOffsetX, value.PanOffsetY); break;
+                case ViewportRotationChange value: _transformState.SetRotation(value.Rotation); break;
+                case ViewportHorizontalFlipChange value: _transformState.SetHorizontalFlip(value.IsFlippedHorizontally); break;
+                case ViewportVerticalFlipChange value: _transformState.SetVerticalFlip(value.IsFlippedVertically); break;
+                default: throw new ArgumentOutOfRangeException(nameof(change), change, "The viewport state change type is not supported.");
+            }
+        }
 
         public void BeginOrCompleteMeasurement(double imageX, double imageY)
         {
@@ -389,11 +430,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RaiseMeasurementPropertiesChanged();
         }
 
-        public void AddPan(double horizontalDelta, double verticalDelta)
-        {
-            if (_transformState.AddPan(horizontalDelta, verticalDelta)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
-        }
-
         public void FitToView() => ResetViewTransform();
 
         public void FlipHorizontal()
@@ -432,6 +468,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public void ResetViewTransform() => ResetViewTransformCore(true);
 
+        public void ResetWindowLevel() => ApplyWindowLevel(null, null, true);
+
         public void RotateLeft()
         {
             if (_transformState.RotateLeft()) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
@@ -441,30 +479,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         {
             if (_transformState.RotateRight()) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
         }
-
-        public void SetPan(double panOffsetX, double panOffsetY)
-        {
-            if (_transformState.SetPan(panOffsetX, panOffsetY)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
-        }
-
-        public void SetZoomAndPan(double zoomFactor, double panOffsetX, double panOffsetY)
-        {
-            var result = _transformState.SetZoomAndPan(zoomFactor, panOffsetX, panOffsetY);
-            if (result.ZoomChanged) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
-            if (result.PanChanged) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
-        }
-
-        public void ZoomIn()
-        {
-            if (_transformState.ZoomIn()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
-        }
-
-        public void ZoomOut()
-        {
-            if (_transformState.ZoomOut()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
-        }
-
-        public void ResetWindowLevel() => ApplyWindowLevel(null, null, true);
 
         public void SelectMeasurement(ViewportMeasurementViewModel? measurement)
         {
@@ -485,7 +499,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             CurrentPixelValue = value;
         }
 
-        public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files)
+        public void SetImagePositions(SeriesInfo? series, IReadOnlyList<DicomImagePosition> imagePositions)
         {
             // A newly assigned series starts from a predictable fit-to-view state without changing persisted imaging data.
             ResetViewTransformCore(false);
@@ -493,9 +507,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             ClearCurrentPixel();
 
             Series = series;
-            SeriesFiles = files ?? [];
-
-            SliceCount = SeriesFiles.Count > 0 ? SeriesFiles.Count : Math.Max(1, series?.ImageCount ?? 1);
+            ImagePositions = imagePositions ?? [];
+            SeriesFiles = [.. ImagePositions.Select(position => position.FilePath).Distinct(StringComparer.OrdinalIgnoreCase)];
+            SliceCount = ImagePositions.Count > 0 ? ImagePositions.Count : Math.Max(1, series?.ImageCount ?? 1);
 
             CurrentDicomFrame = null;
             CurrentImage = null;
@@ -516,7 +530,117 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             return changed;
         }
 
+        public void SetPan(double panOffsetX, double panOffsetY)
+        {
+            if (_transformState.SetPan(panOffsetX, panOffsetY)) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void SetSeries(SeriesInfo? series, IReadOnlyList<string> files) => SetImagePositions(series, files?.Select(filePath => new DicomImagePosition(filePath, null, 0, 1)).ToArray() ?? []);
+
         public void SetSlice(int slice) => SetSliceCore(slice);
+
+        public void SetWindowLevel(double? windowCenter, double? windowWidth) => ApplyWindowLevel(windowCenter, windowWidth, true);
+
+        public void SetZoomAndPan(double zoomFactor, double panOffsetX, double panOffsetY)
+        {
+            var (ZoomChanged, PanChanged) = _transformState.SetZoomAndPan(zoomFactor, panOffsetX, panOffsetY);
+            if (ZoomChanged) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+            if (PanChanged) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+        }
+
+        public void UpdateMeasurementDraft(double imageX, double imageY)
+        {
+            if (ActiveMeasurementDraft == null)
+            {
+                return;
+            }
+
+            ActiveMeasurementDraft.SetPreviewEndPoint(imageX, imageY);
+
+            RaiseMeasurementPropertiesChanged();
+        }
+
+        public void ZoomIn()
+        {
+            if (_transformState.ZoomIn()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+        }
+
+        public void ZoomOut()
+        {
+            if (_transformState.ZoomOut()) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+        }
+
+        private bool ApplyWindowLevel(double? windowCenter, double? windowWidth, bool publish)
+        {
+            if (windowCenter.HasValue != windowWidth.HasValue) throw new ArgumentException("Window center and width must either both be set or both be null.");
+            if (windowCenter.HasValue && !double.IsFinite(windowCenter.Value)) throw new ArgumentOutOfRangeException(nameof(windowCenter));
+            if (windowWidth.HasValue && (!double.IsFinite(windowWidth.Value) || windowWidth.Value <= 0.0)) throw new ArgumentOutOfRangeException(nameof(windowWidth));
+            var centerChanged = _windowCenter != windowCenter;
+            var widthChanged = _windowWidth != windowWidth;
+            if (!centerChanged && !widthChanged) return false;
+            // Commit the pair before notifying observers so rendering never sees a mixed window/level state.
+            _windowCenter = windowCenter;
+            _windowWidth = windowWidth;
+            if (centerChanged) RaisePropertyChanged(nameof(WindowCenter));
+            if (widthChanged) RaisePropertyChanged(nameof(WindowWidth));
+            RaisePropertyChanged(nameof(WindowDisplayText));
+            if (publish) PublishLocal(new ViewportWindowLevelChange(ViewportId, WindowCenter, WindowWidth, ViewportStateChangeOrigin.Local));
+            return true;
+        }
+
+        private void BindMeasurementsToCurrentInstance()
+        {
+            if (Series is null || string.IsNullOrWhiteSpace(CurrentFilePath))
+            {
+                _measurementInstanceKey = null;
+                Measurements = [];
+                return;
+            }
+
+            _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath);
+            Measurements = _measurementSessionStore.GetMeasurements(_measurementInstanceKey);
+        }
+
+        private void OnTransformStatePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs eventArgs)
+        {
+            if (string.IsNullOrWhiteSpace(eventArgs.PropertyName))
+            {
+                RaisePropertyChanged(nameof(ZoomFactor));
+                RaisePropertyChanged(nameof(PanOffsetX));
+                RaisePropertyChanged(nameof(PanOffsetY));
+                RaisePropertyChanged(nameof(CanZoomIn));
+                RaisePropertyChanged(nameof(CanZoomOut));
+                return;
+            }
+
+            RaisePropertyChanged(eventArgs.PropertyName);
+        }
+
+        private void PublishLocal(ViewportStateChange change) => ViewportStateChanged?.Invoke(this, new ViewportStateChangedEventArgs(change));
+
+        private void RaiseMeasurementPropertiesChanged()
+        {
+            RaisePropertyChanged(nameof(MeasurementDisplayText));
+            RaisePropertyChanged(nameof(ActiveMeasurementDraft));
+            RaisePropertyChanged(nameof(Measurements));
+            RaisePropertyChanged(nameof(SelectedMeasurement));
+        }
+
+        private void ResetViewTransformCore(bool publish)
+        {
+            var before = _transformState.Snapshot;
+            _transformState.SetZoom(ViewportImageGeometryCalculator.DefaultZoomFactor);
+            _transformState.SetPan(0.0, 0.0);
+            _transformState.SetRotation(ViewportRotation.None);
+            _transformState.SetHorizontalFlip(false);
+            _transformState.SetVerticalFlip(false);
+            if (!publish) return;
+            if (before.ZoomFactor != ZoomFactor) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
+            if (before.PanOffsetX != PanOffsetX || before.PanOffsetY != PanOffsetY) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
+            if (before.Rotation != Rotation) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
+            if (before.IsFlippedHorizontally != IsFlippedHorizontally) PublishLocal(new ViewportHorizontalFlipChange(ViewportId, IsFlippedHorizontally, ViewportStateChangeOrigin.Local));
+            if (before.IsFlippedVertically != IsFlippedVertically) PublishLocal(new ViewportVerticalFlipChange(ViewportId, IsFlippedVertically, ViewportStateChangeOrigin.Local));
+        }
 
         private bool SetSliceCore(int slice)
         {
@@ -553,132 +677,19 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             return previousSlice != CurrentSlice;
         }
 
-        public void SetWindowLevel(double? windowCenter, double? windowWidth) => ApplyWindowLevel(windowCenter, windowWidth, true);
-
-        public void ApplySynchronizedStateChange(ViewportStateChange change)
-        {
-            ArgumentNullException.ThrowIfNull(change);
-            if (change.Origin != ViewportStateChangeOrigin.Synchronization) throw new ArgumentException("Only synchronization-origin changes may be applied to a target viewport.", nameof(change));
-            if (string.Equals(change.SourceViewportId, ViewportId, StringComparison.Ordinal)) throw new ArgumentException("A viewport cannot apply its own synchronized state change.", nameof(change));
-            switch (change)
-            {
-                case ViewportSliceChange value: SetSliceCore(value.CurrentSlice); break;
-                case ViewportWindowLevelChange value: ApplyWindowLevel(value.WindowCenter, value.WindowWidth, false); break;
-                case ViewportZoomChange value: _transformState.SetZoom(value.ZoomFactor); break;
-                case ViewportPanChange value: _transformState.SetPan(value.PanOffsetX, value.PanOffsetY); break;
-                case ViewportRotationChange value: _transformState.SetRotation(value.Rotation); break;
-                case ViewportHorizontalFlipChange value: _transformState.SetHorizontalFlip(value.IsFlippedHorizontally); break;
-                case ViewportVerticalFlipChange value: _transformState.SetVerticalFlip(value.IsFlippedVertically); break;
-                default: throw new ArgumentOutOfRangeException(nameof(change), change, "The viewport state change type is not supported.");
-            }
-        }
-
-        public void UpdateMeasurementDraft(double imageX, double imageY)
-        {
-            if (ActiveMeasurementDraft == null)
-            {
-                return;
-            }
-
-            ActiveMeasurementDraft.SetPreviewEndPoint(imageX, imageY);
-
-            RaiseMeasurementPropertiesChanged();
-        }
-
-        private void BindMeasurementsToCurrentInstance()
-        {
-            if (Series is null || string.IsNullOrWhiteSpace(CurrentFilePath))
-            {
-                _measurementInstanceKey = null;
-                Measurements = [];
-                return;
-            }
-
-            _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath);
-            Measurements = _measurementSessionStore.GetMeasurements(_measurementInstanceKey);
-        }
-
-        private void OnTransformStatePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs eventArgs)
-        {
-            if (string.IsNullOrWhiteSpace(eventArgs.PropertyName))
-            {
-                RaisePropertyChanged(nameof(ZoomFactor));
-                RaisePropertyChanged(nameof(PanOffsetX));
-                RaisePropertyChanged(nameof(PanOffsetY));
-                RaisePropertyChanged(nameof(CanZoomIn));
-                RaisePropertyChanged(nameof(CanZoomOut));
-                return;
-            }
-
-            RaisePropertyChanged(eventArgs.PropertyName);
-        }
-
-        private void RaiseMeasurementPropertiesChanged()
-        {
-            RaisePropertyChanged(nameof(MeasurementDisplayText));
-            RaisePropertyChanged(nameof(ActiveMeasurementDraft));
-            RaisePropertyChanged(nameof(Measurements));
-            RaisePropertyChanged(nameof(SelectedMeasurement));
-        }
-
-        private bool ApplyWindowLevel(double? windowCenter, double? windowWidth, bool publish)
-        {
-            if (windowCenter.HasValue != windowWidth.HasValue) throw new ArgumentException("Window center and width must either both be set or both be null.");
-            if (windowCenter.HasValue && !double.IsFinite(windowCenter.Value)) throw new ArgumentOutOfRangeException(nameof(windowCenter));
-            if (windowWidth.HasValue && (!double.IsFinite(windowWidth.Value) || windowWidth.Value <= 0.0)) throw new ArgumentOutOfRangeException(nameof(windowWidth));
-            var centerChanged = _windowCenter != windowCenter;
-            var widthChanged = _windowWidth != windowWidth;
-            if (!centerChanged && !widthChanged) return false;
-            // Commit the pair before notifying observers so rendering never sees a mixed window/level state.
-            _windowCenter = windowCenter;
-            _windowWidth = windowWidth;
-            if (centerChanged) RaisePropertyChanged(nameof(WindowCenter));
-            if (widthChanged) RaisePropertyChanged(nameof(WindowWidth));
-            RaisePropertyChanged(nameof(WindowDisplayText));
-            if (publish) PublishLocal(new ViewportWindowLevelChange(ViewportId, WindowCenter, WindowWidth, ViewportStateChangeOrigin.Local));
-            return true;
-        }
-
-        private void PublishLocal(ViewportStateChange change) => ViewportStateChanged?.Invoke(this, new ViewportStateChangedEventArgs(change));
-
-        private void ResetViewTransformCore(bool publish)
-        {
-            var before = _transformState.Snapshot;
-            _transformState.SetZoom(ViewportImageGeometryCalculator.DefaultZoomFactor);
-            _transformState.SetPan(0.0, 0.0);
-            _transformState.SetRotation(ViewportRotation.None);
-            _transformState.SetHorizontalFlip(false);
-            _transformState.SetVerticalFlip(false);
-            if (!publish) return;
-            if (before.ZoomFactor != ZoomFactor) PublishLocal(new ViewportZoomChange(ViewportId, ZoomFactor, ViewportStateChangeOrigin.Local));
-            if (before.PanOffsetX != PanOffsetX || before.PanOffsetY != PanOffsetY) PublishLocal(new ViewportPanChange(ViewportId, PanOffsetX, PanOffsetY, ViewportStateChangeOrigin.Local));
-            if (before.Rotation != Rotation) PublishLocal(new ViewportRotationChange(ViewportId, Rotation, ViewportStateChangeOrigin.Local));
-            if (before.IsFlippedHorizontally != IsFlippedHorizontally) PublishLocal(new ViewportHorizontalFlipChange(ViewportId, IsFlippedHorizontally, ViewportStateChangeOrigin.Local));
-            if (before.IsFlippedVertically != IsFlippedVertically) PublishLocal(new ViewportVerticalFlipChange(ViewportId, IsFlippedVertically, ViewportStateChangeOrigin.Local));
-        }
-
         private void UpdateCurrentFile()
         {
-            if (SeriesFiles.Count == 0)
+            var imagePosition = CurrentImagePosition;
+
+            if (imagePosition == null)
             {
                 CurrentFileName = null;
                 CurrentFilePath = null;
                 return;
             }
 
-            var index = CurrentSlice - 1;
-
-            if (index < 0 || index >= SeriesFiles.Count)
-            {
-                CurrentFileName = null;
-                CurrentFilePath = null;
-                return;
-            }
-
-            var filePath = SeriesFiles[index];
-
-            CurrentFilePath = filePath;
-            CurrentFileName = Path.GetFileName(filePath);
+            CurrentFilePath = imagePosition.FilePath;
+            CurrentFileName = Path.GetFileName(imagePosition.FilePath);
         }
     }
 }

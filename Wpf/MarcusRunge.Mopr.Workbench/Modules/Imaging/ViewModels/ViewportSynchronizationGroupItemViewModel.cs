@@ -5,9 +5,10 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 {
     public sealed class ViewportSynchronizationGroupItemViewModel(ViewportSynchronizationGroup group)
     {
-        public ViewportSynchronizationGroup Group { get; } = group;
-        public string DisplayText => $"{group.Name} ({group.ViewportIds.Count})";
-        public Guid Id => group.Id;
+        public ViewportSynchronizationGroup Group { get; } = group ?? throw new ArgumentNullException(nameof(group));
+        public string DisplayText => $"{Group.Name} ({Group.ViewportIds.Count})";
+        public Guid Id => Group.Id;
+
         public override string ToString() => DisplayText;
     }
 }
