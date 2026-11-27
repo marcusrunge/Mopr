@@ -648,4 +648,7 @@
   <data name="Synchronization_RemoveGroup" xml:space="preserve">
     <value>Delete group</value>
   </data>
+  <data name="ViewportTile_AddToSynchronizationGroup" xml:space="preserve">
+    <value>Add to synchronization group</value>
+  </data>
 </root>

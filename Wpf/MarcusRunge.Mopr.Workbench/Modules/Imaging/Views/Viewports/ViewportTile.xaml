@@ -1,5 +1,6 @@
 <UserControl x:Class="MarcusRunge.Mopr.Workbench.Modules.Imaging.Views.Viewports.ViewportTile"
              xmlns:behaviors="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors"
+             xmlns:converters="clr-namespace:MarcusRunge.Mopr.Workbench.Modules.Imaging.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,6 +15,7 @@
         <behaviors:ViewportInteractionBehavior />
     </i:Interaction.Behaviors>
     <UserControl.Resources>
+        <converters:ViewportSynchronizationGroupAssignmentRequestConverter x:Key="ViewportSynchronizationGroupAssignmentRequestConverter" />
         <Style x:Key="ViewportBorderStyle"
                TargetType="Border">
             <Setter Property="Background" Value="#05080A" />
@@ -38,6 +40,24 @@
                 <MenuItem Header="{x:Static properties:Resources.ViewportTile_ClearViewport}"
                           Command="{Binding ClearViewportCommand}"
                           CommandParameter="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                <Separator />
+                <MenuItem Header="{x:Static properties:Resources.ViewportTile_AddToSynchronizationGroup}"
+                          ItemsSource="{Binding ViewportSynchronization.Groups}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding DisplayText}" />
+                            <Setter Property="Command" Value="{Binding PlacementTarget.DataContext.ViewportSynchronization.AddViewportToGroupCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Setter Property="CommandParameter">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource ViewportSynchronizationGroupAssignmentRequestConverter}">
+                                        <Binding Path="PlacementTarget.Tag" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
+                                        <Binding Path="Id" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
             </ContextMenu>
         </Border.ContextMenu>
         <Grid ClipToBounds="True">

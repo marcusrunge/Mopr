@@ -1438,6 +1438,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Add to synchronization group ähnelt.
+        /// </summary>
+        public static string ViewportTile_AddToSynchronizationGroup {
+            get {
+                return ResourceManager.GetString("ViewportTile_AddToSynchronizationGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Clear viewport ähnelt.
         /// </summary>
         public static string ViewportTile_ClearViewport {

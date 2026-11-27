@@ -62,7 +62,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly IViewportSynchronizationService _viewportSynchronizationService;
         private readonly IViewportSliceSynchronizationCompatibilityService _viewportSliceSynchronizationCompatibilityService;
 
-        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService, IViewportSynchronizationService viewportSynchronizationService, IViewportSliceSynchronizationCompatibilityService viewportSliceSynchronizationCompatibilityService, IEventAggregator eventAggregator)
+        public ImageViewerViewModel(ICore core, IApplication wpf, IDicom dicom, IImagingMeasurementContext measurementContext, IImagingMeasurementSessionStore measurementSessionStore, IImagingMeasurementInstanceResolver measurementInstanceResolver, IImagingMeasurementHydrationService measurementHydrationService, IViewportSynchronizationService viewportSynchronizationService, IViewportSliceSynchronizationCompatibilityService viewportSliceSynchronizationCompatibilityService, ViewportSynchronizationSettingsViewModel viewportSynchronization, IEventAggregator eventAggregator)
         {
             _core = core;
             _wpf = wpf;
@@ -74,6 +74,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _measurementHydrationService = measurementHydrationService ?? throw new ArgumentNullException(nameof(measurementHydrationService));
             _viewportSynchronizationService = viewportSynchronizationService ?? throw new ArgumentNullException(nameof(viewportSynchronizationService));
             _viewportSliceSynchronizationCompatibilityService = viewportSliceSynchronizationCompatibilityService ?? throw new ArgumentNullException(nameof(viewportSliceSynchronizationCompatibilityService));
+            ViewportSynchronization = viewportSynchronization ?? throw new ArgumentNullException(nameof(viewportSynchronization));
 
             _currentLayout = _core.ImagingService!.ImagingLayoutService!.CurrentLayout;
 
@@ -185,6 +186,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         public ViewportTileViewModel AscCoronalViewport { get; }
 
         public ViewportTileViewModel AscSagittalViewport { get; }
+
+        public ViewportSynchronizationSettingsViewModel ViewportSynchronization { get; }
 
         public DelegateCommand<string?> ClearViewportCommand => _clearViewportCommand ??= new DelegateCommand<string?>(ClearViewport);
 
@@ -369,7 +372,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         public ViewportTileViewModel TwoByTwoViewport4 { get; }
 
-        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {SelectedSeries.Description}";
+        public string ViewerSubtitle => SelectedSeries == null ? Resources.Viewer_NoSeries : $"{SelectedSeries.Modality} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {SelectedSeries.Description}";
 
         public string ViewerTitle => SelectedSeries == null ? Resources.Viewer_Title : SelectedSeries.Name;
 

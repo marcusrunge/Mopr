@@ -1,5 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Core.Mvvm;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Enums;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
@@ -15,6 +16,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private readonly IImagingViewportSelectionService _selectionService;
         private readonly IViewportSynchronizationService _synchronizationService;
         private DelegateCommand? _addActiveViewportCommand, _createGroupCommand, _removeActiveViewportCommand, _removeGroupCommand;
+        private DelegateCommand<ViewportSynchronizationGroupAssignmentRequest?>? _addViewportToGroupCommand;
         private string _newGroupName = string.Empty;
         private ViewportSynchronizationGroupItemViewModel? _selectedGroup;
 
@@ -27,6 +29,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             RefreshGroups();
         }
 
+        public DelegateCommand<ViewportSynchronizationGroupAssignmentRequest?> AddViewportToGroupCommand => _addViewportToGroupCommand ??= new DelegateCommand<ViewportSynchronizationGroupAssignmentRequest?>(AddViewportToGroup, CanAddViewportToGroup);
         public DelegateCommand AddActiveViewportCommand => _addActiveViewportCommand ??= new DelegateCommand(AddActiveViewport, CanAddActiveViewport).ObservesProperty(() => SelectedGroup);
         public bool CanConfigureGroup => SelectedGroup != null;
         public DelegateCommand CreateGroupCommand => _createGroupCommand ??= new DelegateCommand(CreateGroup, CanCreateGroup).ObservesProperty(() => NewGroupName);
@@ -59,6 +62,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             _selectionService.ActiveViewportChanged -= OnActiveViewportChanged;
             base.Destroy();
         }
+
+        private void AddViewportToGroup(ViewportSynchronizationGroupAssignmentRequest? request)
+        {
+            if (!CanAddViewportToGroup(request)) return;
+            SelectUpdated(_synchronizationService.AddViewport(request!.GroupId, request.ViewportId));
+        }
+
+        private bool CanAddViewportToGroup(ViewportSynchronizationGroupAssignmentRequest? request) => request != null && _synchronizationService.GetGroup(request.GroupId) is { } group && !group.ViewportIds.Contains(request.ViewportId, StringComparer.Ordinal);
 
         private void AddActiveViewport()
         {
@@ -133,4 +144,3 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         }
     }
 }
-
