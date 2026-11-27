@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using System;
@@ -8,9 +9,15 @@ using System.Linq;
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
 {
     /// <summary>Validates slice synchronization against complete DICOM identity instead of relying on display indices.</summary>
-    public sealed class ViewportSliceSynchronizationCompatibilityService(IImagingStudyService imagingStudyService) : IViewportSliceSynchronizationCompatibilityService
+    public sealed class ViewportSliceSynchronizationCompatibilityService : IViewportSliceSynchronizationCompatibilityService
     {
-        private readonly IImagingStudyService _imagingStudyService = imagingStudyService ?? throw new ArgumentNullException(nameof(imagingStudyService));
+        private readonly IImagingStudyService _imagingStudyService;
+
+        public ViewportSliceSynchronizationCompatibilityService(ICore core)
+        {
+            ArgumentNullException.ThrowIfNull(core);
+            _imagingStudyService = core.ImagingService?.ImagingStudyService ?? throw new InvalidOperationException("The imaging study service is not available through the core facade.");
+        }
 
         /// <inheritdoc/>
         public bool AreCompatible(ViewportSliceSynchronizationContext source, ViewportSliceSynchronizationContext target)
@@ -71,3 +78,4 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         }
     }
 }
+

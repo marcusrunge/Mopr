@@ -1,4 +1,5 @@
 using MarcusRunge.Mopr.Workbench.Contracts.Enums;
+using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Imaging;
@@ -6,7 +7,6 @@ using MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Studies;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using Moq;
-using Prism.Events;
 using ApplicationDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IDialogService;
 using ApplicationFileDialogService = MarcusRunge.Mopr.Workbench.Services.Application.Contracts.Dialog.IFileDialogService;
 using PrismDialogService = Prism.Dialogs.IDialogService;
@@ -27,14 +27,17 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             ImagingService.SetupGet(value => value.ImagingStudyService).Returns(ImagingStudyService.Object);
             ImagingService.SetupGet(value => value.ImagingToolService).Returns(ImagingToolService.Object);
             ImagingService.SetupGet(value => value.ImagingViewportService).Returns(ImagingViewportService.Object);
+            ImagingService.SetupGet(value => value.ImagingViewportSelectionService).Returns(ImagingViewportSelectionService.Object);
             ImagingService.SetupGet(value => value.ImagingWindowLevelService).Returns(ImagingWindowLevelService.Object);
             ImagingLayoutService.SetupGet(value => value.CurrentLayout).Returns(ImagingLayout.Single);
             ImagingSessionService.SetupGet(value => value.HasOpenStudy).Returns(hasOpenStudy);
             ImagingSessionService.SetupGet(value => value.HasUnsavedChanges).Returns(hasUnsavedChanges);
             ImagingToolService.SetupGet(value => value.ActiveTool).Returns(ImagingTool.None);
             StudiesService.SetupGet(value => value.ImportedSeriesLoader).Returns(ImportedSeriesLoader.Object);
+            ViewportSynchronizationService.Setup(value => value.GetGroups()).Returns([]);
             EventAggregator = new EventAggregator();
-            ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object, EventAggregator);
+            ViewportSynchronizationSettings = new ViewportSynchronizationSettingsViewModel(Core.Object, ViewportSynchronizationService.Object);
+            ViewModel = new ImagingCommandBarViewModel(Core.Object, Application.Object, DialogService.Object, EventAggregator, ViewportSynchronizationSettings);
         }
 
         public Mock<IApplication> Application { get; } = new();
@@ -50,9 +53,12 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         public Mock<IImagingStudyService> ImagingStudyService { get; } = new();
         public Mock<IImagingToolService> ImagingToolService { get; } = new();
         public Mock<IImagingViewportService> ImagingViewportService { get; } = new();
+        public Mock<IImagingViewportSelectionService> ImagingViewportSelectionService { get; } = new();
         public Mock<IImagingWindowLevelService> ImagingWindowLevelService { get; } = new();
         public Mock<IImportedSeriesLoadService> ImportedSeriesLoader { get; } = new();
         public Mock<IStudiesService> StudiesService { get; } = new();
+        public Mock<IViewportSynchronizationService> ViewportSynchronizationService { get; } = new();
+        public ViewportSynchronizationSettingsViewModel ViewportSynchronizationSettings { get; }
         public ImagingCommandBarViewModel ViewModel { get; }
 
         public static Mock<IDialogResult> CreateDialogResult(IDialogParameters parameters, ButtonResult result = ButtonResult.OK)
@@ -64,3 +70,5 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
         }
     }
 }
+
+

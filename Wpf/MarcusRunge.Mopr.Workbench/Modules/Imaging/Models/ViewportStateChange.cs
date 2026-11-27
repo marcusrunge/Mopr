@@ -75,4 +75,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Models
         public ViewportVerticalFlipChange(string sourceViewportId, bool isFlippedVertically, ViewportStateChangeOrigin origin) : base(sourceViewportId, ViewportSynchronizationFlags.VerticalFlip, origin) => IsFlippedVertically = isFlippedVertically;
         public bool IsFlippedVertically { get; }
     }
+
+    public sealed class ViewportSliceChange : ViewportStateChange
+    {
+        public ViewportSliceChange(string sourceViewportId, int currentSlice, ViewportStateChangeOrigin origin) : base(sourceViewportId, ViewportSynchronizationFlags.Slice, origin)
+        {
+            if (currentSlice < 1) throw new ArgumentOutOfRangeException(nameof(currentSlice), currentSlice, "Current slice must be greater than zero.");
+            CurrentSlice = currentSlice;
+        }
+
+        public int CurrentSlice { get; }
+    }
 }

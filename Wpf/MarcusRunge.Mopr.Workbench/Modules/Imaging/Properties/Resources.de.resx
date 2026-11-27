@@ -630,4 +630,22 @@
   <data name="ViewportStateChangeOrigin_Synchronization" xml:space="preserve">
     <value>Synchronisierung</value>
   </data>
+  <data name="CommandBar_Synchronization" xml:space="preserve">
+    <value>Synchronisierung</value>
+  </data>
+  <data name="Synchronization_CreateGroup" xml:space="preserve">
+    <value>Erstellen</value>
+  </data>
+  <data name="Synchronization_GroupName" xml:space="preserve">
+    <value>Gruppenname</value>
+  </data>
+  <data name="Synchronization_AddActiveViewport" xml:space="preserve">
+    <value>Aktiven Viewport hinzufügen</value>
+  </data>
+  <data name="Synchronization_RemoveActiveViewport" xml:space="preserve">
+    <value>Aktiven Viewport entfernen</value>
+  </data>
+  <data name="Synchronization_RemoveGroup" xml:space="preserve">
+    <value>Gruppe löschen</value>
+  </data>
 </root>

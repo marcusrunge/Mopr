@@ -1,5 +1,6 @@
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
+using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
 using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
 using Moq;
@@ -70,9 +71,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
         private static ViewportSliceSynchronizationCompatibilityService CreateService(IReadOnlyList<DicomFileMetadata> source, IReadOnlyList<DicomFileMetadata> target)
         {
             var studyService = new Mock<IImagingStudyService>();
+            var imagingService = new Mock<IImagingService>();
+            var core = new Mock<ICore>();
             studyService.Setup(service => service.GetDicomMetadataForSeries("source")).Returns(source);
             studyService.Setup(service => service.GetDicomMetadataForSeries("target")).Returns(target);
-            return new ViewportSliceSynchronizationCompatibilityService(studyService.Object);
+            imagingService.SetupGet(service => service.ImagingStudyService).Returns(studyService.Object);
+            core.SetupGet(service => service.ImagingService).Returns(imagingService.Object);
+            return new ViewportSliceSynchronizationCompatibilityService(core.Object);
         }
     }
 }
+

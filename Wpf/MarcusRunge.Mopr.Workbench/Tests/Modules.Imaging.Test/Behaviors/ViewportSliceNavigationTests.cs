@@ -102,6 +102,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Behaviors
             resolver.Setup(service => service.Resolve(series, "2.dcm")).Returns(secondKey);
             var tile = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
             tile.SetSeries(series, ["1.dcm", "2.dcm"]);
+            ConnectCanonicalNavigation(tile);
 
             Assert.True(ViewportSliceNavigation.TryNavigate(tile, Key.Up));
 
@@ -110,6 +111,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Behaviors
             store.Verify(service => service.Create(It.IsAny<ImagingMeasurementInstanceKey>(), It.IsAny<ViewportMeasurementViewModel>()), Times.Never);
             store.Verify(service => service.Delete(It.IsAny<ImagingMeasurementInstanceKey>(), It.IsAny<ViewportMeasurementViewModel>()), Times.Never);
         }
+
+        private static void ConnectCanonicalNavigation(ViewportTileViewModel tile) => tile.SliceNavigationRequested += (_, args) => tile.SetLocalSlice(args.Delta == int.MinValue ? 1 : args.Delta == int.MaxValue ? tile.SliceCount : tile.CurrentSlice + args.Delta);
 
         private static ViewportTileViewModel CreateEmptyTile() => new("Viewport", "Viewport", Mock.Of<IImagingMeasurementSessionStore>(), Mock.Of<IImagingMeasurementInstanceResolver>());
 
@@ -122,6 +125,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Behaviors
             var tile = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, sliceCount, "1.2.3");
             tile.SetSeries(series, Enumerable.Range(1, sliceCount).Select(index => $"{index}.dcm").ToArray());
+            ConnectCanonicalNavigation(tile);
             return tile;
         }
     }

@@ -6,44 +6,31 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Behaviors
     internal static class ViewportSliceNavigation
     {
         internal static bool CanNavigate(ViewportTileViewModel? tile) => tile?.Series != null && tile.SeriesFiles.Count > 0 && tile.SliceCount > 0;
-
         internal static int GetWheelSliceDelta(int wheelDelta) => wheelDelta > 0 ? 1 : wheelDelta < 0 ? -1 : 0;
 
         internal static void MoveByWheelDelta(ViewportTileViewModel tile, int wheelDelta)
         {
             if (!CanNavigate(tile)) return;
-
             var delta = GetWheelSliceDelta(wheelDelta);
-            if (delta != 0) tile.MoveSlice(delta);
+            if (delta != 0) tile.RequestSliceNavigation(delta);
         }
 
         internal static bool TryNavigate(ViewportTileViewModel? tile, Key key)
         {
             if (!CanNavigate(tile)) return false;
-
-            switch (key)
+            var delta = key switch
             {
-                case Key.Up:
-                    tile!.MoveSlice(1);
-                    return true;
-                case Key.Down:
-                    tile!.MoveSlice(-1);
-                    return true;
-                case Key.PageUp:
-                    tile!.MoveSlice(10);
-                    return true;
-                case Key.PageDown:
-                    tile!.MoveSlice(-10);
-                    return true;
-                case Key.Home:
-                    tile!.SetSlice(1);
-                    return true;
-                case Key.End:
-                    tile!.SetSlice(tile.SliceCount);
-                    return true;
-                default:
-                    return false;
-            }
+                Key.Up => 1,
+                Key.Down => -1,
+                Key.PageUp => 10,
+                Key.PageDown => -10,
+                Key.Home => int.MinValue,
+                Key.End => int.MaxValue,
+                _ => 0
+            };
+            if (delta == 0) return false;
+            tile!.RequestSliceNavigation(delta);
+            return true;
         }
     }
 }

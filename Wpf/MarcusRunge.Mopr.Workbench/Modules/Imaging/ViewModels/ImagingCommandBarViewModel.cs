@@ -44,12 +44,13 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
         private string _statusText = Resources.CommandBar_Status;
 
-        public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService, IEventAggregator eventAggregator)
+        public ImagingCommandBarViewModel(ICore core, IApplication wpf, PrismDialogService dialogService, IEventAggregator eventAggregator, ViewportSynchronizationSettingsViewModel viewportSynchronization)
         {
             _core = core ?? throw new ArgumentNullException(nameof(core));
             _wpf = wpf ?? throw new ArgumentNullException(nameof(wpf));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            ViewportSynchronization = viewportSynchronization ?? throw new ArgumentNullException(nameof(viewportSynchronization));
             _importedSeriesLoader = _wpf.StudiesService?.ImportedSeriesLoader ?? throw new InvalidOperationException("The imported-series loader has not been initialized.");
             _imagingSessionApplicationService = _wpf.ImagingSession ?? throw new InvalidOperationException("The imaging session application service has not been initialized.");
             _imagingSessionService = _core.ImagingService?.ImagingSessionService ?? throw new InvalidOperationException("The imaging session service has not been initialized.");
@@ -174,6 +175,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 }
             }
         }
+
+        public ViewportSynchronizationSettingsViewModel ViewportSynchronization { get; }
 
         public DelegateCommand WindowLevelCommand => _windowLevelCommand ??= new DelegateCommand(ActivateWindowLevel);
 

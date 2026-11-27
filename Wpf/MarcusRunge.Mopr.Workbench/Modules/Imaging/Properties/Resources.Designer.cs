@@ -484,6 +484,15 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Synchronization ähnelt.
+        /// </summary>
+        public static string CommandBar_Synchronization {
+            get {
+                return ResourceManager.GetString("CommandBar_Synchronization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Rotate / Flip ähnelt.
         /// </summary>
         public static string CommandBar_Transform {
@@ -912,6 +921,51 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Properties {
         public static string Status_PixelValueFormat {
             get {
                 return ResourceManager.GetString("Status_PixelValueFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Add active viewport ähnelt.
+        /// </summary>
+        public static string Synchronization_AddActiveViewport {
+            get {
+                return ResourceManager.GetString("Synchronization_AddActiveViewport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create ähnelt.
+        /// </summary>
+        public static string Synchronization_CreateGroup {
+            get {
+                return ResourceManager.GetString("Synchronization_CreateGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Group name ähnelt.
+        /// </summary>
+        public static string Synchronization_GroupName {
+            get {
+                return ResourceManager.GetString("Synchronization_GroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Remove active viewport ähnelt.
+        /// </summary>
+        public static string Synchronization_RemoveActiveViewport {
+            get {
+                return ResourceManager.GetString("Synchronization_RemoveActiveViewport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Delete group ähnelt.
+        /// </summary>
+        public static string Synchronization_RemoveGroup {
+            get {
+                return ResourceManager.GetString("Synchronization_RemoveGroup", resourceCulture);
             }
         }
         

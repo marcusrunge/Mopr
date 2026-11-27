@@ -292,6 +292,36 @@
             </Popup>
         </StackPanel>
 
+        <StackPanel Grid.Column="1" Margin="8,0,0,0" Orientation="Horizontal">
+            <ToggleButton x:Name="SynchronizationToggleButton" Padding="10,5" Content="{x:Static properties:Resources.CommandBar_Synchronization}" />
+            <Popup AllowsTransparency="True" IsOpen="{Binding IsChecked, ElementName=SynchronizationToggleButton}" Placement="Bottom" PlacementTarget="{Binding ElementName=SynchronizationToggleButton}" StaysOpen="False">
+                <Border Width="360" Padding="12" Background="#10161C" BorderBrush="#2A3944" BorderThickness="1" CornerRadius="6" DataContext="{Binding ViewportSynchronization}">
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,8" FontSize="14" FontWeight="SemiBold" Foreground="#E5F2F4" Text="{x:Static properties:Resources.CommandBar_Synchronization}" />
+                        <DockPanel Margin="0,0,0,8">
+                            <Button DockPanel.Dock="Right" Margin="6,0,0,0" Command="{Binding CreateGroupCommand}" Content="{x:Static properties:Resources.Synchronization_CreateGroup}" />
+                            <TextBox Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static properties:Resources.Synchronization_GroupName}" />
+                        </DockPanel>
+                        <ComboBox Margin="0,0,0,8" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" DisplayMemberPath="DisplayText" />
+                        <WrapPanel Margin="0,0,0,8">
+                            <Button Margin="0,0,6,0" Command="{Binding AddActiveViewportCommand}" Content="{x:Static properties:Resources.Synchronization_AddActiveViewport}" />
+                            <Button Margin="0,0,6,0" Command="{Binding RemoveActiveViewportCommand}" Content="{x:Static properties:Resources.Synchronization_RemoveActiveViewport}" />
+                            <Button Command="{Binding RemoveGroupCommand}" Content="{x:Static properties:Resources.Synchronization_RemoveGroup}" />
+                        </WrapPanel>
+                        <UniformGrid Columns="2"                                     IsEnabled="{Binding CanConfigureGroup}">
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_Slice}" IsChecked="{Binding IsSliceEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_WindowLevel}" IsChecked="{Binding IsWindowLevelEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_Zoom}" IsChecked="{Binding IsZoomEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_Pan}" IsChecked="{Binding IsPanEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_Rotation}" IsChecked="{Binding IsRotationEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_HorizontalFlip}" IsChecked="{Binding IsHorizontalFlipEnabled}" />
+                            <CheckBox Content="{x:Static properties:Resources.ViewportSynchronization_VerticalFlip}" IsChecked="{Binding IsVerticalFlipEnabled}" />
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+            </Popup>
+        </StackPanel>
+
         <Border Grid.Column="2"
                 Padding="10,5"
                 VerticalAlignment="Center"

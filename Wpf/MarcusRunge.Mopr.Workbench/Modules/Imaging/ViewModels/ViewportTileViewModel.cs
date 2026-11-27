@@ -199,7 +199,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ã‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
+        public string DisplaySubtitle => Series == null ? Resources.ViewportTile_Series_None : $"{Series.Modality} Ãƒâ€šÃ‚Â· {Series.ImageCount} {Resources.ViewportTile_Images}";
 
         public string DisplayTitle => Series == null ? Title : Series.Name;
 
@@ -509,8 +509,18 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             }
         }
 
-        public void SetSlice(int slice)
+        public bool SetLocalSlice(int slice)
         {
+            var changed = SetSliceCore(slice);
+            if (changed) PublishLocal(new ViewportSliceChange(ViewportId, CurrentSlice, ViewportStateChangeOrigin.Local));
+            return changed;
+        }
+
+        public void SetSlice(int slice) => SetSliceCore(slice);
+
+        private bool SetSliceCore(int slice)
+        {
+            var previousSlice = CurrentSlice;
             if (SliceCount <= 0)
             {
                 SliceCount = 1;
@@ -540,6 +550,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
 
             UpdateCurrentFile();
             BindMeasurementsToCurrentInstance();
+            return previousSlice != CurrentSlice;
         }
 
         public void SetWindowLevel(double? windowCenter, double? windowWidth) => ApplyWindowLevel(windowCenter, windowWidth, true);
@@ -551,6 +562,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
             if (string.Equals(change.SourceViewportId, ViewportId, StringComparison.Ordinal)) throw new ArgumentException("A viewport cannot apply its own synchronized state change.", nameof(change));
             switch (change)
             {
+                case ViewportSliceChange value: SetSliceCore(value.CurrentSlice); break;
                 case ViewportWindowLevelChange value: ApplyWindowLevel(value.WindowCenter, value.WindowWidth, false); break;
                 case ViewportZoomChange value: _transformState.SetZoom(value.ZoomFactor); break;
                 case ViewportPanChange value: _transformState.SetPan(value.PanOffsetX, value.PanOffsetY); break;
