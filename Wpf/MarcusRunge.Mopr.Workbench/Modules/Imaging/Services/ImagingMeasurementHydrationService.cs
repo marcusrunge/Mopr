@@ -59,6 +59,6 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             return _changeService.CreateLoadedMeasurement(persistedMeasurement.EntityId, lengthData.StartPoint.X, lengthData.StartPoint.Y, lengthData.EndPoint.X, lengthData.EndPoint.Y, pixelSpacingX: null, pixelSpacingY: null, persistedMeasurement.Title, persistedMeasurement.Description, persistedMeasurement.CreatedAtUtc, persistedMeasurement.ModifiedAtUtc);
         }
 
-        private static ImagingMeasurementInstanceKey CreateKey(LoadedImagingMeasurement persistedMeasurement) => new(persistedMeasurement.StudyInstanceUid, persistedMeasurement.SeriesInstanceUid, persistedMeasurement.SopInstanceUid);
+        private static ImagingMeasurementInstanceKey CreateKey(LoadedImagingMeasurement persistedMeasurement) => new(persistedMeasurement.StudyInstanceUid, persistedMeasurement.SeriesInstanceUid, persistedMeasurement.SopInstanceUid, persistedMeasurement.FrameIndex);
     }
 }

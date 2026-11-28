@@ -18,14 +18,20 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         /// </summary>
         void MarkCreated(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
 
+        void MarkCreated(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex);
+
         /// <summary>
         /// Registers an edited persisted or previously created measurement as modified.
         /// </summary>
         void MarkModified(ViewportMeasurementViewModel measurement, ViewportMeasurementViewModel originalMeasurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
 
+        void MarkModified(ViewportMeasurementViewModel measurement, ViewportMeasurementViewModel originalMeasurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex);
+
         /// <summary>
         /// Registers removal of a measurement under its stable identity.
         /// </summary>
         void MarkDeleted(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid);
+
+        void MarkDeleted(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex);
     }
 }

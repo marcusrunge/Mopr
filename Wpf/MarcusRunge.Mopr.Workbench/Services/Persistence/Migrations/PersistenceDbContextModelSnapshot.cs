@@ -16,7 +16,7 @@ partial class PersistenceDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261117151209_AddMeasurementEntityId";
+    public override string LastMigrationId => "20261128162712_AddMeasurementFrameIndex";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -111,6 +111,9 @@ partial class PersistenceDbContextModelSnapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uniqueidentifier")
                     .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                b.Property<int>("FrameIndex")
+                    .HasColumnType("int");
 
                 b.Property<int>("InstanceId")
                     .HasColumnType("int");

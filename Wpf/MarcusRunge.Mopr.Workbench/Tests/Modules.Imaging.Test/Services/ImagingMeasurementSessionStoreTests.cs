@@ -27,7 +27,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
             context.Store.Create(TestContext.InstanceKey, measurement);
 
             Assert.Same(measurement, Assert.Single(context.Store.GetMeasurements(TestContext.InstanceKey)));
-            context.ChangeService.Verify(service => service.MarkCreated(measurement, TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid), Times.Once);
+            context.ChangeService.Verify(service => service.MarkCreated(measurement, TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid, TestContext.InstanceKey.FrameIndex), Times.Once);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
 
             measurement.Title = "Updated";
 
-            context.ChangeService.Verify(service => service.MarkModified(measurement, It.Is<ViewportMeasurementViewModel>(original => original.Id == measurement.Id && original.Title == "Original"), TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid), Times.Once);
+            context.ChangeService.Verify(service => service.MarkModified(measurement, It.Is<ViewportMeasurementViewModel>(original => original.Id == measurement.Id && original.Title == "Original"), TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid, TestContext.InstanceKey.FrameIndex), Times.Once);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
 
             Assert.True(removed);
             Assert.Empty(context.Store.GetMeasurements(TestContext.InstanceKey));
-            context.ChangeService.Verify(service => service.MarkDeleted(measurement, TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid), Times.Once);
+            context.ChangeService.Verify(service => service.MarkDeleted(measurement, TestContext.InstanceKey.StudyInstanceUid, TestContext.InstanceKey.SeriesInstanceUid, TestContext.InstanceKey.SopInstanceUid, TestContext.InstanceKey.FrameIndex), Times.Once);
         }
 
         [Fact]
@@ -96,9 +96,9 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
             internal TestContext()
             {
                 ChangeService = new Mock<IImagingMeasurementChangeService>(MockBehavior.Strict);
-                ChangeService.Setup(service => service.MarkCreated(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
-                ChangeService.Setup(service => service.MarkModified(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
-                ChangeService.Setup(service => service.MarkDeleted(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
+                ChangeService.Setup(service => service.MarkCreated(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+                ChangeService.Setup(service => service.MarkModified(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+                ChangeService.Setup(service => service.MarkDeleted(It.IsAny<ViewportMeasurementViewModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
                 Store = new ImagingMeasurementSessionStore(ChangeService.Object);
             }
 

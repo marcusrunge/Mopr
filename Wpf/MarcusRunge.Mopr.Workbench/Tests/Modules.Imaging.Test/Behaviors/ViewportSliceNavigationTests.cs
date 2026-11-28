@@ -98,8 +98,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Behaviors
             store.Setup(service => service.GetMeasurements(secondKey)).Returns(secondMeasurements);
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, 2, "1.2.3");
-            resolver.Setup(service => service.Resolve(series, "1.dcm")).Returns(firstKey);
-            resolver.Setup(service => service.Resolve(series, "2.dcm")).Returns(secondKey);
+            resolver.Setup(service => service.Resolve(series, "1.dcm", 0)).Returns(firstKey);
+            resolver.Setup(service => service.Resolve(series, "2.dcm", 0)).Returns(secondKey);
             var tile = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
             tile.SetSeries(series, ["1.dcm", "2.dcm"]);
             ConnectCanonicalNavigation(tile);
@@ -121,7 +121,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Behaviors
             var store = new Mock<IImagingMeasurementSessionStore>();
             store.Setup(service => service.GetMeasurements(It.IsAny<ImagingMeasurementInstanceKey>())).Returns(() => new ObservableCollection<ViewportMeasurementViewModel>());
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
-            resolver.Setup(service => service.Resolve(It.IsAny<SeriesInfo>(), It.IsAny<string>())).Returns((SeriesInfo series, string filePath) => new ImagingMeasurementInstanceKey(series.StudyId!, series.Id, filePath));
+            resolver.Setup(service => service.Resolve(It.IsAny<SeriesInfo>(), It.IsAny<string>(), It.IsAny<int>())).Returns((SeriesInfo series, string filePath, int frameIndex) => new ImagingMeasurementInstanceKey(series.StudyId!, series.Id, filePath, frameIndex));
             var tile = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, sliceCount, "1.2.3");
             tile.SetSeries(series, Enumerable.Range(1, sliceCount).Select(index => $"{index}.dcm").ToArray());

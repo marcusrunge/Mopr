@@ -31,7 +31,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             ValidateNewRegistration(instanceKey, measurement);
             GetMeasurements(instanceKey).Add(measurement);
             Register(instanceKey, measurement, measurement.ToChangeData());
-            _changeService.MarkCreated(measurement, instanceKey.StudyInstanceUid, instanceKey.SeriesInstanceUid, instanceKey.SopInstanceUid);
+            _changeService.MarkCreated(measurement, instanceKey.StudyInstanceUid, instanceKey.SeriesInstanceUid, instanceKey.SopInstanceUid, instanceKey.FrameIndex);
         }
 
         /// <inheritdoc/>
@@ -44,7 +44,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             registration.Measurement.PropertyChanged -= OnMeasurementPropertyChanged;
             _registrations.Remove(measurement.Id);
             bool removed = GetMeasurements(instanceKey).Remove(measurement);
-            if (removed) _changeService.MarkDeleted(measurement, instanceKey.StudyInstanceUid, instanceKey.SeriesInstanceUid, instanceKey.SopInstanceUid);
+            if (removed) _changeService.MarkDeleted(measurement, instanceKey.StudyInstanceUid, instanceKey.SeriesInstanceUid, instanceKey.SopInstanceUid, instanceKey.FrameIndex);
             return removed;
         }
 
@@ -72,7 +72,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             if (sender is not ViewportMeasurementViewModel measurement || !IsPersistableProperty(e.PropertyName) || !_registrations.TryGetValue(measurement.Id, out var registration) || !measurement.IsComplete) return;
 
             var originalMeasurement = ViewportMeasurementViewModel.CreateLoaded(measurement.Id, ((LengthMeasurementData)registration.OriginalValue.Data).StartPoint.X, ((LengthMeasurementData)registration.OriginalValue.Data).StartPoint.Y, ((LengthMeasurementData)registration.OriginalValue.Data).EndPoint.X, ((LengthMeasurementData)registration.OriginalValue.Data).EndPoint.Y, measurement.PixelSpacingX, measurement.PixelSpacingY, registration.OriginalValue.Title, registration.OriginalValue.Description, measurement.CreatedAt, measurement.ModifiedAt);
-            _changeService.MarkModified(measurement, originalMeasurement, registration.InstanceKey.StudyInstanceUid, registration.InstanceKey.SeriesInstanceUid, registration.InstanceKey.SopInstanceUid);
+            _changeService.MarkModified(measurement, originalMeasurement, registration.InstanceKey.StudyInstanceUid, registration.InstanceKey.SeriesInstanceUid, registration.InstanceKey.SopInstanceUid, registration.InstanceKey.FrameIndex);
         }
 
         private void Register(ImagingMeasurementInstanceKey instanceKey, ViewportMeasurementViewModel measurement, ImagingMeasurementChangeData originalValue)

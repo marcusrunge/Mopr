@@ -69,7 +69,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             var store = new Mock<IImagingMeasurementSessionStore>();
             store.Setup(service => service.GetMeasurements(It.IsAny<ImagingMeasurementInstanceKey>())).Returns(() => new ObservableCollection<ViewportMeasurementViewModel>());
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
-            resolver.Setup(service => service.Resolve(It.IsAny<SeriesInfo>(), It.IsAny<string>())).Returns((SeriesInfo series, string filePath) => new ImagingMeasurementInstanceKey(series.StudyId!, series.Id, filePath));
+            resolver.Setup(service => service.Resolve(It.IsAny<SeriesInfo>(), It.IsAny<string>(), It.IsAny<int>())).Returns((SeriesInfo series, string filePath, int frameIndex) => new ImagingMeasurementInstanceKey(series.StudyId!, series.Id, filePath, frameIndex));
             return new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
         }
     }

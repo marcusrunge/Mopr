@@ -36,6 +36,8 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Entities
         /// <summary>
         /// Gets or sets the ID of the instance to which the measurement belongs.
         /// </summary>
+        public int FrameIndex { get; set; }
+
         public int InstanceId { get => _instanceId; set => SetProperty(ref _instanceId, value); }
 
         /// <summary>

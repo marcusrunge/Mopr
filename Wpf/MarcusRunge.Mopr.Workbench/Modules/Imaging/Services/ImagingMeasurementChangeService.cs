@@ -31,36 +31,45 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         }
 
         /// <inheritdoc/>
-        public void MarkCreated(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)
+        public void MarkCreated(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid) => MarkCreated(measurement, studyInstanceUid, seriesInstanceUid, sopInstanceUid, 0);
+
+        /// <inheritdoc/>
+        public void MarkCreated(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex)
         {
             ArgumentNullException.ThrowIfNull(measurement);
             EnsureComplete(measurement);
-            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid, frameIndex);
             _changeTracker.MarkChanged(identity, ImagingSessionChangeState.Created, originalValue: null, measurement.ToChangeData());
         }
 
         /// <inheritdoc/>
-        public void MarkModified(ViewportMeasurementViewModel measurement, ViewportMeasurementViewModel originalMeasurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)
+        public void MarkModified(ViewportMeasurementViewModel measurement, ViewportMeasurementViewModel originalMeasurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid) => MarkModified(measurement, originalMeasurement, studyInstanceUid, seriesInstanceUid, sopInstanceUid, 0);
+
+        /// <inheritdoc/>
+        public void MarkModified(ViewportMeasurementViewModel measurement, ViewportMeasurementViewModel originalMeasurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex)
         {
             ArgumentNullException.ThrowIfNull(measurement);
             ArgumentNullException.ThrowIfNull(originalMeasurement);
             if (measurement.Id != originalMeasurement.Id) throw new ArgumentException("The original and current measurement must have the same stable identity.", nameof(originalMeasurement));
             EnsureComplete(measurement);
             EnsureComplete(originalMeasurement);
-            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid, frameIndex);
             _changeTracker.MarkChanged(identity, ImagingSessionChangeState.Modified, originalMeasurement.ToChangeData(), measurement.ToChangeData());
         }
 
         /// <inheritdoc/>
-        public void MarkDeleted(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid)
+        public void MarkDeleted(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid) => MarkDeleted(measurement, studyInstanceUid, seriesInstanceUid, sopInstanceUid, 0);
+
+        /// <inheritdoc/>
+        public void MarkDeleted(ViewportMeasurementViewModel measurement, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex)
         {
             ArgumentNullException.ThrowIfNull(measurement);
             EnsureComplete(measurement);
-            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+            ImagingSessionChangeIdentity identity = CreateIdentity(measurement.Id, studyInstanceUid, seriesInstanceUid, sopInstanceUid, frameIndex);
             _changeTracker.MarkChanged(identity, ImagingSessionChangeState.Deleted, measurement.ToChangeData(), currentValue: null);
         }
 
-        private static ImagingSessionChangeIdentity CreateIdentity(Guid entityId, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid) => new(MeasurementEntityType, entityId, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+        private static ImagingSessionChangeIdentity CreateIdentity(Guid entityId, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, int frameIndex) => new(MeasurementEntityType, entityId, studyInstanceUid, seriesInstanceUid, sopInstanceUid, frameIndex);
 
         private static void EnsureComplete(ViewportMeasurementViewModel measurement)
         {

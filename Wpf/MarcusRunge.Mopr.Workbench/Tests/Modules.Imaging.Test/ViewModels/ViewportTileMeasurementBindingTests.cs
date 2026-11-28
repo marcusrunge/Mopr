@@ -21,7 +21,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, 1, "1.2.3");
             const string filePath = @"C:\study\instance.dcm";
-            resolver.Setup(service => service.Resolve(series, filePath)).Returns(key);
+            resolver.Setup(service => service.Resolve(series, filePath, 0)).Returns(key);
             var viewModel = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
 
             viewModel.SetSeries(series, [filePath]);
@@ -43,7 +43,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             store.Setup(service => service.Create(key, It.IsAny<ViewportMeasurementViewModel>())).Callback<ImagingMeasurementInstanceKey, ViewportMeasurementViewModel>((_, measurement) => measurements.Add(measurement));
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, 1, "1.2.3");
-            resolver.Setup(service => service.Resolve(series, "instance.dcm")).Returns(key);
+            resolver.Setup(service => service.Resolve(series, "instance.dcm", 0)).Returns(key);
             var viewModel = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
             viewModel.SetSeries(series, ["instance.dcm"]);
             viewModel.RotateRight();
@@ -90,8 +90,8 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.ViewModels
             store.Setup(service => service.GetMeasurements(secondKey)).Returns(secondMeasurements);
             var resolver = new Mock<IImagingMeasurementInstanceResolver>();
             var series = new SeriesInfo("1.2.3.4", "CT", "Series", string.Empty, 2, "1.2.3");
-            resolver.Setup(service => service.Resolve(series, "first.dcm")).Returns(firstKey);
-            resolver.Setup(service => service.Resolve(series, "second.dcm")).Returns(secondKey);
+            resolver.Setup(service => service.Resolve(series, "first.dcm", 0)).Returns(firstKey);
+            resolver.Setup(service => service.Resolve(series, "second.dcm", 0)).Returns(secondKey);
             var viewModel = new ViewportTileViewModel("Viewport", "Viewport", store.Object, resolver.Object);
 
             viewModel.SetSeries(series, ["first.dcm", "second.dcm"]);

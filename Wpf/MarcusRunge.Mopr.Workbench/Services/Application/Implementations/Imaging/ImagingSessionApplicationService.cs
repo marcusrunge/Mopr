@@ -70,7 +70,7 @@ internal sealed class ImagingSessionApplicationService : CreateableBindableBase<
         return Task.CompletedTask;
     }
 
-    private static LoadedImagingMeasurement MapLoadedMeasurement(PersistedImagingMeasurement measurement) => new(measurement.EntityId, measurement.StudyInstanceUid, measurement.SeriesInstanceUid, measurement.SopInstanceUid, measurement.MeasurementType, measurement.Data, measurement.Title, measurement.Description, measurement.CreatedByUserId, measurement.CreatedAtUtc, measurement.ModifiedByUserId, measurement.ModifiedAtUtc);
+    private static LoadedImagingMeasurement MapLoadedMeasurement(PersistedImagingMeasurement measurement) => new(measurement.EntityId, measurement.StudyInstanceUid, measurement.SeriesInstanceUid, measurement.SopInstanceUid, measurement.MeasurementType, measurement.Data, measurement.Title, measurement.Description, measurement.CreatedByUserId, measurement.CreatedAtUtc, measurement.ModifiedByUserId, measurement.ModifiedAtUtc, measurement.FrameIndex);
 
     private static ImagingMeasurementPersistenceChange MapMeasurementChange(IImagingSessionChange change)
     {
@@ -81,7 +81,7 @@ internal sealed class ImagingSessionApplicationService : CreateableBindableBase<
             : GetMeasurementData(change.CurrentValue, change.Identity);
         string seriesInstanceUid = change.Identity.SeriesInstanceUid ?? throw new InvalidOperationException($"Measurement '{change.Identity.EntityId}' has no series instance UID.");
         string sopInstanceUid = change.Identity.SopInstanceUid ?? throw new InvalidOperationException($"Measurement '{change.Identity.EntityId}' has no SOP instance UID.");
-        return new ImagingMeasurementPersistenceChange(change.Identity.EntityId, change.State, change.Identity.StudyInstanceUid, seriesInstanceUid, sopInstanceUid, data.MeasurementType, change.State == ImagingSessionChangeState.Deleted ? null : data.Data, data.Title, data.Description);
+        return new ImagingMeasurementPersistenceChange(change.Identity.EntityId, change.State, change.Identity.StudyInstanceUid, seriesInstanceUid, sopInstanceUid, data.MeasurementType, change.State == ImagingSessionChangeState.Deleted ? null : data.Data, data.Title, data.Description, change.Identity.FrameIndex);
     }
 
     private async Task<int> ResolveAuditUserIdAsync(CancellationToken cancellationToken)

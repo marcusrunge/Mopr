@@ -44,7 +44,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 MeasurementData data = DeserializeRequired(entity.Measurement);
-                measurements.Add(new PersistedImagingMeasurement(entity.Measurement.EntityId, entity.StudyInstanceUid, entity.SeriesInstanceUid, entity.SopInstanceUid, entity.Measurement.MeasurementType, data, entity.Measurement.Title, entity.Measurement.Description, entity.Measurement.CreatedByUserId, entity.Measurement.CreatedAtUtc, entity.Measurement.ModifiedByUserId, entity.Measurement.ModifiedAtUtc));
+                measurements.Add(new PersistedImagingMeasurement(entity.Measurement.EntityId, entity.StudyInstanceUid, entity.SeriesInstanceUid, entity.SopInstanceUid, entity.Measurement.MeasurementType, data, entity.Measurement.Title, entity.Measurement.Description, entity.Measurement.CreatedByUserId, entity.Measurement.CreatedAtUtc, entity.Measurement.ModifiedByUserId, entity.Measurement.ModifiedAtUtc, entity.Measurement.FrameIndex));
             }
 
             return measurements;
@@ -128,6 +128,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
                 DataJson = MeasurementDataSerializer.Serialize(change.Data!),
                 Title = change.Title,
                 Description = change.Description,
+                FrameIndex = change.FrameIndex,
                 CreatedByUserId = auditUserId
             };
             await context.Measurements.AddAsync(entity, cancellationToken).ConfigureAwait(false);
@@ -178,6 +179,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
             entity.DataJson = MeasurementDataSerializer.Serialize(change.Data!);
             entity.Title = change.Title;
             entity.Description = change.Description;
+            entity.FrameIndex = change.FrameIndex;
             entity.ModifiedByUserId = auditUserId;
         }
 
@@ -189,7 +191,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Implementations
 
         private static void ValidatePersistedLocation(Measurement entity, ImagingMeasurementPersistenceChange change)
         {
-            if (entity.Instance?.Series?.Study is null || !string.Equals(entity.Instance.SopInstanceUid, change.SopInstanceUid, StringComparison.Ordinal) || !string.Equals(entity.Instance.Series.SeriesInstanceUid, change.SeriesInstanceUid, StringComparison.Ordinal) || !string.Equals(entity.Instance.Series.Study.StudyInstanceUid, change.StudyInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"Measurement '{change.EntityId}' is not assigned to the requested DICOM study, series and instance.");
+            if (entity.Instance?.Series?.Study is null || !string.Equals(entity.Instance.SopInstanceUid, change.SopInstanceUid, StringComparison.Ordinal) || !string.Equals(entity.Instance.Series.SeriesInstanceUid, change.SeriesInstanceUid, StringComparison.Ordinal) || !string.Equals(entity.Instance.Series.Study.StudyInstanceUid, change.StudyInstanceUid, StringComparison.Ordinal) || entity.FrameIndex != change.FrameIndex) throw new InvalidOperationException($"Measurement '{change.EntityId}' is not assigned to the requested DICOM study, series and instance.");
         }
 
         private static void ValidateRequest(ImagingSessionPersistenceSaveRequest request)

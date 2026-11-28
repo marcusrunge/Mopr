@@ -11,5 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         /// Resolves the Study, Series and SOP Instance UIDs of the displayed file.
         /// </summary>
         ImagingMeasurementInstanceKey Resolve(SeriesInfo series, string filePath);
+
+        ImagingMeasurementInstanceKey Resolve(SeriesInfo series, string filePath, int frameIndex);
     }
 }

@@ -1,84 +1,61 @@
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Models;
 using MarcusRunge.Mopr.Workbench.Modules.Imaging.Services;
-using MarcusRunge.Mopr.Workbench.Services.Core.Contracts;
-using MarcusRunge.Mopr.Workbench.Services.Core.Contracts.Imaging;
 using MarcusRunge.Mopr.Workbench.Services.Dicom.Models;
-using Moq;
 using Xunit;
 
 namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Test.Services
 {
     public sealed class ViewportSliceSynchronizationCompatibilityServiceTests
     {
-        [Fact]
-        public void AreCompatible_Should_Accept_Identical_Ordered_Dicom_Identity()
-        {
-            var service = CreateService(CreateMetadata("source", "1", "2"), CreateMetadata("target", "1", "2"));
+        private readonly ViewportSliceSynchronizationCompatibilityService _service = new();
 
-            Assert.True(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm", "source-2.dcm"), CreateContext("viewport-2", "target", "target-1.dcm", "target-2.dcm")));
+        [Fact]
+        public void AreCompatible_Should_Accept_Identical_Ordered_Single_Frame_Identity()
+        {
+            Assert.True(_service.AreCompatible(CreateContext("viewport-1", Position("source-1.dcm", "1", 0), Position("source-2.dcm", "2", 0)), CreateContext("viewport-2", Position("target-1.dcm", "1", 0), Position("target-2.dcm", "2", 0))));
+        }
+
+        [Fact]
+        public void AreCompatible_Should_Accept_Identical_Ordered_Multi_Frame_Identity()
+        {
+            Assert.True(_service.AreCompatible(CreateContext("viewport-1", Position("source.dcm", "1", 0, 3), Position("source.dcm", "1", 1, 3), Position("source.dcm", "1", 2, 3)), CreateContext("viewport-2", Position("target.dcm", "1", 0, 3), Position("target.dcm", "1", 1, 3), Position("target.dcm", "1", 2, 3))));
         }
 
         [Fact]
         public void AreCompatible_Should_Reject_Reordered_Sop_Sequence()
         {
-            var service = CreateService(CreateMetadata("source", "1", "2"), CreateMetadata("target", "2", "1"));
-
-            Assert.False(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm", "source-2.dcm"), CreateContext("viewport-2", "target", "target-1.dcm", "target-2.dcm")));
-        }
-
-        [Theory]
-        [InlineData(null, "series", "1")]
-        [InlineData("study", null, "1")]
-        [InlineData("study", "series", null)]
-        public void AreCompatible_Should_Reject_Missing_Dicom_Identity(string? studyUid, string? seriesUid, string? sopUid)
-        {
-            var source = new[] { Metadata("source-1.dcm", studyUid, seriesUid, sopUid) };
-            var service = CreateService(source, CreateMetadata("target", "1"));
-
-            Assert.False(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm"), CreateContext("viewport-2", "target", "target-1.dcm")));
+            Assert.False(_service.AreCompatible(CreateContext("viewport-1", Position("source-1.dcm", "1", 0), Position("source-2.dcm", "2", 0)), CreateContext("viewport-2", Position("target-1.dcm", "2", 0), Position("target-2.dcm", "1", 0))));
         }
 
         [Fact]
-        public void AreCompatible_Should_Reject_Different_Series()
+        public void AreCompatible_Should_Reject_Reordered_Frame_Sequence_Within_One_Sop_Instance()
         {
-            var source = new[] { Metadata("source-1.dcm", "study", "series-a", "1") };
-            var target = new[] { Metadata("target-1.dcm", "study", "series-b", "1") };
-            var service = CreateService(source, target);
-
-            Assert.False(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm"), CreateContext("viewport-2", "target", "target-1.dcm")));
+            Assert.False(_service.AreCompatible(CreateContext("viewport-1", Position("source.dcm", "1", 0, 2), Position("source.dcm", "1", 1, 2)), CreateContext("viewport-2", Position("target.dcm", "1", 1, 2), Position("target.dcm", "1", 0, 2))));
         }
 
         [Fact]
-        public void AreCompatible_Should_Reject_Different_Viewport_Counts()
+        public void AreCompatible_Should_Reject_Same_Sop_Sequence_With_Different_Frame_Index()
         {
-            var service = CreateService(CreateMetadata("source", "1", "2"), CreateMetadata("target", "1"));
-
-            Assert.False(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm", "source-2.dcm"), CreateContext("viewport-2", "target", "target-1.dcm")));
+            Assert.False(_service.AreCompatible(CreateContext("viewport-1", Position("source.dcm", "1", 0, 2), Position("source.dcm", "1", 1, 2)), CreateContext("viewport-2", Position("target.dcm", "1", 0, 2), Position("target.dcm", "1", 0, 2))));
         }
 
         [Fact]
-        public void AreCompatible_Should_Reject_Metadata_Not_Covering_Ordered_File_List()
+        public void AreCompatible_Should_Reject_Different_Frame_Counts()
         {
-            var service = CreateService(CreateMetadata("source", "1", "2"), CreateMetadata("target", "1", "2"));
-
-            Assert.False(service.AreCompatible(CreateContext("viewport-1", "source", "source-1.dcm", "source-unknown.dcm"), CreateContext("viewport-2", "target", "target-1.dcm", "target-2.dcm")));
+            Assert.False(_service.AreCompatible(CreateContext("viewport-1", Position("source.dcm", "1", 0, 2), Position("source.dcm", "1", 1, 2)), CreateContext("viewport-2", Position("target.dcm", "1", 0, 1))));
         }
 
-        private static ViewportSliceSynchronizationContext CreateContext(string viewportId, string seriesId, params string[] files) => new(viewportId, seriesId, files, 1, files.Length);
-        private static DicomFileMetadata[] CreateMetadata(string prefix, params string[] sopUids) => [.. sopUids.Select((sopUid, index) => Metadata($"{prefix}-{index + 1}.dcm", "study", "series", sopUid))];
-        private static DicomFileMetadata Metadata(string path, string? studyUid, string? seriesUid, string? sopUid) => new(path, studyUid, seriesUid, sopUid, "CT", null, null, null, 512, 512);
-
-        private static ViewportSliceSynchronizationCompatibilityService CreateService(IReadOnlyList<DicomFileMetadata> source, IReadOnlyList<DicomFileMetadata> target)
+        [Fact]
+        public void AreCompatible_Should_Reject_Same_Viewport()
         {
-            var studyService = new Mock<IImagingStudyService>();
-            var imagingService = new Mock<IImagingService>();
-            var core = new Mock<ICore>();
-            studyService.Setup(service => service.GetDicomMetadataForSeries("source")).Returns(source);
-            studyService.Setup(service => service.GetDicomMetadataForSeries("target")).Returns(target);
-            imagingService.SetupGet(service => service.ImagingStudyService).Returns(studyService.Object);
-            core.SetupGet(service => service.ImagingService).Returns(imagingService.Object);
-            return new ViewportSliceSynchronizationCompatibilityService(core.Object);
+            var context = CreateContext("viewport-1", Position("source.dcm", "1", 0));
+            Assert.False(_service.AreCompatible(context, context));
         }
+
+        [Fact]
+        public void AreCompatible_Should_Reject_Missing_Sop_Instance_Uid() => Assert.False(_service.AreCompatible(CreateContext("viewport-1", Position("source.dcm", null, 0)), CreateContext("viewport-2", Position("target.dcm", "1", 0))));
+
+        private static ViewportSliceSynchronizationContext CreateContext(string viewportId, params DicomImagePosition[] positions) => new(viewportId, "series", positions, 1, positions.Length);
+        private static DicomImagePosition Position(string path, string? sopInstanceUid, int frameIndex, int frameCount = 1) => new(path, sopInstanceUid, frameIndex, frameCount);
     }
 }
-

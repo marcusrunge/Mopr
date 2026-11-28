@@ -597,7 +597,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
                 return;
             }
 
-            _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath);
+            _measurementInstanceKey = _measurementInstanceResolver.Resolve(Series, CurrentFilePath, CurrentImagePosition?.FrameIndex ?? 0);
             Measurements = _measurementSessionStore.GetMeasurements(_measurementInstanceKey);
         }
 

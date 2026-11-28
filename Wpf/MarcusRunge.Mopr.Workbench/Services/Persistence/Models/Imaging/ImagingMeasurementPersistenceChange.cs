@@ -11,7 +11,7 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Models.Imaging
         /// <summary>
         /// Initializes one validated measurement persistence change.
         /// </summary>
-        public ImagingMeasurementPersistenceChange(Guid entityId, ImagingSessionChangeState state, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, MeasurementType measurementType, MeasurementData? data, string? title, string? description)
+        public ImagingMeasurementPersistenceChange(Guid entityId, ImagingSessionChangeState state, string studyInstanceUid, string seriesInstanceUid, string sopInstanceUid, MeasurementType measurementType, MeasurementData? data, string? title, string? description, int frameIndex = 0)
         {
             if (entityId == Guid.Empty) throw new ArgumentException("The measurement entity ID must not be empty.", nameof(entityId));
             if (string.IsNullOrWhiteSpace(studyInstanceUid)) throw new ArgumentException("The study instance UID must not be empty.", nameof(studyInstanceUid));
@@ -29,9 +29,13 @@ namespace MarcusRunge.Mopr.Workbench.Services.Persistence.Models.Imaging
             Data = data;
             Title = title;
             Description = description;
+            if (frameIndex < 0) throw new ArgumentOutOfRangeException(nameof(frameIndex), frameIndex, "The frame index must not be negative.");
+            FrameIndex = frameIndex;
         }
 
         public Guid EntityId { get; }
+        public int FrameIndex { get; }
+
         public ImagingSessionChangeState State { get; }
         public string StudyInstanceUid { get; }
         public string SeriesInstanceUid { get; }

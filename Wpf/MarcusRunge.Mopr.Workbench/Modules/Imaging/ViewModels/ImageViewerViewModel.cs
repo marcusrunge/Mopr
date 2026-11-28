@@ -509,7 +509,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.ViewModels
         private bool CanSynchronizeSlice(ViewportTileViewModel source, ViewportTileViewModel target)
         {
             if (source.Series == null || target.Series == null || source.SeriesFiles.Count == 0 || target.SeriesFiles.Count == 0) return false;
-            return _viewportSliceSynchronizationCompatibilityService.AreCompatible(new ViewportSliceSynchronizationContext(source.ViewportId, source.Series.Id, source.SeriesFiles, source.CurrentSlice, source.SliceCount), new ViewportSliceSynchronizationContext(target.ViewportId, target.Series.Id, target.SeriesFiles, target.CurrentSlice, target.SliceCount));
+            return _viewportSliceSynchronizationCompatibilityService.AreCompatible(new ViewportSliceSynchronizationContext(source.ViewportId, source.Series.Id, source.ImagePositions, source.CurrentSlice, source.SliceCount), new ViewportSliceSynchronizationContext(target.ViewportId, target.Series.Id, target.ImagePositions, target.CurrentSlice, target.SliceCount));
         }
 
         private void ClearActiveMeasurements()

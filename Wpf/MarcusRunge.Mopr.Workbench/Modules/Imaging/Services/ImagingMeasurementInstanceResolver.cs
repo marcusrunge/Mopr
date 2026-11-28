@@ -24,10 +24,14 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
         }
 
         /// <inheritdoc/>
-        public ImagingMeasurementInstanceKey Resolve(SeriesInfo series, string filePath)
+        public ImagingMeasurementInstanceKey Resolve(SeriesInfo series, string filePath) => Resolve(series, filePath, 0);
+
+        /// <inheritdoc/>
+        public ImagingMeasurementInstanceKey Resolve(SeriesInfo series, string filePath, int frameIndex)
         {
             ArgumentNullException.ThrowIfNull(series);
             if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentException("The displayed DICOM file path must not be empty.", nameof(filePath));
+            if (frameIndex < 0) throw new ArgumentOutOfRangeException(nameof(frameIndex), frameIndex, "The frame index must not be negative.");
 
             DicomFileMetadata metadata = _studyService.GetDicomMetadataForSeries(series.Id).SingleOrDefault(item => string.Equals(item.FilePath, filePath, StringComparison.OrdinalIgnoreCase)) ?? throw new InvalidOperationException($"No DICOM metadata is registered for displayed file '{filePath}'.");
             string studyInstanceUid = metadata.StudyInstanceUid ?? throw new InvalidOperationException($"Displayed DICOM file '{filePath}' has no Study Instance UID.");
@@ -38,7 +42,7 @@ namespace MarcusRunge.Mopr.Workbench.Modules.Imaging.Services
             // The metadata collection was already resolved through that lookup key, so the DICOM metadata remains authoritative for persisted measurement identity.
             if (!string.IsNullOrWhiteSpace(series.StudyId) && !string.Equals(series.StudyId, studyInstanceUid, StringComparison.Ordinal)) throw new InvalidOperationException($"Displayed DICOM file '{filePath}' belongs to study '{studyInstanceUid}' instead of assigned study '{series.StudyId}'.");
 
-            return new ImagingMeasurementInstanceKey(studyInstanceUid, seriesInstanceUid, sopInstanceUid);
+            return new ImagingMeasurementInstanceKey(studyInstanceUid, seriesInstanceUid, sopInstanceUid, frameIndex);
         }
     }
 }
